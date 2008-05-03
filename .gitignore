@@ -1,0 +1,5 @@
+pkg
+Manifest
+*.swp
+.DS_STORE
+.DS_Store

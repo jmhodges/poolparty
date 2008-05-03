@@ -1,0 +1,24 @@
+- def fib(n); [0,1].include?(n) ? 1 : fib(n-1) + fib(n-2); end
+!!!
+%html
+  %head
+    %title StaticMatic
+    %link{:href => "/site.css", :media => "all", :rel => "stylesheet", :type => "text/css"}
+  %body
+    #container
+      %h1 Welcome to the PoolParty!
+      %h3= Time.now 
+      %h4= fib(28)
+      %hr
+      %h3 Test Images
+      %img{:src => "/images/whoa.png", :height => 100}
+      %img{:src => "/images/a.jpg", :height => 100}
+      %img{:src => "/images/b.jpg", :height => 100}
+      %img{:src => "/images/c.jpg", :height => 100}
+      %img{:src => "/images/d.jpg", :height => 100}
+      %h4 Credits
+      %p If you find any faults, please file a bug report at ari.lerner@citrusbyte.com
+      %p
+        %a{:href => "http://citrusbyte.com"}
+          %img{:src => "http://citrusbyte.com/images/mini_c.gif"}
+        Ari Lerner ari.lerner@citrusbyte.com
