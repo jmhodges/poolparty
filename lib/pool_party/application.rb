@@ -29,7 +29,7 @@ module PoolParty
         @default_options ||= {
           :run => true,
           :port => 7788,
-          :env => :development,
+          :environment => :development,
           :debug => true,
           :logging => true,
           :sessions => false,
@@ -37,17 +37,11 @@ module PoolParty
           :config_file => File.join(%w(config config.yml))
         }
       end
-      
+    
       def method_missing(m,*args)
-        p m
-        if options.methods.include?(m)
-          options.send m,args
-        else
-          super
-          
-        end
+        options.methods.include?("#{m}") ? options.send(m,args) : super
       end
-      
+             
     end    
   end
 end

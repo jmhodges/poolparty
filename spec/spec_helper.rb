@@ -1,6 +1,6 @@
-require File.dirname(__FILE__) + '/../lib/pool_party'
+require File.join(File.dirname(__FILE__), *%w[.. lib pool_party])
 
-%w(test/spec ec2).each do |library|
+%w(test/spec).each do |library|
   begin
     require library
   rescue
@@ -8,18 +8,10 @@ require File.dirname(__FILE__) + '/../lib/pool_party'
   end
 end
 
+include PoolParty
 extend PoolParty
 
-@config = YAML.load(File.read(Application.config_file))
-
-AWS::S3::Base.establish_connection!(
-:access_key_id     => @config[Application.env]["access_key_id"],
-:secret_access_key => @config[Application.env]["secret_access_key"]
-)
-
-@ec2 = EC2::Base.new(:access_key_id => Organizer.access_key_id, :secret_access_key => Organizer.secret_access_key)
-
-Organizer.options(:env => "test")
+# Organizer.environment = :test
 
 module Test::Unit::AssertDifference
   def assert_difference(object, method = nil, difference = 1)

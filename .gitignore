@@ -3,3 +3,4 @@ Manifest
 *.swp
 .DS_STORE
 .DS_Store
+config/config.yml
