@@ -21,12 +21,10 @@ pwd = File.dirname(__FILE__)
 
 %w(core modules s3 pool_party).each do |dir|
   Dir["#{pwd}/#{dir}"].each do |dir|
-    ["init", File.basename(dir)].each do |file| 
-      begin
-        require File.join(dir, file)
-      rescue LoadError => e
-        Dir["#{File.basename(dir)}/*"].each {|file| require File.join(dir, File.basename(file))}
-      end
+    begin
+      require File.join(dir, "init")
+    rescue LoadError => e
+      Dir["#{File.basename(dir)}/*"].each {|file| require File.join(dir, File.basename(file))}
     end
   end
 end
@@ -45,9 +43,9 @@ module PoolParty
   
   # Starts a new attendee without launching a new instance
   # def client(conf="../config/config.yml", opts={})
-  #   Planner.options(opts)
-  #   Planner.config_file=conf
-  #   Attendee.new(:dont_run => true).monitor! unless Planner.development?
+  #   Organizer.options(opts)
+  #   Organizer.config_file=conf
+  #   Attendee.new(:dont_run => true).monitor! unless Organizer.development?
   # end
   # Starts the new server host to monitor the instances
   def server(opts={})
@@ -55,3 +53,5 @@ module PoolParty
     Host.new
   end    
 end
+
+PoolParty.server

@@ -1,7 +1,53 @@
+=begin rdoc
+  Application
+  This handles user interaction
+=end
 module PoolParty
   extend self
   
-  class Application
-    
+  class Application        
+    class << self
+            
+      def options
+        @options ||= OpenStruct.new(default_options)
+      end
+
+      # Load options 
+      def load_options!
+        require 'optparse'
+        OptionParser.new do |op|
+          op.on('-p port', '--port port', "Run on specific port (default: 7788)") { |port| default_options[:port] = port }
+          op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
+          op.on('-c file','--config file', "Specify a config file (default: config/config.yml)") {|file| default_options[:config_file] = file}
+          op.on('-s', '--[no-]sessions', "Run with sessions (default: false)") { |sessions| default_options[:sessions] = sessions }
+          op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:data] = data }
+          op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:debug] = v}
+        end.parse!(ARGV.dup.select { |o| o !~ /--name/ })
+      end
+
+      def default_options
+        @default_options ||= {
+          :run => true,
+          :port => 7788,
+          :env => :development,
+          :debug => true,
+          :logging => true,
+          :sessions => false,
+          :user_data => "",
+          :config_file => File.join(%w(config config.yml))
+        }
+      end
+      
+      def method_missing(m,*args)
+        p m
+        if options.methods.include?(m)
+          options.send m,args
+        else
+          super
+          
+        end
+      end
+      
+    end    
   end
 end

@@ -1,0 +1,1 @@
+%w(application remoting organizer host).each {|f| require File.join(File.dirname(__FILE__), f)}

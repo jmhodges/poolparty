@@ -1,7 +1,7 @@
 module PoolParty
   extend self
   
-  class Host < PoolParty::Remoting
+  class Organizer
     
   end
 end

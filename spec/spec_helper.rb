@@ -8,7 +8,7 @@ require File.dirname(__FILE__) + '/../lib/pool_party'
   end
 end
 
-include PoolParty
+extend PoolParty
 
 @config = YAML.load(File.read(Application.config_file))
 
@@ -17,9 +17,9 @@ AWS::S3::Base.establish_connection!(
 :secret_access_key => @config[Application.env]["secret_access_key"]
 )
 
-@ec2 = EC2::Base.new(:access_key_id => Planner.access_key_id, :secret_access_key => Planner.secret_access_key)
+@ec2 = EC2::Base.new(:access_key_id => Organizer.access_key_id, :secret_access_key => Organizer.secret_access_key)
 
-Planner.options(:env => "test")
+Organizer.options(:env => "test")
 
 module Test::Unit::AssertDifference
   def assert_difference(object, method = nil, difference = 1)
