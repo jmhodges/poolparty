@@ -36,6 +36,13 @@ module PoolParty
     end
     
     # GENERAL METHODS
+    def server_pool_bucket_instances
+      server_pool_bucket.bucket_objects.collect {|a| a if a.key != "last_shutdown_time" }
+    end
+    
+    def last_shutdown_time
+      server_pool_bucket.bucket_object("last_shutdown_time")
+    end
     
     def method_missing(m, *args)
       if config.include?("#{m}")

@@ -24,7 +24,7 @@ class String
     AWS::S3::S3Object.exists? key, self
   end
   def store_bucket_value(key, data)
-    AWS::S3::S3Object.store key, data, self
+    AWS::S3::S3Object.store key, data, self unless bucket_object_exists?(key)
   end
   def delete_bucket_value(key)
     AWS::S3::S3Object.delete(key, self) if bucket_object_exists?(key)
