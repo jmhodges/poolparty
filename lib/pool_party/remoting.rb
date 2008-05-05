@@ -2,6 +2,7 @@ module PoolParty
   extend self
   
   class Remoting
+    include Ec2Wrapper
     
     def initialize
       load_config!
@@ -49,16 +50,20 @@ module PoolParty
       get_bucket_flag("last_startup_time")
     end
     
+    # == LISTING
+    # List all the running instances associated with this account
+    def list_of_running_instances
+      get_instances_description.select {|a| a[:status] =~ /running/}
+    end
+    # Get a list of the pending instances
+    def list_of_pending_instances
+      get_instances_description.select {|a| a[:status] =~ /pending/}
+    end    
     # == LAUNCHING
+    # Request to launch a new instance
     def request_launch_new_instance
       
     end
-    
-    private 
-    def launch_new_instance!
-      ec2.run_instances(:image_id => ami, :user_data => "#{user_data}")
-    end
-    public
     
     # Defines the configuration key as a method on the class if
     # the method does not exist

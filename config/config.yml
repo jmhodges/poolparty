@@ -5,7 +5,7 @@ defaults: &defaults
   secret_access_key: "Q2qJHP0S2iOKikn9glB+KZcF/aYf4huS/GdHvqEZ"
   server_pool_bucket: "pool_party_test-bucket"
   cookie_bucket: "pool_party-cookies"
-  ami: "ami-b446a3dd"
+  ami: "ami-4a46a323"
   heavy_load: 0.80
   light_load: 0.10
   polling_time: "5.seconds"

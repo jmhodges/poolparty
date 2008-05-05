@@ -10,6 +10,14 @@ describe "Remoting" do
   end
   it "should be able to get the last_shutdown_time" do
     @remoting.last_shutdown_time.should_not be_nil
+  end  
+  it "should be able to list all the instances as instance ids" do
+    @remoting.list_of_running_instances.class.should == Array
+  end
+  it "should be able to start an instance" do
+    size = @remoting.list_of_pending_instances.size
+    @remoting.launch_new_instance!
+    @remoting.list_of_pending_instances.size.should == size + 1
   end
   
   describe "Host" do
