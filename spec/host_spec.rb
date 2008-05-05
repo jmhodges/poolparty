@@ -5,7 +5,7 @@ describe "Host" do
     @host = Host.new
     @host.connect_to_s3!
     @host.clear_bucket!
-    @host.server_pool_bucket.store_bucket_value "test", "127.0.0.1\n0.4\n#{Time.now}"
+    inst = @host.server_pool_bucket.store_bucket_value "test", "127.0.0.1\n0.4\n#{Time.now}"
   end
   it "should be able to get a list of the registered instances in the server pool bucket" do
     @host.registered_in_bucket.should_not be_empty

@@ -37,6 +37,10 @@ module PoolParty
           :config_file => File.join(%w(config config.yml))
         }
       end
+      
+      def development?
+        environment == :development
+      end
     
       def method_missing(m,*args)
         options.methods.include?("#{m}") ? options.send(m,args) : super

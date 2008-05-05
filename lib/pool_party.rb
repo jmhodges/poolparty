@@ -13,6 +13,7 @@ require "rack"
 require 'thread'
 begin
   require 'fastthread'
+  require 'thin'
 rescue LoadError
 end
 

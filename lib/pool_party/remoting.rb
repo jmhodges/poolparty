@@ -4,49 +4,57 @@ module PoolParty
   class Remoting
     
     def initialize
-      case self.class.to_s
-      when "Host"
-        load_config_from_file!
-      when "Instance"
-        load_config_from_user_data!
-      end
+      load_config!
     end
-        
+    
+    # Connect to the s3 bucket with the values provided from the config
     def connect_to_s3!
       @connected ||= AWS::S3::Base.establish_connection!( 
-        :access_key_id => access_key_id, 
+        :access_key_id => access_key_id,
         :secret_access_key => secret_access_key, 
         :server => "#{server_pool_bucket}.s3.amazonaws.com")
     end
 
-    def config
-      @config ||= begin 
+    # Load the configuration from the file, if it's a server or from the user-data if it's on the client
+    def load_config!
+      @config ||= begin
         load_config_from_file!
-      rescue 
+      rescue Exception => e
         load_config_from_user_data!
-      end
+      end      
     end
     
+    # Load the config from the file specified on the Application
     def load_config_from_file!
-      YAML.load(open(Application.config_file).read)["#{Application.environment}"]
+      @config ||= YAML.load(open(Application.config_file).read)["#{Application.environment}"]
     end
     
+    # Load the configuration parameters from the user-data when launched
     def load_config_from_user_data!
-      YAML.load(URI.parse("http://169.254.169.254/latest/user-data"))
+      @config ||= YAML.load(URI.parse("http://169.254.169.254/latest/user-data"))
     end
     
-    # GENERAL METHODS
-    def server_pool_bucket_instances
-      server_pool_bucket.bucket_objects.collect {|a| a if a.key != "last_shutdown_time" }
+    # == GENERAL METHODS
+    # Gets the instances registered in the bucket
+    def server_pool_bucket_instances      
+      server_pool_bucket.bucket_objects.select {|a| a if bucket_flag_includes?(a.key) }.each {|a| p a.key }
+      server_pool_bucket.bucket_objects.select {|a| a unless bucket_flag_includes?(a.key) }
     end
     
+    # Get the last_shutdown_time from the bucket
     def last_shutdown_time
-      server_pool_bucket.bucket_object("last_shutdown_time")
+      get_bucket_flag("last_shutdown_time")
+    end
+    # Get the last_startup_time from the bucket
+    def last_startup_time
+      get_bucket_flag("last_startup_time")
     end
     
+    # Defines the configuration key as a method on the class if
+    # the method does not exist
     def method_missing(m, *args)
-      if config.include?("#{m}")
-        eval "self.class.send :attr_reader, :#{m};def #{m};@#{m} ||= '#{config["#{m}"]}';end;#{m}"
+      if @config.include?("#{m}")
+        eval "self.class.send :attr_reader, :#{m};def #{m};@#{m} ||= '#{@config["#{m}"]}';end;#{m}"
       else
         super
       end
