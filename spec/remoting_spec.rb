@@ -4,6 +4,14 @@ describe "Remoting" do
   before(:each) do
     @remoting = Remoting.new
   end
+  
+  it "should be able to get the last_startup_time" do
+    @remoting.last_startup_time.should_not be_nil
+  end
+  it "should be able to get the last_shutdown_time" do
+    @remoting.last_shutdown_time.should_not be_nil
+  end
+  
   describe "Host" do
     it "should be able to connect to s3 when required" do
       @remoting.connect_to_s3!.should_not be_nil

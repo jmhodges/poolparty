@@ -36,8 +36,7 @@ module PoolParty
     
     # == GENERAL METHODS
     # Gets the instances registered in the bucket
-    def server_pool_bucket_instances      
-      server_pool_bucket.bucket_objects.select {|a| a if bucket_flag_includes?(a.key) }.each {|a| p a.key }
+    def server_pool_bucket_instances
       server_pool_bucket.bucket_objects.select {|a| a unless bucket_flag_includes?(a.key) }
     end
     
@@ -49,6 +48,17 @@ module PoolParty
     def last_startup_time
       get_bucket_flag("last_startup_time")
     end
+    
+    # == LAUNCHING
+    def request_launch_new_instance
+      
+    end
+    
+    private 
+    def launch_new_instance!
+      ec2.run_instances(:image_id => ami, :user_data => "#{user_data}")
+    end
+    public
     
     # Defines the configuration key as a method on the class if
     # the method does not exist
