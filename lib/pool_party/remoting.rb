@@ -63,6 +63,10 @@ module PoolParty
     def list_of_terminating_instances
       get_instances_description.select {|a| a[:status] =~ /shutting/}
     end
+    # Get number of pending instances
+    def number_of_pending_instances
+      list_of_pending_instances.size
+    end
     # == LAUNCHING
     # Request to launch a new instance
     def request_launch_new_instance
@@ -71,6 +75,16 @@ module PoolParty
     # Request to launch a number of instances
     def request_launch_new_instances(num=1)
       num.times {request_launch_new_instance}
+    end
+    # Launch one instance at a time
+    def request_launch_one_instance_at_a_time
+      if number_of_pending_instances.zero?
+        request_launch_new_instance
+        return true
+      else
+        sleep 2
+        request_launch_one_instance_at_a_time
+      end
     end
     # == SHUTDOWN
     # Terminate all running instances

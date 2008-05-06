@@ -27,14 +27,14 @@ module PoolParty
       def get_instance_by_id(id)
         get_instances_description.select {|a| a.instance_id == id}[0] rescue nil
       end
-      
+      # Get the s3 description for the response in a hash format
       def get_instances_description
         return begin
           ec2.describe_instances.DescribeInstancesResponse.reservationSet.item.collect {|r| 
             item = r.instancesSet.item; get_hash_from_response(item) }
         rescue Exception => e
           []
-        end      
+        end
       end
       
       # EC2 connections

@@ -8,15 +8,7 @@ module PoolParty
   class Host < Remoting
     attr_reader :bucket_instances
     
-    # Monitor the health of the cloud
-    # Start instances if there are below the minimum
-    # Add instances when necessary (load or hits are too high to sustain)
-    def start_monitor!
-      run_thread_loop do
-        add_thread {launch_minimum_instances}
-      end
-    end
-    
+    # == PROXY
     # This is where Rack answers the request
     def call(env)
       req = Rack::Request.new(env)
@@ -39,11 +31,6 @@ module PoolParty
       
     end
     
-    # Load and start the minimum number of instances
-    def launch_minimum_instances
-      server_pool_bucket_instances.size
-    end
-    
     def build
       app = self
       # app = Rack::Session::Cookie.new(app, :key => rand_key(16)) if options.sessions == true
@@ -52,7 +39,7 @@ module PoolParty
     end
     
     # Start the server to ping
-    def start_monitoring_server!
+    def start_proxy_server!
       puts "starting transparent monitoring on #{options.port}"
       require 'pp'
       begin
@@ -64,11 +51,6 @@ module PoolParty
       rescue Exception => e
         puts "There was an error: #{e}"
       end
-    end
-    
-    # If we can, use Thin for the server, but if not, don't worry, we'll use mongrel
-    def server
-      @server ||= defined?(Rack::Handler::Thin) ? Rack::Handler::Thin : Rack::Handler::Mongrel
     end
     
     # The remote instance with the lightest load
@@ -84,6 +66,28 @@ module PoolParty
       instances
     end
     
+    # If we can, use Thin for the server, but if not, don't worry, we'll use mongrel
+    def server
+      @server ||= defined?(Rack::Handler::Thin) ? Rack::Handler::Thin : Rack::Handler::Mongrel
+    end
+    
+    # == MONITORING
+    # Monitor the health of the cloud
+    # Start instances if there are below the minimum
+    # Add instances when necessary (load or hits are too high to sustain)
+    def start_monitor!
+      run_thread_loop do
+        add_thread {launch_minimum_instances}
+      end
+    end
+        
+    # Load and start the minimum number of instances
+    def launch_minimum_instances
+      begin
+        request_launch_one_instance_at_a_time
+      end while !are_the_minimum_number_of_instances_running?
+    end
+            
     # :nodoc:
     def instance_ids
       instances.collect {|a| a }

@@ -30,12 +30,22 @@ describe "Remoting" do
     @remoting.list_of_pending_instances.include?(instance).should == false
   end
   it "should be able to shutdown all the instances" do
+    @remoting.request_termination_of_running_instances
+    sleep 2
     size = @remoting.list_of_pending_instances.size
     3.times {@remoting.request_launch_new_instance}
     @remoting.list_of_pending_instances.size.should == size + 3
     @remoting.request_termination_of_running_instances
-    @remoting.list_of_terminating_instances.size.should >= 3
+    @remoting.list_of_terminating_instances.size.should >= size
     @remoting.list_of_pending_instances.select {|a| a[:status] =~ /shutting/ }.size.should == 0
+  end
+  it "should only launch one instance at a time when requested to do so" do
+    @remoting.request_termination_of_running_instances
+    sleep 1
+    size = @remoting.list_of_pending_instances.size
+    @remoting.request_launch_one_instance_at_a_time
+    @remoting.number_of_pending_instances.should == 1
+    @remoting.request_termination_of_running_instances
   end
   
   describe "Host" do
