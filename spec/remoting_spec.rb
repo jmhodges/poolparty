@@ -19,6 +19,24 @@ describe "Remoting" do
     @remoting.launch_new_instance!
     @remoting.list_of_pending_instances.size.should == size + 1
   end
+  it "should be able to shutdown an instance" do
+    instance = @remoting.request_launch_new_instance
+    instance[:status].should =~ /pending/
+    sleep 2
+    @remoting.request_termination_of_instance instance[:instance_id]
+    
+    instance = @remoting.describe_instance instance[:instance_id]
+    instance[:status].should =~ /shutting/    
+    @remoting.list_of_pending_instances.include?(instance).should == false
+  end
+  it "should be able to shutdown all the instances" do
+    size = @remoting.list_of_pending_instances.size
+    3.times {@remoting.request_launch_new_instance}
+    @remoting.list_of_pending_instances.size.should == size + 3
+    @remoting.request_termination_of_running_instances
+    @remoting.list_of_terminating_instances.size.should >= 3
+    @remoting.list_of_pending_instances.select {|a| a[:status] =~ /shutting/ }.size.should == 0
+  end
   
   describe "Host" do
     it "should be able to connect to s3 when required" do

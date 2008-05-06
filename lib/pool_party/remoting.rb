@@ -58,11 +58,38 @@ module PoolParty
     # Get a list of the pending instances
     def list_of_pending_instances
       get_instances_description.select {|a| a[:status] =~ /pending/}
-    end    
+    end
+    # list of shutting down instances
+    def list_of_terminating_instances
+      get_instances_description.select {|a| a[:status] =~ /shutting/}
+    end
     # == LAUNCHING
     # Request to launch a new instance
     def request_launch_new_instance
-      
+      launch_new_instance!
+    end
+    # Request to launch a number of instances
+    def request_launch_new_instances(num=1)
+      num.times {request_launch_new_instance}
+    end
+    # == SHUTDOWN
+    # Terminate all running instances
+    def request_termination_of_running_instances
+      list_of_running_instances.each {|a| terminate_instance!(a[:instance_id])}
+    end
+    # Terminate instance by id
+    def request_termination_of_instance(id)
+      terminate_instance! id
+    end
+    
+    # == MONITORING METHODS
+    # Are the minimum number of instances running?
+    def are_the_minimum_number_of_instances_running?
+      list_of_running_instances.size >= minimum_instances
+    end
+    # Are the maximum number of instances running?
+    def are_the_maximum_number_of_instances_running?
+      list_of_running_instances.size == maximum_instances
     end
     
     # Defines the configuration key as a method on the class if

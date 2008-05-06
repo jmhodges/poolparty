@@ -9,18 +9,29 @@ module PoolParty
     module InstanceMethods
       # Run a new instance, with the user_data and the ami described in the config
       def launch_new_instance!
-        ec2.run_instances(:image_id => ami, :user_data => "#{Application.user_data}")
+        instance = ec2.run_instances(:image_id => ami, :user_data => "#{Application.user_data}")
+        item = instance.RunInstancesResponse.instancesSet.item
+        get_hash_from_response(item)
       end
       # Shutdown the instance by instance_id
       def terminate_instance!(instance_id)
         ec2.terminate_instances(:instance_id => instance_id)
       end
+      # Instance description
+      def describe_instance(id)
+        instance = ec2.describe_instances(:instance_id => id)
+        item = instance.DescribeInstancesResponse.reservationSet.item.instancesSet.item
+        get_hash_from_response(item)
+      end
+      # Get instance by id
+      def get_instance_by_id(id)
+        get_instances_description.select {|a| a.instance_id == id}[0] rescue nil
+      end
       
       def get_instances_description
         return begin
           ec2.describe_instances.DescribeInstancesResponse.reservationSet.item.collect {|r| 
-            item = r.instancesSet.item
-            {:id => item.instanceId, :ip => item.dnsName, :status => item.instanceState.name} }
+            item = r.instancesSet.item; get_hash_from_response(item) }
         rescue Exception => e
           []
         end      
@@ -31,6 +42,10 @@ module PoolParty
         @ec2 ||= EC2::Base.new(:access_key_id => access_key_id, :secret_access_key => secret_access_key)
       end
       
+      private
+      def get_hash_from_response(resp)
+        {:instance_id => resp.instanceId, :ip => resp.dnsName, :status => resp.instanceState.name}
+      end      
     end
     
     def self.included(receiver)
