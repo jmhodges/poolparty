@@ -4,7 +4,7 @@ module PoolParty
   class Remoting
     include Ec2Wrapper
     
-    def initialize
+    def initialize(i=nil)
       load_config!
     end
     
@@ -38,16 +38,20 @@ module PoolParty
     # == GENERAL METHODS
     # Gets the instances registered in the bucket
     def server_pool_bucket_instances
-      server_pool_bucket.bucket_objects.select {|a| a unless bucket_flag_includes?(a.key) }
+      @bucket_instances ||= server_pool_bucket.bucket_objects.select {|a| a unless bucket_flag_includes?(a.key) }
     end
     
     # Get the last_shutdown_time from the bucket
     def last_shutdown_time
-      get_bucket_flag("last_shutdown_time")
+      @last_shutdown_time ||= (
+        get_bucket_flag("last_shutdown_time").value || update_bucket_flag("last_shutdown_time")
+      )
     end
     # Get the last_startup_time from the bucket
     def last_startup_time
-      get_bucket_flag("last_startup_time")
+      @last_startup_time ||= (
+        get_bucket_flag("last_startup_time").value || update_bucket_flag("last_startup_time")
+      )
     end
     
     # == LISTING
@@ -69,12 +73,25 @@ module PoolParty
     end
     # == LAUNCHING
     # Request to launch a new instance
+    # Will only luanch if the last_startup_time has been cleared
+    # Clear the last_startup_time if instance does launch
     def request_launch_new_instance
-      launch_new_instance!
+      if can_start_a_new_instance?
+        update_bucket_flag("last_startup_time")
+        request_launch_one_instance_at_a_time
+        return true
+      else
+        return false
+      end
     end
+    private
+    def can_start_a_new_instance?
+      get_bucket_flag("last_startup_time").nil? || get_bucket_flag("last_startup_time") >= eval(interval_wait_time).ago
+    end
+    public
     # Request to launch a number of instances
     def request_launch_new_instances(num=1)
-      num.times {request_launch_new_instance}
+      num.times {request_launch_one_instance_at_a_time}
     end
     # Launch one instance at a time
     def request_launch_one_instance_at_a_time
@@ -93,7 +110,13 @@ module PoolParty
     end
     # Terminate instance by id
     def request_termination_of_instance(id)
-      terminate_instance! id
+      if get_bucket_flag("last_shutdown_time") >= eval(interval_wait_time).ago
+        update_bucket_flag("last_shutdown_time")
+        terminate_instance! id
+        return true
+      else
+        return false
+      end
     end
     
     # == MONITORING METHODS
@@ -104,6 +127,13 @@ module PoolParty
     # Are the maximum number of instances running?
     def are_the_maximum_number_of_instances_running?
       list_of_running_instances.size == maximum_instances
+    end
+    
+    # Flush the caches
+    def reset!
+      %w(
+      @bucket_instances @instances_description @last_startup_time @last_shutdown_time
+      ).each {|a| a = nil }
     end
     
     # Defines the configuration key as a method on the class if

@@ -28,7 +28,7 @@ To get started, you'll need a <tt>config.yml</tt>. A basic one is in the <tt>tes
     heavy_load: 0.75 
     light_load: 0.25 
     polling_time: "30.seconds"
-    shutdown_wait_time: "5.minutes"
+    interval_wait_time: "5.minutes"
     minimum_instances: 1
     maximum_instances: 2
   development:

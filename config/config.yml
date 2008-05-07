@@ -9,7 +9,7 @@ defaults: &defaults
   heavy_load: 0.80
   light_load: 0.10
   polling_time: "5.seconds"
-  shutdown_wait_time: "5.minutes"
+  interval_wait_time: "5.minutes"
   minimum_instances: 1
   maximum_instances: 2
 development:

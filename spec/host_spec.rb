@@ -25,4 +25,11 @@ describe "Host" do
     @host.server_pool_bucket.store_bucket_value "test3", "127.0.0.1\n0.2\n#{Time.now}"
     @host.instance_with_lightest_load.key.should == "test3"
   end
+  it "should launch the minimum number of instances and no more when requested" do
+    # 1 = minimum_instances
+    @host.request_termination_of_running_instances
+    @host.are_the_minimum_number_of_instances_running?.should == false
+    @host.launch_minimum_instances
+    @host.are_the_minimum_number_of_instances_running?.should == true
+  end
 end

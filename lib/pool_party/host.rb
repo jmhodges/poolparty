@@ -83,9 +83,13 @@ module PoolParty
         
     # Load and start the minimum number of instances
     def launch_minimum_instances
-      begin
-        request_launch_one_instance_at_a_time
-      end while !are_the_minimum_number_of_instances_running?
+      unless are_the_minimum_number_of_instances_running?
+        unless are_the_maximum_number_of_instances_running?          
+          minimum_instances.times do |i|
+            request_launch_one_instance_at_a_time
+          end          
+        end
+      end
     end
             
     # :nodoc:

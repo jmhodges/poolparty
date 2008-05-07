@@ -46,6 +46,11 @@ module PoolParty
         options.methods.include?("#{m}") ? options.send(m,args) : super
       end
              
-    end    
+    end
   end
+  
+  def options
+    Application.options
+  end
+  
 end
