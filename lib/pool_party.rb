@@ -52,5 +52,5 @@ module PoolParty
   def server(opts={})
     Application.options(opts)
     Host.new
-  end    
+  end
 end

@@ -1,7 +1,7 @@
 module PoolParty
   extend self
   
-  class Remoting < Schedule
+  class Remoting < Scheduler
     include PoolParty
     include Ec2Wrapper
     

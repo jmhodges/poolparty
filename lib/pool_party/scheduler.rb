@@ -36,16 +36,19 @@ module PoolParty
     attr_accessor :interval
     
     def initialize(interval=30.seconds)
-      @tasks = ScheduleTasks.new
-      @interval = interval
+      @interval = eval(interval)
+    end
+    
+    def tasks
+      @tasks ||= ScheduleTasks.new
     end
         
     def add_task(&blk)
-      @tasks.push proc{blk.call}
+      tasks.push proc{blk.call}
     end
     
     def run_threads
-      @tasks.run
+      tasks.run
     end
     def run_thread_loop
       Thread.start do
@@ -53,7 +56,7 @@ module PoolParty
           begin
             yield if block_given?
             run_threads
-            sleep @interval.seconds
+            sleep @interval
           rescue Exception => e
             puts "There was an error in the run_thread_loop: #{e}"
           end

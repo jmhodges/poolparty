@@ -9,6 +9,8 @@ module PoolParty
     attr_reader :bucket_instances
     
     def initialize
+      super
+      
       start_monitor!
       start_proxy_server!      
     end
@@ -47,7 +49,7 @@ module PoolParty
       Application.options
     end
     
-    # Start the server to ping
+    # Start the server to ping host the actual responses
     def start_proxy_server!
       puts "starting transparent monitoring on #{options.port}"
       require 'pp'
@@ -86,8 +88,10 @@ module PoolParty
     # Start instances if there are below the minimum
     # Add instances when necessary (load or hits are too high to sustain)
     def start_monitor!
+      puts "== ready to rock and roll"
       run_thread_loop do
-        add_thread {launch_minimum_instances}
+        add_task {puts "= just checking in"}
+        add_task {launch_minimum_instances}
       end
     end
         
