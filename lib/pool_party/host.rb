@@ -5,7 +5,7 @@
 module PoolParty
   extend self
   
-  class Host < Remoting
+  class Host < Remoting    
     attr_reader :bucket_instances
     
     def initialize
@@ -14,8 +14,9 @@ module PoolParty
     end
     # == PROXY
     # This is where Rack answers the request
-    def call(env)
+    def call(env)      
       req = Rack::Request.new(env)
+      p "calling #{req.path_info}"
       
       # inst = (session(req)["instance"].is_responding? ? session(req)["instance"] : nil) if session?(req)
       inst ||= instance_with_lightest_load
@@ -69,7 +70,7 @@ module PoolParty
     
     # A collection of RemoteInstances for every registered instance in the bucket
     def registered_in_bucket
-      server_pool_bucket_instances.collect do |instance|
+      @registered ||= server_pool_bucket_instances.collect do |instance|
         instances << RemoteInstance.new(instance) unless instance.nil? && instance_ids.include?(instance.key)
       end
       instances
@@ -113,6 +114,7 @@ module PoolParty
     # Resets this class's variables to reload
     def reset!
       @bucket_instances = nil
+      @registered = nil
     end
     
     # Remove all the registered instances from the bucket
@@ -126,7 +128,6 @@ module PoolParty
     end
     
     def load_config!
-      puts "== load_config in host"
       @config ||= load_config_from_file!
     end
     

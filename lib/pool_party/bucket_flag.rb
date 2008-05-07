@@ -4,7 +4,9 @@
 module PoolParty
   extend self
 
-  class BucketFlag < Remoting    
+  class BucketFlag < Remoting
+    extend PoolParty
+    
     attr_reader :name
     
     def initialize(name)

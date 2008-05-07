@@ -2,6 +2,7 @@ module PoolParty
   extend self
   
   class Remoting < Schedule
+    include PoolParty
     include Ec2Wrapper
     
     def initialize
@@ -40,7 +41,6 @@ module PoolParty
     # == GENERAL METHODS
     # Gets the instances registered in the bucket
     def server_pool_bucket_instances
-      p self.methods.sort
       @bucket_instances ||= server_pool_bucket.bucket_objects.select {|a| a unless bucket_flag_includes?(a.key) }
     end
     
