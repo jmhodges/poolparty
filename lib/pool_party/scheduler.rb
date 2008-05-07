@@ -33,9 +33,11 @@ module PoolParty
   end
   class Scheduler
     attr_reader :tasks
+    attr_accessor :interval
     
-    def initialize
+    def initialize(interval=30.seconds)
       @tasks = ScheduleTasks.new
+      @interval = interval
     end
         
     def add_task(&blk)
@@ -51,7 +53,7 @@ module PoolParty
           begin
             yield if block_given?
             run_threads
-            sleep sleep_interval.seconds
+            sleep @interval.seconds
           rescue Exception => e
             puts "There was an error in the run_thread_loop: #{e}"
           end

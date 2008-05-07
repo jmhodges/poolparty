@@ -3,16 +3,18 @@
 =end
 module PoolParty
   extend self
-      
-  class BucketFlag < Remoting
+
+  class BucketFlag < Remoting    
     attr_reader :name
     
     def initialize(name)
       @name = name
-      super
     end
     def value
       @config["server_pool_bucket"].bucket_object(name)
+    end
+    def value=(val)
+      @config["server_pool_bucket"].store_bucket_value(name, val)
     end
   end
   

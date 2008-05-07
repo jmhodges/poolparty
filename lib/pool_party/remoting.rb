@@ -1,16 +1,18 @@
 module PoolParty
   extend self
   
-  class Remoting
+  class Remoting < Schedule
     include Ec2Wrapper
     
-    def initialize(i=nil)
+    def initialize
       load_config!
+      super(polling_time)
+      connect_to_s3!
     end
     
     # Connect to the s3 bucket with the values provided from the config
     def connect_to_s3!
-      @connected ||= AWS::S3::Base.establish_connection!( 
+      @connection ||= AWS::S3::Base.establish_connection!( 
         :access_key_id => access_key_id,
         :secret_access_key => secret_access_key, 
         :server => "#{server_pool_bucket}.s3.amazonaws.com")
@@ -27,30 +29,31 @@ module PoolParty
     
     # Load the config from the file specified on the Application
     def load_config_from_file!
-      @config ||= YAML.load(open(Application.config_file).read)["#{Application.environment}"]
+      YAML.load(open(Application.config_file).read)["#{Application.environment}"]
     end
     
     # Load the configuration parameters from the user-data when launched
     def load_config_from_user_data!
-      @config ||= YAML.load(URI.parse("http://169.254.169.254/latest/user-data"))
+      YAML.load(URI.parse("http://169.254.169.254/latest/user-data"))
     end
     
     # == GENERAL METHODS
     # Gets the instances registered in the bucket
     def server_pool_bucket_instances
+      p self.methods.sort
       @bucket_instances ||= server_pool_bucket.bucket_objects.select {|a| a unless bucket_flag_includes?(a.key) }
     end
     
     # Get the last_shutdown_time from the bucket
     def last_shutdown_time
-      @last_shutdown_time ||= (
-        get_bucket_flag("last_shutdown_time").value || update_bucket_flag("last_shutdown_time")
+      @last_shutdown_time ||= Time.parse(
+        get_bucket_flag("last_shutdown_time") || update_bucket_flag("last_shutdown_time")
       )
     end
     # Get the last_startup_time from the bucket
     def last_startup_time
-      @last_startup_time ||= (
-        get_bucket_flag("last_startup_time").value || update_bucket_flag("last_startup_time")
+      @last_startup_time ||= Time.parse(
+        get_bucket_flag("last_startup_time") || update_bucket_flag("last_startup_time")
       )
     end
     
@@ -78,17 +81,15 @@ module PoolParty
     def request_launch_new_instance
       if can_start_a_new_instance?
         update_bucket_flag("last_startup_time")
-        request_launch_one_instance_at_a_time
-        return true
+        return request_launch_one_instance_at_a_time
       else
-        return false
+        return nil
       end
     end
-    private
     def can_start_a_new_instance?
-      get_bucket_flag("last_startup_time").nil? || get_bucket_flag("last_startup_time") >= eval(interval_wait_time).ago
+      get_bucket_flag("last_startup_time").nil? || 
+        eval(interval_wait_time).ago >= Time.parse(get_bucket_flag("last_startup_time"))
     end
-    public
     # Request to launch a number of instances
     def request_launch_new_instances(num=1)
       num.times {request_launch_one_instance_at_a_time}
@@ -96,8 +97,7 @@ module PoolParty
     # Launch one instance at a time
     def request_launch_one_instance_at_a_time
       if number_of_pending_instances.zero?
-        request_launch_new_instance
-        return true
+        return launch_new_instance!
       else
         sleep 2
         request_launch_one_instance_at_a_time
@@ -110,15 +110,18 @@ module PoolParty
     end
     # Terminate instance by id
     def request_termination_of_instance(id)
-      if get_bucket_flag("last_shutdown_time") >= eval(interval_wait_time).ago
-        update_bucket_flag("last_shutdown_time")
+      if can_shutdown_an_instance?
         terminate_instance! id
+        update_bucket_flag("last_shutdown_time")        
         return true
       else
         return false
       end
     end
-    
+    def can_shutdown_an_instance?
+      get_bucket_flag("last_shutdown_time").nil? || 
+        eval(interval_wait_time).ago >= Time.parse(get_bucket_flag("last_shutdown_time"))
+    end
     # == MONITORING METHODS
     # Are the minimum number of instances running?
     def are_the_minimum_number_of_instances_running?
@@ -133,14 +136,14 @@ module PoolParty
     def reset!
       %w(
       @bucket_instances @instances_description @last_startup_time @last_shutdown_time
-      ).each {|a| a = nil }
+      ).each {|a| eval("a = nil") }
     end
     
     # Defines the configuration key as a method on the class if
     # the method does not exist
     def method_missing(m, *args)
       if @config.include?("#{m}")
-        eval "self.class.send :attr_reader, :#{m};def #{m};@#{m} ||= '#{@config["#{m}"]}';end;#{m}"
+        eval "@#{m} = '#{@config[m.to_s]}'"
       else
         super
       end

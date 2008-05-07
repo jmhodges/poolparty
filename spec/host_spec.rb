@@ -4,7 +4,7 @@ describe "Host" do
   before(:each) do
     @host = Host.new
     @host.connect_to_s3!
-    @host.clear_bucket!
+    # @host.clear_bucket!
     inst = @host.server_pool_bucket.store_bucket_value "test", "127.0.0.1\n0.4\n#{Time.now}"
   end
   it "should be able to get a list of the registered instances in the server pool bucket" do
@@ -30,6 +30,6 @@ describe "Host" do
     @host.request_termination_of_running_instances
     @host.are_the_minimum_number_of_instances_running?.should == false
     @host.launch_minimum_instances
-    @host.are_the_minimum_number_of_instances_running?.should == true
+    @host.number_of_pending_instances.should == @host.minimum_instances
   end
 end

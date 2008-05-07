@@ -1,13 +1,9 @@
 module PoolParty
   extend self
-  
-  def scheduler
-    @scheduler ||= Schedule.new
-  end
-  
+    
   class Schedule
     # Create a new scheduler
-    def initialize(create_new=false)
+    def scheduler(create_new=false)
       @scheduler = nil if create_new
       @scheduler ||= Scheduler.new
     end
@@ -23,6 +19,6 @@ module PoolParty
     def run_thread_loop(&block)
       scheduler.run_thread_loop &block
     end
-  end
+  end  
   
 end

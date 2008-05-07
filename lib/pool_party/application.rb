@@ -8,8 +8,8 @@ module PoolParty
   class Application        
     class << self
             
-      def options
-        @options ||= OpenStruct.new(default_options)
+      def options(opts={})
+        @options ||= OpenStruct.new(default_options.merge(opts))
       end
 
       # Load options 

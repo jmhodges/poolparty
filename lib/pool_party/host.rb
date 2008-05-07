@@ -8,13 +8,17 @@ module PoolParty
   class Host < Remoting
     attr_reader :bucket_instances
     
+    def initialize
+      start_monitor!
+      start_proxy_server!      
+    end
     # == PROXY
     # This is where Rack answers the request
     def call(env)
       req = Rack::Request.new(env)
       
       # inst = (session(req)["instance"].is_responding? ? session(req)["instance"] : nil) if session?(req)
-      inst ||= instance_with_lightest_load            
+      inst ||= instance_with_lightest_load
       
       puts "using #{inst.ip} to call for #{req.path_info}"
       
@@ -38,12 +42,16 @@ module PoolParty
       app
     end
     
+    def options
+      Application.options
+    end
+    
     # Start the server to ping
     def start_proxy_server!
       puts "starting transparent monitoring on #{options.port}"
       require 'pp'
       begin
-        server.run(build, :Port => port) do |server|
+        server.run(build, :Port => options.port) do |server|
           trap(:INT) do
             server.stop
           end
@@ -55,6 +63,7 @@ module PoolParty
     
     # The remote instance with the lightest load
     def instance_with_lightest_load
+      connect_to_s3!
       registered_in_bucket.sort {|a,b| a.load <=> b.load }[0]
     end
     
@@ -116,14 +125,19 @@ module PoolParty
       Array.new(size) { rand(256) }.pack('C*').unpack('H*').first
     end
     
-    def load_config!      
+    def load_config!
+      puts "== load_config in host"
       @config ||= load_config_from_file!
+    end
+    
+    def config
+      @config.nil? ? load_config! : @config
     end
     
     # Gives us the usage of method calling for the configuration
     def method_missing(m,*args)
-      if @config.include?("#{m}") 
-        @config["#{m}"]
+      if config.include?("#{m}") 
+        config["#{m}"]
       else
         super
       end

@@ -29,7 +29,7 @@ module PoolParty
       end
       # Get the s3 description for the response in a hash format
       def get_instances_description
-        return @instances_description ||= begin
+        begin
           ec2.describe_instances.DescribeInstancesResponse.reservationSet.item.collect {|r| 
             item = r.instancesSet.item; get_hash_from_response(item) }
         rescue Exception => e
