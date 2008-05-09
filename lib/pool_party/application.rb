@@ -16,11 +16,12 @@ module PoolParty
       def load_options!
         require 'optparse'
         OptionParser.new do |op|
-          op.on('-p port', '--port port', "Run on specific port (default: 7788)") { |port| default_options[:port] = port }
+          op.on('-p host_port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
+          op.on('-o client_port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
           op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
           op.on('-c file','--config file', "Specify a config file (default: config/config.yml)") {|file| default_options[:config_file] = file}
           op.on('-s', '--[no-]sessions', "Run with sessions (default: false)") { |sessions| default_options[:sessions] = sessions }
-          op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:data] = data }
+          op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:user_data] = data }
           op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:debug] = v}
         end.parse!(ARGV.dup.select { |o| o !~ /--name/ })
       end
@@ -28,7 +29,8 @@ module PoolParty
       def default_options
         @default_options ||= {
           :run => true,
-          :port => 7788,
+          :host_port => 7788,
+          :client_port => 7788,
           :environment => :development,
           :debug => true,
           :logging => true,
@@ -40,6 +42,10 @@ module PoolParty
       
       def development?
         environment == :development
+      end
+      
+      def launching_user_data
+        {:polling_time => polling_time}.to_yaml
       end
     
       def method_missing(m,*args)

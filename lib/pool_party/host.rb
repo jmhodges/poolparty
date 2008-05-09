@@ -9,8 +9,7 @@ module PoolParty
     attr_reader :bucket_instances
     
     def initialize
-      super
-      
+      super      
       start_monitor!
       start_proxy_server!      
     end
@@ -18,10 +17,7 @@ module PoolParty
     # This is where Rack answers the request
     def call(env)      
       req = Rack::Request.new(env)
-      p "calling #{req.path_info}"
-      
-      # inst = (session(req)["instance"].is_responding? ? session(req)["instance"] : nil) if session?(req)
-      inst ||= instance_with_lightest_load
+      inst = get_next_instance_for_proxy
       
       puts "using #{inst.ip} to call for #{req.path_info}"
       
@@ -32,7 +28,7 @@ module PoolParty
         begin
           inst.process(env, req)
         rescue Exception => e
-          Proxy.return_404(env, req, "error: #{e}")
+          return_404(env, req, "error: #{e}")
         end        
       end
       
@@ -63,80 +59,42 @@ module PoolParty
         puts "There was an error: #{e}"
       end
     end
-    
-    # The remote instance with the lightest load
-    def instance_with_lightest_load
-      connect_to_s3!
-      registered_in_bucket.sort {|a,b| a.load <=> b.load }[0]
-    end
-    
-    # A collection of RemoteInstances for every registered instance in the bucket
-    def registered_in_bucket
-      @registered ||= server_pool_bucket_instances.collect do |instance|
-        instances << RemoteInstance.new(instance) unless instance.nil? && instance_ids.include?(instance.key)
-      end
-      instances
-    end
-    
+            
     # If we can, use Thin for the server, but if not, don't worry, we'll use mongrel
     def server
       @server ||= defined?(Rack::Handler::Thin) ? Rack::Handler::Thin : Rack::Handler::Mongrel
     end
+    
+    def get_next_instance_for_proxy
+      @running_instances.unshift @running_instances.pop      
+    end   
     
     # == MONITORING
     # Monitor the health of the cloud
     # Start instances if there are below the minimum
     # Add instances when necessary (load or hits are too high to sustain)
     def start_monitor!
-      puts "== ready to rock and roll"
       run_thread_loop do
-        add_task {puts "= just checking in"}
         add_task {launch_minimum_instances}
+        add_task {update_instance_values}
+        add_task {add_instance_if_load_is_high}
+        add_task {terminate_instance_if_load_is_low}
       end
     end
-        
+    
     # Load and start the minimum number of instances
     def launch_minimum_instances
-      unless are_the_minimum_number_of_instances_running?
-        unless are_the_maximum_number_of_instances_running?          
-          minimum_instances.times do |i|
-            request_launch_one_instance_at_a_time
-          end          
-        end
-      end
-    end
-            
-    # :nodoc:
-    def instance_ids
-      instances.collect {|a| a }
-    end
-    # :nodoc:
-    def instances
-      @bucket_instances ||= []
+      request_launch_new_instances(minimum_instances - number_of_running_instances)
     end
     
-    # Resets this class's variables to reload
-    def reset!
-      @bucket_instances = nil
-      @registered = nil
+    # update the instance values from ec2
+    def update_instance_values
+      @running_instances = get_instances_description.collect {|a| RemoteInstance.new(a) }.sort
     end
     
-    # Remove all the registered instances from the bucket
-    def clear_bucket!
-      server_pool_bucket.bucket_objects.each {|a| server_pool_bucket.delete_bucket_value a.key }
+    def add_instance_if_load_is_high
     end
-    
-    # Generate a random key for cookies
-    def rand_key(size=8)
-      Array.new(size) { rand(256) }.pack('C*').unpack('H*').first
-    end
-    
-    def load_config!
-      @config ||= load_config_from_file!
-    end
-    
-    def config
-      @config.nil? ? load_config! : @config
+    def terminate_instance_if_load_is_low      
     end
     
     # Gives us the usage of method calling for the configuration
@@ -146,6 +104,14 @@ module PoolParty
       else
         super
       end
+    end
+    
+    # Refactor this into something nice
+    # Error message
+    def return_404(env, req, mess=nil)
+      resp = Rack::Response.new(env)
+      body = "<h1>Error</h1><br />#{mess}"
+      [404, {'Content-Type' => "text/html"}, body]
     end
     
   end
