@@ -28,7 +28,12 @@ module PoolParty
           op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:debug] = v}
           op.on('-i number', '--minimum-instances', "The minimum number of instances to run at all times (default 1)") {|i| default_options[:minimum_instances] = i}
           op.on('-x number', '--maximum-instances', "The maximum number of instances to run (default 3)") {|x| default_options[:maximum_instances] = x}
-        end.parse!(ARGV.dup.select { |o| o !~ /--name/ })
+          
+          op.on_tail("-h", "--help", "Show this message") do
+            puts op
+            exit
+          end
+        end.parse!(ARGV.dup)
       end
 
       def default_options
