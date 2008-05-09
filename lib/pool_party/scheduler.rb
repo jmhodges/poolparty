@@ -36,7 +36,7 @@ module PoolParty
     attr_accessor :interval
     
     def initialize(interval=30.seconds)
-      @interval = eval(interval)
+      @interval = interval
     end
     
     def tasks

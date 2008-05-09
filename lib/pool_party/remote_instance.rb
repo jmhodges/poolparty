@@ -21,7 +21,7 @@ module PoolParty
        end
       }      
 
-      res = Net::HTTP.start(@ip, @local_port) { |http|
+      res = Net::HTTP.start(@ip, Application.client_port) { |http|
        m = rackreq.request_method
        req = Net::HTTP.const_get(m.capitalize).new(rackreq.fullpath, headers)
        
@@ -73,7 +73,7 @@ module PoolParty
       @status = YAML.load open(@ip+":#{Application.client_port}/status").read
     end
     
-    %w(cpu memory web).each {|a| define_method a.to_sym {@status[a.to_sym]}}    
+    %w(cpu memory web).each {|a| define_method(a.to_sym) { @status[a.to_sym]} }
     
   end
 end

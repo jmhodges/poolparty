@@ -1,10 +1,9 @@
 module PoolParty
   class LocalInstance
-    
-    
-    # Override the load_config! from the parent class
-    def load_config!
-      load_config_from_user_data!
+        
+    # Load the configuration parameters from the user-data when launched
+    def config
+      @config ||= YAML.load(URI.parse("http://169.254.169.254/latest/user-data"))
     end
     
   end

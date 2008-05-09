@@ -4,26 +4,7 @@ module PoolParty
   class Remoting < Scheduler
     include PoolParty
     include Ec2Wrapper
-        
-    # Load the configuration from the file, if it's a server or from the user-data if it's on the client
-    def config
-      @config ||= begin
-        load_config_from_file!
-      rescue Exception => e
-        load_config_from_user_data!
-      end      
-    end
-    
-    # Load the config from the file specified on the Application
-    def load_config_from_file!
-      YAML.load(open(Application.config_file).read)["#{Application.environment}"]
-    end
-    
-    # Load the configuration parameters from the user-data when launched
-    def load_config_from_user_data!
-      YAML.load(URI.parse("http://169.254.169.254/latest/user-data"))
-    end
-    
+                
     # == GENERAL METHODS    
     # == LISTING
     # List all the running instances associated with this account
@@ -107,17 +88,7 @@ module PoolParty
     def shutdown_time
       @last_shutdown_time ||= Time.now
     end
-    
-    # Defines the configuration key as a method on the class if
-    # the method does not exist
-    def method_missing(m, *args)
-      if @config.include?("#{m}")
-        eval "@#{m} = '#{@config[m.to_s]}'"
-      else
-        super
-      end
-    end
-    
+        
   end
     
 end

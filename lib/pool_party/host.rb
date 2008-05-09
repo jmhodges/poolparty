@@ -84,7 +84,7 @@ module PoolParty
     
     # Load and start the minimum number of instances
     def launch_minimum_instances
-      request_launch_new_instances(minimum_instances - number_of_running_instances)
+      request_launch_new_instances(Application.minimum_instances - number_of_running_instances)
     end
     
     # update the instance values from ec2
@@ -96,16 +96,7 @@ module PoolParty
     end
     def terminate_instance_if_load_is_low      
     end
-    
-    # Gives us the usage of method calling for the configuration
-    def method_missing(m,*args)
-      if config.include?("#{m}") 
-        config["#{m}"]
-      else
-        super
-      end
-    end
-    
+        
     # Refactor this into something nice
     # Error message
     def return_404(env, req, mess=nil)

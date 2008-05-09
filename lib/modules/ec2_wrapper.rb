@@ -39,7 +39,7 @@ module PoolParty
       
       # EC2 connections
       def ec2
-        @ec2 ||= EC2::Base.new(:access_key_id => access_key_id, :secret_access_key => secret_access_key)
+        @ec2 ||= EC2::Base.new(:access_key_id => Application.access_key_id, :secret_access_key => Application.secret_access_key)
       end
       
       private
