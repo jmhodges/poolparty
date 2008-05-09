@@ -4,7 +4,7 @@ require 'lib/pool_party'
 
 task :default => :test
 
-PoolParty::Tasks.new
+# PoolParty::Tasks.new
 
 Echoe.new("pool_party") do |p|
   p.author = "Ari Lerner"
@@ -15,3 +15,4 @@ Echoe.new("pool_party") do |p|
   p.install_message = "*** Ari Lerner @ blog.citrusbyte.com ***"
   p.include_rakefile = true
 end
+

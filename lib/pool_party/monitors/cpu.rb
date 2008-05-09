@@ -1,9 +1,7 @@
 module PoolParty
-  extend self
-  
   module Monitors
-    class Cpu < Monitor
-      def monitor!
+    module Cpu
+      def self.monitor!
         IO.popen("uptime") do |up|
           @line = up.gets.split(/\s+/)          
         end

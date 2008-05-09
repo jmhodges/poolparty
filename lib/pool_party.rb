@@ -53,4 +53,8 @@ module PoolParty
     Application.options(opts)
     Host.new
   end
+  
+  def client
+    LocalInstance.new
+  end
 end
