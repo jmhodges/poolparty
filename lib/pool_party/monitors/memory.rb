@@ -1,9 +1,7 @@
 module PoolParty
-  extend self
-  
   module Monitors
-    class Memory < Monitor
-      def monitor!
+    module Memory
+      def self.monitor!
         IO.popen("free -m | grep -i mem") { |io|
           line = io.gets.split
 
@@ -15,5 +13,4 @@ module PoolParty
       end
     end
   end
-  
 end

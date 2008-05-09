@@ -11,11 +11,12 @@ module PoolParty
     def initialize
       super
       
+      puts "== Throwing a party at #{port}"
       puts "== launching initial #{Application.minimum_instances} instances"
       launch_minimum_instances
       
       start_monitor!
-      start_proxy_server!      
+      start_server!      
     end
     # == PROXY
     # This is where Rack answers the request
@@ -38,36 +39,8 @@ module PoolParty
       
     end
     
-    def build
-      app = self
-      # app = Rack::Session::Cookie.new(app, :key => rand_key(16)) if options.sessions == true
-      app = Rack::CommonLogger.new(app) if options.logging == true
-      app
-    end
-    
     def options
       Application.options
-    end
-    
-    # Start the server to ping host the actual responses
-    def start_proxy_server!
-      puts "starting transparent monitoring on #{Application.host_port}"
-      require 'pp'
-      begin
-        server.run(build, :Port => Application.host_port) do |server|
-          trap(:INT) do
-            request_termination_of_running_instances
-            server.stop
-          end
-        end
-      rescue Exception => e
-        puts "There was an error: #{e}"
-      end
-    end
-            
-    # If we can, use Thin for the server, but if not, don't worry, we'll use mongrel
-    def server
-      @server ||= defined?(Rack::Handler::Thin) ? Rack::Handler::Thin : Rack::Handler::Mongrel
     end
     
     def get_next_instance_for_proxy
@@ -116,5 +89,12 @@ module PoolParty
       [num, {'Content-Type' => "text/html"}, body]
     end
     
+    def on_server_exit
+      request_termination_of_running_instances
+    end
+    
+    def port
+      Application.host_port
+    end
   end
 end
