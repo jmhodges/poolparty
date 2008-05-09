@@ -5,4 +5,4 @@ require 'rubygems'
 require 'rack'
 require 'lib/pool_party'
 
-PoolParty.server :config_file => "../config/config.yml"
+PoolParty.server

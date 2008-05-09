@@ -9,17 +9,21 @@ module PoolParty
     attr_reader :bucket_instances
     
     def initialize
-      super      
+      super
+      
+      puts "== launching initial #{Application.minimum_instances} instances"
+      launch_minimum_instances
+      
       start_monitor!
       start_proxy_server!      
     end
     # == PROXY
     # This is where Rack answers the request
-    def call(env)      
+    def call(env)
       req = Rack::Request.new(env)
       inst = get_next_instance_for_proxy
-      
-      puts "using #{inst.ip} to call for #{req.path_info}"
+      puts "== using #{inst.ip}"
+      return_error(503, env, req, "error: #{e}") unless inst
       
       # Show a nice pretty error if we are development env
       if Application.development?
@@ -28,7 +32,7 @@ module PoolParty
         begin
           inst.process(env, req)
         rescue Exception => e
-          return_404(env, req, "error: #{e}")
+          return_error(404, env, req, "error: #{e}")
         end        
       end
       
@@ -47,11 +51,12 @@ module PoolParty
     
     # Start the server to ping host the actual responses
     def start_proxy_server!
-      puts "starting transparent monitoring on #{options.port}"
+      puts "starting transparent monitoring on #{Application.host_port}"
       require 'pp'
       begin
-        server.run(build, :Port => options.port) do |server|
+        server.run(build, :Port => Application.host_port) do |server|
           trap(:INT) do
+            request_termination_of_running_instances
             server.stop
           end
         end
@@ -66,7 +71,9 @@ module PoolParty
     end
     
     def get_next_instance_for_proxy
-      @running_instances.unshift @running_instances.pop      
+      returning running_instances.shift do |inst|
+        running_instances.push inst
+      end
     end   
     
     # == MONITORING
@@ -88,8 +95,12 @@ module PoolParty
     end
     
     # update the instance values from ec2
+    def running_instances
+      @running_instances ||= update_instance_values
+    end
+    
     def update_instance_values
-      @running_instances = get_instances_description.collect {|a| RemoteInstance.new(a) }.sort
+      @running_instances = list_of_running_instances.collect {|a| RemoteInstance.new(a) }.sort
     end
     
     def add_instance_if_load_is_high
@@ -99,10 +110,10 @@ module PoolParty
         
     # Refactor this into something nice
     # Error message
-    def return_404(env, req, mess=nil)
+    def return_error(num, env, req, mess=nil)
       resp = Rack::Response.new(env)
       body = "<h1>Error</h1><br />#{mess}"
-      [404, {'Content-Type' => "text/html"}, body]
+      [num, {'Content-Type' => "text/html"}, body]
     end
     
   end

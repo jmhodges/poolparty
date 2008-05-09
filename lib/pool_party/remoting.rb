@@ -42,7 +42,7 @@ module PoolParty
       eval(interval_wait_time).ago >= startup_time && maximum_number_of_instances_are_running?
     end
     def maximum_number_of_instances_are_running?
-      list_of_running_instances.size < maximum_instances
+      list_of_running_instances.size < Application.maximum_instances
     end
     def update_startup_time
       @last_startup_time = Time.now
@@ -80,7 +80,7 @@ module PoolParty
       eval(interval_wait_time).ago >= shutdown_time && minimum_number_of_instances_are_running?
     end
     def minimum_number_of_instances_are_running?
-      list_of_running_instances.size > minimum_instances
+      list_of_running_instances.size > Application.minimum_instances
     end
     def update_shutdown_time 
       @last_shutdown_time = Time.now

@@ -9,7 +9,7 @@ module PoolParty
     module InstanceMethods
       # Run a new instance, with the user_data and the ami described in the config
       def launch_new_instance!
-        instance = ec2.run_instances(:image_id => ami, :user_data => "#{Application.launching_user_data}")
+        instance = ec2.run_instances(:image_id => Application.ami, :user_data => "#{Application.launching_user_data}")
         item = instance.RunInstancesResponse.instancesSet.item
         get_hash_from_response(item)
       end

@@ -50,7 +50,6 @@ module PoolParty
   # end
   # Starts the new server host to monitor the instances
   def server(opts={})
-    puts "n server"
     Application.options(opts)
     Host.new
   end

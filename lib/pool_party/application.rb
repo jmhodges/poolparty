@@ -9,6 +9,7 @@ module PoolParty
     class << self
             
       def options(opts={})
+        load_options!
         @options ||= OpenStruct.new(default_options.merge(opts))
       end
 
@@ -16,12 +17,12 @@ module PoolParty
       def load_options!
         require 'optparse'
         OptionParser.new do |op|
-          op.on('-A key', '--access-key key', "Ec2 access key (default: '')") { |key| default_options[:access_key_id] = key }
-          op.on('-S key', '--secret-access-key key', "Ec2 secret access key (default: '')") { |key| default_options[:secret_access_key] = key }
+          op.on('-A key', '--access-key key', "Ec2 access key (required)") { |key| default_options[:access_key_id] = key }
+          op.on('-S key', '--secret-access-key key', "Ec2 secret access key (required)") { |key| default_options[:secret_access_key] = key }
+          op.on('-I ami', '--image-id id', "AMI instance (required)") {|id| default_options[:ami] = id }
           op.on('-p port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
           op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
-          op.on('-c file','--config file', "Specify a config file (default: config/config.yml)") {|file| default_options[:config_file] = file}
           op.on('-s', '--[no-]sessions', "Run with sessions (default: false)") { |sessions| default_options[:sessions] = sessions }
           op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:user_data] = data }
           op.on('-t seconds', '--polling-time', "Time between polling in seconds (default 50)") {|t| default_options[:polling_time] = t }
@@ -51,7 +52,7 @@ module PoolParty
           :maximum_instances => 3,
           :access_key_id => "",
           :secret_access_key => "",
-          :config_file => File.join(%w(config config.yml))
+          :ami => ''
         }
       end
       

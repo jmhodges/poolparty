@@ -3,13 +3,7 @@ module PoolParty
     attr_reader :load, :ip
     
     def initialize(obj)
-      begin
-        @ip = obj.value.split("\n")[0]
-        @load = obj.value.split("\n")[1]
-        
-        poll_status
-      rescue Exception => e
-      end
+      @ip = obj[:ip]
     end
     
     # Process the actual proxy request against the server
@@ -69,11 +63,11 @@ module PoolParty
       (cpu + memory)/2 * web
     end
     # Define polling mechanism here
-    def poll_status
-      @status = YAML.load open(@ip+":#{Application.client_port}/status").read
+    def status
+      @status ||= YAML.load open("http://"+@ip+":#{Application.client_port}/status").read
     end
     
-    %w(cpu memory web).each {|a| define_method(a.to_sym) { @status[a.to_sym]} }
+    %w(cpu memory web).each {|a| define_method(a.to_sym) { status[a.to_sym]} }
     
   end
 end
