@@ -5,9 +5,9 @@ module PoolParty
     def initialize(obj)
       @ip = obj[:ip]
     end
-    
+            
     # Process the actual proxy request against the server
-    def process(env, rackreq)            
+    def process(env, rackreq)
       headers = Rack::Utils::HeaderHash.new
       env.each { |key, value|
        if key =~ /HTTP_(.*)/
@@ -64,10 +64,10 @@ module PoolParty
     end
     # Define polling mechanism here
     def status
-      @status ||= YAML.load open("http://"+@ip+":#{Application.client_port}/status").read
+      @status ||= YAML.load(open("http://#{@ip}:#{Application.client_port}/status").read)
     end
     
-    %w(cpu memory web).each {|a| define_method(a.to_sym) { status[a.to_sym]} }
+    %w(cpu memory web).each {|a| define_method(a.to_sym) { status["#{a}"].to_f } }
     
   end
 end

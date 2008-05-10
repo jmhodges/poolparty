@@ -1,1 +1,1 @@
-%w(application scheduler remoting bucket_flag remote_instance host monitors local_instance).each {|f| require File.join(File.dirname(__FILE__), f)}
+%w(application scheduler remoting bucket_flag host monitors instances).each {|f| require File.join(File.dirname(__FILE__), f)}
