@@ -11,7 +11,7 @@ end
 include PoolParty
 extend PoolParty
 
-# Organizer.environment = :test
+Application.environment = "test"
 
 module Test::Unit::AssertDifference
   def assert_difference(object, method = nil, difference = 1)

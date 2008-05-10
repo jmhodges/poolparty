@@ -6,6 +6,8 @@ module PoolParty
   extend self
   
   class Host < Remoting    
+    include Server
+    
     attr_reader :bucket_instances
     
     def initialize
@@ -13,10 +15,12 @@ module PoolParty
       
       puts "== Throwing a party at #{port}"
       puts "== launching initial #{Application.minimum_instances} instances"
-      launch_minimum_instances
-      
+      launch_minimum_instances      
+    end
+    
+    def start!
       start_monitor!
-      start_server!      
+      start_server!
     end
     # == PROXY
     # This is where Rack answers the request
