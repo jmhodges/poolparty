@@ -26,7 +26,7 @@ module PoolParty
 
     # Load the configuration parameters from the user-data when launched
     def config
-      @config ||= Application.development? ? { "port" => 7788, "interval" => 30 } : YAML.load(URI.parse("http://169.254.169.254/latest/user-data"))
+      @config ||= YAML.load(URI.parse("http://169.254.169.254/latest/user-data"))
     end
     
     def start_monitors!
