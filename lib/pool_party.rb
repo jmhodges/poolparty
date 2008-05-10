@@ -51,10 +51,10 @@ module PoolParty
   # Starts the new server host to monitor the instances
   def server(opts={})
     Application.options(opts)
-    Host.new
+    Host.new.start!
   end
   
   def client
-    LocalInstance.new
+    LocalInstance.new.start!
   end
 end

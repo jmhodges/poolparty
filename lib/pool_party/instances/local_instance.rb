@@ -6,8 +6,10 @@ module PoolParty
     attr_reader :cpu, :memory, :web
     
     def initialize
-      super(config["interval"])
-      
+      super(config["interval"])      
+    end
+    
+    def start!
       start_monitors!
       start_server!
     end
@@ -24,7 +26,7 @@ module PoolParty
 
     # Load the configuration parameters from the user-data when launched
     def config
-      @config ||= { "port" => 7788, "interval" => 30 }#YAML.load(URI.parse("http://169.254.169.254/latest/user-data"))
+      @config ||= Application.development? ? { "port" => 7788, "interval" => 30 } : YAML.load(URI.parse("http://169.254.169.254/latest/user-data"))
     end
     
     def start_monitors!

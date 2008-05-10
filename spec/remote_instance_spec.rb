@@ -23,10 +23,7 @@ describe "remote instance" do
   end  
   
   describe "when handling proxy requests" do
-    it "should respond to process call" do
-      # @instance.should_receive(:process).and_return("")
-      @instance.process
-    end
+    it "should respond to process call"
   end
 end
 
