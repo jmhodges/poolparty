@@ -42,7 +42,7 @@ module PoolParty
           :run => true,
           :host_port => 7788,
           :client_port => 7788,
-          :environment => :development,
+          :environment => 'development',
           :debug => true,
           :logging => true,
           :sessions => false,
@@ -57,7 +57,7 @@ module PoolParty
       end
       
       def development?
-        environment == :development
+        environment == 'development'
       end
       
       def launching_user_data

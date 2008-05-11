@@ -44,4 +44,7 @@ describe "in groups" do
     @instances[0].should_receive(:status).at_least(1).times.and_return(@stats[0])
     @instances.sort
   end
+  it "should create a status based off the previous one" do
+    (@instances[0].status_level < @instances[1].status_level).should == true
+  end
 end

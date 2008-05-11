@@ -59,8 +59,11 @@ module PoolParty
     end
     
     # Algorithm definition for load
-    def <=>(b)
+    def status_level
       (cpu + memory)/2 * web
+    end
+    def <=>(b)
+      status_level <=> b.status_level
     end
     # Define polling mechanism here
     def status
