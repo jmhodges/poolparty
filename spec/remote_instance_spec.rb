@@ -23,7 +23,21 @@ describe "remote instance" do
   end  
   
   describe "when handling proxy requests" do
-    it "should respond to process call"
+    before(:each) do
+      @mock_http = mock("http")
+      Application.stub!(:client_port).and_return(7788)
+      
+      Net::HTTP.stub!(:start).and_yield @mock_http            
+      
+      @req = Rack::Request.new(Rack::MockRequest.env_for("http://127.0.0.1:7788/"))
+      @response = Rack::Response.new
+      @mock_http.stub!(:request).and_return( @response.finish )
+      
+      @instance.stub!(:ip).and_return("http://127.0.0.1")
+    end
+    it "should respond to process call" do
+      p @instance.process("/", @req)
+    end
   end
 end
 
