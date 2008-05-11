@@ -39,17 +39,5 @@ describe "Remoting" do
     @remoting.request_launch_one_instance_at_a_time
     @remoting.number_of_pending_instances.should == 1
     @remoting.request_termination_of_running_instances
-  end
-  
-  describe "Host" do
-    it "should be able to connect to s3 when required" do
-      @remoting.connect_to_s3!.should_not be_nil
-    end
-    it "should be able to fetch the config from the specified file" do
-      @remoting.access_key_id.should_not be_nil
-    end
-  end
-  describe "Client remoting" do
-    it "should be able to connect to s3 when required, from the user-data"
-  end
+  end  
 end

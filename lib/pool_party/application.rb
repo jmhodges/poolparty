@@ -17,8 +17,8 @@ module PoolParty
       def load_options!
         require 'optparse'
         OptionParser.new do |op|
-          op.on('-A key', '--access-key key', "Ec2 access key (required)") { |key| default_options[:access_key_id] = key }
-          op.on('-S key', '--secret-access-key key', "Ec2 secret access key (required)") { |key| default_options[:secret_access_key] = key }
+          op.on('-A key', '--access-key key', "Ec2 access key (ENV['ACCESS_KEY'])") { |key| default_options[:access_key_id] = key }
+          op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['SECRET_ACCESS_KEY'])") { |key| default_options[:secret_access_key] = key }
           op.on('-I ami', '--image-id id', "AMI instance (required)") {|id| default_options[:ami] = id }
           op.on('-p port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
@@ -50,8 +50,8 @@ module PoolParty
           :user_data => "",
           :minimum_instances => 1,
           :maximum_instances => 3,
-          :access_key_id => "",
-          :secret_access_key => "",
+          :access_key_id => ENV["ACCESS_KEY"],
+          :secret_access_key => ENV["SECRET_ACCESS_KEY"],
           :ami => ''
         }
       end
