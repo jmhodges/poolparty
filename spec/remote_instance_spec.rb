@@ -29,7 +29,7 @@ describe "remote instance" do
       
       Net::HTTP.stub!(:start).and_yield @mock_http            
       
-      @req = Rack::Request.new(Rack::MockRequest.env_for("http://127.0.0.1:7788/"))
+      @req = Rack::MockRequest.env_for("http://127.0.0.1:7788/")
       @response = Rack::Response.new
       @mock_http.stub!(:request).and_return( @response.finish )
       
