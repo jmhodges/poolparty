@@ -9,7 +9,7 @@ describe "Host" do
     @host.stub!(:launch_new_instance!).and_return({:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"})
     
     @host.stub!(:ec2).and_return(@ec2)
-    @host.stub!(:get_instances_description).and_return([])
+    @host.stub!(:get_instances_description).and_return([{:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"}])
   end
   
   describe "in general" do
@@ -31,8 +31,36 @@ describe "Host" do
       @host.stub!(:get_instances_description).and_return([{:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"}])
       (Application.minimum_instances - @host.number_of_running_instances).should == 0
     end
-    it "should be able to launch_minimum_instances" do
-      @host.launch_minimum_instances
+    it "should update the instance values and should return an array" do
+      @host.update_instance_values.class.should == Array
+    end
+    it "should return update_instance_values an array of RemoteInstances" do
+      @host.update_instance_values.first.class.should == RemoteInstance
+    end
+    it "should not update the instance values if it is already set" do
+      @host.update_instance_values
+      @host.should_not_receive(:list_of_running_instances)
+      @host.running_instances
+    end
+    it "should be able to launch_minimum_instances"
+    it "should add_instance_if_load_is_high"
+    it "should terminate_instance_if_load_is_low"
+  end
+  
+  describe "monitoring the instances" do
+    before(:each) do
+      @host.stub!(:get_instances_description).and_return([
+        {:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"},
+        {:instance_id => "i-5849bb", :ip => "ip-127-0-0-2.aws.amazon.com", :status => "running"}
+        ])
+    end
+    it "should run_thread_loop when calling start_monitor!" do
+      @host.should_receive(:run_thread_loop).once.and_yield lambda {}
+      @host.start_monitor!
+    end
+    it "should get_next_instance_for_proxy and cycle through the list of the RemoteInstances" do
+      @host.get_next_instance_for_proxy.instance_id.should == "i-5849ba"
+      @host.get_next_instance_for_proxy.instance_id.should == "i-5849bb"
     end
   end
   

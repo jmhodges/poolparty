@@ -16,6 +16,7 @@ module PoolParty
     
     def start!
       launch_minimum_instances
+      
       start_monitor!
       start_server!
     end
@@ -55,8 +56,8 @@ module PoolParty
     # Add instances when necessary (load or hits are too high to sustain)
     def start_monitor!
       run_thread_loop do
-        add_task {launch_minimum_instances}
-        add_task {update_instance_values}
+        add_task {launch_minimum_instances} # If the base instances go down...
+        add_task {update_instance_values} # Get the updated values
         add_task {add_instance_if_load_is_high}
         add_task {terminate_instance_if_load_is_low}
       end
