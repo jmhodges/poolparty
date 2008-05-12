@@ -53,6 +53,31 @@ describe "Host" do
     it "should terminate_instance_if_load_is_low"
   end
   
+  describe "when shutting down an instance" do
+    before(:each) do
+      Application.stub!(:interval_wait_time).and_return "30.seconds"
+    end
+    it "should be able to shut down an instance with request_termination_of_instance" do
+      @host.stub!(:can_shutdown_an_instance?).and_return true
+      @host.should_receive(:terminate_instance!).and_return true
+      @host.request_termination_of_instance("i-5849ba")
+    end
+    it "should check with can_shutdown_an_instance? to shutdown an instance" do
+      @host.should_receive(:shutdown_time).once.and_return Time.now
+      @host.can_shutdown_an_instance?.should == false
+    end
+    it "should not return true for can_shutdown_an_instance? if the minimum instances aren't running" do
+      @host.should_receive(:shutdown_time).once.and_return eval("10.minutes.ago")
+      @host.should_receive(:minimum_number_of_instances_are_running?).and_return false
+      @host.can_shutdown_an_instance?.should == false
+    end
+    it "should return true if the minimum instances are running and the interval-wait-time has passed" do
+      @host.should_receive(:shutdown_time).once.and_return eval("10.minutes.ago")
+      @host.should_receive(:minimum_number_of_instances_are_running?).and_return true
+      @host.can_shutdown_an_instance?.should == true
+    end
+  end
+  
   describe "monitoring the instances" do
     before(:each) do
       @host.stub!(:get_instances_description).and_return([

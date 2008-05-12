@@ -29,6 +29,7 @@ module PoolParty
           op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:debug] = v}
           op.on('-i number', '--minimum-instances', "The minimum number of instances to run at all times (default 1)") {|i| default_options[:minimum_instances] = i}
           op.on('-x number', '--maximum-instances', "The maximum number of instances to run (default 3)") {|x| default_options[:maximum_instances] = x}
+          op.on('-w seconds', '--interval-wait-time', "The number of seconds to wait between shutdown or startup of an instance (default 5.minutes)") {|w| default_options[:interval_wait_time] = w}          
           
           op.on_tail("-h", "--help", "Show this message") do
             puts op
@@ -46,7 +47,8 @@ module PoolParty
           :debug => true,
           :logging => true,
           :sessions => false,
-          :polling_time => 50,
+          :polling_time => "50",
+          :interval_wait_time => "300",
           :user_data => "",
           :minimum_instances => 1,
           :maximum_instances => 3,

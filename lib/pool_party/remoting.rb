@@ -76,8 +76,8 @@ module PoolParty
         return false
       end
     end
-    def can_shutdown_an_instance?      
-      eval(interval_wait_time).ago >= shutdown_time && minimum_number_of_instances_are_running?
+    def can_shutdown_an_instance?
+      eval(Application.interval_wait_time).ago >= shutdown_time && minimum_number_of_instances_are_running?
     end
     def minimum_number_of_instances_are_running?
       list_of_running_instances.size > Application.minimum_instances
