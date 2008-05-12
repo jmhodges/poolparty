@@ -1,9 +1,10 @@
 module PoolParty
   class RemoteInstance
-    attr_reader :load, :ip
+    attr_reader :load, :ip, :instance_id
     
     def initialize(obj)
       @ip = obj[:ip]
+      @instance_id = obj[:instance_id]
     end
             
     # Process the actual proxy request against the server
