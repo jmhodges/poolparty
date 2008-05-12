@@ -24,19 +24,19 @@ describe "remote instance" do
   
   describe "when handling proxy requests" do
     before(:each) do
-      @mock_http = mock("http")
-      Application.stub!(:client_port).and_return(7788)
-      
-      Net::HTTP.stub!(:start).and_yield @mock_http            
-      
-      @req = Rack::MockRequest.env_for("http://127.0.0.1:7788/")
-      @response = Rack::Response.new
-      @mock_http.stub!(:request).and_return( @response.finish )
-      
-      @instance.stub!(:ip).and_return("http://127.0.0.1")
+      # @mock_http = mock("http", :code => 200, :body => "hi", :get => "response")      
+      @env = Rack::MockRequest.env_for("http://127.0.0.1:7788/")
+      res = mock(:code => '200', :body => 'success')
+      res.stub!(:code).and_return(200)
+      res.stub!(:to_hash).and_return({:code => 200})
+      res.stub!(:body).and_return("success")
+      @instance.stub!(:get_http_response).and_return( res )
     end
-    it "should respond to process call" do
-      p @instance.process("/", @req)
+    it "should respond to process call with an array" do
+      @instance.process(@env).class.should == Array
+    end
+    it "should respond to process call with an array of size 3" do
+      @instance.process(@env).size.should == 3
     end
   end
 end

@@ -11,33 +11,29 @@ module PoolParty
     attr_reader :bucket_instances
     
     def initialize
-      super
-      
-      puts "== Throwing a party at #{port}"
-      puts "== launching initial #{Application.minimum_instances} instances"
-      launch_minimum_instances      
+      super      
     end
     
     def start!
+      launch_minimum_instances
       start_monitor!
       start_server!
     end
     # == PROXY
     # This is where Rack answers the request
     def call(env)
-      req = Rack::Request.new(env)
       inst = get_next_instance_for_proxy
       puts "== using #{inst.ip}"
-      return_error(503, env, req, "error: #{e}") unless inst
+      return_error(503, env, "error: #{e}") unless inst
       
       # Show a nice pretty error if we are development env
       if Application.development?
-        inst.process(env, req)
+        inst.process(env)
       else
         begin
-          inst.process(env, req)
+          inst.process(env)
         rescue Exception => e
-          return_error(404, env, req, "error: #{e}")
+          return_error(404, env, "error: #{e}")
         end        
       end
       
@@ -87,7 +83,7 @@ module PoolParty
         
     # Refactor this into something nice
     # Error message
-    def return_error(num, env, req, mess=nil)
+    def return_error(num, env, mess=nil)
       resp = Rack::Response.new(env)
       body = "<h1>Error</h1><br />#{mess}"
       [num, {'Content-Type' => "text/html"}, body]
