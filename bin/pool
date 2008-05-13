@@ -5,4 +5,7 @@ require 'rubygems'
 require 'rack'
 require 'lib/pool_party'
 
-PoolParty.server
+# Set defaults
+host,options = PoolParty.server
+
+p options

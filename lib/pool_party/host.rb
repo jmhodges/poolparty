@@ -24,8 +24,8 @@ module PoolParty
     # This is where Rack answers the request
     def call(env)
       inst = get_next_instance_for_proxy
+      return_error(503, env, "error") unless inst && inst.ip
       puts "== using #{inst.ip}"
-      return_error(503, env, "error: #{e}") unless inst
       
       # Show a nice pretty error if we are development env
       if Application.development?

@@ -75,7 +75,11 @@ module PoolParty
     end
     # Define polling mechanism here
     def status
-      @status ||= YAML.load(open("http://#{@ip}:#{Application.client_port}/status").read)
+      begin
+        @status ||= YAML.load(open("http://#{@ip}:#{Application.client_port}/status").read)
+      rescue Exception => e
+        puts "== error: #{e}"
+      end            
     end
     
     %w(cpu memory web).each {|a| define_method(a.to_sym) { status["#{a}"].to_f } }

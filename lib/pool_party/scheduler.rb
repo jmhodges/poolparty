@@ -8,7 +8,8 @@ module PoolParty
     def initialize
       @tasks = []
       run
-    end 
+    end
+    
     def run
       unless @tasks.empty?
         self.class.synchronize do

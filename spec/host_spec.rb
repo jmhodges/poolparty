@@ -134,6 +134,9 @@ describe "Host" do
       @host.start!
     end
   end
+  describe "with proxy requests" do
+    
+  end
   
   describe "error reporting" do
     it "should be able to respond with a 404" do
