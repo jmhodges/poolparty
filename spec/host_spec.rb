@@ -22,9 +22,6 @@ describe "Host" do
   end
   
   describe "dealing with instances" do
-    it "should be able to launch a new instance with launch_new_instance!" do
-      @host.launch_new_instance!.should == {:instance_id=>"i-5849ba", :ip=>"ip-127-0-0-1.aws.amazon.com", :status=>"running"}
-    end
     it "should be able to get the minimum number of instances running from the config file and the actual running data" do
       @host.stub!(:get_instances_description).and_return([])
       (Application.minimum_instances - @host.number_of_running_instances).should == 1
@@ -42,15 +39,46 @@ describe "Host" do
       @host.should_not_receive(:list_of_running_instances)
       @host.running_instances
     end
+    it "should keep track of the current load"
+    it "should add_instance_if_load_is_high"
+    it "should terminate_instance_if_load_is_low"
+  end
+  
+  describe "when starting an instance" do
+    before(:each) do
+      Application.stub!(:interval_wait_time).and_return "30.seconds"
+    end
+    it "should be able to launch a new instance with launch_new_instance!" do
+      @host.launch_new_instance!.should == {:instance_id=>"i-5849ba", :ip=>"ip-127-0-0-1.aws.amazon.com", :status=>"running"}
+    end
     it "should be able to launch_minimum_instances" do
       @host.stub!(:number_of_running_instances).and_return 0
       @host.stub!(:number_of_pending_instances).and_return 0
       @host.should_receive(:launch_new_instance!).and_return({:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"})
       @host.launch_minimum_instances
     end
-    it "should keep track of the current load"
-    it "should add_instance_if_load_is_high"
-    it "should terminate_instance_if_load_is_low"
+    it "should be able to start a new instance with request_launch_new_instances" do
+      @host.stub!(:number_of_pending_instances).and_return(0)
+      @host.should_receive(:launch_new_instance!).once
+      @host.request_launch_new_instances
+    end
+    it "should be able to get the number of pending instances in list_of_pending_instances" do
+      @host.list_of_pending_instances.size.should == 0
+    end
+    it "should check with can_start_a_new_instance? to start an instance" do
+      @host.should_receive(:startup_time).once.and_return Time.now
+      @host.can_start_a_new_instance?.should == false
+    end
+    it "should not return true for can_start_a_new_instance? if the minimum instances are running" do
+      @host.should_receive(:startup_time).once.and_return eval("10.minutes.ago")
+      @host.should_receive(:maximum_number_of_instances_are_running?).and_return false
+      @host.can_start_a_new_instance?.should == false
+    end
+    it "should return true if the minimum instances are running and the interval-wait-time has passed" do
+      @host.should_receive(:startup_time).once.and_return eval("10.minutes.ago")
+      @host.should_receive(:maximum_number_of_instances_are_running?).and_return true
+      @host.can_start_a_new_instance?.should == true
+    end    
   end
   
   describe "when shutting down an instance" do

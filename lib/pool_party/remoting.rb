@@ -39,7 +39,7 @@ module PoolParty
       end
     end
     def can_start_a_new_instance?
-      eval(interval_wait_time).ago >= startup_time && maximum_number_of_instances_are_running?
+      eval(Application.interval_wait_time).ago >= startup_time && maximum_number_of_instances_are_running?
     end
     def maximum_number_of_instances_are_running?
       list_of_running_instances.size < Application.maximum_instances
