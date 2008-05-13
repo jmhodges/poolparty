@@ -1,9 +1,10 @@
 module PoolParty
   extend self
   
-  class Remoting < Scheduler
+  class Remoting
     include PoolParty
     include Ec2Wrapper
+    include Scheduler
                 
     # == GENERAL METHODS    
     # == LISTING
@@ -65,6 +66,9 @@ module PoolParty
     # Terminate all running instances
     def request_termination_of_running_instances
       list_of_running_instances.each {|a| terminate_instance!(a[:instance_id])}
+    end
+    def request_termination_of_all_instances
+      get_instances_description.each {|a| terminate_instance!(a[:instance_id])}
     end
     # Terminate instance by id
     def request_termination_of_instance(id)

@@ -11,7 +11,12 @@ end
 include PoolParty
 extend PoolParty
 
-Application.environment = "test"
+def wait_launch(starting_size=0,time=5)
+  pid = fork {yield}
+  sleep time
+  Process.kill("INT", pid)
+  Process.wait(pid, 0)
+end
 
 module Test::Unit::AssertDifference
   def assert_difference(object, method = nil, difference = 1)

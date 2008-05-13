@@ -5,7 +5,6 @@ $:.unshift File.dirname(__FILE__)     # For use/testing when no gem is installed
 
 # rubygems
 require 'rubygems'
-require "yaml"
 require "aws/s3"
 require "sqs"
 require "EC2"
@@ -50,14 +49,11 @@ module PoolParty
   # end
   # Starts the new server host to monitor the instances
   def server(opts={})
-    return [Host.new, Application.options(opts)]
+    [Host.new, Application.options(opts)]
   end
   
   def client
     LocalInstance.new.start!
   end
   
-  def options
-    Application.options
-  end
 end

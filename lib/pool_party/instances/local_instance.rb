@@ -1,7 +1,8 @@
 module PoolParty
-  class LocalInstance < Scheduler
+  class LocalInstance
     include Monitors
     include Server
+    include Scheduler
     
     attr_reader :cpu, :memory, :web
     

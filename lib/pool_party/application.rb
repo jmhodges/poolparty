@@ -9,8 +9,20 @@ module PoolParty
     class << self
             
       def options(opts={})
+        @options ||= make_options(opts)
+      end
+      
+      def make_options(opts={})
         load_options!
-        @options ||= OpenStruct.new(default_options.merge(opts))
+        default_options.merge!(opts)
+        
+        unless default_options[:config_file].empty?
+          require "yaml"
+          filedata = open(default_options[:config_file]).read
+          default_options.merge!( YAML.load(filedata) ) if filedata
+        end
+        
+        OpenStruct.new(default_options)
       end
 
       # Load options 
@@ -20,6 +32,7 @@ module PoolParty
           op.on('-A key', '--access-key key', "Ec2 access key (ENV['ACCESS_KEY'])") { |key| default_options[:access_key_id] = key }
           op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['SECRET_ACCESS_KEY'])") { |key| default_options[:secret_access_key] = key }
           op.on('-I ami', '--image-id id', "AMI instance (default: 'ami-4a46a323')") {|id| default_options[:ami] = id }
+          op.on('-c file', '--config-file file', "Config file (default: '')") {|file| default_options[:config_file] = file }
           op.on('-p port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
           op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
@@ -54,8 +67,8 @@ module PoolParty
           :maximum_instances => 3,
           :access_key_id => ENV["ACCESS_KEY"],
           :secret_access_key => ENV["SECRET_ACCESS_KEY"],
-          :ami => 'ami-4a46a323',
-          :command_line => []
+          :config_file => "",
+          :ami => 'ami-4a46a323'
         }
       end
       
@@ -73,9 +86,5 @@ module PoolParty
              
     end
   end
-  
-  def options
-    Application.options
-  end
-  
+    
 end
