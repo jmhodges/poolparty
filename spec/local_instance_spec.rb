@@ -3,10 +3,9 @@ require "#{File.dirname(__FILE__)}/spec_helper"
 describe "local instance" do
   before(:each) do
     
-    config = {"port" => 7788, "interval" => 30}.to_yaml
-    URI.stub!(:parse).with("http://169.254.169.254/latest/user-data").and_return(config)
-    
-    
+    conf = {"port" => 7788, "interval" => 30}.to_yaml
+    URI.stub!(:parse).with("http://169.254.169.254/latest/user-data").and_return(conf)
+        
     @instance = LocalInstance.new
     @instance.stub!(:start_monitors!).and_return(true)
     @instance.stub!(:start_server!).and_return(true)
@@ -50,7 +49,6 @@ describe "local instance" do
       YAML.load(@instance.status).should == {"cpu" => 0.14, "memory" => 0.74, "web" => 120.0}
     end
     it "should load the config from the user-data" do
-      YAML.should_receive(:load)
       @instance.config.should_not be_nil
     end
   end

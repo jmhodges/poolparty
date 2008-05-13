@@ -17,8 +17,8 @@ module PoolParty
       def load_options!
         require 'optparse'
         OptionParser.new do |op|
-          op.on('-A key', '--access-key key', "Ec2 access key (required)") { |key| default_options[:access_key_id] = key }
-          op.on('-S key', '--secret-access-key key', "Ec2 secret access key (required)") { |key| default_options[:secret_access_key] = key }
+          op.on('-A key', '--access-key key', "Ec2 access key (ENV['ACCESS_KEY'])") { |key| default_options[:access_key_id] = key }
+          op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['SECRET_ACCESS_KEY'])") { |key| default_options[:secret_access_key] = key }
           op.on('-I ami', '--image-id id', "AMI instance (required)") {|id| default_options[:ami] = id }
           op.on('-p port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
@@ -29,6 +29,7 @@ module PoolParty
           op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:debug] = v}
           op.on('-i number', '--minimum-instances', "The minimum number of instances to run at all times (default 1)") {|i| default_options[:minimum_instances] = i}
           op.on('-x number', '--maximum-instances', "The maximum number of instances to run (default 3)") {|x| default_options[:maximum_instances] = x}
+          op.on('-w seconds', '--interval-wait-time', "The number of seconds to wait between shutdown or startup of an instance (default 5.minutes)") {|w| default_options[:interval_wait_time] = w}          
           
           op.on_tail("-h", "--help", "Show this message") do
             puts op
@@ -42,22 +43,23 @@ module PoolParty
           :run => true,
           :host_port => 7788,
           :client_port => 7788,
-          :environment => :development,
+          :environment => 'development',
           :debug => true,
           :logging => true,
           :sessions => false,
-          :polling_time => 50,
+          :polling_time => "50",
+          :interval_wait_time => "300",
           :user_data => "",
           :minimum_instances => 1,
           :maximum_instances => 3,
-          :access_key_id => "",
-          :secret_access_key => "",
+          :access_key_id => ENV["ACCESS_KEY"],
+          :secret_access_key => ENV["SECRET_ACCESS_KEY"],
           :ami => ''
         }
       end
       
       def development?
-        environment == :development
+        environment == 'development'
       end
       
       def launching_user_data

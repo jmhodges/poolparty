@@ -1,21 +1,30 @@
 module PoolParty
   class RemoteInstance
-    attr_reader :load, :ip
+    attr_reader :load, :ip, :instance_id
     
     def initialize(obj)
       @ip = obj[:ip]
+      @instance_id = obj[:instance_id]
     end
             
     # Process the actual proxy request against the server
-    def process(env, rackreq)
+    def process(env)
+      rackreq = Rack::Request.new(env)
       headers = Rack::Utils::HeaderHash.new
+      
       env.each { |key, value|
        if key =~ /HTTP_(.*)/
          headers[$1] = value
        end
       }      
 
-      res = Net::HTTP.start(@ip, Application.client_port) { |http|
+      res = get_http_response(rackreq, headers)
+      
+      [res.code, Rack::Utils::HeaderHash.new(res.to_hash), [res.body]]     
+    end
+    
+    def get_http_response(rackreq, headers)
+      Net::HTTP.start(@ip, Application.client_port) { |http|
        m = rackreq.request_method
        req = Net::HTTP.const_get(m.capitalize).new(rackreq.fullpath, headers)
        
@@ -30,7 +39,6 @@ module PoolParty
        
        http.request(req)
       }
-      [res.code, Rack::Utils::HeaderHash.new(res.to_hash), [res.body]]     
     end
     
     # We have to correct the body if it is a body-stream or
@@ -59,8 +67,11 @@ module PoolParty
     end
     
     # Algorithm definition for load
-    def <=>(b)
+    def status_level
       (cpu + memory)/2 * web
+    end
+    def <=>(b)
+      status_level <=> b.status_level
     end
     # Define polling mechanism here
     def status
