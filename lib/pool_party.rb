@@ -56,4 +56,8 @@ module PoolParty
   def client
     LocalInstance.new.start!
   end
+  
+  def options
+    Application.options
+  end
 end

@@ -7,5 +7,17 @@ require 'lib/pool_party'
 
 # Set defaults
 host,options = PoolParty.server
+list = Optioner.parse(ARGV.dup)
 
-p options
+if list.empty?
+  puts "Usage: pool [options] {start|stop}"
+  exit
+end
+
+case list[0]
+when "start"
+  puts "Starting pool with #{options.ami}"
+  host.start
+when "stop"
+  puts "stopping"
+end
