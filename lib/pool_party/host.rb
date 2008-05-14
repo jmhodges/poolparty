@@ -84,7 +84,7 @@ module PoolParty
       request_launch_new_instance if global_load >= Application.heavy_load
     end
     def terminate_instance_if_load_is_low      
-      request_termination_of_instance(running_instances[0].instance_id) if global_load >= Application.heavy_load
+      request_termination_of_instance(running_instances[0].instance_id) if global_load < Application.heavy_load
     end
         
     # Refactor this into something nice

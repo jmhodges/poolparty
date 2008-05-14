@@ -63,6 +63,8 @@ module PoolParty
           :polling_time => "50",
           :interval_wait_time => "300",
           :user_data => "",
+          :heavy_load => 0.80,
+          :light_load => 0.15,
           :minimum_instances => 1,
           :maximum_instances => 3,
           :access_key_id => ENV["ACCESS_KEY"],

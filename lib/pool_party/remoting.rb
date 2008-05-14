@@ -34,9 +34,10 @@ module PoolParty
     def request_launch_new_instance
       if can_start_a_new_instance?
         update_startup_time
-        return request_launch_one_instance_at_a_time
+        request_launch_one_instance_at_a_time
+        return true
       else
-        return nil
+        return false
       end
     end
     def can_start_a_new_instance?

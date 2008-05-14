@@ -39,9 +39,30 @@ describe "Host" do
       @host.should_not_receive(:list_of_running_instances)
       @host.running_instances
     end
-    it "should keep track of the current load"
-    it "should add_instance_if_load_is_high"
-    it "should terminate_instance_if_load_is_low"
+    it "should add_instance_if_load_is_high" do
+      running = []
+      @host.get_instances_description.each {|a| running << RemoteInstance.new(a)}
+      running.each_with_index {|a,i| a.stub!(:status_level).and_return("0.#{i+2}".to_f) }
+      @host.stub!(:running_instances).and_return(running)
+      @host.should_receive(:startup_time).once.and_return eval("10.minutes.ago")
+      @host.should_receive(:maximum_number_of_instances_are_running?).and_return true      
+      @host.stub!(:global_load).and_return(0.95)
+      @host.stub!(:request_launch_one_instance_at_a_time).and_return true
+      
+      @host.add_instance_if_load_is_high.should == true
+    end
+    it "should terminate_instance_if_load_is_low" do
+      running = []
+      @host.get_instances_description.each {|a| running << RemoteInstance.new(a)}
+      running.each_with_index {|a,i| a.stub!(:status_level).and_return("0.#{i+2}".to_f) }
+      @host.stub!(:running_instances).and_return(running)
+      @host.should_receive(:shutdown_time).once.and_return eval("10.minutes.ago")
+      @host.should_receive(:minimum_number_of_instances_are_running?).and_return true      
+      @host.stub!(:terminate_instance!).and_return true
+      @host.stub!(:global_load).and_return(0.10)
+      
+      @host.terminate_instance_if_load_is_low.should == true
+    end
   end
   
   describe "when starting an instance" do
