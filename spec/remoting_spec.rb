@@ -35,10 +35,10 @@ describe "Actual remoting" do
   end
   it "should try to add a new instance whent he load is getting heavy" do
     @host.stub!(:global_load).and_return 0.86
-    wait_launch(@starting_size, Application.polling_time+120) do
+    wait_launch(@starting_size, Application.polling_time*2+10) do
       @host.start!
     end
-    sleep 10
+    sleep 5
     @host.list_of_pending_instances.size.should == @starting_size + 1
   end
 end
