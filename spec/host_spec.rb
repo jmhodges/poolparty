@@ -47,7 +47,7 @@ describe "Host" do
       @host.should_receive(:startup_time).once.and_return eval("10.minutes.ago")
       @host.should_receive(:maximum_number_of_instances_are_running?).and_return true      
       @host.stub!(:global_load).and_return(0.95)
-      @host.stub!(:request_launch_one_instance_at_a_time).and_return true
+      @host.should_receive(:request_launch_one_instance_at_a_time).once.and_return true
       
       @host.add_instance_if_load_is_high.should == true
     end

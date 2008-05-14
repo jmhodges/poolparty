@@ -13,7 +13,7 @@ extend PoolParty
 
 def wait_launch(starting_size=0,time=5)
   pid = fork {yield}
-  sleep time
+  sleep time.is_a?(String) ? eval(time) : time
   Process.kill("INT", pid)
   Process.wait(pid, 0)
 end

@@ -7,7 +7,7 @@ module PoolParty
     attr_reader :cpu, :memory, :web
     
     def initialize
-      super(config["interval"])      
+      super
     end
     
     def start!
