@@ -77,9 +77,14 @@ module PoolParty
       @running_instances = list_of_running_instances.collect {|a| RemoteInstance.new(a) }.sort
     end
     
+    def global_load
+      running_instances.inject(0) {|sum,a| sum += a.status_level }/running_instances.size
+    end
     def add_instance_if_load_is_high
+      request_launch_new_instance if global_load >= Application.heavy_load
     end
     def terminate_instance_if_load_is_low      
+      request_termination_of_instance(running_instances[0].instance_id) if global_load >= Application.heavy_load
     end
         
     # Refactor this into something nice

@@ -133,6 +133,13 @@ describe "Host" do
       @host.should_receive(:start_server!).once
       @host.start!
     end
+    it "should be able to get the global status level for all the instances" do
+      running = []
+      @host.get_instances_description.each {|a| running << RemoteInstance.new(a)}
+      running.each_with_index {|a,i| a.stub!(:status_level).and_return("0.#{i+2}".to_f) }
+      @host.stub!(:running_instances).and_return(running)
+      @host.global_load.should == 0.25
+    end
   end
   describe "with proxy requests" do
     
