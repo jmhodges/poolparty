@@ -21,6 +21,7 @@ describe "Actual remoting" do
     wait_launch do
       @host.start!
     end
+    wait "20.seconds"
     if @starting_size > 0
       @host.list_of_running_instances.size.should == Application.minimum_instances
     else

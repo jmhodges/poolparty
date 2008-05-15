@@ -79,11 +79,13 @@ module PoolParty
     end
     
     def global_load
-      running_instances.inject(0) {|sum,a| sum += a.status_level }/running_instances.size
+      running_instances.inject(0) {|sum,a| sum += a.status_level }/running_instances.size.to_f
     end
+    
     def add_instance_if_load_is_high
       request_launch_new_instance if global_load >= Application.heavy_load
     end
+    
     def terminate_instance_if_load_is_low
       puts "#{global_load} < #{Application.heavy_load}"
       if global_load < Application.heavy_load
