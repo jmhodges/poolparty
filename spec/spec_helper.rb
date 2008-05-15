@@ -11,9 +11,9 @@ end
 include PoolParty
 extend PoolParty
 
-def wait_launch(starting_size=0,time=5)
+def wait_launch(time=5)
   pid = fork {yield}
-  sleep time.is_a?(String) ? eval(time) : time
+  wait time
   Process.kill("INT", pid)
   Process.wait(pid, 0)
 end

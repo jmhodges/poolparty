@@ -44,8 +44,8 @@ describe "Host" do
       @host.get_instances_description.each {|a| running << RemoteInstance.new(a)}
       running.each_with_index {|a,i| a.stub!(:status_level).and_return("0.#{i+2}".to_f) }
       @host.stub!(:running_instances).and_return(running)
-      @host.should_receive(:startup_time).once.and_return eval("10.minutes.ago")
-      @host.should_receive(:maximum_number_of_instances_are_running?).and_return true      
+      @host.should_receive(:startup_time).at_least(1).and_return eval("10.minutes.ago")
+      @host.should_receive(:maximum_number_of_instances_are_not_running?).and_return true      
       @host.stub!(:global_load).and_return(0.95)
       @host.should_receive(:request_launch_one_instance_at_a_time).once.and_return true
       
@@ -67,7 +67,7 @@ describe "Host" do
   
   describe "when starting an instance" do
     before(:each) do
-      Application.stub!(:interval_wait_time).and_return "30.seconds"
+      Application.stub!(:interval_wait_time).and_return "10.minutes"
     end
     it "should be able to launch a new instance with launch_new_instance!" do
       @host.launch_new_instance!.should == {:instance_id=>"i-5849ba", :ip=>"ip-127-0-0-1.aws.amazon.com", :status=>"running"}
@@ -87,17 +87,17 @@ describe "Host" do
       @host.list_of_pending_instances.size.should == 0
     end
     it "should check with can_start_a_new_instance? to start an instance" do
-      @host.should_receive(:startup_time).once.and_return Time.now
+      @host.should_receive(:startup_time).once.and_return eval("3.minutes.ago")
       @host.can_start_a_new_instance?.should == false
     end
     it "should not return true for can_start_a_new_instance? if the minimum instances are running" do
-      @host.should_receive(:startup_time).once.and_return eval("10.minutes.ago")
-      @host.should_receive(:maximum_number_of_instances_are_running?).and_return false
+      @host.should_receive(:startup_time).once.and_return eval("11.minutes.ago")
+      @host.should_receive(:maximum_number_of_instances_are_not_running?).and_return false
       @host.can_start_a_new_instance?.should == false
     end
     it "should return true if the minimum instances are running and the interval-wait-time has passed" do
-      @host.should_receive(:startup_time).once.and_return eval("10.minutes.ago")
-      @host.should_receive(:maximum_number_of_instances_are_running?).and_return true
+      @host.should_receive(:startup_time).once.and_return eval("11.minutes.ago")
+      @host.should_receive(:maximum_number_of_instances_are_not_running?).and_return true
       @host.can_start_a_new_instance?.should == true
     end    
   end

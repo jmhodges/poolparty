@@ -56,17 +56,17 @@ module PoolParty
     # Add instances when necessary (load or hits are too high to sustain)
     def start_monitor!
       run_thread_loop do
-        add_task {puts "= in run_thread_loop"}
         add_task {launch_minimum_instances} # If the base instances go down...
         add_task {update_instance_values} # Get the updated values
         add_task {add_instance_if_load_is_high}
         add_task {terminate_instance_if_load_is_low}
+        add_task {puts "+terminate_instance_if_load_is_low"}
       end
     end
     
     # Load and start the minimum number of instances
     def launch_minimum_instances
-      request_launch_new_instances(Application.minimum_instances - number_of_running_instances)
+      request_launch_new_instances(Application.minimum_instances - (number_of_running_instances + number_of_pending_instances))
     end
     
     # update the instance values from ec2
@@ -84,8 +84,12 @@ module PoolParty
     def add_instance_if_load_is_high
       request_launch_new_instance if global_load >= Application.heavy_load
     end
-    def terminate_instance_if_load_is_low      
-      request_termination_of_instance(running_instances[0].instance_id) if global_load < Application.heavy_load
+    def terminate_instance_if_load_is_low
+      puts "#{global_load} < #{Application.heavy_load}"
+      if global_load < Application.heavy_load
+        non_nil_instance = running_instances.select {|a| !a.nil? }.first
+        request_termination_of_instance(non_nil_instance.instance_id)
+      end
     end
         
     # Refactor this into something nice

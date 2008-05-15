@@ -41,10 +41,9 @@ module PoolParty
       end
     end
     def can_start_a_new_instance?
-      puts "#{eval(Application.interval_wait_time).ago} >= #{startup_time}"
-      eval(Application.interval_wait_time).ago >= startup_time && maximum_number_of_instances_are_running?
+      eval(Application.interval_wait_time).ago >= startup_time && maximum_number_of_instances_are_not_running?
     end
-    def maximum_number_of_instances_are_running?
+    def maximum_number_of_instances_are_not_running?
       list_of_running_instances.size < Application.maximum_instances
     end
     def update_startup_time
@@ -60,7 +59,7 @@ module PoolParty
     # Launch one instance at a time
     def request_launch_one_instance_at_a_time
       while !number_of_pending_instances.zero?
-        sleep 2
+        wait "5.seconds"
       end
       return launch_new_instance!
     end
@@ -83,6 +82,7 @@ module PoolParty
       end
     end
     def can_shutdown_an_instance?
+      puts "#{eval(Application.interval_wait_time).ago} >= #{shutdown_time}"
       eval(Application.interval_wait_time).ago >= shutdown_time && minimum_number_of_instances_are_running?
     end
     def minimum_number_of_instances_are_running?
