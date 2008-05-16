@@ -6,6 +6,6 @@ module PoolParty
       @ip = obj[:ip]
       @instance_id = obj[:instance_id]
     end
-
+    
   end
 end

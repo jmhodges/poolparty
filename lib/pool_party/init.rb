@@ -1,1 +1,1 @@
-%w(application scheduler remoting remote_instance).each {|f| require File.join(File.dirname(__FILE__), f)}
+%w(application scheduler remoting remote_instance master).each {|f| require File.join(File.dirname(__FILE__), f)}

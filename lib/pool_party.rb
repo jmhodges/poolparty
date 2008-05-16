@@ -10,6 +10,7 @@ require "sqs"
 require "EC2"
 require "rack"
 require 'thread'
+require "pp"
 begin
   require 'fastthread'
   require 'thin'
@@ -43,5 +44,12 @@ module PoolParty
 
   def options(opts={})
     Application.options(opts)
+  end
+  
+  def verbose?
+    Application.verbose == true
+  end
+  def message(msg="")
+    pp "-- #{msg}" if verbose?
   end
 end

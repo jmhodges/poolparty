@@ -27,6 +27,9 @@ module PoolParty
     def number_of_running_instances
       list_of_running_instances.size
     end
+    def number_of_pending_and_running_instances
+      number_of_running_instances + number_of_pending_instances
+    end
     # == LAUNCHING
     # Request to launch a new instance
     # Will only luanch if the last_startup_time has been cleared
@@ -54,7 +57,9 @@ module PoolParty
     end
     # Request to launch a number of instances
     def request_launch_new_instances(num=1)
-      num.times {request_launch_one_instance_at_a_time}
+      out = []
+      num.times {out << request_launch_one_instance_at_a_time}
+      out
     end
     # Launch one instance at a time
     def request_launch_one_instance_at_a_time
@@ -92,6 +97,37 @@ module PoolParty
     end
     def shutdown_time
       @last_shutdown_time ||= Time.now
+    end
+    
+    def running_instances
+      @running_instances ||= update_instance_values
+    end
+    
+    def update_instance_values
+      @running_instances = list_of_running_instances.collect {|a| RemoteInstance.new(a) }.sort
+    end
+    
+    def exec_remote(ri,opts={})
+      hash = {
+        :cmd => "scp", 
+        :src => "None", 
+        :dest => "None",
+        :switches => "",
+        :user => "root",
+        :silent => verbose?,        
+        :cred => Application.credentials}.merge(opts)
+      hash[:switches] += "-i #{hash[:cred]}"
+      
+      f = case hash[:cmd]
+      when "scp"
+        "scp #{hash[:switches]} #{hash[:src]} #{hash[:user]}@#{ri.ip}:#{hash[:dest]}"
+      else
+        "ssh #{hash[:switches]} #{hash[:user]}@#{ri.ip} '#{hash[:cmd]}'"
+      end
+      
+      message("executing #{f}")
+      `#{f}`
+      end
     end
         
   end
