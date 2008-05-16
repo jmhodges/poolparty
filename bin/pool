@@ -1,0 +1,22 @@
+#!/usr/bin/ruby
+$:.unshift File.dirname(__FILE__)
+
+require 'rubygems'
+require 'rack'
+require 'lib/pool_party'
+
+# Set defaults
+options = PoolParty.options
+list = Optioner.parse(ARGV.dup)
+
+if list.empty?
+  puts "Usage: pool [options] {start|stop}"
+  exit
+end
+
+case list[0]
+when "start"
+  puts "Starting pool with #{options.ami}"
+when "stop"
+  puts "stopping"
+end
