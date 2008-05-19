@@ -9,8 +9,12 @@ module PoolParty
         @name = info[:name]
       end
       
-      def host_entries
-        
+      def host_entry
+        "#{@name}\t#{@ip}"
+      end
+      
+      def haproxy
+        "server #{@name} #{@ip}:3010 weight 1 minconn 3 maxconn 6 check inter 30000"
       end
       
     end
