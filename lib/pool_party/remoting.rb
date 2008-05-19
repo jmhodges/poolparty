@@ -110,24 +110,24 @@ module PoolParty
     def exec_remote(ri,opts={})
       hash = {
         :cmd => "scp", 
-        :src => "None", 
+        :src => "None",
         :dest => "None",
         :switches => "",
         :user => "root",
         :silent => verbose?,        
         :cred => Application.credentials}.merge(opts)
+      
       hash[:switches] += "-i #{hash[:cred]}"
       
       f = case hash[:cmd]
-      when "scp"
-        "scp #{hash[:switches]} #{hash[:src]} #{hash[:user]}@#{ri.ip}:#{hash[:dest]}"
-      else
-        "ssh #{hash[:switches]} #{hash[:user]}@#{ri.ip} '#{hash[:cmd]}'"
-      end
+        when "scp"
+          "scp #{hash[:switches]} #{hash[:src]} #{hash[:user]}@#{ri.ip}:#{hash[:dest]}"
+        else
+          "ssh #{hash[:switches]} #{hash[:user]}@#{ri.ip} '#{hash[:cmd]}'"
+        end
       
       message("executing #{f}")
       `#{f}`
-      end
     end
         
   end
