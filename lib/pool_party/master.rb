@@ -38,6 +38,12 @@ end}
       end
     end
     
+    def nodes
+      list_of_running_instances.collect do |inst|
+        RemoteInstance.new(inst)
+      end
+    end
+    
     def master;@master;end
     def slaves;@slaves;end
     

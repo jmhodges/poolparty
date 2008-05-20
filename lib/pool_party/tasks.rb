@@ -1,5 +1,4 @@
 module PoolParty
-  extend self
   class Tasks
     
     def initialize
@@ -8,6 +7,39 @@ module PoolParty
     end
     
     def define_tasks!
+      
+      namespace(:instance) do
+        task :init do
+          raise Exception.new("Please set the ip to do anything on an instance") unless ENV['ip']
+          @ip = ENV['ip']
+        end
+        # From rubyworks-ec2
+        task :cp_amazon_keys do
+          run <<-CMD
+            echo 'export ACCESS_KEY_ID=\"#{Application.access_key_id}\"' > $HOME/.amazon_keys &&
+            echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/.amazon_keys &&
+            echo 'export ACCOUNT_ID=\"#{Application.user_id}\"' >> $HOME/.amazon_keys
+          CMD
+        end
+        desc "Remotely login to the remote instance"
+        task :ssh => [:init] do
+          system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}"
+        end
+        desc "Send a file to the remote instance"
+        task :scp => [:init] do
+          system "scp -i #{Application.keypair_path} #{ENV['src']} #{Application.username}@#{@ip}:#{ENV['dest']}"
+        end
+        desc "Execute cmd on a remote instance"
+        task :exec_remote => [:init] do
+          cmd = ENV['cmd'] || "ls -l"
+          system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} '#{cmd}'"
+        end
+        desc "Restart all the services"
+        task :restart => [:init] do
+          ENV['cmd'] = "monit restart all"
+          exec_remote
+        end
+      end
       
       namespace(:ec2) do
         
@@ -32,13 +64,19 @@ module PoolParty
         
         desc "List registered instances"
         task :list => [:init] do
-          PoolParty::Coordinator.registered.each {|a| p a}
-          puts `ec2-describe-instances | grep -v terminated | grep INSTANCE`
+          master = PoolParty::Master.new
+          puts "-- CLOUD (#{master.number_of_pending_and_running_instances})--"
+          master.list_of_running_instances.each do |inst|
+            puts "#{inst[:ip]} (#{inst[:instance_id]})"
+          end
+          master.list_of_pending_instances.each do |inst|
+            puts "(booting) INSTANCE: #{inst[:ip]} - #{inst[:instance_id]}"
+          end
         end
         
         desc "Add and start an instance to the pool"
-        task :start_new_instance => [:init] do
-          PoolParty::Remoting.new.launch_new_instance!
+        task :new_instance => [:init] do
+          puts PoolParty::Remoting.new.launch_new_instance!
         end
         
         desc "Stop all running instances"
@@ -67,27 +105,8 @@ module PoolParty
         end
       end
       
-      namespace(:bootstrap) do
-        
-        task :init do
-          @cmd = []
-        end
-        
-        task :go_working => [:init] do
-          @cmd << "mkdir /usr/local/working"
-          @cmd << "cd /usr/local/working"
-        end
-        
-        desc "Executes the @cmd"
-        task :exec_cmd do
-          user = ENV["USER"] || "root"
-          ip = ENV["ip"]
-          raise Exception.new("You must include an ip (set with ip='127...')") unless ip
-          cmd = "ssh -i #{Application.credentials} #{user}@#{ip} '#{@cmd}'"
-          `#{cmd}`
-        end
-        
-        Dir["#{File.dirname(__FILE__)}/#{File.basename(__FILE__, File.extname(__FILE__))}/**"].each {|a| require a }
+      namespace(:os) do                                
+        Dir["#{File.dirname(__FILE__)}/#{File.basename(__FILE__, File.extname(__FILE__))}/**"].each {|a| require a }        
       end
       
       namespace(:server) do                
@@ -125,6 +144,14 @@ module PoolParty
         end
       end
       
+    end
+    
+    def method_missing(m, *args)
+      begin
+        Application.send m, args
+      rescue Exception => e
+        super
+      end            
     end
     
   end

@@ -32,12 +32,14 @@ module PoolParty
           op.on('-A key', '--access-key key', "Ec2 access key (ENV['ACCESS_KEY'])") { |key| default_options[:access_key_id] = key }
           op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['SECRET_ACCESS_KEY'])") { |key| default_options[:secret_access_key] = key }
           op.on('-I ami', '--image-id id', "AMI instance (default: 'ami-4a46a323')") {|id| default_options[:ami] = id }
-          op.on('-C credentials', '--credentials id_rsa', "Credentials (default: '')") {|id| default_options[:credentials] = id }          
+          op.on('-k keypair', '--keypair name', "Keypair name (ENV['KEYPAIR_NAME'])") { |key| default_options[:keypair] = key }
+          op.on('-D ec2 directory', '--ec2-dir dir', "Directory with ec2 data (default: '~/.ec2')") {|id| default_options[:ec2_dir] = id }
           op.on('-c file', '--config-file file', "Config file (default: '')") {|file| default_options[:config_file] = file }
           op.on('-p port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
           op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
           op.on('-s size', '--size size', "Run specific sized instance") {|s| default_options[:size] = s}
+          op.on('-u username', '--username name', "Login with the user (default: root)") {|s| default_options[:user] = s}
           op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:user_data] = data }
           op.on('-t seconds', '--polling-time', "Time between polling in seconds (default 50)") {|t| default_options[:polling_time] = t }
           op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:verbose] = v}
@@ -71,9 +73,15 @@ module PoolParty
           :access_key_id => ENV["ACCESS_KEY"],
           :secret_access_key => ENV["SECRET_ACCESS_KEY"],
           :config_file => "",
-          :credentials => "~/.ec2/id_rsa",
+          :username => "root",
+          :ec2_dir => "~/.ec2",
+          :keypair => ENV["KEYPAIR_NAME"],
           :ami => 'ami-4a46a323'
         }
+      end
+      
+      def keypair_path
+        "#{ec2_dir}/id_rsa-#{keypair}"
       end
       
       def development?
@@ -82,6 +90,17 @@ module PoolParty
       
       def launching_user_data
         {:polling_time => polling_time}.to_yaml
+      end
+      
+      def root_dir
+        File.join File.dirname(__FILE__), %w(..)
+      end
+      
+      def haproxy_config_file
+        File.join(root_dir, "..", "config", "haproxy.conf")
+      end      
+      def monit_config_file
+        File.join(root_dir, "..", "config", "monit.conf")
       end
     
       def method_missing(m,*args)

@@ -14,6 +14,7 @@ module PoolParty
           :user_data => "#{Application.launching_user_data}",
           :minCount => 1,
           :maxCount => 1,
+          :key_name => Application.keypair,
           :size => "#{Application.size}")
           
         item = instance.RunInstancesResponse.instancesSet.item
@@ -36,8 +37,9 @@ module PoolParty
       # Get the s3 description for the response in a hash format
       def get_instances_description
         begin
-          ec2.describe_instances.DescribeInstancesResponse.reservationSet.item.collect {|r| 
-            item = r.instancesSet.item; get_hash_from_response(item) }
+          # p ec2.describe_instances.DescribeInstancesResponse.reservationSet.item.instancesSet.item
+          ec2.describe_instances.DescribeInstancesResponse.reservationSet.item.instancesSet.collect {|r|
+            item = r; get_hash_from_response(item) }
         rescue Exception => e
           []
         end
@@ -50,7 +52,7 @@ module PoolParty
       
       private
       def get_hash_from_response(resp)
-        {:instance_id => resp.instanceId, :ip => resp.dnsName, :status => resp.instanceState.name}
+        {:instance_id => resp.instanceId, :ip => resp.dnsName, :status => resp.instanceState.name} rescue {}
       end      
     end
     
