@@ -83,15 +83,13 @@ module PoolParty
       def keypair_path
         "#{ec2_dir}/id_rsa-#{keypair}"
       end
-      
       def development?
         environment == 'development'
       end
       
       def launching_user_data
         {:polling_time => polling_time}.to_yaml
-      end
-      
+      end      
       def root_dir
         File.join File.dirname(__FILE__), %w(..)
       end
@@ -101,8 +99,7 @@ module PoolParty
       end      
       def monit_config_file
         File.join(root_dir, "..", "config", "monit.conf")
-      end
-    
+      end    
       def method_missing(m,*args)
         options.methods.include?("#{m}") ? options.send(m,args) : super
       end

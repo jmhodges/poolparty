@@ -25,8 +25,9 @@ module PoolParty
       end
     end
     
-    module InstanceMethods      
+    module InstanceMethods            
     end
+    
     def self.included(receiver)
       receiver.extend         ClassMethods
       receiver.send :include, InstanceMethods

@@ -9,5 +9,6 @@ describe "remote instance" do
     it "should set the ip upon creation" do
       @instance.ip.should == "127.0.0.1"
     end
+
   end
 end

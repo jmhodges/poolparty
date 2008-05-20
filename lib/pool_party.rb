@@ -20,7 +20,7 @@ end
 ## Load PoolParty
 pwd = File.dirname(__FILE__)
 
-%w(core modules pool_party).each do |dir|  
+%w(core modules s3 pool_party).each do |dir|  
   Dir["#{pwd}/#{dir}"].each do |dir|
     begin
       require File.join(dir, "init")
@@ -45,7 +45,6 @@ module PoolParty
   def options(opts={})
     Application.options(opts)
   end
-  
   def verbose?
     Application.verbose == true
   end

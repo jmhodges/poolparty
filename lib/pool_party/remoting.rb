@@ -98,14 +98,13 @@ module PoolParty
     def shutdown_time
       @last_shutdown_time ||= Time.now
     end
-    
     def running_instances
       @running_instances ||= update_instance_values
     end
     
     def update_instance_values
       @running_instances = list_of_running_instances.collect {|a| RemoteInstance.new(a) }.sort
-    end            
+    end
   end
     
 end
