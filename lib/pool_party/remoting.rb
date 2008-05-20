@@ -105,31 +105,7 @@ module PoolParty
     
     def update_instance_values
       @running_instances = list_of_running_instances.collect {|a| RemoteInstance.new(a) }.sort
-    end
-    
-    def exec_remote(ri,opts={})
-      hash = {
-        :cmd => "scp", 
-        :src => "None",
-        :dest => "None",
-        :switches => "",
-        :user => "root",
-        :silent => verbose?,        
-        :cred => Application.credentials}.merge(opts)
-      
-      hash[:switches] += "-i #{hash[:cred]}"
-      
-      f = case hash[:cmd]
-        when "scp"
-          "scp #{hash[:switches]} #{hash[:src]} #{hash[:user]}@#{ri.ip}:#{hash[:dest]}"
-        else
-          "ssh #{hash[:switches]} #{hash[:user]}@#{ri.ip} '#{hash[:cmd]}'"
-        end
-      
-      message("executing #{f}")
-      `#{f}`
-    end
-        
+    end            
   end
     
 end

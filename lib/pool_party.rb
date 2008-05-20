@@ -52,4 +52,7 @@ module PoolParty
   def message(msg="")
     pp "-- #{msg}" if verbose?
   end
+  def root_dir
+    File.dirname(__FILE__)
+  end
 end

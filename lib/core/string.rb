@@ -12,7 +12,7 @@ class String
     hash
   end
   def ^(h={})
-    self.gsub(/:([w]+)/) {h[$1.to_sym] if h.include?($1.to_sym)}
+    self.gsub(/:([\w]+)/) {h[$1.to_sym] if h.include?($1.to_sym)}
   end
   def bucket_objects
     AWS::S3::Bucket.objects(self)
