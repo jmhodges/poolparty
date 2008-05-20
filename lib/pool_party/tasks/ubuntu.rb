@@ -2,13 +2,7 @@ require "tempfile"
 
 module PoolParty
   class Ubuntu
-    
-    def exec_cmd(cmd="ls -l")
-      system "rake instance:exec_remote ip='#{@ip}' cmd='#{cmd}'"
-    end
-    def exec_scp(src="", dest="")
-      system "rake instance:scp ip='#{@ip}' src='#{src}' dest='#{dest}'"
-    end
+    include TaskCommands
     
     def define_tasks!
       namespace(:ubuntu) do
@@ -21,16 +15,11 @@ module PoolParty
         desc "Install full stack"
         task :install => [:init] do
           cmd=<<-CMD
-            rake os:ubuntu:monit:install
-            rake os:ubuntu:monit:configure
-            
+            rake os:ubuntu:monit:install            
             rake os:ubuntu:haproxy:install
-            rake os:ubuntu:haproxy:configure
           CMD
           
-          cmd.strip!
-          cmd.gsub!(/\n/, " && ")
-          system cmd
+          run cmd
         end
         
         desc "Install full stack"
@@ -40,9 +29,18 @@ module PoolParty
             rake os:ubuntu:monit:configure            
           CMD
           
-          cmd.strip!
-          cmd.gsub!(/\n/, " && ")
-          system cmd
+          run cmd
+        end
+        
+        desc "Restart all the services using monit"
+        task :reload => [:init] do
+          run "rake instance:reload"
+        end
+        
+        desc "Reconfigure and reload"
+        task :reconfigure_and_reload do
+          system "rake os:ubuntu:reconfigure"
+          system "rake instance:reload"
         end
         
         namespace(:monit) do
@@ -67,6 +65,17 @@ module PoolParty
             end
           end
         end
+        
+        namespace(:nginx) do
+          desc "Installs nginx"
+          task :install => [:init] do
+            exec_cmd "apt-get install nginx"
+          end
+          desc "Configure nginx"
+          task :configure => [:init] do
+            
+          end
+        end
 
         namespace(:haproxy) do
           desc "Installs HAproxy"
@@ -77,18 +86,18 @@ module PoolParty
             
             exec_cmd @cmd
           end
+          desc "Configure HAproxy"
           task :configure => [:init] do
             master = Master.new
             nodes = master.nodes
             
-            servers=<<-EOS
-        listen web_proxy 127.0.0.1:#{Application.client_port}
-          #{nodes.collect {|node| node.haproxy_entry}.join("\n")}
+            servers=<<-EOS        
+#{nodes.collect {|node| node.haproxy_entry}.join("\n")}
             EOS
                         
             # Fill in the gaps for the haproxy_config_file
             tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
-            tempfile.print(open(Application.haproxy_config_file).read.strip ^ {:servers => servers})
+            tempfile.print(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
             tempfile.flush
             # Scp it up to the server
             exec_scp(tempfile.path, "/etc/haproxy.cfg")

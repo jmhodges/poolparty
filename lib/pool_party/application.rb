@@ -57,8 +57,8 @@ module PoolParty
       def default_options
         @default_options ||= {
           :run => true,
-          :host_port => 7788,
-          :client_port => 7788,
+          :host_port => 80,
+          :client_port => 8001,
           :environment => 'development',
           :verbose => false,
           :logging => true,
@@ -99,7 +99,8 @@ module PoolParty
       end      
       def monit_config_file
         File.join(root_dir, "..", "config", "monit.conf")
-      end    
+      end
+          
       def method_missing(m,*args)
         options.methods.include?("#{m}") ? options.send(m,args) : super
       end

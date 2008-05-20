@@ -1,6 +1,17 @@
 module PoolParty
+  module TaskCommands
+    def exec_cmd(cmd="ls -l")
+      system "rake instance:exec_remote ip='#{@ip}' cmd='#{cmd}'"
+    end
+    def exec_scp(src="", dest="")
+      system "rake instance:scp ip='#{@ip}' src='#{src}' dest='#{dest}'"
+    end
+    def run(cmd)
+      system cmd.strip.gsub(/\n/, " && ")
+    end
+  end
   class Tasks
-    
+    include TaskCommands
     def initialize
       yield self if block_given?
       define_tasks!
@@ -35,9 +46,14 @@ module PoolParty
           system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} '#{cmd}'"
         end
         desc "Restart all the services"
-        task :restart => [:init] do
+        task :reload => [:init] do
           ENV['cmd'] = "monit restart all"
-          exec_remote
+          system "rake instance:exec_remote"
+        end
+        desc "Start all services"
+        task :load => [:init] do
+          ENV['cmd'] = "monit start all"
+          system "rake instance:exec_remote"
         end
       end
       
