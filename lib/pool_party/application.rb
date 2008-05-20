@@ -71,7 +71,7 @@ module PoolParty
           :access_key_id => ENV["ACCESS_KEY"],
           :secret_access_key => ENV["SECRET_ACCESS_KEY"],
           :config_file => "",
-          :credentials => "",
+          :credentials => "~/.ec2/id_rsa",
           :ami => 'ami-4a46a323'
         }
       end

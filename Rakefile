@@ -4,8 +4,6 @@ require 'lib/pool_party'
 
 task :default => :test
 
-PoolParty::Tasks.new
-
 Echoe.new("pool_party") do |p|
   p.author = "Ari Lerner"
   p.summary = "Run your entire application off EC2, managed and auto-scaling"
@@ -16,3 +14,4 @@ Echoe.new("pool_party") do |p|
   p.include_rakefile = true
 end
 
+PoolParty::Tasks.new

@@ -1,5 +1,3 @@
-require 'capazon'
-
 module PoolParty
   extend self
   class Tasks
@@ -13,8 +11,8 @@ module PoolParty
       
       namespace(:ec2) do
         
-        task :init  do
-          PoolParty::Coordinator.init(false)
+        task :init do
+          Application.options
         end
 
         desc "Shutdown all instances"
@@ -40,7 +38,7 @@ module PoolParty
         
         desc "Add and start an instance to the pool"
         task :start_new_instance => [:init] do
-          PoolParty::Coordinator.add!
+          PoolParty::Remoting.new.launch_new_instance!
         end
         
         desc "Stop all running instances"
@@ -70,12 +68,26 @@ module PoolParty
       end
       
       namespace(:bootstrap) do
-       Capistrano.configuration(:must_exist).load do
-         task :init do
-           `mkdir /usr/local/working`
-           `cd /usr/local/working`
-         end
-       end
+        
+        task :init do
+          @cmd = []
+        end
+        
+        task :go_working => [:init] do
+          @cmd << "mkdir /usr/local/working"
+          @cmd << "cd /usr/local/working"
+        end
+        
+        desc "Executes the @cmd"
+        task :exec_cmd do
+          user = ENV["USER"] || "root"
+          ip = ENV["ip"]
+          raise Exception.new("You must include an ip (set with ip='127...')") unless ip
+          cmd = "ssh -i #{Application.credentials} #{user}@#{ip} '#{@cmd}'"
+          `#{cmd}`
+        end
+        
+        Dir["#{File.dirname(__FILE__)}/#{File.basename(__FILE__, File.extname(__FILE__))}/**"].each {|a| require a }
       end
       
       namespace(:server) do                

@@ -13,7 +13,7 @@ module PoolParty
         "#{@name}\t#{@ip}"
       end
       
-      def haproxy
+      def haproxy_entry
         "server #{@name} #{@ip}:3010 weight 1 minconn 3 maxconn 6 check inter 30000"
       end
       
