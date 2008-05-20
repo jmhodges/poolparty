@@ -4,7 +4,7 @@ require 'lib/pool_party'
 
 task :default => :test
 
-# PoolParty::Tasks.new
+PoolParty::Tasks.new
 
 Echoe.new("pool_party") do |p|
   p.author = "Ari Lerner"

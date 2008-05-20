@@ -28,14 +28,14 @@ module PoolParty
       end
       # FIX ME
       def configure_haproxy(nodes=[])
+        servers=<<-EOS
+          listen web_proxy 127.0.0.1:#{Application.client_port}
+            server web1 127.0.0.1:#{Application.client_port + 10} weight 1 minconn 3 maxconn 6 check inter 30000
+            #{nodes.collect {|node| node.haproxy}.join("\n")}
+        EOS
         cmd=<<-EOC
         mkdir /etc/haproxy
-        echo "#{open(self.class.haproxy_config_file) {|w| w.read}}" > /etc/haproxy/haproxy.conf
-        echo "
-        listen web_proxy 127.0.0.1::client_port
-          server web1 127.0.0.1:#{Application.client_port + 10} weight 1 minconn 3 maxconn 6 check inter 30000
-          #{nodes.collect {|node| node.haproxy}.join("\n")}
-        } >> /etc/haproxy/haproxy.conf
+        echo "#{open(self.class.haproxy_config_file) {|w| w.read} ^ {:servers => servers}}" > /etc/haproxy/haproxy.conf
         EOC
         cmd ^ {:client_port => Application.client_port}
         exec_remote(@ri, {:cmd => cmd})

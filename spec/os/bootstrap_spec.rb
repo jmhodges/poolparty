@@ -22,7 +22,6 @@ describe "Bootstrap" do
       @bootstrap.install_haproxy
     end
     it "should be able to configure haproxy" do
-      p @bootstrap.configure_haproxy[1]
       @bootstrap.configure_haproxy[1].should =~ /listen web_proxy 127\.0\.0\.1/
     end
   end
