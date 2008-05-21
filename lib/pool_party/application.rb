@@ -37,6 +37,7 @@ module PoolParty
           op.on('-c file', '--config-file file', "Config file (default: '')") {|file| default_options[:config_file] = file }
           op.on('-p port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
+          op.on('-O os', '--os os', "Configure for os (default: ubuntu)") { |os| default_options[:os] = os }          
           op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
           op.on('-s size', '--size size', "Run specific sized instance") {|s| default_options[:size] = s}
           op.on('-u username', '--username name', "Login with the user (default: root)") {|s| default_options[:user] = s}
@@ -76,7 +77,8 @@ module PoolParty
           :username => "root",
           :ec2_dir => "~/.ec2",
           :keypair => ENV["KEYPAIR_NAME"],
-          :ami => 'ami-4a46a323'
+          :ami => 'ami-4a46a323',
+          :os => "ubuntu"
         }
       end
       

@@ -14,7 +14,7 @@ module PoolParty
     end
     
     def haproxy_entry
-      "server #{@name} #{@ip}:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 600000"
+      "server #{@name} #{@ip}:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 60000"
     end
     
   end

@@ -55,6 +55,28 @@ module PoolParty
           ENV['cmd'] = "monit start all"
           system "rake instance:exec_remote"
         end
+        desc "Reconfigures the application"
+        task :reconfigure => [:init] do
+          system "rake os:#{Application.os}:reconfigure"
+        end
+        task :reconfigure_and_reload => [:init] do
+          system "rake os:#{Application.os}:reconfigure_and_reload"
+        end
+      end
+      
+      namespace(:cloud) do
+        desc "Prepare all servers"
+        task :prepare do
+          PoolParty::Master.new.nodes.each do |node|
+            system "rake os:#{Application.os}:install ip='#{node.ip}'"
+          end
+        end
+        desc "Reload all instances with updated data"
+        task :reload do
+          PoolParty::Master.new.nodes.each do |node|
+            system "rake instance:reconfigure_and_reload ip='#{node.ip}'"
+          end
+        end
       end
       
       namespace(:ec2) do
@@ -120,7 +142,7 @@ module PoolParty
           Rack::Session::Cookie.cleanup_sessions
         end
       end
-      
+            
       namespace(:os) do                                
         Dir["#{File.dirname(__FILE__)}/#{File.basename(__FILE__, File.extname(__FILE__))}/**"].each {|a| require a }        
       end

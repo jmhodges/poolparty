@@ -24,9 +24,19 @@ module PoolParty
         
         desc "Install full stack"
         task :reconfigure => [:init] do
-          cmd=<<-CMD
+          cmd=<<-CMD            
+            rake os:ubuntu:monit:configure
             rake os:ubuntu:haproxy:configure
-            rake os:ubuntu:monit:configure            
+          CMD
+          
+          run cmd
+        end
+        
+        desc "Install and configure"
+        task :install_and_configure => [:init] do
+          cmd=<<-CMD
+            rake os:ubuntu:install
+            rake os:ubuntu:reconfigure            
           CMD
           
           run cmd
@@ -81,7 +91,7 @@ module PoolParty
           desc "Installs HAproxy"
           task :install => [:init] do
             @cmd=<<-EOC
-              apt-get install haproxy
+              apt-get install haproxy && rm /etc/haproxy.cfg
             EOC
             
             exec_cmd @cmd
@@ -99,6 +109,7 @@ module PoolParty
             tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
             tempfile.print(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
             tempfile.flush
+            
             # Scp it up to the server
             exec_scp(tempfile.path, "/etc/haproxy.cfg")
           end
