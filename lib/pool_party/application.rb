@@ -96,13 +96,12 @@ module PoolParty
         File.join File.dirname(__FILE__), %w(..)
       end
       
-      def haproxy_config_file
-        File.join(root_dir, "..", "config", "haproxy.conf")
-      end      
-      def monit_config_file
-        File.join(root_dir, "..", "config", "monit.conf")
+      %w(haproxy monit).each do |file|
+        define_method "#{file}_config_file" do
+          File.join(root_dir, "..", "config", "#{file}.conf")
+        end
       end
-          
+                
       def method_missing(m,*args)
         options.methods.include?("#{m}") ? options.send(m,args) : super
       end

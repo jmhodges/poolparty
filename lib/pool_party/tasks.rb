@@ -65,17 +65,26 @@ module PoolParty
       end
       
       namespace(:cloud) do
+        task :init do
+          Application.options({:config_file => ENV["config"]})
+          p Application.options
+          raise Exception.new("You must specify your access_key_id and secret_access_key") unless Application.access_key_id && Application.secret_access_key
+        end
         desc "Prepare all servers"
-        task :prepare do
+        task :prepare => :init do
           PoolParty::Master.new.nodes.each do |node|
             system "rake os:#{Application.os}:install ip='#{node.ip}'"
           end
         end
         desc "Reload all instances with updated data"
-        task :reload do
+        task :reload => :init do
           PoolParty::Master.new.nodes.each do |node|
             system "rake instance:reconfigure_and_reload ip='#{node.ip}'"
           end
+        end
+        desc "List cloud"
+        task :list => :init do
+          system "rake ec2:list"
         end
       end
       
