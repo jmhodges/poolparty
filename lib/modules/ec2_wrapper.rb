@@ -60,14 +60,11 @@ module PoolParty
   end
   class EC2ResponseObject
     def self.get_descriptions(resp)
-      rs = resp.DescribeInstancesResponse.reservationSet
+      rs = resp.DescribeInstancesResponse.reservationSet.item
       out = begin
-        if rs.respond_to?(:instancesSet)
-          rs.instancesSet.item.collect {|r| EC2ResponseObject.get_hash_from_response(r.item)}
-        else
-          rs.item.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}
-        end
+        rs.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}
       rescue Exception => e
+        message "Error: #{e}"
         []
       end
       out

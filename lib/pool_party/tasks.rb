@@ -86,6 +86,10 @@ module PoolParty
         task :list => :init do
           system "rake ec2:list"
         end
+        desc "Teardown the entire cloud"
+        task :teardown => :init do
+          PoolParty::Master.new.request_termination_of_all_instances
+        end
       end
       
       namespace(:ec2) do
@@ -114,10 +118,13 @@ module PoolParty
           master = PoolParty::Master.new
           puts "-- CLOUD (#{master.number_of_pending_and_running_instances})--"
           master.list_of_running_instances.each do |inst|
-            puts "#{inst[:ip]} (#{inst[:instance_id]})"
+            puts RemoteInstance.new(inst).description
           end
           master.list_of_pending_instances.each do |inst|
-            puts "(booting) INSTANCE: #{inst[:ip]} - #{inst[:instance_id]}"
+            puts RemoteInstance.new(inst).description
+          end
+          master.list_of_terminating_instances.each do |inst|
+            puts RemoteInstance.new(inst).description
           end
         end
         
