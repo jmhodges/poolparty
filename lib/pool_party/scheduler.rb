@@ -52,7 +52,7 @@ module PoolParty
       puts "Daemonizing..."
       
       pid = fork do
-        Signal.trap('HUP', 'IGNORE') # Don't die upon logout        
+        Signal.trap('HUP', 'IGNORE') # Don't die upon logout
         File.open("/dev/null", "r+") do |devnull|
           $stdout.reopen(devnull)
           $stderr.reopen(devnull)

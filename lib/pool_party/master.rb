@@ -25,7 +25,6 @@ module PoolParty
           on_exit
         end
         run_thread_loop(:daemonize => true) do
-          add_task {puts "in run_thread_loop"}
           add_task {launch_minimum_instances} # If the base instances go down...
           # add_task {update_instance_values} # Get the updated values
           # add_task {add_instance_if_load_is_high}
