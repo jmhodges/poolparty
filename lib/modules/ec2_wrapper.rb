@@ -38,11 +38,7 @@ module PoolParty
       def get_instances_description
         @cached_descriptions ||= EC2ResponseObject.get_descriptions(ec2.describe_instances)
       end
-      
-      def reset!
-        @cached_descriptions = nil
-      end
-      
+            
       # EC2 connections
       def ec2
         @ec2 ||= EC2::Base.new(:access_key_id => Application.access_key_id, :secret_access_key => Application.secret_access_key)

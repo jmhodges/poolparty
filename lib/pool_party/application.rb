@@ -64,7 +64,7 @@ module PoolParty
           :verbose => false,
           :logging => true,
           :size => "small",
-          :polling_time => "50",
+          :polling_time => 1,
           :interval_wait_time => "300",
           :user_data => "",
           :heavy_load => 0.80,

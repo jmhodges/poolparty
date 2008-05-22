@@ -13,6 +13,7 @@ module PoolParty
     end
     
     def launch_minimum_instances
+      p Application.minimum_instances - number_of_pending_and_running_instances
       request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances).collect do |inst|
         RemoteInstance.new(inst)
       end
@@ -23,14 +24,15 @@ module PoolParty
         trap("INT") do
           on_exit
         end
-        run_thread_loop do
+        run_thread_loop(:daemonize => true) do
+          add_task {puts "in run_thread_loop"}
           add_task {launch_minimum_instances} # If the base instances go down...
           # add_task {update_instance_values} # Get the updated values
           # add_task {add_instance_if_load_is_high}
           # add_task {terminate_instance_if_load_is_low}
         end
       rescue Exception => e
-        puts "There was an error: #{e}"
+        puts "There was an error: #{e.nice_message}"
       end
     end
     
@@ -39,6 +41,13 @@ module PoolParty
         RemoteInstance.new(inst)
       end
     end
-        
+    
+    def on_exit      
+    end
+    
+    def reset!
+      @cached_descriptions = nil
+    end
+    
   end
 end

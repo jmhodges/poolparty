@@ -48,8 +48,23 @@ module PoolParty
     def run_threads
       tasks.run
     end
-    def run_thread_loop
-      Thread.start do
+    def daemonize
+      puts "Daemonizing..."
+      
+      pid = fork do
+        Signal.trap('HUP', 'IGNORE') # Don't die upon logout        
+        File.open("/dev/null", "r+") do |devnull|
+          $stdout.reopen(devnull)
+          $stderr.reopen(devnull)
+          $stdin.reopen(devnull) unless @use_stdin
+        end
+        yield if block_given?
+      end
+      Process.detach(pid)      
+    end
+    
+    def run_thread_loop(opts={})
+      block = lambda {        
         loop do
           begin
             yield if block_given?
@@ -60,9 +75,16 @@ module PoolParty
             puts "There was an error in the run_thread_loop: #{e}"
           end
         end
-      end
+      }
+      
+      if opts[:daemonize]
+        daemonize(&block)
+      else
+        block.call
+      end            
     end
-    def reset!      
+    def reset!
+      cached_variables.each {|cached| cached = nil }
     end
         
   end
