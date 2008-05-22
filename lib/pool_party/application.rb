@@ -16,7 +16,7 @@ module PoolParty
         load_options!
         default_options.merge!(opts)
         
-        unless default_options[:config_file].empty?
+        unless default_options[:config_file].nil? || default_options[:config_file].empty?
           require "yaml"
           filedata = open(default_options[:config_file]).read
           default_options.merge!( YAML.load(filedata) ) if filedata

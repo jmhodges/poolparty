@@ -64,12 +64,13 @@ module PoolParty
         namespace(:hosts) do
           desc "Configure and load the hosts file"
           task :configure => :init do
+
           servers=<<-EOS        
 #{nodes.collect {|node| node.host_entry}.join("\n")}
           EOS
             
-            tempfile = write_temp_file(servers)
-            exec_scp(tempfile.path, "/etc/hosts")
+          tempfile = write_temp_file(servers)
+          exec_scp(tempfile.path, "/etc/hosts")
           end
         end
         namespace(:monit) do
@@ -113,8 +114,8 @@ module PoolParty
       namespace(:cloud) do
         task :init do
           # COME BACK TO THIS
-          # Application.options({:config_file => ENV["config"]})
-          # raise Exception.new("You must specify your access_key_id and secret_access_key") unless Application.access_key_id && Application.secret_access_key
+          Application.options({:config_file => ENV["config"]})
+          raise Exception.new("You must specify your access_key_id and secret_access_key") unless Application.access_key_id && Application.secret_access_key
         end
         desc "Prepare all servers"
         task :prepare => :init do
@@ -135,6 +136,14 @@ module PoolParty
         desc "Teardown the entire cloud"
         task :teardown => :init do
           PoolParty::Master.new.request_termination_of_all_instances
+        end
+        desc "Maintain the cloud (run in a cron-job)"
+        task :maintain => :init do
+          begin
+            PoolParty::Master.new.start_monitor!
+          rescue Exception => e
+            puts "There was an error starting the monitor: #{e}"
+          end
         end
       end
       

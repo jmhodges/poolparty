@@ -8,17 +8,20 @@ module PoolParty
     
     # Start the server to ping host the actual responses
     def start_server!
-      require 'pp'
       begin
-        server.run(build, :Port => port) do |server|
-          trap(:INT) do
-            on_server_exit
-            server.stop
-          end
-        end
+        server.run(build, :Port => port) &server_loop
       rescue Exception => e
         puts "There was an error: #{e.nice_message}"
       end
+    end
+    
+    def server_loop
+      lambda {|server|
+        trap("INT") do
+          on_exit
+          server.stop
+        end
+      }
     end
             
     # If we can, use Thin for the server, but if not, don't worry, we'll use mongrel
@@ -30,7 +33,8 @@ module PoolParty
       7788
     end
     
-    def on_server_exit
+    def on_exit
     end
+    alias_method :on_server_exit, :on_exit
   end
 end

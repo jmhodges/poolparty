@@ -21,12 +21,7 @@ module PoolParty
           
           run cmd
         end
-        
-        desc "Restart all the services using monit"
-        task :reload => [:init] do
-          run "rake instance:reload"
-        end
-                
+                        
         namespace(:monit) do
           desc "Install monit"
           task :install => [:init] do
