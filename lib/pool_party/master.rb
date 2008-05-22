@@ -22,7 +22,6 @@ module PoolParty
       begin
         trap("INT") do
           on_exit
-          # exit
         end
         run_thread_loop do
           add_task {launch_minimum_instances} # If the base instances go down...

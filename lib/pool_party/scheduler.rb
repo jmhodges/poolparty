@@ -55,11 +55,14 @@ module PoolParty
             yield if block_given?
             run_threads
             wait interval
+            reset!
           rescue Exception => e
             puts "There was an error in the run_thread_loop: #{e}"
           end
         end
       end
+    end
+    def reset!      
     end
         
   end

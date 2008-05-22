@@ -21,7 +21,7 @@ module PoolParty
           
           run cmd
         end
-                        
+
         namespace(:monit) do
           desc "Install monit"
           task :install => [:init] do

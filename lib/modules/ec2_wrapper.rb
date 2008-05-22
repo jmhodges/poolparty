@@ -36,7 +36,11 @@ module PoolParty
       end
       # Get the s3 description for the response in a hash format
       def get_instances_description
-        EC2ResponseObject.get_descriptions(ec2.describe_instances)
+        @cached_descriptions ||= EC2ResponseObject.get_descriptions(ec2.describe_instances)
+      end
+      
+      def reset!
+        @cached_descriptions = nil
       end
       
       # EC2 connections
@@ -50,11 +54,14 @@ module PoolParty
       receiver.send :include, InstanceMethods
     end
   end
+  # Provides a simple class to wrap around the amazon responses
   class EC2ResponseObject
     def self.get_descriptions(resp)
+      # p resp.DescribeInstancesResponse.reservationSet.item.instancesSet.item
       rs = resp.DescribeInstancesResponse.reservationSet.item
+      rs = rs.respond_to?(:instancesSet) ? rs.instancesSet : rs
       out = begin
-        rs.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}
+        rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item) }
       rescue Exception => e
         []
       end

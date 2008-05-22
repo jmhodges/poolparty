@@ -15,6 +15,9 @@ module PoolParty
       tempfile.flush
       tempfile
     end
+    def setup_application
+      Application.options({:config_file => (ENV["CONFIG_FILE"] || ENV["config"]) })
+    end
   end
   class Tasks
     include TaskCommands
@@ -29,14 +32,6 @@ module PoolParty
         task :init do
           raise Exception.new("Please set the ip to do anything on an instance") unless ENV['ip']
           @ip = ENV['ip']
-        end
-        # From rubyworks-ec2
-        task :cp_amazon_keys do
-          run <<-CMD
-            echo 'export ACCESS_KEY_ID=\"#{Application.access_key_id}\"' > $HOME/.amazon_keys
-            echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/.amazon_keys
-            echo 'export ACCOUNT_ID=\"#{Application.user_id}\"' >> $HOME/.amazon_keys
-          CMD
         end
         desc "Remotely login to the remote instance"
         task :ssh => [:init] do
@@ -111,10 +106,21 @@ module PoolParty
         Dir["#{File.dirname(__FILE__)}/#{File.basename(__FILE__, File.extname(__FILE__))}/**"].each {|a| require a }
       end
       
-      namespace(:cloud) do
+      namespace(:dev) do
         task :init do
           # COME BACK TO THIS
-          Application.options({:config_file => ENV["config"]})
+          setup_application
+        end
+        desc "Setup development environment specify the config_file"
+        task :setup => :init do
+          run <<-EOR
+            export CONFIG_FILE='#{ENV["config"]}'
+          EOR
+        end
+      end
+      namespace(:cloud) do
+        task :init do
+          setup_application
           raise Exception.new("You must specify your access_key_id and secret_access_key") unless Application.access_key_id && Application.secret_access_key
         end
         desc "Prepare all servers"
@@ -122,6 +128,10 @@ module PoolParty
           PoolParty::Master.new.nodes.each do |node|
             system "rake instance:#{Application.os}:install ip='#{node.ip}'"
           end
+        end
+        desc "Start the cloud"
+        task :start => :init do
+          PoolParty::Master.new.start!
         end
         desc "Reload all instances with updated data"
         task :reload => :init do
@@ -153,34 +163,13 @@ module PoolParty
           Application.options
         end
 
-        desc "Shutdown all instances"
-        task :shutdown_all => [:init, :clear] do
-          begin
-            PoolParty::Coordinator.shutdown_all!
-            PoolParty::Coordinator.clear!
-          rescue Exception => e
-            puts "== there was an error: #{e}"
-          end                    
-        end
-        
-        desc "Clear server pool bucket"
-        task :clear => [:init] do
-          PoolParty::Coordinator.clear!
-        end
-        
         desc "List registered instances"
         task :list => [:init] do
           master = PoolParty::Master.new
           num = master.number_of_pending_and_running_instances
           if num > 0
             puts "-- CLOUD (#{num})--"
-            master.list_of_running_instances do |inst|
-              puts RemoteInstance.new(inst).description
-            end
-            master.list_of_pending_instances.each do |inst|
-              puts RemoteInstance.new(inst).description
-            end
-            master.list_of_terminating_instances.each do |inst|
+            master.list_of_nonterminated_instances.each do |inst|
               puts RemoteInstance.new(inst).description
             end
           else

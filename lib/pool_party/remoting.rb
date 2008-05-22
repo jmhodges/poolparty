@@ -10,15 +10,21 @@ module PoolParty
     # == LISTING
     # List all the running instances associated with this account
     def list_of_running_instances
-      get_instances_description.select {|a| a[:status] =~ /running/}
+      list_of_nonterminated_instances.select {|a| a[:status] =~ /running/}
     end
     # Get a list of the pending instances
     def list_of_pending_instances
-      get_instances_description.select {|a| a[:status] =~ /pending/}
+      list_of_nonterminated_instances.select {|a| a[:status] =~ /pending/}
     end
     # list of shutting down instances
     def list_of_terminating_instances
-      get_instances_description.select {|a| a[:status] =~ /shutting/}
+      list_of_nonterminated_instances.select {|a| a[:status] =~ /shutting/}
+    end
+    def list_of_nonterminated_instances
+      list_of_instances.reject {|a| a[:status] =~ /terminated/}
+    end
+    def list_of_instances
+      get_instances_description
     end
     # Get number of pending instances
     def number_of_pending_instances
