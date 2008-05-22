@@ -117,7 +117,7 @@ module PoolParty
         task :list => [:init] do
           master = PoolParty::Master.new
           puts "-- CLOUD (#{master.number_of_pending_and_running_instances})--"
-          master.list_of_running_instances.each do |inst|
+          master.list_of_running_instances do |inst|
             puts RemoteInstance.new(inst).description
           end
           master.list_of_pending_instances.each do |inst|
