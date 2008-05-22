@@ -18,7 +18,7 @@ module PoolParty
           :size => "#{Application.size}")
           
         item = instance.RunInstancesResponse.instancesSet.item
-        get_hash_from_response(item)
+        EC2ResponseObject.get_hash_from_response(item)
       end
       # Shutdown the instance by instance_id
       def terminate_instance!(instance_id)
@@ -28,7 +28,7 @@ module PoolParty
       def describe_instance(id)
         instance = ec2.describe_instances(:instance_id => id)
         item = instance.DescribeInstancesResponse.reservationSet.item.instancesSet.item
-        get_hash_from_response(item)
+        EC2ResponseObject.get_hash_from_response(item)
       end
       # Get instance by id
       def get_instance_by_id(id)
@@ -36,24 +36,20 @@ module PoolParty
       end
       # Get the s3 description for the response in a hash format
       def get_instances_description
-        begin
-          # FIX ME
-          ec2.describe_instances.DescribeInstancesResponse.reservationSet.item.collect {|r|
-            item = r.instancesSet.item; get_hash_from_response(item) }
-        rescue Exception => e
-          puts "Error: #{e}"
-          []
-        end
+        EC2ResponseObject.get_descriptions(ec2.describe_instances)
+        # begin
+        #   # FIX ME
+        #   ec2.describe_instances.DescribeInstancesResponse.reservationSet.item.collect {|r|
+        #     item = r.instancesSet.item; EC2ResponseObject.get_hash_from_response(item) }
+        # rescue Exception => e
+        #   puts "Error: #{e}"
+        #   []
+        # end
       end
       
       # EC2 connections
       def ec2
         @ec2 ||= EC2::Base.new(:access_key_id => Application.access_key_id, :secret_access_key => Application.secret_access_key)
-      end
-      
-      private
-      def get_hash_from_response(resp)
-        {:instance_id => resp.instanceId, :ip => resp.dnsName, :status => resp.instanceState.name} rescue {}
       end      
     end
     
@@ -63,8 +59,21 @@ module PoolParty
     end
   end
   class EC2ResponseObject
-    def self.get_response(resp)
-      
+    def self.get_descriptions(resp)
+      rs = resp.DescribeInstancesResponse.reservationSet
+      out = begin
+        if rs.respond_to?(:instancesSet)
+          rs.instancesSet.item.collect {|r| EC2ResponseObject.get_hash_from_response(r.item)}
+        else
+          rs.item.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}
+        end
+      rescue Exception => e
+        []
+      end
+      out
+    end
+    def self.get_hash_from_response(resp)
+      {:instance_id => resp.instanceId, :ip => resp.dnsName, :status => resp.instanceState.name} rescue {}
     end
   end
 end
