@@ -27,8 +27,8 @@ module PoolParty
         # From rubyworks-ec2
         task :cp_amazon_keys do
           run <<-CMD
-            echo 'export ACCESS_KEY_ID=\"#{Application.access_key_id}\"' > $HOME/.amazon_keys &&
-            echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/.amazon_keys &&
+            echo 'export ACCESS_KEY_ID=\"#{Application.access_key_id}\"' > $HOME/.amazon_keys
+            echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/.amazon_keys
             echo 'export ACCOUNT_ID=\"#{Application.user_id}\"' >> $HOME/.amazon_keys
           CMD
         end
@@ -66,9 +66,9 @@ module PoolParty
       
       namespace(:cloud) do
         task :init do
-          Application.options({:config_file => ENV["config"]})
-          p Application.options
-          raise Exception.new("You must specify your access_key_id and secret_access_key") unless Application.access_key_id && Application.secret_access_key
+          # COME BACK TO THIS
+          # Application.options({:config_file => ENV["config"]})
+          # raise Exception.new("You must specify your access_key_id and secret_access_key") unless Application.access_key_id && Application.secret_access_key
         end
         desc "Prepare all servers"
         task :prepare => :init do
@@ -122,7 +122,7 @@ module PoolParty
         end
         
         desc "Add and start an instance to the pool"
-        task :new_instance => [:init] do
+        task :start_new_instance => [:init] do
           puts PoolParty::Remoting.new.launch_new_instance!
         end
         

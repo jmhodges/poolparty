@@ -536,8 +536,9 @@ for script in $scripts; do
   fi
 done
 
-# Install haproxy
-chroot ubuntu apt-get install haproxy -y 
+############################## CUSTOM INSTALLS ####################################
+# BUILD AMI HERE
+###################################################################################
 
 # cleanup
 if [ "$codename" != "dapper" ]; then

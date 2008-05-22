@@ -37,6 +37,7 @@ module PoolParty
       # Get the s3 description for the response in a hash format
       def get_instances_description
         begin
+          # FIX ME
           ec2.describe_instances.DescribeInstancesResponse.reservationSet.item.collect {|r|
             item = r.instancesSet.item; get_hash_from_response(item) }
         rescue Exception => e
@@ -59,6 +60,11 @@ module PoolParty
     def self.included(receiver)
       receiver.extend         ClassMethods
       receiver.send :include, InstanceMethods
+    end
+  end
+  class EC2ResponseObject
+    def self.get_response(resp)
+      
     end
   end
 end

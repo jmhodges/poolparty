@@ -1,8 +1,5 @@
 require "rubygems"
 require "sinatra"
-require "pool_party"
-
-PoolParty.client("config/config.yml", :env => Sinatra.env)
 
 get '/' do
   haml :home
