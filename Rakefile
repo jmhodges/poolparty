@@ -10,7 +10,7 @@ Echoe.new("pool_party") do |p|
   p.url = "http://blog.citrusbyte.com"
   p.docs_host = "www.poolpartyrb.com"
   p.dependencies = %w(aws-s3 EC2 sqs rack)
-  p.install_message = "*** Ari Lerner @ <ari.lerner@citrusbyte.com>\nNicolás Sanguinetti <nicolas.sanguinetti@citrusbyte.com> ***"
+  p.install_message = "*** Ari Lerner @ <ari.lerner@citrusbyte.com> ***"
   p.include_rakefile = true
 end
 

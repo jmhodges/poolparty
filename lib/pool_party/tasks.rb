@@ -9,6 +9,12 @@ module PoolParty
     def run(cmd)
       system cmd.strip.gsub(/\n/, " && ")
     end
+    def write_temp_file(str)
+      tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
+      tempfile.print(str)
+      tempfile.flush
+      tempfile
+    end
   end
   class Tasks
     include TaskCommands
@@ -55,6 +61,17 @@ module PoolParty
           ENV['cmd'] = "monit start all"
           system "rake instance:exec_remote"
         end
+        namespace(:hosts) do
+          desc "Configure and load the hosts file"
+          task :configure => :init do
+          servers=<<-EOS        
+#{nodes.collect {|node| node.host_entry}.join("\n")}
+          EOS
+            
+            tempfile = write_temp_file(servers)
+            exec_scp(tempfile.path, "/etc/hosts")
+          end
+        end
         namespace(:monit) do
           desc "Configure basic monit"
           task :configure => [:init] do
@@ -84,9 +101,7 @@ module PoolParty
             EOS
 
             # Fill in the gaps for the haproxy_config_file
-            tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
-            tempfile.print(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
-            tempfile.flush
+            tempfile = write_temp_file(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
 
             # Scp it up to the server
             exec_scp(tempfile.path, "/etc/haproxy.cfg")
