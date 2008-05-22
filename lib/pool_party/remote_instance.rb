@@ -15,14 +15,17 @@ module PoolParty
       "#{name}\t#{@ip}"
     end
     
+    # Naming scheme internally
     def name
       "#{@name}-#{@number}"
     end    
     
+    # Entry for haproxy
     def haproxy_entry
       "server #{name} #{@ip}:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 30000"
     end
     
+    # Description in the rake task
     def description
       case @status
       when "running"

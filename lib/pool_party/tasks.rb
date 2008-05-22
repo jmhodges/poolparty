@@ -1,7 +1,7 @@
 module PoolParty
   module TaskCommands
     def exec_cmd(cmd="ls -l")
-      system "rake instance:exec_remote ip='#{@ip}' cmd='#{cmd}'"
+      system "rake instance:exec_remote ip='#{@ip}' cmd='#{cmd}' 2>/dev/null"
     end
     def exec_scp(src="", dest="")
       system "rake instance:scp ip='#{@ip}' src='#{src}' dest='#{dest}'"
@@ -116,15 +116,20 @@ module PoolParty
         desc "List registered instances"
         task :list => [:init] do
           master = PoolParty::Master.new
-          puts "-- CLOUD (#{master.number_of_pending_and_running_instances})--"
-          master.list_of_running_instances do |inst|
-            puts RemoteInstance.new(inst).description
-          end
-          master.list_of_pending_instances.each do |inst|
-            puts RemoteInstance.new(inst).description
-          end
-          master.list_of_terminating_instances.each do |inst|
-            puts RemoteInstance.new(inst).description
+          num = master.number_of_pending_and_running_instances
+          if num > 0
+            puts "-- CLOUD (#{num})--"
+            master.list_of_running_instances do |inst|
+              puts RemoteInstance.new(inst).description
+            end
+            master.list_of_pending_instances.each do |inst|
+              puts RemoteInstance.new(inst).description
+            end
+            master.list_of_terminating_instances.each do |inst|
+              puts RemoteInstance.new(inst).description
+            end
+          else
+            puts "Cloud is not running"
           end
         end
         

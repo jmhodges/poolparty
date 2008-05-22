@@ -56,7 +56,6 @@ module PoolParty
       out = begin
         rs.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}
       rescue Exception => e
-        message "Error: #{e}"
         []
       end
       out
