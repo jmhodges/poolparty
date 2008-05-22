@@ -55,13 +55,44 @@ module PoolParty
           ENV['cmd'] = "monit start all"
           system "rake instance:exec_remote"
         end
-        desc "Reconfigures the application"
-        task :reconfigure => [:init] do
-          system "rake os:#{Application.os}:reconfigure"
+        namespace(:monit) do
+          desc "Configure basic monit"
+          task :configure => [:init] do
+            # Scp the basic config file
+            exec_scp(Application.monit_config_file, "/etc/monit/monitrc")
+            # Scp all our custom monit scripts to the appropriate directory
+            exec_cmd("mkdir /etc/monit.d")
+            Dir["#{File.dirname(Application.monit_config_file)}/monit/*"].each do |f|
+              exec_scp(f, "/etc/monit.d/#{File.basename(f)}")
+            end
+            system("rake instance:reload")
+          end
         end
-        task :reconfigure_and_reload => [:init] do
-          system "rake os:#{Application.os}:reconfigure_and_reload"
+        namespace(:nginx) do
+          desc "Configure nginx"
+          task :configure => [:init] do
+          end
         end
+        namespace(:haproxy) do
+          desc "Configure HAproxy"
+          task :configure => [:init] do
+            master = Master.new
+            nodes = master.nodes
+
+            servers=<<-EOS        
+#{nodes.collect {|node| node.haproxy_entry}.join("\n")}
+            EOS
+
+            # Fill in the gaps for the haproxy_config_file
+            tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
+            tempfile.print(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
+            tempfile.flush
+
+            # Scp it up to the server
+            exec_scp(tempfile.path, "/etc/haproxy.cfg")
+          end
+        end
+        Dir["#{File.dirname(__FILE__)}/#{File.basename(__FILE__, File.extname(__FILE__))}/**"].each {|a| require a }
       end
       
       namespace(:cloud) do
@@ -73,7 +104,7 @@ module PoolParty
         desc "Prepare all servers"
         task :prepare => :init do
           PoolParty::Master.new.nodes.each do |node|
-            system "rake os:#{Application.os}:install ip='#{node.ip}'"
+            system "rake instance:#{Application.os}:install ip='#{node.ip}'"
           end
         end
         desc "Reload all instances with updated data"
@@ -164,10 +195,6 @@ module PoolParty
         end
       end
             
-      namespace(:os) do                                
-        Dir["#{File.dirname(__FILE__)}/#{File.basename(__FILE__, File.extname(__FILE__))}/**"].each {|a| require a }        
-      end
-      
       namespace(:server) do                
         task :init  do
           PoolParty::Coordinator.init(false)

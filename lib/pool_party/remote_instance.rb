@@ -11,6 +11,7 @@ module PoolParty
       @status = obj[:status] || "running"
     end
     
+    # Host entry for this instance
     def host_entry
       "#{name}\t#{@ip}"
     end

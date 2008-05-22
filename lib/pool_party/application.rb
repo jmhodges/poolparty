@@ -5,7 +5,7 @@
 module PoolParty
   extend self
   
-  class Application        
+  class Application            
     class << self
             
       def options(opts={})
@@ -87,26 +87,21 @@ module PoolParty
       end
       def development?
         environment == 'development'
-      end
-      
+      end      
       def launching_user_data
         {:polling_time => polling_time}.to_yaml
-      end      
-      def root_dir
-        File.join File.dirname(__FILE__), %w(..)
       end
-      
-      %w(haproxy monit).each do |file|
+      %w(haproxy monit nginx).each do |file|
         define_method "#{file}_config_file" do
           File.join(root_dir, "..", "config", "#{file}.conf")
         end
       end
-                
+      
       def method_missing(m,*args)
         options.methods.include?("#{m}") ? options.send(m,args) : super
-      end
-             
+      end                         
     end
+        
   end
     
 end

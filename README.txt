@@ -1,5 +1,6 @@
 = PoolParty
-  by Ari Lerner
+  Ari Lerner
+  Nicolás Sanguinetti
   CitrusByte
   http://blog.citrusbyte.com
 
