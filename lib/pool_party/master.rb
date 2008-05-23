@@ -42,7 +42,7 @@ module PoolParty
     end
     def reconfigure_and_restart_running_instances
       reconfigure_running_instances
-      reconfigure_and_restart_running_instances
+      restart_running_instances_services
     end
     def reconfigure_running_instances
       hosts = build_hosts_file
