@@ -71,7 +71,6 @@ module PoolParty
             exec_scp(tempfile.path, "/etc/haproxy.cfg")
           end
         end
-        Dir["#{File.dirname(__FILE__)}/#{File.basename(__FILE__, File.extname(__FILE__))}/**"].each {|a| require a }
       end
       
       namespace(:dev) do
@@ -102,7 +101,7 @@ module PoolParty
         end
         desc "Start the cloud"
         task :start => :init do
-          PoolParty::Master.new.start!
+          PoolParty::Master.new.start_cloud!
         end
         desc "Reload all instances with updated data"
         task :reload => :init do
@@ -112,7 +111,16 @@ module PoolParty
         end
         desc "List cloud"
         task :list => :init do
-          system "rake ec2:list"
+          master = PoolParty::Master.new
+          num = master.number_of_pending_and_running_instances
+          if num > 0
+            puts "-- CLOUD (#{num})--"
+            master.list_of_nonterminated_instances.each do |inst|
+              puts RemoteInstance.new(inst).description
+            end
+          else
+            puts "Cloud is not running"
+          end
         end
         desc "Teardown the entire cloud"
         task :teardown => :init do
@@ -132,20 +140,6 @@ module PoolParty
         
         task :init do
           Application.options
-        end
-
-        desc "List registered instances"
-        task :list => [:init] do
-          master = PoolParty::Master.new
-          num = master.number_of_pending_and_running_instances
-          if num > 0
-            puts "-- CLOUD (#{num})--"
-            master.list_of_nonterminated_instances.each do |inst|
-              puts RemoteInstance.new(inst).description
-            end
-          else
-            puts "Cloud is not running"
-          end
         end
         
         desc "Add and start an instance to the pool"

@@ -18,7 +18,7 @@ module PoolParty
     
     # Naming scheme internally
     def name
-      "#{@name}-#{@number}"
+      "#{@name}#{@number}"
     end    
     
     # Entry for haproxy
@@ -56,7 +56,7 @@ module PoolParty
     def ssh(cmd="")
       Kernel.system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} #{cmd.empty? ? nil : "'#{cmd}'"}"
     end
-        
+    
     # Description in the rake task
     def description
       case @status
@@ -67,6 +67,8 @@ module PoolParty
       when "pending"
         "(booting) INSTANCE: #{name} - #{@ip} - #{@instance_id}"
       end
-    end    
+    end
+    
+    instance_eval "include PoolParty::Os::#{Application.os.capitalize}"
   end
 end

@@ -16,8 +16,9 @@ module PoolParty
     end
     
     def launch_minimum_instances
-      request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances).collect do |inst|
-        RemoteInstance.new(inst)
+      request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances).collect do |inst,i|
+        puts "i: #{i}"
+        RemoteInstance.new(inst.merge({:number => i}))
       end
     end
     
@@ -55,13 +56,10 @@ module PoolParty
       end
     end
     def build_haproxy_file
-      servers=<<-EOS        
-#{nodes.collect {|node| node.haproxy_entry}.join("\n")}
-      EOS
-      write_to_temp_file(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
+      self.class.build_haproxy_file
     end
     def build_hosts_file
-      write_to_temp_file(nodes.collect {|a| a.hosts_entry }.join("\n"))
+      self.class.build_hosts_file
     end
     
     def nodes      
@@ -80,6 +78,17 @@ module PoolParty
     def reset!
       @cached_descriptions = nil
       @nodes = nil
+    end
+    
+    def self.build_hosts_file
+      write_to_temp_file(nodes.collect {|a| a.hosts_entry }.join("\n"))
+    end
+    
+    def self.build_haproxy_file
+      servers=<<-EOS        
+#{nodes.collect {|node| node.haproxy_entry}.join("\n")}
+      EOS
+      write_to_temp_file(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
     end
     
   end
