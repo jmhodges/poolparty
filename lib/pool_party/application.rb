@@ -91,6 +91,7 @@ module PoolParty
       def launching_user_data
         {:polling_time => polling_time}.to_yaml
       end
+      
       %w(haproxy monit nginx).each do |file|
         define_method "#{file}_config_file" do
           File.join(root_dir, "..", "config", "#{file}.conf")

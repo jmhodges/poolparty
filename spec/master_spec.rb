@@ -41,7 +41,7 @@ describe "Master" do
       open(@master.build_hosts_file.path).read.should == "node-0\tip-127-0-0-1.aws.amazon.com\nnode-1\tip-127-0-0-2.aws.amazon.com\nnode-2\tip-127-0-0-3.aws.amazon.com"
     end
     it "should be able to build a haproxy file" do
-      open(@master.build_haproxy_file.path).read.should == "server node-0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 30000\nserver node-1 ip-127-0-0-2.aws.amazon.com:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 30000\nserver node-2 ip-127-0-0-3.aws.amazon.com:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 30000"
+      open(@master.build_haproxy_file.path).read.should =~ "server node-0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 30000\nserver node-1 ip-127-0-0-2.aws.amazon.com:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 30000\nserver node-2 ip-127-0-0-3.aws.amazon.com:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 30000"
     end
     it "should be able to reconfigure the instances (working on two files a piece)" do
       Kernel.should_receive(:system).exactly(6).times.and_return true

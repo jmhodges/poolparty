@@ -38,20 +38,27 @@ module PoolParty
     
     def restart_running_instances_services
       nodes.each do |node|
-        node.exec("monit restart all")
+        node.restart_with_monit
       end
     end
-    
+    def reconfigure_and_restart_running_instances
+      reconfigure_running_instances
+      reconfigure_and_restart_running_instances
+    end
     def reconfigure_running_instances
       hosts = build_hosts_file
       hproxy = build_haproxy_file
+      
       nodes.each do |node|
-        node.scp(hosts.path, "/etc/hosts")
-        node.scp(hproxy.path, "/etc/haproxy.cfg")
+        node.configure_hosts
+        node.configure_haproxy
       end
     end
     def build_haproxy_file
-      write_to_temp_file(nodes.collect {|a| a.haproxy_entry }.join("\n"))      
+      servers=<<-EOS        
+#{nodes.collect {|node| node.haproxy_entry}.join("\n")}
+      EOS
+      write_to_temp_file(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
     end
     def build_hosts_file
       write_to_temp_file(nodes.collect {|a| a.hosts_entry }.join("\n"))
@@ -61,6 +68,10 @@ module PoolParty
       @nodes ||= list_of_running_instances.collect_with_index do |inst, i|
         RemoteInstance.new(inst.merge({:number => i}))
       end
+    end
+    
+    def get_node(i=0)
+      nodes.select {|a| a.number == i}
     end
     
     def on_exit      

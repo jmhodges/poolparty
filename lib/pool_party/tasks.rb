@@ -24,84 +24,48 @@ module PoolParty
       
       namespace(:instance) do
         task :init do
-          raise Exception.new("Please set the ip to do anything on an instance") unless ENV['ip']
-          @ip = ENV['ip']
+          @num = ENV['num'] || ARGV[1]
+          raise Exception.new("Please set the number of the instance") unless @num
         end
         desc "Remotely login to the remote instance"
         task :ssh => [:init] do
-          system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}"
+          PoolParty::Master.new.get_node(@num).ssh
         end
         desc "Send a file to the remote instance"
         task :scp => [:init] do
-          system "scp -i #{Application.keypair_path} #{ENV['src']} #{Application.username}@#{@ip}:#{ENV['dest']}"
+          PoolParty::Master.new.get_node(@num).scp ENV['src'], ENV['dest']
         end
         desc "Execute cmd on a remote instance"
         task :exec_remote => [:init] do
           cmd = ENV['cmd'] || "ls -l"
-          system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} '#{cmd}'"
+          PoolParty::Master.new.get_node(@num).ssh cmd
         end
         desc "Restart all the services"
         task :reload => [:init] do
-          ENV['cmd'] = "monit restart all"
-          system "rake instance:exec_remote"
+          PoolParty::Master.new.get_node(@num).restart_with_monit
         end
         desc "Start all services"
         task :load => [:init] do
-          ENV['cmd'] = "monit start all"
-          system "rake instance:exec_remote"
+          PoolParty::Master.new.get_node(@num).start_with_monit
         end
-        desc "Reload and reconfigure"
-        task :reconfigure_and_reload do          
-          out = %w(hosts haproxy monit).collect do |line|
-            "rake instance:#{line}:configure"
-          end
-          out << "rake instance:reload"
-          
-          run out.join(" \n ")
-        end
-        
-        namespace(:hosts) do
-          desc "Configure and load the hosts file"
-          task :configure => :init do
-
-          servers=<<-EOS        
-#{nodes.collect {|node| node.host_entry}.join("\n")}
-          EOS
-            
-          tempfile = write_temp_file(servers)
-          exec_scp(tempfile.path, "/etc/hosts")
-          end
+        desc "Stop all services"
+        task :stop => [:init] do
+          PoolParty::Master.new.get_node(@num).stop_with_monit
         end
         namespace(:monit) do
           desc "Configure basic monit"
           task :configure => [:init] do
-            # Scp the basic config file
-            exec_scp(Application.monit_config_file, "/etc/monit/monitrc")
-            # Scp all our custom monit scripts to the appropriate directory
-            exec_cmd("mkdir /etc/monit.d")
-            Dir["#{File.dirname(Application.monit_config_file)}/monit/*"].each do |f|
-              exec_scp(f, "/etc/monit.d/#{File.basename(f)}")
-            end
-            system("rake instance:reload")
-          end
-        end
-        namespace(:nginx) do
-          desc "Configure nginx"
-          task :configure => [:init] do
+            PoolParty::Master.new.get_node(@num).configure_monit
           end
         end
         namespace(:haproxy) do
           desc "Configure HAproxy"
           task :configure => [:init] do
             master = Master.new
-            nodes = master.nodes
-
-            servers=<<-EOS        
-#{nodes.collect {|node| node.haproxy_entry}.join("\n")}
-            EOS
+            nodes = master.get_node(@num)
 
             # Fill in the gaps for the haproxy_config_file
-            tempfile = write_temp_file(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
+            tempfile = master.build_haproxy_file
 
             # Scp it up to the server
             exec_scp(tempfile.path, "/etc/haproxy.cfg")

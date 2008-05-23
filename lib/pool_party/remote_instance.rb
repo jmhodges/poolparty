@@ -29,14 +29,32 @@ module PoolParty
     def master?
       @number == 0
     end
-    
+    %w(stop start restart).each do |cmd|
+      define_method "#{cmd}_with_monit" do
+        ssh("monit #{cmd} all")
+      end
+    end
+    # Some configures
+    def configure_monit
+      scp(Application.monit_config_file, "/etc/monit/monitrc")
+      ssh("mkdir /etc/monit.d")
+      Dir["#{File.dirname(Application.monit_config_file)}/monit/*"].each do |f|
+        scp(f, "/etc/monit.d/#{File.basename(f)}")
+      end
+    end
+    def configure_haproxy
+      file = Master.build_haproxy_file
+      scp(file, "/etc/haproxy.cfg")
+    end
+    def configure_hosts
+      file = Master.build_hosts_file
+      scp(file, "/etc/hosts")
+    end
     def scp(src="", dest="")
       Kernel.system "scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
     end
-    
-    def exec(cmd="ls -l")
-      p "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} '#{cmd}'"
-      Kernel.system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} '#{cmd}'"
+    def ssh(cmd="")
+      Kernel.system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} #{cmd.empty? ? nil : "'#{cmd}'"}"
     end
         
     # Description in the rake task
