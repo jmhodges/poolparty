@@ -19,20 +19,27 @@ module PoolParty
     # Naming scheme internally
     def name
       "#{@name}#{@number}"
-    end    
-    
+    end        
     # Entry for haproxy
     def haproxy_entry
-      "server #{name} #{@ip}:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 30000"
+      "server #{name} #{@ip}:#{Application.client_port} weight 1 check"
     end
-    
+    # Is this the master?
     def master?
       @number == 0
     end
+    def status      
+    end
+    # Let's define some stuff for monit
     %w(stop start restart).each do |cmd|
       define_method "#{cmd}_with_monit" do
         ssh("monit #{cmd} all")
       end
+    end
+    def configure
+      configure_hosts
+      configure_haproxy
+      configure_monit
     end
     # Some configures
     def configure_monit
@@ -43,12 +50,12 @@ module PoolParty
       end
     end
     def configure_haproxy
-      file = Master.build_haproxy_file
-      scp(file, "/etc/haproxy.cfg")
+      file = Master.new.build_haproxy_file
+      scp(file.path, "/etc/haproxy.cfg")
     end
     def configure_hosts
-      file = Master.build_hosts_file
-      scp(file, "/etc/hosts")
+      file = Master.new.build_hosts_file
+      scp(file.path, "/etc/hosts")
     end
     def scp(src="", dest="")
       Kernel.system "scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"

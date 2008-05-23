@@ -52,23 +52,23 @@ module PoolParty
         task :stop => [:init] do
           PoolParty::Master.new.get_node(@num).stop_with_monit
         end
+        desc "Install stack on this node"
+        task :install => :init do
+          node = PoolParty::Master.new.get_node(@num)
+          node.install_stack
+          node.configure
+          node.restart_with_monit
+        end
+        desc "Configure the stack on this node"
+        task :configure => :init do
+          node = PoolParty::Master.new.get_node(@num)
+          node.configure
+          node.restart_with_monit
+        end
         namespace(:monit) do
           desc "Configure basic monit"
           task :configure => [:init] do
             PoolParty::Master.new.get_node(@num).configure_monit
-          end
-        end
-        namespace(:haproxy) do
-          desc "Configure HAproxy"
-          task :configure => [:init] do
-            master = Master.new
-            nodes = master.get_node(@num)
-
-            # Fill in the gaps for the haproxy_config_file
-            tempfile = master.build_haproxy_file
-
-            # Scp it up to the server
-            exec_scp(tempfile.path, "/etc/haproxy.cfg")
           end
         end
       end

@@ -94,7 +94,7 @@ module PoolParty
       
       %w(haproxy monit nginx).each do |file|
         define_method "#{file}_config_file" do
-          File.join(root_dir, "..", "config", "#{file}.conf")
+          File.join(File.dirname(__FILE__), "../..", "config", "#{file}.conf")
         end
       end
       

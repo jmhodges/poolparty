@@ -54,10 +54,13 @@ module PoolParty
       end
     end
     def build_haproxy_file
-      self.class.build_haproxy_file
+      servers=<<-EOS        
+#{nodes.collect {|node| node.haproxy_entry}.join("\n")}
+      EOS
+      write_to_temp_file(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
     end
     def build_hosts_file
-      self.class.build_hosts_file
+      write_to_temp_file(nodes.collect {|a| a.hosts_entry }.join("\n"))
     end
     
     def nodes
@@ -77,17 +80,6 @@ module PoolParty
       @cached_descriptions = nil
       @nodes = nil
     end
-    
-    def self.build_hosts_file
-      write_to_temp_file(nodes.collect {|a| a.hosts_entry }.join("\n"))
-    end
-    
-    def self.build_haproxy_file
-      servers=<<-EOS        
-#{nodes.collect {|node| node.haproxy_entry}.join("\n")}
-      EOS
-      write_to_temp_file(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
-    end
-    
+        
   end
 end
