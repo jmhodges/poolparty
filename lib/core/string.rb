@@ -15,7 +15,7 @@ class String
     self.gsub(/:([\w]+)/) {h[$1.to_sym] if h.include?($1.to_sym)}
   end
   def runnable
-    self.gsub(/\n/, " && ")
+    self.strip.gsub(/\n/, " && ")
   end
   def bucket_objects
     AWS::S3::Bucket.objects(self)

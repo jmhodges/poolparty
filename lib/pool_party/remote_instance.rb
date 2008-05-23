@@ -54,14 +54,15 @@ module PoolParty
       Kernel.system "scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
     end
     def ssh(cmd="")
-      Kernel.system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} #{cmd.empty? ? nil : "'#{cmd}'"}"
+      p "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}#{cmd.empty? ? nil : " '#{cmd}'"}"
+      Kernel.system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}#{cmd.empty? ? nil : " '#{cmd}'"}"
     end
     
     # Description in the rake task
     def description
       case @status
       when "running"
-        "INSTANCE: #{name} - #{@ip} - #{@instance_id}"
+        "#{@number}: INSTANCE: #{name} - #{@ip} - #{@instance_id}"
       when "shutting-down"
         "(terminating) INSTANCE: #{name} - #{@ip} - #{@instance_id}"
       when "pending"

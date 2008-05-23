@@ -6,21 +6,21 @@ module PoolParty
         install_monit
       end
       def install_haproxy
-        cmd <<-EOC
+        cmd=<<-EOC
           apt-get install monit
           mkdir /etc/monit
         EOC
         ssh cmd.runnable
       end
       def install_monit
-        cmd <<-EOC
+        cmd=<<-EOC
           apt-get install haproxy
           rm /etc/haproxy.cfg
         EOC
         ssh cmd.runnable
       end
       def install_nginx
-        cmd <<-EOC
+        cmd=<<-EOC
           apt-get install nginx
         EOC
         

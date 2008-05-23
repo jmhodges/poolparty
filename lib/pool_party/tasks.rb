@@ -24,7 +24,7 @@ module PoolParty
       
       namespace(:instance) do
         task :init do
-          @num = ENV['num'] || ARGV[1]
+          @num = (ENV['num'] || ARGV[1]).to_i
           raise Exception.new("Please set the number of the instance") unless @num
         end
         desc "Remotely login to the remote instance"
@@ -81,10 +81,11 @@ module PoolParty
         desc "Setup development environment specify the config_file"
         task :setup => :init do
           run <<-EOR
-            echo 'export ACCESS_KEY_ID=\"#{Application.access_key_id}\"' > $HOME/.amazon_keys
-            echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/.amazon_keys
-            echo 'export KEYPAIR_NAME=\"#{Application.keypair}\"' >> $HOME/.amazon_keys
-            echo 'export CONFIG_FILE=\"#{Application.config_file}\"' >> $HOME/.amazon_keys
+            echo 'export ACCESS_KEY_ID=\"#{Application.access_key_id}\"' > $HOME/.#{Application.keypair}_amazon_keys
+            echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/.#{Application.keypair}_amazon_keys
+            echo 'export EC2_HOME=\"#{Application.ec2_dir}\"' >> $HOME/.#{Application.keypair}_amazon_keys
+            echo 'export KEYPAIR_NAME=\"#{Application.keypair}\"' >> $HOME/.#{Application.keypair}_amazon_keys
+            echo 'export CONFIG_FILE=\"#{Application.config_file}\"' >> $HOME/.#{Application.keypair}_amazon_keys
           EOR
         end
       end
@@ -96,7 +97,7 @@ module PoolParty
         desc "Prepare all servers"
         task :prepare => :init do
           PoolParty::Master.new.nodes.each do |node|
-            system "rake instance:#{Application.os}:install ip='#{node.ip}'"
+            node.install_stack
           end
         end
         desc "Start the cloud"
@@ -112,11 +113,12 @@ module PoolParty
         desc "List cloud"
         task :list => :init do
           master = PoolParty::Master.new
+          master.reset!
           num = master.number_of_pending_and_running_instances
           if num > 0
             puts "-- CLOUD (#{num})--"
-            master.list_of_nonterminated_instances.each do |inst|
-              puts RemoteInstance.new(inst).description
+            master.nodes.each do |node|
+              puts node.description
             end
           else
             puts "Cloud is not running"

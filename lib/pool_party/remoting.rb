@@ -50,7 +50,7 @@ module PoolParty
       end
     end
     def can_start_a_new_instance?
-      eval(Application.interval_wait_time).ago >= startup_time && maximum_number_of_instances_are_not_running?
+      maximum_number_of_instances_are_not_running?
     end
     def maximum_number_of_instances_are_not_running?
       list_of_running_instances.size < Application.maximum_instances
@@ -69,8 +69,10 @@ module PoolParty
     end
     # Launch one instance at a time
     def request_launch_one_instance_at_a_time
+      reset!
       while !number_of_pending_instances.zero?
         wait "5.seconds"
+        reset!
       end
       return launch_new_instance!
     end

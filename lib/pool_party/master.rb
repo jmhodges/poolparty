@@ -16,10 +16,8 @@ module PoolParty
     end
     
     def launch_minimum_instances
-      request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances).collect do |inst,i|
-        puts "i: #{i}"
-        RemoteInstance.new(inst.merge({:number => i}))
-      end
+      request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances)
+      nodes
     end
     
     def start_monitor!
@@ -62,14 +60,14 @@ module PoolParty
       self.class.build_hosts_file
     end
     
-    def nodes      
-      @nodes ||= list_of_running_instances.collect_with_index do |inst, i|
+    def nodes
+      @nodes ||= list_of_nonterminated_instances.collect_with_index do |inst, i|
         RemoteInstance.new(inst.merge({:number => i}))
       end
     end
     
     def get_node(i=0)
-      nodes.select {|a| a.number == i}
+      nodes.select {|a| a.number == i}.first
     end
     
     def on_exit      
