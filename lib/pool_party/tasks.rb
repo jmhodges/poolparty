@@ -24,8 +24,8 @@ module PoolParty
       
       namespace(:instance) do
         task :init do
-          @num = (ENV['num'] || ARGV[1]).to_i
-          raise Exception.new("Please set the number of the instance") unless @num
+          @num = (ENV['num'] || ENV["i"] || ARGV[1]).to_i
+          raise Exception.new("Please set the number of the instance (i.e. num=1, i=1, or as an argument)") unless @num
         end
         desc "Remotely login to the remote instance"
         task :ssh => [:init] do
@@ -80,12 +80,13 @@ module PoolParty
         end
         desc "Setup development environment specify the config_file"
         task :setup => :init do
+          keyfilename = ".#{Application.keypair}_amazon_keys"
           run <<-EOR
-            echo 'export ACCESS_KEY_ID=\"#{Application.access_key_id}\"' > $HOME/.#{Application.keypair}_amazon_keys
-            echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/.#{Application.keypair}_amazon_keys
-            echo 'export EC2_HOME=\"#{Application.ec2_dir}\"' >> $HOME/.#{Application.keypair}_amazon_keys
-            echo 'export KEYPAIR_NAME=\"#{Application.keypair}\"' >> $HOME/.#{Application.keypair}_amazon_keys
-            echo 'export CONFIG_FILE=\"#{Application.config_file}\"' >> $HOME/.#{Application.keypair}_amazon_keys
+            echo 'export ACCESS_KEY_ID=\"#{Application.access_key_id}\"' > $HOME/#{keyfilename}
+            echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/#{keyfilename}
+            echo 'export EC2_HOME=\"#{Application.ec2_dir}\"' >> $HOME/#{keyfilename}
+            echo 'export KEYPAIR_NAME=\"#{Application.keypair}\"' >> $HOME/#{keyfilename}
+            echo 'export CONFIG_FILE=\"#{Application.config_file}\"' >> $HOME/#{keyfilename}
           EOR
         end
       end
