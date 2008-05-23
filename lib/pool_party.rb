@@ -11,6 +11,7 @@ require "EC2"
 require "rack"
 require 'thread'
 require "pp"
+require "tempfile"
 begin
   require 'fastthread'
   require 'thin'
@@ -53,5 +54,11 @@ module PoolParty
   end
   def root_dir
     File.dirname(__FILE__)
+  end
+  def write_to_temp_file(str)
+    tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
+    tempfile.print(str)
+    tempfile.flush
+    tempfile
   end
 end

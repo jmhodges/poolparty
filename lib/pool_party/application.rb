@@ -73,9 +73,9 @@ module PoolParty
           :maximum_instances => 3,
           :access_key_id => ENV["ACCESS_KEY"],
           :secret_access_key => ENV["SECRET_ACCESS_KEY"],
-          :config_file => "",
+          :config_file => ENV["CONFIG_FILE"],
           :username => "root",
-          :ec2_dir => "~/.ec2",
+          :ec2_dir => ENV["EC2_HOME"],
           :keypair => ENV["KEYPAIR_NAME"],
           :ami => 'ami-4a46a323',
           :os => "ubuntu"

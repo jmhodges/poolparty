@@ -7,12 +7,12 @@ module PoolParty
       @ip = obj[:ip]
       @instance_id = obj[:instance_id]      
       @name = obj[:name] || "node"
-      @number = obj[:number] || 1
+      @number = obj[:number] || 0 # Defaults to the master
       @status = obj[:status] || "running"
     end
     
     # Host entry for this instance
-    def host_entry
+    def hosts_entry
       "#{name}\t#{@ip}"
     end
     
@@ -26,6 +26,19 @@ module PoolParty
       "server #{name} #{@ip}:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 30000"
     end
     
+    def master?
+      @number == 0
+    end
+    
+    def scp(src="", dest="")
+      Kernel.system "scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
+    end
+    
+    def exec(cmd="ls -l")
+      p "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} '#{cmd}'"
+      Kernel.system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} '#{cmd}'"
+    end
+        
     # Description in the rake task
     def description
       case @status

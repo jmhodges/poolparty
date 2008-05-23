@@ -9,12 +9,6 @@ module PoolParty
     def run(cmd)
       system cmd.strip.gsub(/\n/, " && ")
     end
-    def write_temp_file(str)
-      tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
-      tempfile.print(str)
-      tempfile.flush
-      tempfile
-    end
     def setup_application
       Application.options({:config_file => (ENV["CONFIG_FILE"] || ENV["config"]) })
     end
@@ -56,6 +50,16 @@ module PoolParty
           ENV['cmd'] = "monit start all"
           system "rake instance:exec_remote"
         end
+        desc "Reload and reconfigure"
+        task :reconfigure_and_reload do          
+          out = %w(hosts haproxy monit).collect do |line|
+            "rake instance:#{line}:configure"
+          end
+          out << "rake instance:reload"
+          
+          run out.join(" \n ")
+        end
+        
         namespace(:hosts) do
           desc "Configure and load the hosts file"
           task :configure => :init do
@@ -114,7 +118,10 @@ module PoolParty
         desc "Setup development environment specify the config_file"
         task :setup => :init do
           run <<-EOR
-            export CONFIG_FILE='#{ENV["config"]}'
+            echo 'export ACCESS_KEY_ID=\"#{Application.access_key_id}\"' > $HOME/.amazon_keys
+            echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/.amazon_keys
+            echo 'export KEYPAIR_NAME=\"#{Application.keypair}\"' >> $HOME/.amazon_keys
+            echo 'export CONFIG_FILE=\"#{Application.config_file}\"' >> $HOME/.amazon_keys
           EOR
         end
       end

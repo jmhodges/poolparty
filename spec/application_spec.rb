@@ -7,4 +7,8 @@ describe "Application" do
   it "should be able to call on the haproxy_config_file" do
     Application.haproxy_config_file.should_not be_nil
   end
+  it "should be able to find the client_port" do
+    Application.options.should_receive(:client_port).and_return(7788)
+    Application.client_port.should == 7788
+  end
 end
