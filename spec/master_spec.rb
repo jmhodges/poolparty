@@ -24,6 +24,7 @@ describe "Master" do
           {:instance_id => "i-5849bb", :ip => "ip-127-0-0-2.aws.amazon.com", :status => "running"},
           {:instance_id => "i-5849bc", :ip => "ip-127-0-0-3.aws.amazon.com", :status => "pending"}
         ])
+      Kernel.stub!(:exec).and_return true
     end
     
     it "should be able to go through the instances and assign them numbers" do
@@ -46,14 +47,14 @@ describe "Master" do
       open(@master.build_haproxy_file.path).read.should =~ "server node0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port}"
     end
     it "should be able to build a heartbeat config file" do
-      `cat #{@master.build_heartbeat_config_file.path}`
+      open(@master.build_heartbeat_config_file).read.should =~ /\nnode node1\nnode node2\n/
     end
     it "should be able to reconfigure the instances (working on two files a piece)" do
-      Kernel.should_receive(:system).at_least(1).and_return true
+      Kernel.should_receive(:exec).at_least(1).and_return true
       @master.reconfigure_running_instances
     end
     it "should be able to restart the running instances' services" do
-      Kernel.should_receive(:system).at_least(1).and_return true
+      Kernel.should_receive(:exec).at_least(1).and_return true
       @master.restart_running_instances_services
     end
   end

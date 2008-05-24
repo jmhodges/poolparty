@@ -16,7 +16,7 @@ module PoolParty
       "#{name}\t#{@ip}"
     end
     def node_entry
-      "node  #{name}"
+      "node #{name}"
     end    
     # Naming scheme internally
     def name
