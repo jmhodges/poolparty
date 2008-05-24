@@ -1,5 +1,7 @@
 module PoolParty
   class RemoteInstance
+    include PoolParty # WTF -> why isn't message included
+    
     attr_reader :ip, :instance_id, :name, :number, :status
     attr_accessor :name
     
@@ -50,17 +52,22 @@ module PoolParty
       configure_monit      
     end
     def configure_master
-      puts "configuring master (#{name})"
+      message "configuring master (#{name})"
     end
     def configure_linux
-      ssh("hostname -v #{name}")
+      ssh("'hostname -v #{name}'") rescue message "error in setting hostname"
     end
     def configure_s3fuse
+      message("Configuring s3fuse")
       unless Application.shared_bucket.empty?
-        ssh("/usr/bin/s3fs #{Application.shared_bucket} -ouse_cache=/tmp -o accessKeyId=#{Application.access_key_id} -o secretAccessKey=#{Application.secret_access_key} /data")
+        install_s3fuse unless ssh("s3fs -v") =~ /missing\ bucket/
+        ssh("/usr/bin/s3fs #{Application.shared_bucket} -ouse_cache=/tmp -o accessKeyId=#{Application.access_key_id} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data")
       end      
     end
     def configure_heartbeat
+      message "Configuring heartbeat"
+      install_heartbeat unless has?("heartbeat")
+      
       file = write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read.strip)
       scp(file.path, "/etc/ha.d/authkeys")
       file = Master.new.build_heartbeat_config_file
@@ -74,6 +81,9 @@ module PoolParty
     end
     # Some configures
     def configure_monit
+      message "Configuring monit"
+      install_monit unless has?("monit -V")
+      
       scp(Application.monit_config_file, "/etc/monit/monitrc")
       ssh("mkdir /etc/monit.d")
       Dir["#{File.dirname(Application.monit_config_file)}/monit/*"].each do |f|
@@ -81,21 +91,29 @@ module PoolParty
       end
     end
     def configure_haproxy
-      out = ssh("haproxy -v")
-      puts "out: #{out}"
+      message "Configuring haproxy"
+      install_haproxy unless has?("haproxy")
       
       file = Master.new.build_haproxy_file
       scp(file.path, "/etc/haproxy.cfg")
     end
     def configure_hosts
       file = Master.new.build_hosts_file
-      scp(file.path, "/etc/hosts")
+      scp(file.path, "/etc/hosts") rescue message "Error in uploading new /etc/hosts file"
+    end
+    def has?(str)
+      !ssh("#{str} -v").empty?
     end
     def scp(src="", dest="")
-      Kernel.exec "scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
+      `scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
     end
     def ssh(cmd="")
-      Kernel.exec "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}#{cmd.empty? ? nil : " '#{cmd}'"}"
+      ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}"
+      if cmd.empty?
+        system "#{ssh}"
+      else
+        %x[#{ssh} '#{cmd.runnable}']
+      end
     end
     
     # Description in the rake task

@@ -63,7 +63,7 @@ module PoolParty
           :host_port => 80,
           :client_port => 8001,
           :environment => 'development',
-          :verbose => false,
+          :verbose => true,
           :logging => true,
           :size => "small",
           :polling_time => 1,

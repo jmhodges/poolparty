@@ -31,9 +31,7 @@ pwd = File.dirname(__FILE__)
   end
 end
 
-module PoolParty
-  extend self
-  
+module PoolParty  
   module Version
     MAJOR = '0'
     MINOR = '0'

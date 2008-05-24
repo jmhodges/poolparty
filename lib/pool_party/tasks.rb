@@ -37,9 +37,9 @@ module PoolParty
           @node.scp ENV['src'], ENV['dest']
         end
         desc "Execute cmd on a remote instance"
-        task :exec_remote => [:init] do
+        task :exec => [:init] do
           cmd = ENV['cmd'] || "ls -l"
-          @node.ssh cmd
+          puts @node.ssh(cmd.runnable)
         end
         desc "Restart all the services"
         task :reload => [:init] do
