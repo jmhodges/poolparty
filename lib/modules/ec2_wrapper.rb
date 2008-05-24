@@ -57,7 +57,7 @@ module PoolParty
       rs = resp.DescribeInstancesResponse.reservationSet.item
       rs = rs.respond_to?(:instancesSet) ? rs.instancesSet : rs
       out = begin
-        rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r)}.reject {|a| a.nil?  }
+        rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}.reject {|a| a.nil?  }
       rescue Exception => e
         []
       end

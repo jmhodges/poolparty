@@ -24,51 +24,54 @@ module PoolParty
       
       namespace(:instance) do
         task :init do
-          @num = (ENV['num'] || ENV["i"] || ARGV[1]).to_i
-          raise Exception.new("Please set the number of the instance (i.e. num=1, i=1, or as an argument)") unless @num
+          num = (ENV['num'] || ENV["i"] || ENV["inst"] || ARGV.shift).to_i          
+          raise Exception.new("Please set the number of the instance (i.e. num=1, i=1, or as an argument)") unless num
+          @node = PoolParty::Master.new.get_node(num)
         end
         desc "Remotely login to the remote instance"
         task :ssh => [:init] do
-          PoolParty::Master.new.get_node(@num).ssh
+          @node.ssh
         end
         desc "Send a file to the remote instance"
         task :scp => [:init] do
-          PoolParty::Master.new.get_node(@num).scp ENV['src'], ENV['dest']
+          @node.scp ENV['src'], ENV['dest']
         end
         desc "Execute cmd on a remote instance"
         task :exec_remote => [:init] do
           cmd = ENV['cmd'] || "ls -l"
-          PoolParty::Master.new.get_node(@num).ssh cmd
+          @node.ssh cmd
         end
         desc "Restart all the services"
         task :reload => [:init] do
-          PoolParty::Master.new.get_node(@num).restart_with_monit
+          @node.restart_with_monit
         end
         desc "Start all services"
         task :load => [:init] do
-          PoolParty::Master.new.get_node(@num).start_with_monit
+          @node.start_with_monit
         end
         desc "Stop all services"
         task :stop => [:init] do
-          PoolParty::Master.new.get_node(@num).stop_with_monit
+          @node.stop_with_monit
         end
         desc "Install stack on this node"
-        task :install => :init do
-          node = PoolParty::Master.new.get_node(@num)
-          node.install_stack
-          node.configure
-          node.restart_with_monit
+        task :install => :init do          
+          @node.install_stack
+          @node.configure
+          @node.restart_with_monit
+        end
+        desc "Teardown instance"
+        task :shutdown => :init do
+          `ec2-terminate-instances #{@node.instance_id}`
         end
         desc "Configure the stack on this node"
         task :configure => :init do
-          node = PoolParty::Master.new.get_node(@num)
-          node.configure
-          node.restart_with_monit
+          @node.configure
+          @node.restart_with_monit
         end
         namespace(:monit) do
           desc "Configure basic monit"
           task :configure => [:init] do
-            PoolParty::Master.new.get_node(@num).configure_monit
+            @node.configure_monit
           end
         end
       end
@@ -108,13 +111,13 @@ module PoolParty
         desc "Reload all instances with updated data"
         task :reload => :init do
           PoolParty::Master.new.nodes.each do |node|
-            system "rake instance:reconfigure_and_reload ip='#{node.ip}'"
+            node.configure
+            node.restart_with_monit
           end
         end
         desc "List cloud"
         task :list => :init do
           master = PoolParty::Master.new
-          master.reset!
           num = master.number_of_pending_and_running_instances
           if num > 0
             puts "-- CLOUD (#{num})--"
@@ -125,8 +128,8 @@ module PoolParty
             puts "Cloud is not running"
           end
         end
-        desc "Teardown the entire cloud"
-        task :teardown => :init do
+        desc "Shutdown the entire cloud"
+        task :shutdown => :init do
           PoolParty::Master.new.request_termination_of_all_instances
         end
         desc "Maintain the cloud (run in a cron-job)"
@@ -136,6 +139,10 @@ module PoolParty
           rescue Exception => e
             puts "There was an error starting the monitor: #{e}"
           end
+        end
+        desc "Deploy web application from production git repos specified in config file"
+        task :deploy => :init do
+          puts "Deploying web app on nginx"
         end
       end
       

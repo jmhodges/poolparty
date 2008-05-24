@@ -15,11 +15,16 @@ module PoolParty
     def hosts_entry
       "#{name}\t#{@ip}"
     end
-    
+    def node_entry
+      "node  #{name}"
+    end    
     # Naming scheme internally
     def name
       "#{@name}#{@number}"
     end        
+    def heartbeat_entry
+      "#{name} #{ip} #{Application.managed_services}"
+    end
     # Entry for haproxy
     def haproxy_entry
       "server #{name} #{@ip}:#{Application.client_port} weight 1 check"
@@ -37,9 +42,35 @@ module PoolParty
       end
     end
     def configure
+      configure_master if master?
+      configure_linux
       configure_hosts
       configure_haproxy
-      configure_monit
+      configure_s3fuse
+      configure_monit      
+    end
+    def configure_master
+      puts "configuring master (#{name})"
+    end
+    def configure_linux
+      ssh("hostname -v #{name}")
+    end
+    def configure_s3fuse
+      unless Application.shared_bucket.empty?
+        ssh("/usr/bin/s3fs #{Application.shared_bucket} -ouse_cache=/tmp -o accessKeyId=#{Application.access_key_id} -o secretAccessKey=#{Application.secret_access_key} /data")
+      end      
+    end
+    def configure_heartbeat
+      file = write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read.strip)
+      scp(file.path, "/etc/ha.d/authkeys")
+      file = Master.new.build_heartbeat_config_file
+      scp(file.path, "/etc/ha.d/ha.cf")
+      
+      servers=<<-EOS        
+#{nodes.collect {|node| node.haproxy_entry}.join("\n")}
+      EOS
+      file = write_to_temp_file(servers)
+      scp(file.path, "/etc/ha.d/haresources")
     end
     # Some configures
     def configure_monit
@@ -50,6 +81,9 @@ module PoolParty
       end
     end
     def configure_haproxy
+      out = ssh("haproxy -v")
+      puts "out: #{out}"
+      
       file = Master.new.build_haproxy_file
       scp(file.path, "/etc/haproxy.cfg")
     end
@@ -58,10 +92,10 @@ module PoolParty
       scp(file.path, "/etc/hosts")
     end
     def scp(src="", dest="")
-      Kernel.system "scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
+      Kernel.exec "scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
     end
     def ssh(cmd="")
-      Kernel.system "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}#{cmd.empty? ? nil : " '#{cmd}'"}"
+      Kernel.exec "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}#{cmd.empty? ? nil : " '#{cmd}'"}"
     end
     
     # Description in the rake task

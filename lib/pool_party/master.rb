@@ -1,14 +1,14 @@
 module PoolParty
   class Master < Remoting
     include Server
-    attr_reader :servers
+
     def initialize
       super
       self
     end
     def start_cloud!
       message "Starting cloud"
-      @servers = start!
+      start!
     end
     
     def start!
@@ -62,7 +62,18 @@ module PoolParty
     def build_hosts_file
       write_to_temp_file(nodes.collect {|a| a.hosts_entry }.join("\n"))
     end
-    
+    def build_heartbeat_config_file
+      servers=<<-EOS        
+#{nodes.collect {|node| node.node_entry}.join("\n")}
+      EOS
+      write_to_temp_file(open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers})
+    end
+    def build_heartbeat_resources_file
+      servers=<<-EOS        
+#{nodes.collect {|node| node.heartbeat_entry}.join("\n")}
+      EOS
+      write_to_temp_file(open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers})
+    end
     def nodes
       @nodes ||= list_of_nonterminated_instances.collect_with_index do |inst, i|
         RemoteInstance.new(inst.merge({:number => i}))

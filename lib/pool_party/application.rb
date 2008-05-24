@@ -18,7 +18,7 @@ module PoolParty
         
         unless default_options[:config_file].nil? || default_options[:config_file].empty?
           require "yaml"
-          filedata = open(default_options[:config_file]).read
+          filedata = open(default_options[:config_file]).read if File.file?(default_options[:config_file])
           default_options.merge!( YAML.load(filedata) ) if filedata
         end
         
@@ -33,7 +33,9 @@ module PoolParty
           op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['SECRET_ACCESS_KEY'])") { |key| default_options[:secret_access_key] = key }
           op.on('-I ami', '--image-id id', "AMI instance (default: 'ami-4a46a323')") {|id| default_options[:ami] = id }
           op.on('-k keypair', '--keypair name', "Keypair name (ENV['KEYPAIR_NAME'])") { |key| default_options[:keypair] = key }
+          op.on('-b bucket', '--bucket bucket', "Application bucket") { |bucket| default_options[:shared_bucket] = bucket }          
           op.on('-D ec2 directory', '--ec2-dir dir', "Directory with ec2 data (default: '~/.ec2')") {|id| default_options[:ec2_dir] = id }
+          op.on('-S services', '--services names', "Monitored services (default: '')") {|id| default_options[:services] = id }
           op.on('-c file', '--config-file file', "Config file (default: '')") {|file| default_options[:config_file] = file }
           op.on('-p port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
@@ -73,15 +75,19 @@ module PoolParty
           :maximum_instances => 3,
           :access_key_id => ENV["ACCESS_KEY"],
           :secret_access_key => ENV["SECRET_ACCESS_KEY"],
-          :config_file => ENV["CONFIG_FILE"],
+          :config_file => (ENV["CONFIG_FILE"].empty? ? "config/config.yml" : ENV["CONFIG_FILE"]),
           :username => "root",
           :ec2_dir => ENV["EC2_HOME"],
           :keypair => ENV["KEYPAIR_NAME"],
           :ami => 'ami-4a46a323',
+          :shared_bucket => "",
+          :services => "nginx sinatra",
           :os => "ubuntu"
         }
       end
-      
+      def managed_services
+        "haproxy #{services}"
+      end
       def keypair_path
         "#{ec2_dir}/id_rsa-#{keypair}"
       end
@@ -92,7 +98,7 @@ module PoolParty
         {:polling_time => polling_time}.to_yaml
       end
       
-      %w(haproxy monit nginx).each do |file|
+      %w(haproxy monit nginx heartbeat heartbeat_authkeys).each do |file|
         define_method "#{file}_config_file" do
           File.join(File.dirname(__FILE__), "../..", "config", "#{file}.conf")
         end
