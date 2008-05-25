@@ -128,16 +128,7 @@ module PoolParty
         # List the cloud
         desc "List cloud"
         task :list => :init do
-          master = PoolParty::Master.new
-          num = master.number_of_pending_and_running_instances
-          if num > 0
-            puts "-- CLOUD (#{num})--"
-            master.nodes.each do |node|
-              puts node.description
-            end
-          else
-            puts "Cloud is not running"
-          end
+          PoolParty::Master.new.list
         end
         # Shutdown the cloud
         desc "Shutdown the entire cloud"

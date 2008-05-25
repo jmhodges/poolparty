@@ -11,4 +11,7 @@ describe "Application" do
     Application.options.should_receive(:client_port).and_return(7788)
     Application.client_port.should == 7788
   end
+  it "should always have haproxy in the managed services list" do
+    Application.managed_services =~ /haproxy/
+  end
 end

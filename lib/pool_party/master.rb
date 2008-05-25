@@ -95,6 +95,17 @@ module PoolParty
     # On exit command
     def on_exit      
     end
+    # List the clouds
+    def list
+      if number_of_pending_and_running_instances > 0
+        puts "-- CLOUD (#{number_of_pending_and_running_instances})--"
+        nodes.each do |node|
+          puts node.description
+        end
+      else
+        puts "Cloud is not running"
+      end
+    end
     # Reset and clear the caches
     def reset!
       @cached_descriptions = nil

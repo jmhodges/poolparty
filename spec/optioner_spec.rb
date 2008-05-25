@@ -7,6 +7,9 @@ describe "Optioner with options" do
   it "should be able to pull out the lonely arguments with switches" do
     Optioner.parse("-s 30.seconds -m hello world".split(" ")).should == ["world"]
   end
+  it "should be able to pull out start from the the string" do
+    Optioner.parse("-c 'config/config.yml' -A 'Who' -S 'DarkwingDuck' list".split(" ")).should == ["list"]
+  end
   it "should be able to pull out the lonely arguments with optional argument switches" do
     Optioner.parse("-s 30 -q -n start".split(" "), %w(-q -n)).should == ["start"]
   end

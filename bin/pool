@@ -6,17 +6,25 @@ require 'rack'
 require 'lib/pool_party'
 
 # Set defaults
-options = PoolParty.options
+options = PoolParty.options(ARGV.dup)
 list = Optioner.parse(ARGV.dup)
 
-if list.empty?
-  puts "Usage: pool [options] {start|stop}"
-  exit
-end
+# if list.empty?
+#   puts "Usage: pool [options] {start|stop|list|maintain}"
+#   exit
+# end
 
 case list[0]
 when "start"
   puts "Starting pool with #{options.ami}"
+  puts PoolParty::Master.new.start_cloud!
 when "stop"
   puts "stopping"
+  puts PoolParty::Master.new.request_termination_of_all_instances
+when "list"
+  puts PoolParty::Master.new.list
+when "maintain"
+  puts PoolParty::Master.new.start_monitor!
+else
+  puts PoolParty::Master.new.list
 end
