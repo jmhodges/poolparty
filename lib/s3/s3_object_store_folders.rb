@@ -1,3 +1,6 @@
+=begin rdoc
+  S3 overloads
+=end
 module AWS
   module S3
     class S3Object

@@ -41,7 +41,7 @@ module PoolParty
             
       # EC2 connections
       def ec2
-        @ec2 ||= EC2::Base.new(:access_key_id => Application.access_key_id, :secret_access_key => Application.secret_access_key)
+        @ec2 ||= EC2::Base.new(:access_key_id => Application.access_key, :secret_access_key => Application.secret_access_key)
       end      
     end
     
@@ -68,7 +68,7 @@ module PoolParty
       out
     end
     def self.get_hash_from_response(resp)
-      {:instance_id => resp.instanceId, :ip => resp.dnsName, :status => resp.instanceState.name} rescue nil
+      {:instance_id => resp.instanceId, :ip => resp.dnsName, :status => resp.instanceState.name, :launching_time => resp.launchTime} rescue nil
     end
   end
 end

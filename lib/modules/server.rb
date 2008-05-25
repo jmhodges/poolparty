@@ -1,3 +1,6 @@
+=begin rdoc
+  Almost antiquated, used in the monitor
+=end
 module PoolParty
   module Server
     def build

@@ -1,3 +1,6 @@
+=begin rdoc
+  Basic memory monitor on the instance
+=end
 module PoolParty
   module Monitors
     module Memory

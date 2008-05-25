@@ -1,3 +1,6 @@
+=begin rdoc
+  Os specific container
+=end
 module PoolParty
   module Os
   end

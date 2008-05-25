@@ -1,3 +1,6 @@
+=begin rdoc
+  Monitor the web stats for the request rate the server can handle at a time
+=end
 module PoolParty
   module Monitors
     module Web

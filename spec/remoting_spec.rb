@@ -42,7 +42,6 @@ describe "Actual remoting" do
     Application.stub!(:polling_time).and_return 20
     Application.stub!(:heavy_load).and_return 0.50
     Application.stub!(:maximum_instances).and_return(2)
-    Application.stub!(:interval_wait_time).and_return("20.seconds")
     
     @host.launch_minimum_instances
     
@@ -61,7 +60,6 @@ describe "Actual remoting" do
     @host.stub!(:global_load).and_return 0.30
     Application.stub!(:polling_time).and_return "30.seconds"
     Application.stub!(:heavy_load).and_return 0.80
-    Application.stub!(:interval_wait_time).and_return("20.seconds")
     
     @host.launch_minimum_instances
     wait "10.seconds"
@@ -78,7 +76,6 @@ describe "Actual remoting" do
     
     Application.stub!(:polling_time).and_return "10.seconds"
     Application.stub!(:light_load).and_return 0.20
-    Application.stub!(:interval_wait_time).and_return("30.seconds")
     
     @host.launch_minimum_instances
     @host.launch_new_instance! # Force launch one

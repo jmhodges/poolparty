@@ -1,3 +1,6 @@
+=begin rdoc
+  Basic monitor on the cpu stats
+=end
 module PoolParty
   module Monitors
     module Cpu

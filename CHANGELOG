@@ -1,2 +1,4 @@
-v0.0.2 Rewrite
-v0.0.1 Released!
+v0.0.4 Rewrite before release - with haproxy, heartbeat, hosts and s3fuse
+v0.0.3 Rewrite - Cleanup
+v0.0.2 Rewrite - with web-proxy methods
+v0.0.1 Initial idea

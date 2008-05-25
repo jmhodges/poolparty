@@ -21,6 +21,9 @@ end
 ## Load PoolParty
 pwd = File.dirname(__FILE__)
 
+# Load the required files
+# If there is an init file, load that, otherwise
+# require all the files in each directory
 %w(core modules s3 pool_party).each do |dir|  
   Dir["#{pwd}/#{dir}"].each do |dir|
     begin
@@ -35,25 +38,29 @@ module PoolParty
   module Version
     MAJOR = '0'
     MINOR = '0'
-    REVISION = '3'
+    REVISION = '4'
     def self.combined
       [MAJOR, MINOR, REVISION].join('.')
     end
   end
-
+  # PoolParty options
   def options(opts={})
     Application.options(opts)
   end
+  # Are we working in verbose-mode
   def verbose?
     Application.verbose == true
   end
+  # Send a message if we are in verbose-mode
   def message(msg="")
     pp "-- #{msg}" if verbose?
   end
+  # Root directory of the application
   def root_dir
     File.dirname(__FILE__)
   end
-  def write_to_temp_file(str)
+  # Write string to a tempfile
+  def write_to_temp_file(str="")
     tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
     tempfile.print(str)
     tempfile.flush

@@ -16,8 +16,8 @@
 #    --bucket NAME       - REQUIRED
 #    --prefix PREFIX     - Defaults to a reasonable manifest name.
 #    --user ID           - Defaults to $AWS_USER_ID
-#    --access-key ID     - Defaults to $AWS_ACCESS_KEY_ID
-#    --secret-key ID     - Defaults to $AWS_SECRET_ACCESS_KEY_ID
+#    --access-key ID     - Defaults to $AWS_access_key
+#    --secret-key ID     - Defaults to $AWS_SECRET_access_key
 #    --private-key PATH  - Defaults to $EC2_PRIVATE_KEY
 #    --cert PATH         - Defaults to $EC2_CERT
 #    --release VERSION   - One of: 6.06 6.10 7.04 7.10 8.04
@@ -140,8 +140,8 @@
 #
 
 export AWS_USER_ID=161964561164
-export AWS_ACCESS_KEY_ID=1XCTNEK1CC5BQPA3EE02
-export ACCESS_KEY=$AWS_ACCESS_KEY_ID
+export AWS_access_key=1XCTNEK1CC5BQPA3EE02
+export ACCESS_KEY=$AWS_access_key
 export AWS_SECRET_ACCESS_KEY=Q2qJHP0S2iOKikn9glB+KZcF/aYf4huS/GdHvqEZ
 export SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 export bucket=a-instances
@@ -157,7 +157,7 @@ while [ $# -gt 0 ]; do
     --bucket)      bucket=$2;                           shift 2 ;;
     --prefix)      prefix=$2;                           shift 2 ;;
     --user)        AWS_USER_ID=$2;                      shift 2 ;;
-    --access-key)  AWS_ACCESS_KEY_ID=$2;                shift 2 ;;
+    --access-key)  AWS_access_key=$2;                shift 2 ;;
     --secret-key)  AWS_SECRET_ACCESS_KEY=$2;            shift 2 ;;
     --private-key) EC2_PRIVATE_KEY=$2;                  shift 2 ;;
     --cert)        EC2_CERT=$2;                         shift 2 ;;
@@ -186,7 +186,7 @@ if [ "$codename" = "" ]; then
 fi
 
 # Required and default parameters
-true ${AWS_USER_ID:?} ${AWS_ACCESS_KEY_ID:?} ${AWS_SECRET_ACCESS_KEY:?} \
+true ${AWS_USER_ID:?} ${AWS_access_key:?} ${AWS_SECRET_ACCESS_KEY:?} \
      ${bucket:?} \
      ${EC2_CERT:=$(echo /mnt/cert-*.pem)} \
      ${EC2_PRIVATE_KEY:=$(echo /mnt/pk-*.pem)} \
@@ -566,7 +566,7 @@ ec2-upload-bundle                       \
   --retry                               \
   -b $bucket                            \
   -m ubuntu/tmp/$prefix.manifest.xml    \
-  -a $AWS_ACCESS_KEY_ID                 \
+  -a $AWS_access_key                 \
   -s $AWS_SECRET_ACCESS_KEY
 
 umount ubuntu/dev/pts

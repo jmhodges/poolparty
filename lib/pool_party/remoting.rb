@@ -20,9 +20,11 @@ module PoolParty
     def list_of_terminating_instances
       list_of_nonterminated_instances.select {|a| a[:status] =~ /shutting/}
     end
+    # list all the nonterminated instances
     def list_of_nonterminated_instances
       list_of_instances.reject {|a| a[:status] =~ /terminated/}
     end
+    # List the instances, regardless of their states
     def list_of_instances
       get_instances_description
     end
@@ -30,36 +32,31 @@ module PoolParty
     def number_of_pending_instances
       list_of_pending_instances.size
     end
+    # get the number of running instances
     def number_of_running_instances
       list_of_running_instances.size
     end
+    # get the number of pending and running instances
     def number_of_pending_and_running_instances
       number_of_running_instances + number_of_pending_instances
     end
     # == LAUNCHING
     # Request to launch a new instance
-    # Will only luanch if the last_startup_time has been cleared
-    # Clear the last_startup_time if instance does launch
     def request_launch_new_instance
       if can_start_a_new_instance?
-        update_startup_time
         request_launch_one_instance_at_a_time
         return true
       else
         return false
       end
     end
+    # Can we start a new instance?
     def can_start_a_new_instance?
       maximum_number_of_instances_are_not_running?
     end
+    # Are the maximum number of instances running?
     def maximum_number_of_instances_are_not_running?
       list_of_running_instances.size < Application.maximum_instances
-    end
-    def update_startup_time
-      @last_startup_time = Time.now
-    end
-    def startup_time
-      @last_startup_time ||= Time.now
     end
     # Request to launch a number of instances
     def request_launch_new_instances(num=1)
@@ -81,35 +78,32 @@ module PoolParty
     def request_termination_of_running_instances
       list_of_running_instances.each {|a| terminate_instance!(a[:instance_id])}
     end
+    # Request termination of all instances regardless of their state (includes pending instances)
     def request_termination_of_all_instances
       get_instances_description.each {|a| terminate_instance!(a[:instance_id])}
     end
     # Terminate instance by id
     def request_termination_of_instance(id)
       if can_shutdown_an_instance?
-        update_shutdown_time
         terminate_instance! id
         return true
       else
         return false
       end
     end
+    # Can we shutdown an instance?
     def can_shutdown_an_instance?
-      eval(Application.interval_wait_time).ago >= shutdown_time && minimum_number_of_instances_are_running?
+      minimum_number_of_instances_are_running?
     end
+    # Are the minimum number of instances running?
     def minimum_number_of_instances_are_running?
       list_of_running_instances.size > Application.minimum_instances
     end
-    def update_shutdown_time 
-      @last_shutdown_time = Time.now
-    end
-    def shutdown_time
-      @last_shutdown_time ||= Time.now
-    end
+    # Get the cached running_instances
     def running_instances
       @running_instances ||= update_instance_values
     end
-    
+    # Update the instance values
     def update_instance_values
       @running_instances = list_of_running_instances.collect {|a| RemoteInstance.new(a) }.sort
     end

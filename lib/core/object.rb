@@ -1,3 +1,7 @@
+=begin rdoc
+  Basic, add an alias_method to the object class
+  Add returning to the object
+=end
 class Object
   def alias_method(new_id, original_id)
     original = self.method(original_id).to_proc

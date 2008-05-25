@@ -1,3 +1,6 @@
+=begin rdoc
+  Make a command thread-safe
+=end
 require "monitor"
 module PoolParty
   extend self

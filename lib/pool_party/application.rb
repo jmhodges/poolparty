@@ -7,17 +7,20 @@ module PoolParty
   
   class Application            
     class << self
-            
+      
+      # The application options
       def options(opts={})
         @options ||= make_options(opts)
-      end
-      
+      end      
+      # Make the options with the config_file overrides included
+      # Default config file assumed to be at config/config.yml
       def make_options(opts={})
         load_options!
         default_options.merge!(opts)
-        
+        # If the config_file options are specified and not empty
         unless default_options[:config_file].nil? || default_options[:config_file].empty?
           require "yaml"
+          # Try loading the file if it exists
           filedata = open(default_options[:config_file]).read if File.file?(default_options[:config_file])
           default_options.merge!( YAML.load(filedata) ) if filedata
         end
@@ -25,11 +28,11 @@ module PoolParty
         OpenStruct.new(default_options)
       end
 
-      # Load options 
+      # Load options via commandline
       def load_options!
         require 'optparse'
         OptionParser.new do |op|
-          op.on('-A key', '--access-key key', "Ec2 access key (ENV['ACCESS_KEY'])") { |key| default_options[:access_key_id] = key }
+          op.on('-A key', '--access-key key', "Ec2 access key (ENV['ACCESS_KEY'])") { |key| default_options[:access_key] = key }
           op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['SECRET_ACCESS_KEY'])") { |key| default_options[:secret_access_key] = key }
           op.on('-I ami', '--image-id id', "AMI instance (default: 'ami-4a46a323')") {|id| default_options[:ami] = id }
           op.on('-k keypair', '--keypair name', "Keypair name (ENV['KEYPAIR_NAME'])") { |key| default_options[:keypair] = key }
@@ -48,7 +51,6 @@ module PoolParty
           op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:verbose] = v}
           op.on('-i number', '--minimum-instances', "The minimum number of instances to run at all times (default 1)") {|i| default_options[:minimum_instances] = i}
           op.on('-x number', '--maximum-instances', "The maximum number of instances to run (default 3)") {|x| default_options[:maximum_instances] = x}
-          op.on('-w seconds', '--interval-wait-time', "The number of seconds to wait between shutdown or startup of an instance (default 5.minutes)") {|w| default_options[:interval_wait_time] = w}          
 
           op.on_tail("-h", "--help", "Show this message") do |o|
             puts "op: #{o}"
@@ -56,26 +58,27 @@ module PoolParty
           end          
         end.parse!(ARGV.dup)
       end
-
+      
+      # Basic default options
+      # All can be overridden by the command line
+      # or in a config.yml file
       def default_options
         @default_options ||= {
-          :run => true,
           :host_port => 80,
           :client_port => 8001,
           :environment => 'development',
           :verbose => true,
           :logging => true,
           :size => "small",
-          :polling_time => 1,
-          :interval_wait_time => "300",
+          :polling_time => "30.seconds",
           :user_data => "",
           :heavy_load => 0.80,
           :light_load => 0.15,
           :minimum_instances => 1,
           :maximum_instances => 3,
-          :access_key_id => ENV["ACCESS_KEY"],
+          :access_key => ENV["ACCESS_KEY"],
           :secret_access_key => ENV["SECRET_ACCESS_KEY"],
-          :config_file => (ENV["CONFIG_FILE"].empty? ? "config/config.yml" : ENV["CONFIG_FILE"]),
+          :config_file => ((ENV["CONFIG_FILE"] && ENV["CONFIG_FILE"].empty?) ? "config/config.yml" : ENV["CONFIG_FILE"]),
           :username => "root",
           :ec2_dir => ENV["EC2_HOME"],
           :keypair => ENV["KEYPAIR_NAME"],
@@ -85,25 +88,31 @@ module PoolParty
           :os => "ubuntu"
         }
       end
+      # Services monitored by Heartbeat
+      # Always at least monitors haproxy
       def managed_services
         "haproxy #{services}"
       end
-      def keypair_path
-        "#{ec2_dir}/id_rsa-#{keypair}"
-      end
-      def development?
-        environment == 'development'
-      end      
       def launching_user_data
         {:polling_time => polling_time}.to_yaml
       end
-      
-      %w(haproxy monit nginx heartbeat heartbeat_authkeys).each do |file|
+      # Keypair path
+      # Idiom:
+      #  /Users/username/.ec2/id_rsa-name
+      def keypair_path
+        "#{ec2_dir}/id_rsa-#{keypair}"
+      end
+      # Are we in development
+      def development?
+        environment == 'development'
+      end      
+      # Standard configuration files
+      %w(haproxy monit heartbeat heartbeat_authkeys).each do |file|
         define_method "#{file}_config_file" do
           File.join(File.dirname(__FILE__), "../..", "config", "#{file}.conf")
         end
       end
-      
+      # Call the options from the Application
       def method_missing(m,*args)
         options.methods.include?("#{m}") ? options.send(m,args) : super
       end                         

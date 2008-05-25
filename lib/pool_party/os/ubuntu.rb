@@ -1,3 +1,6 @@
+=begin rdoc
+  Ubuntu specific install tasks for PoolParty
+=end
 module PoolParty
   module Os    
     module Ubuntu
@@ -5,6 +8,7 @@ module PoolParty
         install_haproxy
         install_heartbeat
         install_monit
+        install_s3fuse
       end
       def install_haproxy
         cmd=<<-EOC

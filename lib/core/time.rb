@@ -1,3 +1,8 @@
+=begin rdoc
+  Based off the rails Numeric class.
+  Gives us the ability to use nice phrases such as
+  30.seconds, 5.days, etc.
+=end
 class Numeric
   def ago(time = Time.now)
     time - self

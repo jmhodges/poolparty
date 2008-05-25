@@ -1,4 +1,5 @@
 class Optioner
+  # Parse the command line options for options without a switch
   def self.parse(argv, safe=[])
     args = []
     argv.each_with_index do |arg,i|

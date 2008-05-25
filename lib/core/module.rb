@@ -1,4 +1,6 @@
+# Module overloads
 class Module
+  # Gives us alias_method_chain from rails
   def alias_method_chain(target, feature)
     aliased_target, punctuation = target.to_s.sub(/([?!=])$/, ''), $1
     yield(aliased_target, punctuation) if block_given?
