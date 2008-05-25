@@ -40,6 +40,9 @@ describe "Master" do
     it "should be able to say that the slave is not a master" do
       @master.nodes[1].master?.should == false
     end
+    it "should be able to get a specific node in the nodes from the master" do
+      @master.get_node(2).instance_id.should == "i-5849bc"
+    end
     it "should be able to build a hosts file" do
       open(@master.build_hosts_file.path).read.should == "node0\tip-127-0-0-1.aws.amazon.com\nnode1\tip-127-0-0-2.aws.amazon.com\nnode2\tip-127-0-0-3.aws.amazon.com"
     end
@@ -50,15 +53,24 @@ describe "Master" do
       open(@master.build_heartbeat_config_file).read.should =~ /\nnode node1\nnode node2\n/
     end
     it "should be able to reconfigure the instances (working on two files a piece)" do
-      Kernel.should_receive(:exec).at_least(1).and_return true
+      @master.nodes.each {|a| a.should_receive(:configure).and_return true }
       @master.reconfigure_running_instances
     end
     it "should be able to restart the running instances' services" do
-      Kernel.should_receive(:exec).at_least(1).and_return true
+      @master.nodes.each {|a| a.should_receive(:restart_with_monit).and_return true }
       @master.restart_running_instances_services
     end
+    it "should be able to build a heartbeat resources file" do
+      open(@master.build_heartbeat_resources_file).read.should =~ /node0\tip-127/
+    end
+    it "should be able to build a heartbeat auth file" do
+      open(@master.build_heartbeat_authkeys_file).read.should =~ /1 md5/
+    end
+    it "should be able to list the cloud instances" do
+      @master.list.should =~ /CLOUD \(/
+    end
   end
-  describe "monitor!" do
+  describe "monitoring" do
     it "should start the monitor when calling start_monitor!" do
       @master.should_receive(:run_thread_loop).and_return(Proc.new {})
       @master.start_monitor!

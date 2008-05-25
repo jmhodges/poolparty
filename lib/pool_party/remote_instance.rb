@@ -34,6 +34,9 @@ module PoolParty
     def haproxy_entry
       "server #{name} #{@ip}:#{Application.client_port} weight 1 check"
     end
+    def haproxy_resources_entry
+      "#{name}\t#{@ip}"
+    end
     # Is this the master?
     def master?
       @number == 0
@@ -86,10 +89,7 @@ module PoolParty
       file = Master.new.build_heartbeat_config_file
       scp(file.path, "/etc/ha.d/ha.cf")
       
-      servers=<<-EOS        
-#{nodes.collect {|node| node.haproxy_entry}.join("\n")}
-      EOS
-      file = write_to_temp_file(servers)
+      file = Master.new.build_heartbeat_resources_file
       scp(file.path, "/etc/ha.d/haresources")
     end
     # Some configures for monit

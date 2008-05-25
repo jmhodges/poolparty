@@ -12,5 +12,8 @@ describe "remote instance" do
     it "should be able to tell if it is the master or not" do
       @instance.master?.should == true
     end
+    it "should be able to build a list of the heartbeat nodes" do
+      @instance.node_entry.should =~ /node/
+    end
   end
 end

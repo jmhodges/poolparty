@@ -28,7 +28,7 @@ module PoolParty
         trap("INT") do
           on_exit
         end
-        run_thread_loop(:daemonize => !development?) do
+        run_thread_loop(:daemonize => !Application.development?) do
           add_task {launch_minimum_instances} # If the base instances go down...
           # add_task {add_instance_if_load_is_high}
           # add_task {terminate_instance_if_load_is_low}
@@ -78,9 +78,13 @@ module PoolParty
     # Build a heartbeat resources file from the config directory and return a tempfile
     def build_heartbeat_resources_file
       servers=<<-EOS        
-#{nodes.collect {|node| node.heartbeat_entry}.join("\n")}
+#{nodes.collect {|node| node.haproxy_resources_entry}.join("\n")}
       EOS
-      write_to_temp_file(open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers})
+      write_to_temp_file(servers)
+    end 
+    # Build the basic auth file for the heartbeat
+    def build_heartbeat_authkeys_file
+      write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read)
     end
     # Return a list of the nodes and cache them
     def nodes
@@ -98,13 +102,14 @@ module PoolParty
     # List the clouds
     def list
       if number_of_pending_and_running_instances > 0
-        puts "-- CLOUD (#{number_of_pending_and_running_instances})--"
+        out = "-- CLOUD (#{number_of_pending_and_running_instances})--"
         nodes.each do |node|
-          puts node.description
+          out << node.description
         end
       else
-        puts "Cloud is not running"
+        out = "Cloud is not running"
       end
+      out
     end
     # Reset and clear the caches
     def reset!
