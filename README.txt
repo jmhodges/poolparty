@@ -5,16 +5,76 @@
   http://blog.citrusbyte.com
 
 == DESCRIPTION:
-
--TODO
+  
+  * Pool Party (http://poolpartyrb.com), Ari Lerner (http://blog.xnot.org, http://blog.citrusbyte.com) - Pool Party is a framework for maintaining and running auto-scalable applications on Amazon's EC2 cloud. Run entire applications using the EC2 cluster and the unlimited S3 disk. More details to be listed at http://poolpartyrb.com.
 
 == Basics
 
+  Pool Party is written with the intention of being as application-agnostic as possible. It installs only the basic required software to glue the cloud together on the instances as listed below.
+  
+  Pool Party is easily configuration. In fact, it makes little assumptions about your development environment and allows several options on how to begin configuring the cloud. 
+  
+  = Development setup
+  # IN THE ENVIRONMENT
+  There are 5 values that pool party reads from the environment, you can set these basic environment variables and leave the rest to the pool party defaults. Those values are:
+  ENV["ACCESS_KEY"] => AWS access key
+  ENV["SECRET_ACCESS_KEY"] => AWS secret access key
+  ENV["CONFIG_FILE"] => Location of your config yaml file (optional)
+  ENV["EC2_HOME"] => EC2 home directory (defaults to ~/.ec2)
+  ENV["KEYPAIR_NAME"] => The keypair used to launch instances
+    The structure assumed for the keypair is EC2_HOME/id_rsa-<keypairname>
+  
+  # IN A CONFIG FILE
+  PoolParty assumes your config directory is set in config/config.yml. However, you can set this in your environment variables and it will read the config file from the environment variable
+  
+  # WITH A RAKE TASK
+  PoolParty comes with a rake task that can setup your environment for you. Set the environment variables above and run
+    rake dev:setup
+  This will write a .<KEYPAIR_NAME>_pool_keys into your home directory. Then you can just run
+    source ~/.<KEYPAIR_NAME>_pool_keys
+  and your environment will be all setup for you everytime you want to work on the cloud
+  
+  = Basics
+  PoolParty can work in two ways to load balance it's traffic. It can either do server-side or client-side load-balancing. Since every instance load balances itself, you can either set the client to grab an instance and send it to that using client-side load balancing (with a js library). Alternatively, you can set the master in dns and reference it when referring to the application.
+  Since PoolParty makes no assumptions as to what you will be hosting on the application, the world is your oyster when running a cloud. You can set each instance to register with a dynDNS service so that your application has multiple points of entry and can run load-balanced on the fly.
+  Every instance will auto-mount the s3 bucket set in the config file (if it is set up) into the /data folder of the instance. This gives each instance access to the same data regardless of the instance. It uses s3fuse and caching through s3fuse in the /tmp directory to work as fast as possible on the local instances.
+  The instances all are loaded with the following software:
+    Haproxy - The basic load balancing software
+    Heartbeat - The failover software
+    S3Fuse - The mounting software for the s3 bucket
+    Monit - The maintainer of the services to maintain services
+  
+  When an instance is started or brought down, the master is responsible for reloading every instance with the new data on each instance. If the master goes down, the next in succession will take over as the master (using heartbeat) and it will reconfigure the cloud, setting itself as the master and take over the maintenance of the cloud.
+  
+  Each instance has a /etc/hosts file that has each node listed as the node name listed in the cloud:list (rake task).
+  
+  = Cloud tools
+  The cloud can be maintained entirely through rake tasks, although there are a few front-ends being developed (one in cocoa). 
+  All the cloud rake tasks are in the cloud namespace and are:
+    rake cloud:deploy    # Deploy web application from production git repos spe...
+    rake cloud:list      # List cloud
+    rake cloud:maintain  # Maintain the cloud (run on the master)
+    rake cloud:prepare   # Prepare all servers
+    rake cloud:reload    # Reload all instances with updated data
+    rake cloud:shutdown  # Shutdown the entire cloud
+    rake cloud:start     # Start the cloud    
+  
+  The instance rake tasks are in the instance namespace
+    rake instance:configure             # Configure the stack on this node
+    rake instance:exec                  # Execute cmd on a remote instance
+    rake instance:install               # Install stack on this node
+    rake instance:load                  # Start all services
+    rake instance:reload                # Restart all the services
+    rake instance:scp                   # Send a file to the remote instance
+    rake instance:shutdown              # Teardown instance
+    rake instance:ssh                   # Remotely login to the remote instance
+    rake instance:stop                  # Stop all services
+  
+  For more help, check http://poolpartyrb.com 
 
 == REQUIREMENTS:
   * yaml
   * aws/s3
-  * sqs
   * EC2
   * rack
   * fastthread

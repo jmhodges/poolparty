@@ -129,7 +129,7 @@ module PoolParty
     def ssh(cmd="")
       ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}"
       
-      cmd.empty? ? system "#{ssh}" : %x[#{ssh} '#{cmd.runnable}']
+      cmd.empty? ? system("#{ssh}") : %x[#{ssh} '#{cmd.runnable}']
     end
     
     # Description in the rake task

@@ -88,7 +88,7 @@ module PoolParty
         # Setup a basic development environment for the user 
         desc "Setup development environment specify the config_file"
         task :setup => :init do
-          keyfilename = ".#{Application.keypair}_amazon_keys"
+          keyfilename = ".#{Application.keypair}_pool_keys"
           run <<-EOR
             echo 'export access_key=\"#{Application.access_key}\"' > $HOME/#{keyfilename}
             echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/#{keyfilename}
