@@ -27,8 +27,9 @@ module PoolParty
       begin
         trap("INT") do
           on_exit
+          exit
         end
-        run_thread_loop(:daemonize => !Application.development?) do
+        run_thread_loop(:daemonize => Application.production?) do
           add_task {launch_minimum_instances} # If the base instances go down...
           # add_task {add_instance_if_load_is_high}
           # add_task {terminate_instance_if_load_is_low}
@@ -49,10 +50,7 @@ module PoolParty
       restart_running_instances_services
     end
     # Reconfigure the running instances
-    def reconfigure_running_instances
-      hosts = build_hosts_file
-      hproxy = build_haproxy_file
-      
+    def reconfigure_running_instances      
       nodes.each do |node|
         node.configure
       end

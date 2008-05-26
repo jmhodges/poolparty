@@ -8,7 +8,7 @@ end
 
 describe "Master remoting: " do
   before(:each) do
-    Application.stub!(:environment).and_return("development") # So it daemonizes
+    Application.stub!(:environment).and_return("test") # So it daemonizes
     Application.stub!(:minimum_instances).and_return(2)
     Application.stub!(:maximum_instances).and_return(10)
     Application.stub!(:polling_time).and_return(0.5)
@@ -29,23 +29,32 @@ describe "Master remoting: " do
     it "should start with the minimum_instances running" do
       wait 1 # Give the last one time to get to running
       @master.list_of_running_instances.size.should == Application.minimum_instances
-    end    
+    end
   end
   describe "maintaining" do
-    before(:each) do
-      Thread.new {@master.start_monitor!}
-    end
-    after(:all) do
-      `killall -9 ruby`
-    end
     it "should maintain the minimum_instances if one goes down" do
-      @master.start!
-      wait 1.1
-      p Application.minimum_instances - @master.number_of_pending_and_running_instances
-      @master.terminate_instance!(@master.list_of_running_instances[0][:instance_id])      
-      wait 2
-      p Application.minimum_instances - @master.number_of_pending_and_running_instances
+      @master.start_cloud!
+      wait 1.1 # Give the two instances time to boot up
+      (Application.minimum_instances - @master.number_of_pending_and_running_instances).should == 0
+      # Kill one off to test how it handles the response
+      @master.terminate_instance!(@master.list_of_running_instances[0][:instance_id])
+      (Application.minimum_instances - @master.number_of_pending_and_running_instances).should == 1
+      @master.launch_minimum_instances # Assume this runs in the bg process
+
+      (Application.minimum_instances - @master.number_of_pending_and_running_instances).should == 0
       @master.number_of_pending_and_running_instances.should == Application.minimum_instances
+    end
+    it "should launch a new instance when the load gets too heavy set in the configs"
+    it "should terminate an instance when the load shows that it's too light" 
+  end
+  describe "configuring" do
+    it "should call configure on all of the nodes when calling reconfigure_running_instances" do
+      @master.nodes.each {|a| a.should_receive(:configure).and_return true }
+      @master.reconfigure_running_instances
+    end    
+    it "should call restart_with_monit on all of the nodes when calling restart_running_instances_services" do
+      @master.nodes.each {|a| a.should_receive(:restart_with_monit).and_return true }
+      @master.restart_running_instances_services
     end
   end
 end

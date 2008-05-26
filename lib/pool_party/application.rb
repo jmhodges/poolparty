@@ -102,10 +102,14 @@ module PoolParty
       def keypair_path
         "#{ec2_dir}/id_rsa-#{keypair}"
       end
-      # Are we in development
+      # Are we in development or test mode
       def development?
         environment == 'development'
-      end      
+      end
+      # Are we in production mode?
+      def production?
+        environment == "production"
+      end
       # Standard configuration files
       %w(haproxy monit heartbeat heartbeat_authkeys).each do |file|
         define_method "#{file}_config_file" do
