@@ -8,6 +8,8 @@ require File.join(File.dirname(__FILE__), *%w[.. lib pool_party])
   end
 end
 
+Dir["#{File.dirname(__FILE__)}/helpers/**"].each {|a| require a}
+
 include PoolParty
 extend PoolParty
 

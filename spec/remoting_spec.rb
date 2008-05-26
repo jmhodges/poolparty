@@ -1,22 +1,22 @@
 require File.dirname(__FILE__) + '/spec_helper'
-require File.dirname(__FILE__) + '/ec2_mock'
 
 # RUN THESE ONE AT A TIME
 module PoolParty
-  class Master
-    include EC2Mock
-  end
+  class Master;include EC2Mock;end
+  class RemoteInstance; include RemoteInstanceMock;end
 end
 
-describe "Actual remoting" do
+describe "Master remoting: " do
   before(:each) do
+    Application.stub!(:environment).and_return("test") # So it doesn't daemonize
     Application.stub!(:minimum_instances).and_return(2)
     Application.stub!(:maximum_instances).and_return(10)
+    Application.stub!(:polling_time).and_return(0.5)
     Application.stub!(:verbose).and_return(false) # Turn off messaging
     
     @master = Master.new
   end
-  describe "Starting" do
+  describe "starting" do
     before(:each) do
       @master.start_cloud!
     end
@@ -27,6 +27,22 @@ describe "Actual remoting" do
       @master.list_of_running_instances.should_not be_empty
     end
     it "should start with the minimum_instances running" do
+      wait 1 # Give the last one time to get to running
+      @master.list_of_running_instances.size.should == Application.minimum_instances
+    end    
+  end
+  describe "maintaining" do
+    before(:each) do
+      @master.start_monitor!
+    end
+    after(:all) do
+      `killall -9 ruby`
+    end
+    it "should maintain the minimum_instances if one goes down" do
+      @master.start!
+      wait 2
+      @master.terminate_instance!(@master.list_of_running_instances[0][:instance_id])
+      wait 2
       @master.list_of_running_instances.size.should == Application.minimum_instances
     end
   end

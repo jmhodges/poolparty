@@ -1,9 +1,10 @@
 module PoolParty
   module EC2Mock
     def launch_new_instance!
-      h = {:instance_id => "i-58ba56c", :ip => "ip-127-0-0-1.aws.amazonaws.com", :status => "pending", :launching_time => Time.now }
+      letter = ("a".."z").to_a[instances.size] # For unique instance_ids
+      h = {:instance_id => "i-58ba56#{letter}", :ip => "ip-127-0-0-1.aws.amazonaws.com", :status => "pending", :launching_time => Time.now }
       instances << h      
-      Thread.new {wait 0.5;h[:status] = "running"} # Simulate the startup time
+      Thread.new {wait 0.1;h[:status] = "running"} # Simulate the startup time
       return h
     end
     # Shutdown the instance by instance_id

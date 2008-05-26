@@ -26,7 +26,7 @@ module PoolParty
     end
     # Add a task in a new thread
     def <<(a)
-      @tasks.push( Thread.new {Thread.stop;a.call} )
+      @tasks.push( Thread.new {a.call} )
     end
     alias_method :push, :<<
     # In the ThreadSafeInstance
