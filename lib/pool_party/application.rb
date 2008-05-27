@@ -43,6 +43,7 @@ module PoolParty
           op.on('-S services', '--services names', "Monitored services (default: '')") {|id| default_options[:services] = id }
           op.on('-c file', '--config-file file', "Config file (default: '')") {|file| default_options[:config_file] = file }
           op.on('-p port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
+          op.on('-m monitors', '--monitors names', "Monitor instances using (default: 'web,memory,cpu')") {|s| default_options[:monitor_load_on] = s }          
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
           op.on('-O os', '--os os', "Configure for os (default: ubuntu)") { |os| default_options[:os] = os }          
           op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
@@ -87,6 +88,7 @@ module PoolParty
           :ami => 'ami-4a46a323',
           :shared_bucket => "",
           :services => "nginx sinatra",
+          :monitor_load_on => "web,memory,cpu",
           :os => "ubuntu"
         }
       end
@@ -116,6 +118,14 @@ module PoolParty
       %w(haproxy monit heartbeat heartbeat_authkeys).each do |file|
         define_method "#{file}_config_file" do
           File.join(File.dirname(__FILE__), "../..", "config", "#{file}.conf")
+        end
+      end
+      def monitor_load_on
+        options.monitor_load_on.split(/[\s,]+/)
+      end
+      def monitors
+        @monitors ||= monitor_load_on.collect do |monitor|
+          eval("PoolParty::Monitors::#{monitor.classify}")
         end
       end
       # Call the options from the Application

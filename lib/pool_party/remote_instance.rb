@@ -122,21 +122,25 @@ module PoolParty
     def has?(str)
       !ssh("#{str} -v").empty?
     end
-    
+    # Status loads
+    def status_load
+      loads = Application.monitors.inject(0) do |sum, monitor|
+        sum += eval("#{monitor.to_s.split(":")[-1].downcase}_status_level")
+      end / Application.monitors.size
+    end
     # MONITORS
     # Monitor the number of web requests that can be accepted at a time
     def web_status_level
-      Web.monitor_from_string ssh("httperf --server localhost --port #{Application.port} --num-conn 3 --timeout 5 | grep 'Request rate'")
+        Monitors::Web.monitor_from_string ssh("httperf --server localhost --port #{Application.client_port} --num-conn 3 --timeout 5 | grep 'Request rate'") rescue 0.0
     end
     # Monitor the cpu status of the instance
     def cpu_status_level
-      Cpu.monitor_from_string ssh("uptime")
+      Monitors::Cpu.monitor_from_string ssh("uptime") rescue 0.0
     end
     # Monitor the memory
     def memory_status_level
-      Memory.monitor_from_string ssh("free -m | grep -i mem")
-    end
-    
+      Monitors::Memory.monitor_from_string ssh("free -m | grep -i mem") rescue 0.0
+    end    
     # Scp src to dest on the instance
     def scp(src="", dest="")
       `scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`

@@ -17,6 +17,9 @@ class String
   def runnable
     self.strip.gsub(/\n/, " && ")
   end
+  def classify
+    self.capitalize
+  end
   def bucket_objects
     AWS::S3::Bucket.objects(self)
   end
