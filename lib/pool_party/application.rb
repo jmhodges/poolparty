@@ -2,6 +2,8 @@
   Application
   This handles user interaction
 =end
+$:.unshift File.dirname(__FILE__)
+
 module PoolParty
   extend self
   

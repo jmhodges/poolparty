@@ -1,14 +1,12 @@
 #!/usr/bin/ruby
-$:.unshift File.dirname(__FILE__)
-
 require 'rubygems'
 require 'rack'
 require 'lib/pool_party'
 
 # Set defaults
-options = PoolParty.options(ARGV.dup)
-list = Optioner.parse(ARGV.dup)
-
+list = PoolParty::Optioner.parse(ARGV.dup)
+options = PoolParty::Application.options(ARGV.dup)
+master = PoolParty::Master.new
 # if list.empty?
 #   puts "Usage: pool [options] {start|stop|list|maintain}"
 #   exit
@@ -16,15 +14,13 @@ list = Optioner.parse(ARGV.dup)
 
 case list[0]
 when "start"
-  puts "Starting pool with #{options.ami}"
-  puts PoolParty::Master.new.start_cloud!
+  puts master.start_cloud!
 when "stop"
-  puts "stopping"
-  puts PoolParty::Master.new.request_termination_of_all_instances
+  puts master.request_termination_of_all_instances
 when "list"
-  puts PoolParty::Master.new.list
+  puts master.list
 when "maintain"
-  puts PoolParty::Master.new.start_monitor!
+  puts master.start_monitor!
 else
-  puts PoolParty::Master.new.list
+  pp master.list
 end
