@@ -11,7 +11,7 @@ module PoolParty
         ret
       end
       def self.monitor_from_string(str="")
-        str.split(/\s+/)[-3]
+        str.split(/\s+/)[-3].to_f
       end
     end
   end

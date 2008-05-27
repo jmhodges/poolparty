@@ -11,8 +11,7 @@ module PoolParty
         @req
       end
       def self.monitor_from_string(str="")
-        p str.gsub(/([a-zA-Z\s])+/, '')
-        str.gsub(/.* (\d*\.\d*) req\/s .*/, $1).chomp.to_f
+        str[/[.]* ([\d]*\.[\d]*) [.]*/, 0].chomp.to_f
       end
     end
   end

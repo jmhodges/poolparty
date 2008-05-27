@@ -8,10 +8,10 @@ list = PoolParty::Optioner.parse(ARGV.dup)
 options = PoolParty::Application.options(ARGV.dup)
 master = PoolParty::Master.new
 
-if list.empty?
-  puts "Usage: pool [options] {start|stop|list|maintain}"
-  exit
-end
+# if list.empty?
+#   puts "Usage: pool [options] {start|stop|list|maintain}"
+#   exit
+# end
 
 case list[0]
 when "start"
