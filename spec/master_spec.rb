@@ -60,8 +60,8 @@ describe "Master" do
       @master.nodes.each {|a| a.should_receive(:restart_with_monit).and_return true }
       @master.restart_running_instances_services
     end
-    it "should be able to build a heartbeat resources file" do
-      open(@master.build_heartbeat_resources_file).read.should =~ /node0\tip-127/
+    it "should be able to build a heartbeat resources file for the specific node" do
+      open(@master.build_heartbeat_resources_file_for(@master.nodes.first)).read.should =~ /node0\tip-127/
     end
     it "should be able to build a heartbeat auth file" do
       open(@master.build_heartbeat_authkeys_file).read.should =~ /1 md5/
@@ -69,12 +69,25 @@ describe "Master" do
     it "should be able to list the cloud instances" do
       @master.list.should =~ /CLOUD \(/
     end
+    describe "configuring" do
+      before(:each) do
+        Master.should_receive(:new).and_return(@master)
+      end
+      it "should be able to say if heartbeat is necessary with more than 1 server or not" do      
+        Master.requires_heartbeat?.should == true
+      end
+      it "should be able to say that heartbeat is not necessary if there is 1 server" do
+        @master.stub!(:list_of_nonterminated_instances).and_return([
+            {:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"}
+          ])
+        Master.requires_heartbeat?.should == false
+      end
+    end
   end
   describe "monitoring" do
     it "should start the monitor when calling start_monitor!" do
       @master.should_receive(:run_thread_loop).and_return(Proc.new {})
       @master.start_monitor!
-      Process.kill("INT", 0)
     end
   end
 end

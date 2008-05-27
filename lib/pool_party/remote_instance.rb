@@ -58,6 +58,7 @@ module PoolParty
       configure_linux
       configure_hosts
       configure_haproxy
+      configure_heartbeat if Master.requires_heartbeat?
       configure_s3fuse
       configure_monit      
     end
@@ -78,7 +79,7 @@ module PoolParty
         ssh("/usr/bin/s3fs #{Application.shared_bucket} -ouse_cache=/tmp -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data")
       end
     end
-    # Configure heartbeat
+    # Configure heartbeat only if there is enough servers
     def configure_heartbeat
       message "Configuring heartbeat"
       install_heartbeat unless has?("heartbeat")
@@ -89,7 +90,7 @@ module PoolParty
       file = Master.new.build_heartbeat_config_file
       scp(file.path, "/etc/ha.d/ha.cf")
       
-      file = Master.new.build_heartbeat_resources_file
+      file = Master.new.build_heartbeat_resources_file_for(self)
       scp(file.path, "/etc/ha.d/haresources")
     end
     # Some configures for monit

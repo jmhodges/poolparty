@@ -34,8 +34,9 @@ describe "Master remoting: " do
   describe "maintaining" do
     it "should maintain the minimum_instances if one goes down" do
       @master.start_cloud!
-      wait 1.1 # Give the two instances time to boot up
+      wait 0.5 # Give the two instances time to boot up
       (Application.minimum_instances - @master.number_of_pending_and_running_instances).should == 0
+      
       # Kill one off to test how it handles the response
       @master.terminate_instance!(@master.list_of_running_instances[0][:instance_id])
       (Application.minimum_instances - @master.number_of_pending_and_running_instances).should == 1

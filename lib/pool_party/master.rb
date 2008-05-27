@@ -74,11 +74,9 @@ module PoolParty
       write_to_temp_file(open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers})
     end
     # Build a heartbeat resources file from the config directory and return a tempfile
-    def build_heartbeat_resources_file
-      servers=<<-EOS        
-#{nodes.collect {|node| node.haproxy_resources_entry}.join("\n")}
-      EOS
-      write_to_temp_file(servers)
+    def build_heartbeat_resources_file_for(node)
+      return nil unless node
+      write_to_temp_file("#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}")
     end 
     # Build the basic auth file for the heartbeat
     def build_heartbeat_authkeys_file
@@ -93,6 +91,12 @@ module PoolParty
     # Get the node at the specific index from the cached nodes
     def get_node(i=0)
       nodes.select {|a| a.number == i}.first
+    end
+    # Get the next node in sequence, so we can configure heartbeat to monitor the next node
+    def get_next_node(node)
+      i = node.number + 1
+      i = 0 if i == (nodes.size - 1)
+      get_node(i)
     end
     # On exit command
     def on_exit      
@@ -113,6 +117,12 @@ module PoolParty
     def reset!
       @cached_descriptions = nil
       @nodes = nil
+    end
+    
+    class << self
+      def requires_heartbeat?
+        new.nodes.size > 1
+      end
     end
         
   end
