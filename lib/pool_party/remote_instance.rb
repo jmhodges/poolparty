@@ -122,6 +122,21 @@ module PoolParty
     def has?(str)
       !ssh("#{str} -v").empty?
     end
+    
+    # MONITORS
+    # Monitor the number of web requests that can be accepted at a time
+    def web_status_level
+      Web.monitor_from_string ssh("httperf --server localhost --port #{Application.port} --num-conn 3 --timeout 5 | grep 'Request rate'")
+    end
+    # Monitor the cpu status of the instance
+    def cpu_status_level
+      Cpu.monitor_from_string ssh("uptime")
+    end
+    # Monitor the memory
+    def memory_status_level
+      Memory.monitor_from_string ssh("free -m | grep -i mem")
+    end
+    
     # Scp src to dest on the instance
     def scp(src="", dest="")
       `scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`

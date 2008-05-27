@@ -6,9 +6,12 @@ module PoolParty
     module Cpu
       def self.monitor!
         IO.popen("uptime") do |up|
-          @line = up.gets.split(/\s+/)          
+          ret = monitor_from_string(up)
         end
-        @line[-3]
+        ret
+      end
+      def self.monitor_from_string(str="")
+        str.split(/\s+/)[-3]
       end
     end
   end
