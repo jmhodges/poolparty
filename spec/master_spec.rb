@@ -6,6 +6,7 @@ describe "Master" do
   end  
   it "should launch the first instances and set the first as the master and the rest as slaves" do
     Application.stub!(:minimum_instances).and_return(1)
+    Application.stub!(:verbose).and_return(false) # Hide messages
     Master.stub!(:new).and_return(@master)
     
     @master.stub!(:number_of_running_instances).and_return(0);

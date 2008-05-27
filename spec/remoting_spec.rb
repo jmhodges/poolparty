@@ -11,7 +11,7 @@ describe "Master remoting: " do
     Application.stub!(:environment).and_return("test") # So it daemonizes
     Application.stub!(:minimum_instances).and_return(2)
     Application.stub!(:maximum_instances).and_return(10)
-    Application.stub!(:polling_time).and_return(0.5)
+    Application.stub!(:polling_time).and_return(0.3)
     Application.stub!(:verbose).and_return(false) # Turn off messaging
     
     @master = Master.new
