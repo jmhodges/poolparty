@@ -6,6 +6,7 @@ describe "Master" do
   end  
   it "should launch the first instances and set the first as the master and the rest as slaves" do
     Application.stub!(:minimum_instances).and_return(1)
+    Master.stub!(:new).and_return(@master)
     
     @master.stub!(:number_of_running_instances).and_return(0);
     @master.stub!(:number_of_pending_instances).and_return(0);
@@ -49,9 +50,6 @@ describe "Master" do
     it "should be able to build a haproxy file" do
       open(@master.build_haproxy_file.path).read.should =~ "server node0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port}"
     end
-    it "should be able to build a heartbeat config file" do
-      open(@master.build_heartbeat_config_file).read.should =~ /\nnode node1\nnode node2\n/
-    end
     it "should be able to reconfigure the instances (working on two files a piece)" do
       @master.nodes.each {|a| a.should_receive(:configure).and_return true }
       @master.reconfigure_running_instances
@@ -60,19 +58,19 @@ describe "Master" do
       @master.nodes.each {|a| a.should_receive(:restart_with_monit).and_return true }
       @master.restart_running_instances_services
     end
-    it "should be able to build a heartbeat resources file for the specific node" do
-      open(@master.build_heartbeat_resources_file_for(@master.nodes.first)).read.should =~ /node0\tip-127/
-    end
     it "should be able to build a heartbeat auth file" do
       open(@master.build_heartbeat_authkeys_file).read.should =~ /1 md5/
-    end
-    it "should be able to list the cloud instances" do
-      @master.list.should =~ /CLOUD \(/
     end
     describe "configuring" do
       before(:each) do
         Master.should_receive(:new).and_return(@master)
       end
+      it "should be able to build a heartbeat resources file for the specific node" do
+        open(Master.build_heartbeat_resources_file_for(@master.nodes.first)).read.should =~ /node0\tip-127/
+      end
+      it "should be able to build a heartbeat config file" do
+        open(Master.build_heartbeat_config_file_for(@master.nodes.first)).read.should =~ /\nnode node0\nnode node1/
+      end      
       it "should be able to say if heartbeat is necessary with more than 1 server or not" do      
         Master.requires_heartbeat?.should == true
       end
@@ -81,6 +79,11 @@ describe "Master" do
             {:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"}
           ])
         Master.requires_heartbeat?.should == false
+      end
+    end
+    describe "displaying" do
+      it "should be able to list the cloud instances" do
+        @master.list.should =~ /CLOUD \(/
       end
     end
   end

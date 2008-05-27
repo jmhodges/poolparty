@@ -87,7 +87,7 @@ module PoolParty
       file = write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read.strip)
       scp(file.path, "/etc/ha.d/authkeys")
       
-      file = Master.new.build_heartbeat_config_file
+      file = Master.new.build_heartbeat_config_file_for(self)
       scp(file.path, "/etc/ha.d/ha.cf")
       
       file = Master.new.build_heartbeat_resources_file_for(self)

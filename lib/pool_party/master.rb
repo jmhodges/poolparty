@@ -66,18 +66,6 @@ module PoolParty
     def build_hosts_file
       write_to_temp_file(nodes.collect {|a| a.hosts_entry }.join("\n"))
     end
-    # Build a heartbeat_config_file from the config file in the config directory and return a tempfile
-    def build_heartbeat_config_file
-      servers=<<-EOS        
-#{nodes.collect {|node| node.node_entry}.join("\n")}
-      EOS
-      write_to_temp_file(open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers})
-    end
-    # Build a heartbeat resources file from the config directory and return a tempfile
-    def build_heartbeat_resources_file_for(node)
-      return nil unless node
-      write_to_temp_file("#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}")
-    end 
     # Build the basic auth file for the heartbeat
     def build_heartbeat_authkeys_file
       write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read)
@@ -122,6 +110,20 @@ module PoolParty
     class << self
       def requires_heartbeat?
         new.nodes.size > 1
+      end
+      def get_next_node(node)
+        new.get_next_node(node)
+      end
+      # Build a heartbeat_config_file from the config file in the config directory and return a tempfile
+      def build_heartbeat_config_file_for(node)
+        return nil unless node
+        servers = "#{node.node_entry}\n#{get_next_node(node).node_entry}"
+        write_to_temp_file(open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers})
+      end
+      # Build a heartbeat resources file from the config directory and return a tempfile
+      def build_heartbeat_resources_file_for(node)
+        return nil unless node
+        write_to_temp_file("#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}")
       end
     end
         
