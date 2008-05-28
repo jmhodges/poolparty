@@ -1,12 +1,17 @@
 =begin rdoc
   The basic master for PoolParty
 =end
+require "aska"
 module PoolParty
   class Master < Remoting
     include Server
+    include Aska
+    
     def initialize
       super
-      self
+      
+      self.class.send :rules, :contract_when, Application.options.contract_when
+      self.class.send :rules, :expand_when, Application.options.expand_when
     end
     # Start the cloud
     def start_cloud!
@@ -31,12 +36,37 @@ module PoolParty
         end
         run_thread_loop(:daemonize => Application.production?) do
           add_task {launch_minimum_instances} # If the base instances go down...
-          # add_task {add_instance_if_load_is_high}
-          # add_task {terminate_instance_if_load_is_low}
+          add_task {add_instance_if_load_is_high}
+          add_task {terminate_instance_if_load_is_low}
         end
       rescue Exception => e
         puts "There was an error: #{e.nice_message}"
       end
+    end
+    
+    # FOR MONITORING
+    def contract?
+    end
+    def expand?            
+    end
+    # Get the average web requests per cloud instance
+    def web_requests
+      nodes.collect {|a| a.web } / nodes.size
+    end
+    def cpu_usage
+      nodes.collect {|a| a.cpu } / nodes.size
+    end
+    def memory_usage
+      nodes.collect {|a| a.memory } / nodes.size
+    end
+    # Add an instance if the load is high
+    def add_instance_if_load_is_high      
+      request_launch_new_instance
+    end
+    # Teardown an instance if the load is pretty low
+    def terminate_instance_if_load_is_low
+      node = nodes.reject {|a| a.master? }[-1]
+      request_termination_of_instance(node.instance_id) if node
     end
     # Restart the running instances services with monit on all the nodes
     def restart_running_instances_services

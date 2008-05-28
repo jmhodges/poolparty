@@ -12,6 +12,7 @@ require "rack"
 require 'thread'
 require "pp"
 require "tempfile"
+require "aska"
 begin
   require 'fastthread'
   require 'thin'

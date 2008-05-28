@@ -7,7 +7,7 @@ $:.unshift File.dirname(__FILE__)
 module PoolParty
   extend self
   
-  class Application            
+  class Application
     class << self
       
       # The application options
@@ -26,7 +26,7 @@ module PoolParty
           filedata = open(default_options[:config_file]).read if File.file?(default_options[:config_file])
           default_options.merge!( YAML.load(filedata) ) if filedata
         end
-        
+                
         OpenStruct.new(default_options)
       end
 
@@ -88,7 +88,8 @@ module PoolParty
           :ami => 'ami-4a46a323',
           :shared_bucket => "",
           :services => "nginx sinatra",
-          :monitor_load_on => "web,memory,cpu",
+          :expand_when => "web_usage < 1.5\n memory_usage > 0.85",
+          :contract_when => "cpu_usage < 0.20\n memory_usage < 0.10",
           :os => "ubuntu"
         }
       end
@@ -120,14 +121,7 @@ module PoolParty
           File.join(File.dirname(__FILE__), "../..", "config", "#{file}.conf")
         end
       end
-      def monitor_load_on
-        options.monitor_load_on.split(/[\s,]+/)
-      end
-      def monitors
-        @monitors ||= monitor_load_on.collect do |monitor|
-          eval("PoolParty::Monitors::#{monitor.classify}")
-        end
-      end
+      
       # Call the options from the Application
       def method_missing(m,*args)
         options.methods.include?("#{m}") ? options.send(m,args) : super

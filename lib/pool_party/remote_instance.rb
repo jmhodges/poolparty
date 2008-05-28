@@ -1,7 +1,7 @@
 module PoolParty
   class RemoteInstance
     include PoolParty # WTF -> why isn't message included
-    
+        
     attr_reader :ip, :instance_id, :name, :number, :status, :launching_time
     attr_accessor :name
     
@@ -122,23 +122,17 @@ module PoolParty
     def has?(str)
       !ssh("#{str} -v").empty?
     end
-    # Status loads
-    def status_load
-      loads = Application.monitors.inject(0) do |sum, monitor|
-        sum += eval("#{monitor.to_s.split(":")[-1].downcase}_status_level")
-      end / Application.monitors.size
-    end
     # MONITORS
     # Monitor the number of web requests that can be accepted at a time
-    def web_status_level
+    def web
         Monitors::Web.monitor_from_string ssh("httperf --server localhost --port #{Application.client_port} --num-conn 3 --timeout 5 | grep 'Request rate'") rescue 0.0
     end
     # Monitor the cpu status of the instance
-    def cpu_status_level
+    def cpu
       Monitors::Cpu.monitor_from_string ssh("uptime") rescue 0.0
     end
     # Monitor the memory
-    def memory_status_level
+    def memory
       Monitors::Memory.monitor_from_string ssh("free -m | grep -i mem") rescue 0.0
     end    
     # Scp src to dest on the instance

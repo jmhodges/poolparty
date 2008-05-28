@@ -29,10 +29,4 @@ describe "Application" do
     Application.stub!(:keypair).and_return("poolparty")
     Application.keypair_path.should == "~/.ec2/id_rsa-poolparty"
   end
-  it "should be able to say which monitors that we are using to monitor" do
-    Application.monitor_load_on.sort.should == %w(cpu memory web)
-  end
-  it "should be able to go through the monitors and generate a list of the monitor modules" do
-    Application.monitors.should == [PoolParty::Monitors::Web, PoolParty::Monitors::Memory, PoolParty::Monitors::Cpu]
-  end
 end
