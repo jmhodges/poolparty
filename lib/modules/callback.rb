@@ -6,24 +6,21 @@ module PoolParty
         when :before          
           str=<<-EOD
             def old_#{m}
-              returning String.new do |s|
-                s << #{e}
-                s << super
-              end
+              #{e}
+              super
             end
           EOD
         when :after
           str=<<-EOD
             def old_#{m}
-              returning String.new do |s|
-                s << super
-                s << #{e}                
-              end
+              super
+              #{e}
             end
           EOD
         end
         
         mMod = Module.new {eval str}
+        
         module_eval %{
           alias_method :old_#{m}, :#{m}
         }

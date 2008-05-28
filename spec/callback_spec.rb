@@ -2,20 +2,24 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 class TestCallbacks
   include Callbacks
+  attr_reader :str
   def hello
-    "hello "
+    string << "hello "
   end
   def world
-    "world"
-  end
-  def pop
-    "pop"
-  end
-  def boom
-    " goes boom"
+    string << "world"
   end
   before :world, :hello
+  def pop
+    string << "pop"
+  end
+  def boom
+    string << " goes boom"
+  end
   after :pop, :boom
+  def string
+    @str ||= String.new
+  end
 end
 describe "Callbacks" do
   before(:each) do
