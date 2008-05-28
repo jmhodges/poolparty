@@ -1,8 +1,0 @@
-#!/usr/bin/env ruby
-$:.unshift File.dirname(__FILE__)
-
-require "rubygems"
-require "rack"
-require "lib/pool_party"
-
-PoolParty::LocalInstance.new

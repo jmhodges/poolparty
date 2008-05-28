@@ -1,0 +1,46 @@
+#!/usr/bin/ruby
+require 'rubygems'
+require 'rack'
+require 'optparse'
+require 'pool_party'
+
+# Set defaults
+list = PoolParty::Optioner.parse(ARGV.dup)
+options = PoolParty::Application.options(ARGV.dup)
+master = PoolParty::Master.new
+
+instance_options = {
+  :instance => 0,
+  :cmd => "ls -l"
+}
+OptionParser.new do |op|
+  op.on('-I inst', '--instance i', "The instance (default: 0)") {|x| instance_options[:instance] = x}
+  op.on('-C cmd', '--command command', "Run this command on the instance (default: 'ls -)") {|x| instance_options[:cmd] = x}
+end.parse!(ARGV.dup)
+
+instance = master.get_node(instance_options[:instance])
+
+# if list.empty?
+#   puts "Usage: pool [options] {start|stop|list|maintain}"
+#   exit
+# end
+
+case list[0]
+when "ssh"
+  message "Starting cloud"
+  instance.ssh
+when "cmd"
+  message "Stopping cloud"
+  instance.ssh instance_options[:cmd]
+when "scp"
+  master.list
+when "maintain"
+  message "Maintaining cloud"
+  master.start_monitor!
+when "restart"
+  message "Restarting cloud"
+  master.request_termination_of_all_instances
+  master.start_cloud!
+else
+  puts master.list
+end
