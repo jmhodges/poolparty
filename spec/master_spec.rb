@@ -66,7 +66,7 @@ describe "Master" do
     end
     describe "configuring" do
       before(:each) do
-        Master.should_receive(:new).and_return(@master)
+        Master.stub!(:new).and_return(@master)
       end
       it "should be able to build a heartbeat resources file for the specific node" do
         open(Master.build_heartbeat_resources_file_for(@master.nodes.first)).read.should =~ /node0\tip-127/
@@ -82,6 +82,16 @@ describe "Master" do
             {:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"}
           ])
         Master.requires_heartbeat?.should == false
+      end
+      it "should only install the stack on nodes that don't have it marked locally as installed" do
+        @master.nodes.each {|i| i.should_receive(:stack_installed?).and_return(true)}
+        @master.should_not_receive(:reconfigure_running_instances)
+        @master.reconfigure_cloud_when_necessary
+      end
+      it "should install the stack on all the nodes (because it needs reconfiguring) if there is any node that needs the stack" do
+        @master.nodes.first.should_receive(:stack_installed?).and_return(false)
+        @master.should_receive(:reconfigure_running_instances).once.and_return(true)
+        @master.reconfigure_cloud_when_necessary
       end
     end
     describe "displaying" do

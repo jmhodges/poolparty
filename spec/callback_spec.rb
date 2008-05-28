@@ -9,13 +9,17 @@ class TestCallbacks
   def world
     string << "world"
   end
+  def thanks
+    string << ", thank you"
+  end
   before :world, :hello
+  after :world, :thanks
   def pop
     string << "pop"
   end
   def boom
     string << " goes boom"
-  end
+  end  
   after :pop, :boom
   def string
     @str ||= String.new
@@ -29,7 +33,7 @@ describe "Callbacks" do
     @klass.class.should == TestCallbacks
   end
   it "should callback the method before the method runs" do
-    @klass.world.should == "hello world"
+    @klass.world.should == "hello world, thank you"
   end
   it "should callback the method before the method runs" do
     @klass.pop.should == "pop goes boom"

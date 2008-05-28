@@ -36,12 +36,23 @@ module PoolParty
         end
         run_thread_loop(:daemonize => true) do
           add_task {launch_minimum_instances} # If the base instances go down...
+          add_task {reconfigure_cloud_when_necessary}
           add_task {add_instance_if_load_is_high}
           add_task {terminate_instance_if_load_is_low}
         end
       rescue Exception => e
         puts "There was an error: #{e.nice_message}"
       end
+    end
+    # Tough method:
+    # We need to make sure that all the instances have the required software installed
+    # This is a basic check against the local store of the instances that have the 
+    # stack installed.
+    def reconfigure_cloud_when_necessary
+      reconfigure_running_instances if number_of_unconfigured_nodes > 0
+    end
+    def number_of_unconfigured_nodes
+      nodes.reject {|a| a.stack_installed? }.size
     end
     # Add an instance if the load is high
     def add_instance_if_load_is_high      
@@ -79,11 +90,6 @@ module PoolParty
         node.restart_with_monit
       end
     end
-    # Reconfigure the running instances and restart all their services
-    def reconfigure_and_restart_running_instances
-      reconfigure_running_instances
-      restart_running_instances_services
-    end
     # Reconfigure the running instances
     def reconfigure_running_instances      
       nodes.each do |node|
@@ -118,7 +124,7 @@ module PoolParty
     # Get the next node in sequence, so we can configure heartbeat to monitor the next node
     def get_next_node(node)
       i = node.number + 1
-      i = 0 if i == (nodes.size - 1)
+      i = 0 if i >= (nodes.size - 1)
       get_node(i)
     end
     # On exit command
@@ -159,6 +165,6 @@ module PoolParty
         write_to_temp_file("#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}")
       end
     end
-        
+    
   end
 end

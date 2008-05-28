@@ -5,14 +5,14 @@ module PoolParty
         case type
         when :before          
           str=<<-EOD
-            def old_#{m}
+            def #{type}_#{m}
               #{e}
               super
             end
           EOD
         when :after
           str=<<-EOD
-            def old_#{m}
+            def #{type}_#{m}
               super
               #{e}
             end
@@ -22,12 +22,12 @@ module PoolParty
         mMod = Module.new {eval str}
         
         module_eval %{
-          alias_method :old_#{m}, :#{m}
+          alias_method :#{type}_#{m}, :#{m}
         }
         
         self.send :define_method, "#{m}".to_sym, Proc.new {
           extend(mMod)
-          method("old_#{m}".to_sym).call
+          method("#{type}_#{m}".to_sym).call
         }
       end
       def before(m,e,*args, &block)

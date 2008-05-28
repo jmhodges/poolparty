@@ -3,7 +3,8 @@ require File.dirname(__FILE__) + '/spec_helper'
 describe "remote instance" do
   before(:each) do
     @instance = RemoteInstance.new({:ip => "127.0.0.1"})
-    @instance.stub!(:ssh).and_return true    
+    @instance.stub!(:ssh).and_return "true"
+    @instance.stub!(:scp).and_return "true"
   end
   
   describe "in general" do
@@ -15,6 +16,14 @@ describe "remote instance" do
     end
     it "should be able to build a list of the heartbeat nodes" do
       @instance.node_entry.should =~ /node/
+    end
+    it "should call configure after it calls install_stack" do
+      @instance.should_receive(:configure).once.and_return(true)
+      @instance.install_stack
+    end
+    it "should call restart_with_monit after it calls configure" do
+      @instance.should_receive(:restart_with_monit).once.and_return(true)
+      @instance.configure
     end
   end
 end

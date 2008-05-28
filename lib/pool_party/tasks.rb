@@ -65,8 +65,6 @@ module PoolParty
         desc "Install stack on this node"
         task :install => :init do          
           @node.install_stack
-          @node.configure
-          @node.restart_with_monit
         end
         # Turnoff this instance
         desc "Teardown instance"

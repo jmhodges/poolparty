@@ -20,11 +20,6 @@ end.parse!(ARGV.dup)
 
 instance = master.get_node(instance_options[:instance])
 
-# if list.empty?
-#   puts "Usage: pool [options] {start|stop|list|maintain}"
-#   exit
-# end
-
 case list[0]
 when "ssh"
   message "Starting cloud"
@@ -34,13 +29,18 @@ when "cmd"
   instance.ssh instance_options[:cmd]
 when "scp"
   master.list
-when "maintain"
-  message "Maintaining cloud"
-  master.start_monitor!
 when "restart"
-  message "Restarting cloud"
-  master.request_termination_of_all_instances
-  master.start_cloud!
+  message "Restarting services"
+  instance.restart_with_monit
+when "start"
+  message "Starting services"
+  instance.start_with_monit
+when "stop"
+  message "Stopping services"
+  instance.stop_with_monit
+when "install"
+  message "Installing services"
+  install.install_stack
 else
   puts master.list
 end

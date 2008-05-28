@@ -1,8 +1,9 @@
 module PoolParty
   class RemoteInstance
     include PoolParty # WTF -> why isn't message included
-        
-    attr_reader :ip, :instance_id, :name, :number, :status, :launching_time
+    include Callbacks
+    
+    attr_reader :ip, :instance_id, :name, :number, :status, :launching_time, :stack_installed
     attr_accessor :name
     
     def initialize(obj)
@@ -40,10 +41,6 @@ module PoolParty
     # Is this the master?
     def master?
       @number == 0
-    end
-    # Status of the remote instance - contains the 
-    # load of the remote instance
-    def status
     end
     # Let's define some stuff for monit
     %w(stop start restart).each do |cmd|
@@ -87,10 +84,10 @@ module PoolParty
       file = write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read.strip)
       scp(file.path, "/etc/ha.d/authkeys")
       
-      file = Master.new.build_heartbeat_config_file_for(self)
+      file = Master.build_heartbeat_config_file_for(self)
       scp(file.path, "/etc/ha.d/ha.cf")
       
-      file = Master.new.build_heartbeat_resources_file_for(self)
+      file = Master.build_heartbeat_resources_file_for(self)
       scp(file.path, "/etc/ha.d/haresources")
     end
     # Some configures for monit
@@ -117,6 +114,7 @@ module PoolParty
       file = Master.new.build_hosts_file
       scp(file.path, "/etc/hosts") rescue message "Error in uploading new /etc/hosts file"
     end
+    # Restart all services with monit
     # Send a generic version command to test if the stdout contains
     # any information to test if the software is on the instance
     def has?(str)
@@ -125,7 +123,7 @@ module PoolParty
     # MONITORS
     # Monitor the number of web requests that can be accepted at a time
     def web
-        Monitors::Web.monitor_from_string ssh("httperf --server localhost --port #{Application.client_port} --num-conn 3 --timeout 5 | grep 'Request rate'") rescue 0.0
+      Monitors::Web.monitor_from_string ssh("httperf --server localhost --port #{Application.client_port} --num-conn 3 --timeout 5 | grep 'Request rate'") rescue 0.0
     end
     # Monitor the cpu status of the instance
     def cpu
@@ -157,7 +155,18 @@ module PoolParty
         "(booting) INSTANCE: #{name} - #{@ip} - #{@instance_id} - #{@launching_time}"
       end
     end
+    def stack_installed?
+      @stack_installed == true
+    end
+    def mark_installed
+      @stack_installed = true
+    end
     # Include the os specific tasks as specified in the application options (config.yml)
     instance_eval "include PoolParty::Os::#{Application.os.capitalize}"
+    
+    # CALLBACKS        
+    after :install_stack, :configure # After we install the stack, let's make sure we configure it too
+    before :configure, :mark_installed # We want to make sure
+    after :configure, :restart_with_monit # Anytime we configure the server, we want the server to restart it's services
   end
 end

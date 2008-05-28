@@ -13,6 +13,8 @@ Dir["#{File.dirname(__FILE__)}/helpers/**"].each {|a| require a}
 include PoolParty
 extend PoolParty
 
+Application.verbose = false
+
 def wait_launch(time=5)
   pid = fork {yield}
   wait time
