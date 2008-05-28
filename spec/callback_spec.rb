@@ -39,3 +39,27 @@ describe "Callbacks" do
     @klass.pop.should == "pop goes boom"
   end
 end
+class TestMultipleCallbacks
+  include Callbacks
+  attr_reader :str
+  def hi
+    string << "hi, "
+  end
+  def hello
+    string << "hello "
+  end
+  def world
+    string << "world"
+  end
+  def string
+    @str ||= String.new
+  end
+  before :world, :hi
+  before :world, :hello
+end
+describe "Multiple callbacks" do
+  before(:each) do
+    @klass = TestMultipleCallbacks.new
+  end
+  it "should be able to have multiple callbacks on the same call"
+end

@@ -2,11 +2,18 @@ module PoolParty
   module Callbacks
     module ClassMethods
       def callback(type,m,e,*args, &block)
+        
+        # Save the old method
+        if method_defined?("#{type}_#{m}".to_sym)
+          puts "method already defined"
+        end
+                
         case type
         when :before          
           str=<<-EOD
             def #{type}_#{m}
-              #{e}
+              #{e}              
+              yield if block_given?
               super
             end
           EOD
@@ -14,16 +21,15 @@ module PoolParty
           str=<<-EOD
             def #{type}_#{m}
               super
+              yield if block_given?
               #{e}
             end
           EOD
         end
-        
+                
         mMod = Module.new {eval str}
         
-        module_eval %{
-          alias_method :#{type}_#{m}, :#{m}
-        }
+        module_eval %{alias_method :#{type}_#{m}, :#{m}}
         
         self.send :define_method, "#{m}".to_sym, Proc.new {
           extend(mMod)
