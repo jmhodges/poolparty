@@ -99,6 +99,7 @@ describe "Master" do
         @master.add_instance_if_load_is_high
       end
       it "should request to terminate a non-master instance if the load" do
+        @master.should_receive(:contract?).and_return(true)
         @master.should_receive(:request_termination_of_instance).and_return(true)
         @master.terminate_instance_if_load_is_low
       end
