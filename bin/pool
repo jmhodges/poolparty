@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 require 'rubygems'
 require 'rack'
-require 'lib/pool_party'
+require 'pool_party'
 
 # Set defaults
 list = PoolParty::Optioner.parse(ARGV.dup)
@@ -15,13 +15,20 @@ master = PoolParty::Master.new
 
 case list[0]
 when "start"
-  puts master.start_cloud!
+  message "Starting cloud"
+  master.start_cloud!
 when "stop"
-  puts master.request_termination_of_all_instances
+  message "Stopping cloud"
+  master.request_termination_of_all_instances  
 when "list"
   puts master.list
 when "maintain"
-  puts master.start_monitor!
+  message "Maintaining cloud"
+  master.start_monitor!
+when "restart"
+  message "Restarting cloud"
+  master.request_termination_of_all_instances
+  master.start_cloud!
 else
-  pp master.list
+  puts master.list
 end

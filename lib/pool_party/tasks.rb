@@ -90,7 +90,7 @@ module PoolParty
         task :setup => :init do
           keyfilename = ".#{Application.keypair}_pool_keys"
           run <<-EOR
-            echo 'export access_key=\"#{Application.access_key}\"' > $HOME/#{keyfilename}
+            echo 'export ACCESS_KEY=\"#{Application.access_key}\"' > $HOME/#{keyfilename}
             echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/#{keyfilename}
             echo 'export EC2_HOME=\"#{Application.ec2_dir}\"' >> $HOME/#{keyfilename}
             echo 'export KEYPAIR_NAME=\"#{Application.keypair}\"' >> $HOME/#{keyfilename}

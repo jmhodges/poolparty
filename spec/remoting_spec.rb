@@ -27,7 +27,7 @@ describe "Master remoting: " do
       @master.list_of_running_instances.should_not be_empty
     end
     it "should start with the minimum_instances running" do
-      wait 0.1 # Give the last one time to get to running
+      wait 0.5 # Give the last one time to get to running
       @master.list_of_running_instances.size.should == Application.minimum_instances
     end
   end
@@ -46,15 +46,21 @@ describe "Master remoting: " do
       @master.number_of_pending_and_running_instances.should == Application.minimum_instances
     end
     it "should launch a new instance when the load gets too heavy set in the configs" do
+      @master.stub!(:expand?).and_return true
       @master.start_cloud!
       wait 0.2 # Give the two instances time to boot up
       (Application.minimum_instances - @master.number_of_pending_and_running_instances).should == 0
-      @master.nodes.each do |node|
-        node.should_receive(:web_status_level).and_return 1.0
-      end
       @master.add_instance_if_load_is_high
+      @master.nodes.size.should == Application.minimum_instances + 1
     end
-    it "should terminate an instance when the load shows that it's too light" 
+    it "should terminate an instance when the load shows that it's too light" do
+      @master.stub!(:contract?).and_return true
+      @master.start_cloud!
+      @master.request_launch_new_instance
+      wait 0.5 # Give the two instances time to boot up
+      @master.terminate_instance_if_load_is_low
+      @master.number_of_pending_and_running_instances.should == Application.minimum_instances
+    end
   end
   describe "configuring" do
     it "should call configure on all of the nodes when calling reconfigure_running_instances" do

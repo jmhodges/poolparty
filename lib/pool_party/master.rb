@@ -34,7 +34,7 @@ module PoolParty
           on_exit
           exit
         end
-        run_thread_loop(:daemonize => Application.production?) do
+        run_thread_loop(:daemonize => true) do
           add_task {launch_minimum_instances} # If the base instances go down...
           add_task {add_instance_if_load_is_high}
           add_task {terminate_instance_if_load_is_low}
@@ -127,10 +127,8 @@ module PoolParty
     # List the clouds
     def list
       if number_of_pending_and_running_instances > 0
-        out = "-- CLOUD (#{number_of_pending_and_running_instances})--"
-        nodes.each do |node|
-          out << node.description
-        end
+        out = "-- CLOUD (#{number_of_pending_and_running_instances})--\n"
+        out << nodes.collect {|node| node.description }.join("\n")
       else
         out = "Cloud is not running"
       end
