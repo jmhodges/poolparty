@@ -1,8 +1,8 @@
-bin/attendee
-bin/create_proxy_ami.sh
+bin/instance
 bin/pool
 CHANGELOG
 config/config.yml
+config/create_proxy_ami.sh
 config/haproxy.conf
 config/heartbeat.conf
 config/heartbeat_authkeys.conf
@@ -48,8 +48,6 @@ spec/kernel_spec.rb
 spec/master_spec.rb
 spec/monitor_spec.rb
 spec/optioner_spec.rb
-spec/os/bootstrap_spec.rb
-spec/os/node_spec.rb
 spec/poolparty_spec.rb
 spec/remote_instance_spec.rb
 spec/remoting_spec.rb
