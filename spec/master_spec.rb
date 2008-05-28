@@ -108,25 +108,25 @@ describe "Master" do
         @master.stub!(:web_requests).and_return(10.2)
         @master.stub!(:cpu_usage).and_return(0.32)
         
-        @master.valid_rules?(:contract_when).should == false
+        @master.contract?.should == false
       end
       it "should be able to say that it should contract" do      
         @master.stub!(:web_requests).and_return(30.2)
         @master.stub!(:cpu_usage).and_return(0.05)
 
-        @master.valid_rules?(:contract_when).should == true
+        @master.contract?.should == true
       end
       it "should be able to say that it should not expand if it shouldn't expand" do
         @master.stub!(:web_requests).and_return(30.2)
         @master.stub!(:cpu_usage).and_return(0.92)
 
-        @master.valid_rules?(:expand_when).should == false
+        @master.expand?.should == false
       end
       it "should be able to say that it should expand if it should expand" do
         @master.stub!(:web_requests).and_return(1.2)
         @master.stub!(:cpu_usage).and_return(0.92)
 
-        @master.valid_rules?(:expand_when).should == true
+        @master.expand?.should == true
       end
     end
   end

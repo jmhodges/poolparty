@@ -43,30 +43,35 @@ module PoolParty
         puts "There was an error: #{e.nice_message}"
       end
     end
-    
-    # FOR MONITORING
-    def contract?
-    end
-    def expand?            
-    end
-    # Get the average web requests per cloud instance
-    def web_requests
-      nodes.collect {|a| a.web } / nodes.size
-    end
-    def cpu_usage
-      nodes.collect {|a| a.cpu } / nodes.size
-    end
-    def memory_usage
-      nodes.collect {|a| a.memory } / nodes.size
-    end
     # Add an instance if the load is high
     def add_instance_if_load_is_high      
-      request_launch_new_instance
+      request_launch_new_instance if expand?
     end
     # Teardown an instance if the load is pretty low
     def terminate_instance_if_load_is_low
-      node = nodes.reject {|a| a.master? }[-1]
-      request_termination_of_instance(node.instance_id) if node
+      if contract?
+        node = nodes.reject {|a| a.master? }[-1]
+        request_termination_of_instance(node.instance_id) if node
+      end
+    end
+    # FOR MONITORING
+    def contract?
+      valid_rules?(:contract_when)
+    end
+    def expand?
+      valid_rules?(:expand_when)
+    end
+    # Get the average web requests per cloud
+    def web_requests
+      nodes.collect {|a| a.web } / nodes.size
+    end
+    # Get the average cpu usage per cloud
+    def cpu_usage
+      nodes.collect {|a| a.cpu } / nodes.size
+    end
+    # Get the average memory usage over the cloud
+    def memory_usage
+      nodes.collect {|a| a.memory } / nodes.size
     end
     # Restart the running instances services with monit on all the nodes
     def restart_running_instances_services

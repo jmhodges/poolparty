@@ -24,9 +24,11 @@ module PoolParty
     def get_instances_description
       instances
     end
+    # Fake the ec2 connection
     def ec2
       @ec2 ||= EC2::Base.new(:access_key_id => "not a key", :secret_access_key => "not a key")
     end
+    # Some basic instances, not totally necessary
     def instances
       @instances ||= []
     end

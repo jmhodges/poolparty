@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 class TestCallbacks
   include Callbacks    
   def hello
-    "hi"
+    "hello "
   end
   def world
     "world"
