@@ -62,6 +62,9 @@ module PoolParty
     # Setup the master tasks
     def configure_master
       message "configuring master (#{name})"
+      install_ruby_and_rubygems # Install ruby and the gems required to run the master
+      scp(Application.config_file, "~/.config")
+      ssh("pool maintain -C ~/.config") # Let's set it to maintain, ey?
     end
     # Change the hostname for the instance
     def configure_linux

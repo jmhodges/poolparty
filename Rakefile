@@ -10,7 +10,7 @@ Echoe.new("pool_party") do |p|
   p.summary = "Run your entire application off EC2, managed and auto-scaling"
   p.url = "http://blog.citrusbyte.com"
   p.docs_host = "www.poolpartyrb.com"
-  p.dependencies = %w(aws-s3 amazon-ec2)
+  p.dependencies = %w(aws-s3 amazon-ec2 aska)
   p.install_message = "For more information, check http://poolpartyrb.com\n*** Ari Lerner @ <ari.lerner@citrusbyte.com> ***"
   p.include_rakefile = true
 end

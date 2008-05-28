@@ -51,6 +51,27 @@ module PoolParty
         ssh("apt-get -y install build-essential libcurl4-openssl-dev libxml2-dev libfuse-dev")
         ssh(cmd.runnable)
       end
+      # We want to slim this down...
+      def install_ruby_and_rubygems
+        cmd=<<-EOC
+          echo 'Installing ruby...'
+          apt-get -y install build-essential ruby1.8-dev ruby1.8 ri1.8 rdoc1.8 irb1.8 libreadline-ruby1.8 libruby1.8
+          sudo ln -s /usr/bin/ruby1.8 /usr/local/bin/ruby
+          sudo ln -s /usr/bin/ri1.8 /usr/local/bin/ri
+          sudo ln -s /usr/bin/rdoc1.8 /usr/local/bin/rdoc
+          sudo ln -s /usr/bin/irb1.8 /usr/local/bin/irb
+          echo '-- Installing Rubygems'
+          cd /usr/local/src
+          wget http://rubyforge.org/frs/download.php/35283/rubygems-1.1.1.tgz
+          tar -xzf rubygems-1.1.1.tgz
+          cd rubygems-1.1.1
+          sudo ruby setup.rb
+          sudo ln -s /usr/bin/gem1.8 /usr/bin/gem
+          sudo gem update --system
+          sudo gem install aws-s3 amazon-ec2 aska rake yaml poolparty --no-rdoc --no-ri --no-test -y
+        EOC
+        ssh(cmd.runnable)
+      end
     end
     
   end

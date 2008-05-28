@@ -15,18 +15,18 @@ master = PoolParty::Master.new
 
 case list[0]
 when "start"
-  message "Starting cloud"
+  PoolParty.message "Starting cloud"
   master.start_cloud!
 when "stop"
-  message "Stopping cloud"
+  PoolParty.message "Stopping cloud"
   master.request_termination_of_all_instances  
 when "list"
   puts master.list
 when "maintain"
-  message "Maintaining cloud"
+  PoolParty.message "Maintaining cloud"
   master.start_monitor!
 when "restart"
-  message "Restarting cloud"
+  PoolParty.message "Restarting cloud"
   master.request_termination_of_all_instances
   master.start_cloud!
 else

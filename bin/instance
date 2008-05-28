@@ -10,25 +10,34 @@ options = PoolParty::Application.options(ARGV.dup)
 master = PoolParty::Master.new
 
 instance_options = {
-  :instance => 0,
-  :cmd => "ls -l"
+  :instance_number => 0,
+  :cmd => "ls -l",
+  :src => "",
+  :dest => ""
 }
 OptionParser.new do |op|
-  op.on('-I inst', '--instance i', "The instance (default: 0)") {|x| instance_options[:instance] = x}
-  op.on('-C cmd', '--command command', "Run this command on the instance (default: 'ls -)") {|x| instance_options[:cmd] = x}
+  op.on('-i inst', '--instance i', "The instance_number (default: 0)") {|x| instance_options[:instance_number] = x}
+  op.on('-C cmd', '--command command', "Run this command on the instance (default: 'ls -l')") {|x| instance_options[:cmd] = x}
+  op.on('-s src', '--source filename', "Send this file through scp (default: '')") {|x| instance_options[:src] = x}
+  op.on('-d dest', '--destination filename', "Send file to (default: '')") {|x| instance_options[:dest] = x}
 end.parse!(ARGV.dup)
 
-instance = master.get_node(instance_options[:instance])
+instance = master.get_node(instance_options[:instance_number])
+
+unless instance
+  puts "Cloud is not running"
+  exit
+end
 
 case list[0]
 when "ssh"
-  message "Starting cloud"
+  PoolParty.message "Ssh'ing into #{instance.ip}"
   instance.ssh
 when "cmd"
-  message "Stopping cloud"
+  PoolParty.message "Executing #{instance_options[:cmd]} on #{instance.ip}"
   instance.ssh instance_options[:cmd]
 when "scp"
-  master.list
+  instance.scp instance_options[:src], instance_options[:dest]
 when "restart"
   message "Restarting services"
   instance.restart_with_monit

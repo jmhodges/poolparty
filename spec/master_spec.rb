@@ -54,7 +54,7 @@ describe "Master" do
       open(@master.build_haproxy_file.path).read.should =~ "server node0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port}"
     end
     it "should be able to reconfigure the instances (working on two files a piece)" do
-      @master.nodes.each {|a| a.should_receive(:configure).and_return true }
+      @master.nodes.each {|a| a.should_receive(:configure).and_return true if a.status =~ /running/}
       @master.reconfigure_running_instances
     end
     it "should be able to restart the running instances' services" do

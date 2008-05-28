@@ -15,7 +15,6 @@ module PoolParty
     end
     # Start the cloud
     def start_cloud!
-      message "Starting cloud"
       start!
     end
     # Start the cloud, which launches the minimum_instances
@@ -93,7 +92,7 @@ module PoolParty
     # Reconfigure the running instances
     def reconfigure_running_instances      
       nodes.each do |node|
-        node.configure
+        node.configure if node.status =~ /running/
       end
     end
     # Build the basic haproxy config file from the config file in the config directory and return a tempfile
