@@ -4,7 +4,6 @@
 require "aska"
 module PoolParty
   class Master < Remoting
-    include Server
     include Aska
     
     def initialize
@@ -19,7 +18,18 @@ module PoolParty
     end
     # Start the cloud, which launches the minimum_instances
     def start!
+      message "Launching minimum_instances"
       launch_minimum_instances
+      message "Waiting for master to boot up" 
+      reset!
+      while !number_of_pending_instances.zero?
+        wait "2.seconds"
+        reset!
+      end
+      message "Give some time for the instance ssh to start up"
+      wait "10.seconds"
+      message "Configuring master"
+      get_node(0).configure
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances
@@ -106,9 +116,21 @@ module PoolParty
     def build_hosts_file
       write_to_temp_file(nodes.collect {|a| a.hosts_entry }.join("\n"))
     end
+    # Build host file for a specific node
+    def build_hosts_file_for(n)
+      servers=<<-EOS        
+#{nodes.collect {|node| node.ip == n.ip ? node.local_hosts_entry : node.hosts_entry}.join("\n")}
+      EOS
+      write_to_temp_file(servers)
+    end
     # Build the basic auth file for the heartbeat
     def build_heartbeat_authkeys_file
       write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read)
+    end
+    # Build heartbeat config file
+    def build_heartbeat_config_file_for(node)
+      servers = "#{node.node_entry}\n#{get_next_node(node).node_entry}"
+      write_to_temp_file(open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers})
     end
     # Return a list of the nodes and cache them
     def nodes
@@ -146,6 +168,8 @@ module PoolParty
     end
     
     class << self
+      include PoolParty
+      
       def requires_heartbeat?
         new.nodes.size > 1
       end
@@ -155,14 +179,22 @@ module PoolParty
       # Build a heartbeat_config_file from the config file in the config directory and return a tempfile
       def build_heartbeat_config_file_for(node)
         return nil unless node
-        servers = "#{node.node_entry}\n#{get_next_node(node).node_entry}"
-        write_to_temp_file(open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers})
+        new.build_heartbeat_config_file_for(node)
       end
       # Build a heartbeat resources file from the config directory and return a tempfile
       def build_heartbeat_resources_file_for(node)
         return nil unless node
         write_to_temp_file("#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}")
       end
+      def build_hosts_file_for(node)
+        new.build_hosts_file_for(node)
+      end
+      def write_to_temp_file(str="")
+        tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
+        tempfile.print(str)
+        tempfile.flush
+        tempfile
+      end      
     end
     
   end

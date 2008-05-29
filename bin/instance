@@ -1,6 +1,5 @@
 #!/usr/bin/ruby
 require 'rubygems'
-require 'rack'
 require 'optparse'
 require 'pool_party'
 
@@ -49,7 +48,7 @@ when "stop"
   instance.stop_with_monit
 when "install"
   message "Installing services"
-  install.install_stack
+  instance.install_stack
 else
   puts master.list
 end

@@ -77,7 +77,6 @@
   * aws/s3
   * aska
   * EC2
-  * rack
   * fastthread
 
 == INSTALL:

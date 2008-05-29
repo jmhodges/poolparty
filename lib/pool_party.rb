@@ -8,7 +8,6 @@ require 'rubygems'
 require "aws/s3"
 require "sqs"
 require "EC2"
-require "rack"
 require 'thread'
 require "pp"
 require "tempfile"
@@ -35,7 +34,7 @@ pwd = File.dirname(__FILE__)
   end
 end
 
-module PoolParty  
+module PoolParty
   module Version
     MAJOR = '0'
     MINOR = '0'

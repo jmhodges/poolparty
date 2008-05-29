@@ -17,7 +17,11 @@ module PoolParty
     
     # Host entry for this instance
     def hosts_entry
-      "#{name}\t#{@ip}"
+      "#{@ip} #{name}"
+    end
+    # Internal host entry for this instance
+    def local_hosts_entry
+      "127.0.0.1 #{name}\n127.0.0.1 localhost.localdomain localhost ubuntu"
     end
     # Node entry for heartbeat
     def node_entry
@@ -36,7 +40,7 @@ module PoolParty
       "server #{name} #{@ip}:#{Application.client_port} weight 1 check"
     end
     def haproxy_resources_entry
-      "#{name}\t#{@ip}"
+      "#{name} #{@ip}"
     end
     # Is this the master?
     def master?
@@ -62,9 +66,13 @@ module PoolParty
     # Setup the master tasks
     def configure_master
       message "configuring master (#{name})"
-      install_ruby_and_rubygems # Install ruby and the gems required to run the master
+      install_ruby unless has?("ruby -v") 
+      install_rubygems unless has?("gem1.8 -v") # Install ruby and the gems required to run the master
+      install_required_gems unless has?("pool -h")
       scp(Application.config_file, "~/.config")
-      ssh("pool maintain -C ~/.config") # Let's set it to maintain, ey?
+      
+      ssh("ps aux | grep ruby | awk '{ print $2 }' | xargs kill -9")
+      ssh("pool maintain -c ~/.config") # Let's set it to maintain, ey?
     end
     # Change the hostname for the instance
     def configure_linux
@@ -82,7 +90,7 @@ module PoolParty
     # Configure heartbeat only if there is enough servers
     def configure_heartbeat
       message "Configuring heartbeat"
-      install_heartbeat unless has?("heartbeat")
+      install_heartbeat unless has?("/etc/init.d/heartbeat")
       
       file = write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read.strip)
       scp(file.path, "/etc/ha.d/authkeys")
@@ -92,6 +100,8 @@ module PoolParty
       
       file = Master.build_heartbeat_resources_file_for(self)
       scp(file.path, "/etc/ha.d/haresources")
+      
+      ssh("/etc/init.d/heartbeat start")
     end
     # Some configures for monit
     def configure_monit
@@ -114,7 +124,8 @@ module PoolParty
     end
     # Configure the hosts for the linux file
     def configure_hosts
-      file = Master.new.build_hosts_file
+      message "Configuring hosts"
+      file = Master.build_hosts_file_for(self)
       scp(file.path, "/etc/hosts") rescue message "Error in uploading new /etc/hosts file"
     end
     # Restart all services with monit
@@ -167,7 +178,7 @@ module PoolParty
     # Include the os specific tasks as specified in the application options (config.yml)
     instance_eval "include PoolParty::Os::#{Application.os.capitalize}"
     
-    # CALLBACKS        
+    # CALLBACKS
     after :install_stack, :configure # After we install the stack, let's make sure we configure it too
     before :configure, :mark_installed # We want to make sure
     after :configure, :restart_with_monit # Anytime we configure the server, we want the server to restart it's services

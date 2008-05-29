@@ -26,7 +26,7 @@ module PoolParty
           filedata = open(default_options[:config_file]).read if File.file?(default_options[:config_file])
           default_options.merge!( YAML.load(filedata) ) if filedata
         end
-                
+
         OpenStruct.new(default_options)
       end
 
