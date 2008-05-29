@@ -46,12 +46,16 @@ module PoolParty
         run_thread_loop(:daemonize => true) do
           add_task {launch_minimum_instances} # If the base instances go down...
           add_task {reconfigure_cloud_when_necessary}
-          add_task {add_instance_if_load_is_high}
-          add_task {terminate_instance_if_load_is_low}
+          add_task {scale_cloud!}
         end
       rescue Exception => e
         puts "There was an error: #{e.nice_message}"
       end
+    end
+    # 
+    def scale_cloud!
+      add_instance_if_load_is_high
+      terminate_instance_if_load_is_low
     end
     # Tough method:
     # We need to make sure that all the instances have the required software installed

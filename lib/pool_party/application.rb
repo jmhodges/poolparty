@@ -24,7 +24,7 @@ module PoolParty
           require "yaml"
           # Try loading the file if it exists
           filedata = open(default_options[:config_file]).read if File.file?(default_options[:config_file])
-          default_options.merge!( YAML.load(filedata) ) if filedata
+          default_options.safe_merge!( YAML.load(filedata) ) if filedata # We want the command-line to overwrite the config file
         end
 
         OpenStruct.new(default_options)

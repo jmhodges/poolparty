@@ -133,6 +133,16 @@ module PoolParty
         task :shutdown => :init do
           PoolParty::Master.new.request_termination_of_all_instances
         end
+        # Watch the cloud and scale it if necessary
+        desc "Watch the cloud and maintain it"
+        task :scale => :init do
+          begin
+            PoolParty::Master.new.scale_cloud!
+          rescue Exception => e
+            puts "There was an error scaling the cloud: #{e}"
+          end
+          
+        end
         # Maintain the cloud in a background process
         desc "Maintain the cloud (run on the master)"
         task :maintain => :init do
