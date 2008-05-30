@@ -96,7 +96,7 @@ module PoolParty
       # Services monitored by Heartbeat
       # Always at least monitors haproxy
       def managed_services
-        "haproxy #{services}"
+        "cloud_master_takeover #{services}"
       end
       def launching_user_data
         {:polling_time => polling_time}.to_yaml
@@ -105,7 +105,7 @@ module PoolParty
       # Idiom:
       #  /Users/username/.ec2/id_rsa-name
       def keypair_path
-        "#{ec2_dir}/id_rsa-#{keypair}"
+        "#{ec2_dir}/id_rsa#{keypair ? "-#{keypair}" : "" }"
       end
       # Are we in development or test mode
       def development?
@@ -114,6 +114,9 @@ module PoolParty
       # Are we in production mode?
       def production?
         environment == "production"
+      end
+      def maintain_pid_path
+        "/var/run/pool_maintain.pid"
       end
       # Standard configuration files
       %w(haproxy monit heartbeat heartbeat_authkeys).each do |file|

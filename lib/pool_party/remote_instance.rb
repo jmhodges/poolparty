@@ -55,24 +55,28 @@ module PoolParty
     # Gets called everytime the cloud reloads itself
     # This is how the cloud reconfigures itself
     def configure
+      configure_ruby
       configure_master if master?
       configure_linux
-      configure_hosts
+      configure_hosts      
       configure_haproxy
       configure_heartbeat if Master.requires_heartbeat?
       configure_s3fuse
-      configure_monit      
+      configure_monit
     end
     # Setup the master tasks
     def configure_master
-      message "configuring master (#{name})"
+      message "configuring master (#{name})"      
+      ssh("ps aux | grep ruby | awk '{ print $2 }' | xargs kill -9")
+      ssh("pool maintain -c ~/.config") # Let's set it to maintain, ey?
+    end
+    # Setup ruby on this instance
+    def configure_ruby
+      master "Configuring ruby, rubygems and pool party"
       install_ruby unless has?("ruby -v") 
       install_rubygems unless has?("gem1.8 -v") # Install ruby and the gems required to run the master
       install_required_gems unless has?("pool -h")
       scp(Application.config_file, "~/.config")
-      
-      ssh("ps aux | grep ruby | awk '{ print $2 }' | xargs kill -9")
-      ssh("pool maintain -c ~/.config") # Let's set it to maintain, ey?
     end
     # Change the hostname for the instance
     def configure_linux
@@ -101,6 +105,10 @@ module PoolParty
       file = Master.build_heartbeat_resources_file_for(self)
       scp(file.path, "/etc/ha.d/haresources")
       
+      message "Installing services in config/resouce.d"
+      ssh("mkdir /etc/ha.d/resource.d/")
+      scp("config/resource.d/*", "/etc/ha.d/resource.d/", {:switches => "-r"})
+      
       ssh("/etc/init.d/heartbeat start")
     end
     # Some configures for monit
@@ -110,9 +118,7 @@ module PoolParty
       
       scp(Application.monit_config_file, "/etc/monit/monitrc")
       ssh("mkdir /etc/monit.d")
-      Dir["#{File.dirname(Application.monit_config_file)}/monit/*"].each do |f|
-        scp(f, "/etc/monit.d/#{File.basename(f)}")
-      end
+      scp("#{File.dirname(Application.monit_config_file)}/monit/*", "/etc/monit.d/", {:switches => "-r"})
     end
     # Configure haproxy
     def configure_haproxy
@@ -126,7 +132,7 @@ module PoolParty
     def configure_hosts
       message "Configuring hosts"
       file = Master.build_hosts_file_for(self)
-      scp(file.path, "/etc/hosts") rescue message "Error in uploading new /etc/hosts file"
+      scp(file.path, "/etc/hosts") rescue message("Error in uploading new /etc/hosts file")
     end
     # Restart all services with monit
     # Send a generic version command to test if the stdout contains
@@ -148,8 +154,8 @@ module PoolParty
       Monitors::Memory.monitor_from_string ssh("free -m | grep -i mem") rescue 0.0
     end    
     # Scp src to dest on the instance
-    def scp(src="", dest="")
-      `scp -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
+    def scp(src="", dest="", opts={})
+      `scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
     end
     # Ssh into the instance or run a command, if the cmd is set
     def ssh(cmd="")
@@ -174,6 +180,9 @@ module PoolParty
     end
     def mark_installed
       @stack_installed = true
+    end
+    def is_not_master_and_master_is_running?
+      
     end
     # Include the os specific tasks as specified in the application options (config.yml)
     instance_eval "include PoolParty::Os::#{Application.os.capitalize}"

@@ -87,6 +87,10 @@
 * v0.1.0 - Add SQS task support
 * v0.2.0 - Callback support
 
+== THANKS
+
+Tim Goh, http://citrusbyte.com for sanity checks and thoughts
+
 == LICENSE:
 
 (The MIT License)

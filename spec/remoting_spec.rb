@@ -8,10 +8,10 @@ end
 
 describe "Master remoting: " do
   before(:each) do
-    Application.stub!(:environment).and_return("test") # So it daemonizes
+    Application.stub!(:environment).and_return("test") # So it doesn't daemonize
     Application.stub!(:minimum_instances).and_return(2)
     Application.stub!(:maximum_instances).and_return(10)
-    Application.stub!(:polling_time).and_return(0.3)
+    Application.stub!(:polling_time).and_return(0.1)
     Application.stub!(:verbose).and_return(false) # Turn off messaging
     
     @master = Master.new
@@ -20,7 +20,7 @@ describe "Master remoting: " do
     before(:each) do
       @master.start_cloud!
     end
-    it "should start the cloud with instances" do    
+    it "should start the cloud with instances" do
       @master.list_of_instances.should_not be_empty
     end
     it "should start the cloud with running instances" do
@@ -50,7 +50,7 @@ describe "Master remoting: " do
       @master.start_cloud!
       wait 0.2 # Give the two instances time to boot up
       (Application.minimum_instances - @master.number_of_pending_and_running_instances).should == 0
-      @master.add_instance_if_load_is_high
+      @master.scale_cloud!
       @master.nodes.size.should == Application.minimum_instances + 1
     end
     it "should terminate an instance when the load shows that it's too light" do
@@ -58,7 +58,7 @@ describe "Master remoting: " do
       @master.start_cloud!
       @master.request_launch_new_instance
       wait 0.5 # Give the two instances time to boot up
-      @master.terminate_instance_if_load_is_low
+      @master.scale_cloud!
       @master.number_of_pending_and_running_instances.should == Application.minimum_instances
     end
   end

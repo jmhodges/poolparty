@@ -64,7 +64,8 @@ module PoolParty
         end
         yield if block_given?
       end
-      Process.detach(pid)      
+      Process.detach(pid)
+      pid
     end
     # Run the loop and wait the amount of time between running the tasks
     # You can send it daemonize => true and it will daemonize

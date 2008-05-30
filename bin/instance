@@ -2,6 +2,7 @@
 require 'rubygems'
 require 'optparse'
 require 'pool_party'
+require "fileutils"
 
 # Set defaults
 list = PoolParty::Optioner.parse(ARGV.dup)
@@ -49,6 +50,17 @@ when "stop"
 when "install"
   message "Installing services"
   instance.install_stack
+when "start_maintain"
+  message "Running heartbeat failover service"
+  pid = Master.run_thread_loop(:daemonize => true) do
+    instance.is_not_master_and_master_is_running?
+  end
+  File.open(Application.maintain_pid_path) {|f| f.write(pid)}
+when "stop_maintain"
+  message "Stopping heartbeat failover service"
+  pid = open(Application.maintain_pid_path).read
+  `kill -9 #{pid}`
+  FileUtils.rm Application.maintain_pid_path # Check this
 else
   puts master.list
 end
