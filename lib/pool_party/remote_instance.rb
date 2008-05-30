@@ -61,7 +61,7 @@ module PoolParty
       configure_hosts      
       configure_haproxy
       configure_heartbeat if Master.requires_heartbeat?
-      configure_s3fuse
+      configure_s3fuse # Sets up /data
       configure_monit
     end
     # Setup the master tasks

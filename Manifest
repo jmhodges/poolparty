@@ -10,8 +10,10 @@ config/monit/haproxy.monit.conf
 config/monit/nginx.monit.conf
 config/monit.conf
 config/nginx.conf
+config/resource.d/cloud_master_takeover
 lib/core/array.rb
 lib/core/exception.rb
+lib/core/hash.rb
 lib/core/kernel.rb
 lib/core/module.rb
 lib/core/object.rb
@@ -41,6 +43,7 @@ Rakefile
 README.txt
 spec/application_spec.rb
 spec/callback_spec.rb
+spec/core_spec.rb
 spec/helpers/ec2_mock.rb
 spec/helpers/remote_instance_mock.rb
 spec/kernel_spec.rb
