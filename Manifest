@@ -45,7 +45,6 @@ spec/application_spec.rb
 spec/callback_spec.rb
 spec/core_spec.rb
 spec/helpers/ec2_mock.rb
-spec/helpers/remote_instance_mock.rb
 spec/kernel_spec.rb
 spec/master_spec.rb
 spec/monitor_spec.rb

@@ -23,11 +23,11 @@ module PoolParty
       message "Waiting for master to boot up" 
       reset!
       while !number_of_pending_instances.zero?
-        wait "2.seconds"
+        wait "2.seconds" unless Application.test?
         reset!
       end
       message "Give some time for the instance ssh to start up"
-      wait "10.seconds"
+      wait "10.seconds" unless Application.test?
       message "Configuring master"
       get_node(0).configure
     end

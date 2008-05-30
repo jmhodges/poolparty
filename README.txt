@@ -48,27 +48,25 @@
   
   Each instance has a /etc/hosts file that has each node listed as the node name listed in the cloud:list (rake task).
   
-  = Cloud tools
-  The cloud can be maintained entirely through rake tasks, although there are a few front-ends being developed (one in cocoa). 
-  All the cloud rake tasks are in the cloud namespace and are:
-    rake cloud:deploy    # Deploy web application from production git repos spe...
-    rake cloud:list      # List cloud
-    rake cloud:maintain  # Maintain the cloud (run on the master)
-    rake cloud:prepare   # Prepare all servers
-    rake cloud:reload    # Reload all instances with updated data
-    rake cloud:shutdown  # Shutdown the entire cloud
-    rake cloud:start     # Start the cloud    
+  = CloudSpeak - Communicating to your cloud(s)
+  Binaries!
+  Included in PoolParty are two binaries to communicate back with your clouds. Those are:
+  = pool - operate on your pool. This includes list, start, stop maintain, restart. Check the help with
+    pool -h
+  = instance - operate on a specific instance. This allos you to ssh, scp, reload, install as well. Check the help with:
+    instance -h
   
-  The instance rake tasks are in the instance namespace
-    rake instance:configure             # Configure the stack on this node
-    rake instance:exec                  # Execute cmd on a remote instance
-    rake instance:install               # Install stack on this node
-    rake instance:load                  # Start all services
-    rake instance:reload                # Restart all the services
-    rake instance:scp                   # Send a file to the remote instance
-    rake instance:shutdown              # Teardown instance
-    rake instance:ssh                   # Remotely login to the remote instance
-    rake instance:stop                  # Stop all services
+  The cloud can be maintained entirely through rake tasks, although there are a few front-ends being developed (one in cocoa). 
+  It is simple to include these tasks in your Rakefile. Just add the following lines:
+    require "poolparty"
+    
+    PoolParty.include_cloud_tasks # or PoolParty.tasks or PoolParty.include_tasks
+    
+  All the cloud rake tasks are in the cloud namespace and can be viewed with:
+    rake -T cloud
+
+  The instance rake tasks are in the instance namespace and can be listed with:
+    rake -T instance
   
   For more help, check http://poolpartyrb.com 
 

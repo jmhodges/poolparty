@@ -1,7 +1,8 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
 describe "Application" do
-  before(:each) do
+  it "should be able to send options in the Application.options" do
+    options({:optparse => {:banner => "hi"}})
   end
   it "should have the root_dir defined" do
     Application.root_dir.should_not be_nil
@@ -13,8 +14,8 @@ describe "Application" do
     Application.options.should_receive(:client_port).and_return(7788)
     Application.client_port.should == 7788
   end
-  it "should always have haproxy in the managed services list" do
-    Application.managed_services =~ /haproxy/
+  it "should always have cloud_master_takeover in the managed services list" do
+    Application.managed_services.should =~ /cloud_master_takeover/
   end
   it "should be able to say it is in development mode if it is in dev mode" do
     Application.stub!(:environment).and_return("development")
@@ -28,5 +29,11 @@ describe "Application" do
     Application.stub!(:ec2_dir).and_return("~/.ec2")
     Application.stub!(:keypair).and_return("poolparty")
     Application.keypair_path.should == "~/.ec2/id_rsa-poolparty"
+  end
+  it "should be able to show the version of the gem" do
+    Application.version.should_not be_nil    
+  end
+  it "should show the version as a string" do
+    Application.version.class.should == String
   end
 end

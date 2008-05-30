@@ -6,7 +6,7 @@ module PoolParty
     attr_reader :ip, :instance_id, :name, :number, :status, :launching_time, :stack_installed
     attr_accessor :name
     
-    def initialize(obj)
+    def initialize(obj={})
       @ip = obj[:ip]
       @instance_id = obj[:instance_id]      
       @name = obj[:name] || "node"
@@ -180,9 +180,6 @@ module PoolParty
     end
     def mark_installed
       @stack_installed = true
-    end
-    def is_not_master_and_master_is_running?
-      
     end
     # Include the os specific tasks as specified in the application options (config.yml)
     instance_eval "include PoolParty::Os::#{Application.os.capitalize}"

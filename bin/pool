@@ -4,22 +4,9 @@ require 'pool_party'
 
 # Set defaults
 list = PoolParty::Optioner.parse(ARGV.dup)
-options = PoolParty::Application.options(ARGV.dup)
+options = PoolParty.options(:optsparse => 
+  {:banner => "Usage: #{op.program_name} [OPTIONS] {start | stop | list | maintain | restart}"  })
 master = PoolParty::Master.new
-
-instance_options = {
-  :instance_number => 0,
-  :cmd => "ls -l",
-  :src => "",
-  :dest => ""
-}
-OptionParser.new do |op|
-  op.on_tail("-h", "--help", "Show this message") do |o|
-    puts "pool <options> {start|stop|list|maintain|restart}"
-    exit
-  end
-end.parse!(ARGV.dup)
-
 
 case list[0]
 when "start"
