@@ -4,7 +4,6 @@ module PoolParty
       "true"
     end
     def ssh(cmd="")
-      puts "In RemoteInstanceMock: ssh"
       "true"
     end
   end
