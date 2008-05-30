@@ -7,8 +7,9 @@
     <script type="text/javascript" src="/javascripts/jquery-1.2.6.pack.js"></script>
     <script type="text/javascript" src="/javascripts/corner.js"></script>
     <script type="text/javascript" src="/javascripts/application.js"></script>
-  %body
+  %body 
     .container
+      .balloon= img "balloon.png"
       .header
         %h1 Pool Party
         .clouds= img "clouds.png"
@@ -19,3 +20,4 @@
       .clear
       .content
         = yield
+      .cb= img "cb.png"
