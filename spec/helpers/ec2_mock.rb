@@ -1,5 +1,5 @@
 module PoolParty
-  module EC2Mock
+  class Master
     def launch_new_instance!
       letter = ("a".."z").to_a[instances.size] # For unique instance_ids
       h = {:instance_id => "i-58ba56#{letter}", :ip => "ip-127-0-0-1.aws.amazonaws.com", :status => "pending", :launching_time => Time.now }
@@ -33,24 +33,12 @@ module PoolParty
       @instances ||= []
     end
   end
-  class EC2ResponseObject
-    def self.get_descriptions(resp)
-      rs = resp.DescribeInstancesResponse.reservationSet.item
-      rs = rs.respond_to?(:instancesSet) ? rs.instancesSet : rs
-      out = begin
-        rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}.reject {|a| a.nil?  }
-      rescue Exception => e
-        begin
-          # Really weird bug with amazon's ec2 gem
-          rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r)}.reject {|a| a.nil?  }
-        rescue Exception => e
-          []
-        end                
-      end
-      out
+  class RemoteInstance
+    def ssh(l="")
+      "true"
     end
-    def self.get_hash_from_response(resp)
-      {:instance_id => resp.instanceId, :ip => resp.dnsName, :status => resp.instanceState.name, :launching_time => resp.launchTime} rescue nil
+    def scp(s,d,o={})
+      "true"
     end
   end
 end

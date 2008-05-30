@@ -1,11 +1,5 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
-# RUN THESE ONE AT A TIME
-module PoolParty
-  class Master;include EC2Mock;end
-  class RemoteInstance; include RemoteInstanceMock;end
-end
-
 describe "Master remoting: " do
   before(:each) do
     Application.stub!(:environment).and_return("test") # So it doesn't daemonize
@@ -15,6 +9,7 @@ describe "Master remoting: " do
     Application.stub!(:verbose).and_return(false) # Turn off messaging
     
     @master = Master.new
+    @master.launch_new_instance!
   end
   describe "starting" do
     before(:each) do
@@ -58,18 +53,30 @@ describe "Master remoting: " do
       @master.start_cloud!
       @master.request_launch_new_instance
       wait 0.5 # Give the two instances time to boot up
+      @master.number_of_pending_and_running_instances.should == Application.minimum_instances + 1
       @master.scale_cloud!
       @master.number_of_pending_and_running_instances.should == Application.minimum_instances
     end
   end
   describe "configuring" do
     it "should call configure on all of the nodes when calling reconfigure_running_instances" do
-      @master.nodes.each {|a| a.should_receive(:configure).and_return true }
+      @master.nodes.each {|a| 
+        a.stub!(:status).and_return("running")
+        a.should_receive(:configure).and_return true 
+      }
       @master.reconfigure_running_instances
     end    
     it "should call restart_with_monit on all of the nodes when calling restart_running_instances_services" do
       @master.nodes.each {|a| a.should_receive(:restart_with_monit).and_return true }
       @master.restart_running_instances_services
+    end
+    it "should be able to say there are no number_of_unconfigured_nodes left when all the nodes are configured" do
+      @master.nodes.each {|a| a.should_receive(:stack_installed?).and_return true }
+      @master.number_of_unconfigured_nodes.should == 0
+    end
+    it "should be able to say that there is an unconfigured node" do
+      @master.nodes[-1].should_receive(:stack_installed?).and_return false
+      @master.number_of_unconfigured_nodes.should_not == 0
     end
   end
 end

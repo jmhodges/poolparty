@@ -35,14 +35,6 @@ pwd = File.dirname(__FILE__)
 end
 
 module PoolParty
-  module Version
-    MAJOR = '0'
-    MINOR = '0'
-    REVISION = '4'
-    def self.combined
-      [MAJOR, MINOR, REVISION].join('.')
-    end
-  end
   # PoolParty options
   def options(opts={})
     Application.options(opts)
@@ -66,4 +58,9 @@ module PoolParty
     tempfile.flush
     tempfile
   end
+  def include_cloud_tasks
+    Tasks.new
+  end
+  alias_method :tasks, :include_cloud_tasks
+  alias_method :include_tasks, :include_cloud_tasks
 end

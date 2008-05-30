@@ -3,10 +3,10 @@ module PoolParty
     include PoolParty # WTF -> why isn't message included
     include Callbacks
     
-    attr_reader :ip, :instance_id, :name, :number, :status, :launching_time, :stack_installed
-    attr_accessor :name
+    attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed
+    attr_accessor :name, :number
     
-    def initialize(obj)
+    def initialize(obj={})
       @ip = obj[:ip]
       @instance_id = obj[:instance_id]      
       @name = obj[:name] || "node"
@@ -46,6 +46,9 @@ module PoolParty
     def master?
       @number == 0
     end
+    def secondary?
+      @number == 1
+    end
     # Let's define some stuff for monit
     %w(stop start restart).each do |cmd|
       define_method "#{cmd}_with_monit" do
@@ -57,6 +60,7 @@ module PoolParty
     def configure
       configure_ruby
       configure_master if master?
+      configure_master_failover if secondary?
       configure_linux
       configure_hosts      
       configure_haproxy
@@ -70,9 +74,14 @@ module PoolParty
       ssh("ps aux | grep ruby | awk '{ print $2 }' | xargs kill -9")
       ssh("pool maintain -c ~/.config") # Let's set it to maintain, ey?
     end
+    def configure_master_failover
+      message "Installing secondary master failover"
+      ssh("mkdir /etc/ha.d/resource.d/")
+      scp("config/cloud_master_takeover", "/etc/ha.d/resource.d/")
+    end
     # Setup ruby on this instance
     def configure_ruby
-      master "Configuring ruby, rubygems and pool party"
+      message "Configuring ruby, rubygems and pool party"
       install_ruby unless has?("ruby -v") 
       install_rubygems unless has?("gem1.8 -v") # Install ruby and the gems required to run the master
       install_required_gems unless has?("pool -h")
@@ -80,7 +89,7 @@ module PoolParty
     end
     # Change the hostname for the instance
     def configure_linux
-      ssh("'hostname -v #{name}'") rescue message "error in setting hostname"
+      ssh("hostname -v #{name}") rescue message "error in setting hostname"
     end
     # Configure s3fs if the bucket is specified in the config.yml
     def configure_s3fuse
@@ -152,7 +161,16 @@ module PoolParty
     # Monitor the memory
     def memory
       Monitors::Memory.monitor_from_string ssh("free -m | grep -i mem") rescue 0.0
-    end    
+    end
+    def become_master
+      @master = Master.new
+      @number = 0
+      @master.nodes[0] = self
+      configure
+    end
+    def is_not_master_and_master_is_not_running?
+      !master? && !Master.is_master_responding?
+    end
     # Scp src to dest on the instance
     def scp(src="", dest="", opts={})
       `scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
@@ -180,9 +198,6 @@ module PoolParty
     end
     def mark_installed
       @stack_installed = true
-    end
-    def is_not_master_and_master_is_running?
-      
     end
     # Include the os specific tasks as specified in the application options (config.yml)
     instance_eval "include PoolParty::Os::#{Application.os.capitalize}"

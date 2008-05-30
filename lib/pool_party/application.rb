@@ -4,9 +4,7 @@
 =end
 $:.unshift File.dirname(__FILE__)
 
-module PoolParty
-  extend self
-  
+module PoolParty  
   class Application
     class << self
       
@@ -17,7 +15,7 @@ module PoolParty
       # Make the options with the config_file overrides included
       # Default config file assumed to be at config/config.yml
       def make_options(opts={})
-        load_options!
+        load_options!(opts.delete(:optsparse) || {})
         default_options.merge!(opts)
         # If the config_file options are specified and not empty
         unless default_options[:config_file].nil? || default_options[:config_file].empty?
@@ -31,9 +29,10 @@ module PoolParty
       end
 
       # Load options via commandline
-      def load_options!
+      def load_options!(opts={})
         require 'optparse'
         OptionParser.new do |op|
+          op.banner = opts[:banner] if opts[:banner]
           op.on('-A key', '--access-key key', "Ec2 access key (ENV['ACCESS_KEY'])") { |key| default_options[:access_key] = key }
           op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['SECRET_ACCESS_KEY'])") { |key| default_options[:secret_access_key] = key }
           op.on('-I ami', '--image-id id', "AMI instance (default: 'ami-4a46a323')") {|id| default_options[:ami] = id }
@@ -54,11 +53,15 @@ module PoolParty
           op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:verbose] = v}
           op.on('-i number', '--minimum-instances', "The minimum number of instances to run at all times (default 1)") {|i| default_options[:minimum_instances] = i}
           op.on('-x number', '--maximum-instances', "The maximum number of instances to run (default 3)") {|x| default_options[:maximum_instances] = x}
-
-          op.on_tail("-h", "--help", "Show this message") do |o|
-            puts "op: #{o}"
+          
+          op.on_tail("-V", "Show version") do
+            puts Application.version
             exit
-          end          
+          end
+          op.on_tail("-h", "-?", "Show this message") do
+            puts op
+            exit
+          end
         end.parse!(ARGV.dup)
       end
       
@@ -87,7 +90,7 @@ module PoolParty
           :keypair => ENV["KEYPAIR_NAME"],
           :ami => 'ami-4a46a323',
           :shared_bucket => "",
-          :services => "nginx sinatra",
+          :services => "nginx",
           :expand_when => "web_usage < 1.5\n memory_usage > 0.85",
           :contract_when => "cpu_usage < 0.20\n memory_usage < 0.10",
           :os => "ubuntu"
@@ -96,6 +99,9 @@ module PoolParty
       # Services monitored by Heartbeat
       # Always at least monitors haproxy
       def managed_services
+        "#{services}"
+      end
+      def master_managed_services
         "cloud_master_takeover #{services}"
       end
       def launching_user_data
@@ -115,6 +121,10 @@ module PoolParty
       def production?
         environment == "production"
       end
+      # Are we in test mode
+      def test?
+        environment == "test"
+      end
       def maintain_pid_path
         "/var/run/pool_maintain.pid"
       end
@@ -124,11 +134,14 @@ module PoolParty
           File.join(File.dirname(__FILE__), "../..", "config", "#{file}.conf")
         end
       end
+      def version
+        "0.0.4"
+      end
       
       # Call the options from the Application
       def method_missing(m,*args)
         options.methods.include?("#{m}") ? options.send(m,args) : super
-      end                         
+      end
     end
         
   end

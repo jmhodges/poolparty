@@ -15,4 +15,4 @@ Echoe.new("poolparty") do |p|
   p.include_rakefile = true
 end
 
-PoolParty::Tasks.new
+PoolParty.include_tasks
