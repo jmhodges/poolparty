@@ -46,6 +46,8 @@
   
   When an instance is started or brought down, the master is responsible for reloading every instance with the new data on each instance. If the master goes down, the next in succession will take over as the master (using heartbeat) and it will reconfigure the cloud, setting itself as the master and take over the maintenance of the cloud.
   
+  Your cloud is never guaranteed to be maintained, but with more than 1 instance unless you have more than 1 instance up 
+  
   Each instance has a /etc/hosts file that has each node listed as the node name listed in the cloud:list (rake task).
   
   = CloudSpeak - Communicating to your cloud(s)

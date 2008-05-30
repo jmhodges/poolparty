@@ -99,6 +99,9 @@ module PoolParty
       # Services monitored by Heartbeat
       # Always at least monitors haproxy
       def managed_services
+        "#{services}"
+      end
+      def master_managed_services
         "cloud_master_takeover #{services}"
       end
       def launching_user_data

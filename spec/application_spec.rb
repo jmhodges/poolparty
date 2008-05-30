@@ -15,7 +15,7 @@ describe "Application" do
     Application.client_port.should == 7788
   end
   it "should always have cloud_master_takeover in the managed services list" do
-    Application.managed_services.should =~ /cloud_master_takeover/
+    Application.master_managed_services.should =~ /cloud_master_takeover/
   end
   it "should be able to say it is in development mode if it is in dev mode" do
     Application.stub!(:environment).and_return("development")

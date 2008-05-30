@@ -3,8 +3,8 @@ module PoolParty
     include PoolParty # WTF -> why isn't message included
     include Callbacks
     
-    attr_reader :ip, :instance_id, :name, :number, :status, :launching_time, :stack_installed
-    attr_accessor :name
+    attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed
+    attr_accessor :name, :number
     
     def initialize(obj={})
       @ip = obj[:ip]
@@ -46,6 +46,9 @@ module PoolParty
     def master?
       @number == 0
     end
+    def secondary?
+      @number == 1
+    end
     # Let's define some stuff for monit
     %w(stop start restart).each do |cmd|
       define_method "#{cmd}_with_monit" do
@@ -57,6 +60,7 @@ module PoolParty
     def configure
       configure_ruby
       configure_master if master?
+      configure_master_failover if secondary?
       configure_linux
       configure_hosts      
       configure_haproxy
@@ -69,6 +73,11 @@ module PoolParty
       message "configuring master (#{name})"      
       ssh("ps aux | grep ruby | awk '{ print $2 }' | xargs kill -9")
       ssh("pool maintain -c ~/.config") # Let's set it to maintain, ey?
+    end
+    def configure_master_failover
+      message "Installing secondary master failover"
+      ssh("mkdir /etc/ha.d/resource.d/")
+      scp("config/cloud_master_takeover", "/etc/ha.d/resource.d/")
     end
     # Setup ruby on this instance
     def configure_ruby
@@ -152,7 +161,16 @@ module PoolParty
     # Monitor the memory
     def memory
       Monitors::Memory.monitor_from_string ssh("free -m | grep -i mem") rescue 0.0
-    end    
+    end
+    def become_master
+      @master = Master.new
+      @number = 0
+      @master.nodes[0] = self
+      configure
+    end
+    def is_not_master_and_master_is_not_running?
+      !master? && !Master.is_master_responding?
+    end
     # Scp src to dest on the instance
     def scp(src="", dest="", opts={})
       `scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
