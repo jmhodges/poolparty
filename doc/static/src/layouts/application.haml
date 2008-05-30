@@ -8,6 +8,9 @@
     <script type="text/javascript" src="/javascripts/application.js"></script>
   %body
     .container
-      %h1 Pool Party
+      .header
+        %h1 Pool Party
+        .clouds= img "clouds.png"
+      .clear
       .content
         = yield
