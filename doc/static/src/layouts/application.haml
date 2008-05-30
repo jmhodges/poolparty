@@ -1,7 +1,7 @@
 !!!
 %html
   %head
-    %title StaticMatic
+    %title Pool Party - Cloud Computing Made Easy
     <link href="/stylesheets/reset.css" media="all" rel="stylesheet" type="text/css"/>
     <link href="/stylesheets/application.css" media="all" rel="stylesheet" type="text/css"/>
     <script type="text/javascript" src="/javascripts/jquery-1.2.6.pack.js"></script>
@@ -14,10 +14,11 @@
         %h1 Pool Party
         .clouds= img "clouds.png"
         .links
-          = link 'api'
-          = link 'docs'
-          = link 'group'
+          = link 'api', '#'
+          = link 'docs', '#'
+          = link 'group', '#'
+        .clear
       .clear
       .content
         = yield
-      .cb= img "cb.png"
+      .cb= link(img("cb.png"), 'http://www.citrusbyte.com')
