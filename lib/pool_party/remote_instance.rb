@@ -89,7 +89,7 @@ module PoolParty
     end
     # Change the hostname for the instance
     def configure_linux
-      ssh("'hostname -v #{name}'") rescue message "error in setting hostname"
+      ssh("hostname -v #{name}") rescue message "error in setting hostname"
     end
     # Configure s3fs if the bucket is specified in the config.yml
     def configure_s3fuse
