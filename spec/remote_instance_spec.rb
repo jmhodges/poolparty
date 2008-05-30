@@ -122,8 +122,8 @@ describe "remote instance" do
       @instance.should_receive(:configure_s3fuse).and_return true
       @instance.should_receive(:configure_monit).and_return true
       @instance.configure
-    end
-  end
+    end    
+  end  
   describe "in failover" do
     it "should be able to become master " do
       @instance.stub!(:configure).and_return true
@@ -139,6 +139,21 @@ describe "remote instance" do
       @instance.stub!(:configure).and_return true
       @instance.become_master
       @instance.master?.should == true
+    end
+    it "should be able to detect is_not_master_and_master_is_not_running? and return false when the server is the master" do
+      @instance.is_not_master_and_master_is_not_running?.should == false
+    end
+    it "should be able to detect is_not_master_and_master_is_not_running? and return false when the master server is responding" do
+      Master.stub!(:is_master_responding?).and_return true
+      @instance.is_not_master_and_master_is_not_running?.should == false
+    end
+    it "should be able to detect is_not_master_and_master_is_not_running? and return false when the master server is responding" do
+      @instance.stub!(:master?).and_return false
+      Master.stub!(:is_master_responding?).and_return false
+      @instance.is_not_master_and_master_is_not_running?.should == true
+    end
+    it "should be able to detect if the stack_installed?" do
+      @instance.stack_installed?.should == false
     end
   end
 end
