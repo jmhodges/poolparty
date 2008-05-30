@@ -5,7 +5,7 @@ require 'pool_party'
 # Set defaults
 list = PoolParty::Optioner.parse(ARGV.dup)
 options = PoolParty.options(:optsparse => 
-  {:banner => "Usage: #{op.program_name} [OPTIONS] {start | stop | list | maintain | restart}"  })
+  {:banner => "Usage: pool [OPTIONS] {start | stop | list | maintain | restart}"  })
 master = PoolParty::Master.new
 
 case list[0]

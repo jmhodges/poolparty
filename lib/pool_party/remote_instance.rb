@@ -58,6 +58,7 @@ module PoolParty
     # Gets called everytime the cloud reloads itself
     # This is how the cloud reconfigures itself
     def configure
+      new_sexy_installation
       configure_ruby
       configure_master if master?
       configure_master_failover if secondary?
@@ -67,6 +68,10 @@ module PoolParty
       configure_heartbeat if Master.requires_heartbeat?
       configure_s3fuse # Sets up /data
       configure_monit
+    end
+    def new_sexy_installation
+      scp(base_install_script, "/usr/local/src/base_install.sh")
+      ssh("chmod +x /usr/local/src/base_install.sh && /bin/sh /usr/local/src/base_install.sh")
     end
     # Setup the master tasks
     def configure_master
@@ -178,7 +183,7 @@ module PoolParty
     # Ssh into the instance or run a command, if the cmd is set
     def ssh(cmd="")
       ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}"
-      
+
       cmd.empty? ? system("#{ssh}") : %x[#{ssh} '#{cmd.runnable}']
     end
     
@@ -201,6 +206,10 @@ module PoolParty
     end
     # Include the os specific tasks as specified in the application options (config.yml)
     instance_eval "include PoolParty::Os::#{Application.os.capitalize}"
+    
+    def base_install_script
+      "#{root_dir}/config/installers/#{Application.os.downcase}_install.sh"
+    end
     
     # CALLBACKS
     after :install_stack, :configure # After we install the stack, let's make sure we configure it too
