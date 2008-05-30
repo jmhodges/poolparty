@@ -72,7 +72,7 @@ module PoolParty
     end
     # Setup ruby on this instance
     def configure_ruby
-      master "Configuring ruby, rubygems and pool party"
+      message "Configuring ruby, rubygems and pool party"
       install_ruby unless has?("ruby -v") 
       install_rubygems unless has?("gem1.8 -v") # Install ruby and the gems required to run the master
       install_required_gems unless has?("pool -h")
