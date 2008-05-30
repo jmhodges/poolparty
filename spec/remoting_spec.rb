@@ -53,6 +53,7 @@ describe "Master remoting: " do
       @master.start_cloud!
       @master.request_launch_new_instance
       wait 0.5 # Give the two instances time to boot up
+      @master.number_of_pending_and_running_instances.should == Application.minimum_instances + 1
       @master.scale_cloud!
       @master.number_of_pending_and_running_instances.should == Application.minimum_instances
     end
