@@ -11,7 +11,7 @@ class RemoteInstance
 end
 describe "remote instance" do
   before(:each) do
-    @instance = RemoteInstance.new({:ip => "127.0.0.1"})
+    @instance = RemoteInstance.new({:ip => "127.0.0.1", :instance_id => "i-abcdef1"})
     @instance.stub!(:ssh).and_return ""
     @instance.stub!(:scp).and_return ""
     @master = Master.new
@@ -126,13 +126,38 @@ describe "remote instance" do
     describe "new configuration style (build scripts)" do
       before(:each) do
         @tempfile = Tempfile.new("/tmp")
+        Kernel.stub!(:system).and_return true
       end
       it "should try to run the scp build file" do
         Master.should_receive(:build_scp_instances_script_for).with(@instance).and_return @tempfile
         @instance.new_configure
       end
-      it "should scp the reconfigure file to the remote instance"
-      it "should ssh and execute the reconfigure file on the remote instance"
+      it "should try to run and build the reconfigure script for the node" do
+        Master.should_receive(:build_reconfigure_instances_script_for).with(@instance).and_return @tempfile
+        @instance.new_configure
+      end
+      it "should scp the reconfigure file to the remote instance" do
+        @instance.should_receive(:scp).once.and_return true
+        @instance.new_configure
+      end
+      it "should ssh and execute the reconfigure file on the remote instance" do
+        @instance.should_receive(:ssh).once.with("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh").and_return true
+        @instance.new_configure
+      end
+      describe "with a public ip" do
+        before(:each) do
+          Application.stub!(:public_ip).and_return "127.0.0.1"
+        end
+        it "should run associate_address if there is a public_ip set in the Application.options" do
+          @instance.should_receive(:associate_address_with).with(Application.public_ip, @instance.instance_id).and_return true
+          @instance.new_configure
+        end
+        it "should not run associate_address_with if the public_ip is empty" do
+          Application.stub!(:public_ip).and_return ""
+          @instance.should_not_receive(:associate_address_with)
+          @instance.new_configure
+        end
+      end
 
     end
   end  

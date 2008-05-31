@@ -29,7 +29,7 @@ module PoolParty
       message "Give some time for the instance ssh to start up"
       wait "10.seconds" unless Application.test?
       message "Configuring master"
-      get_node(0).configure
+      get_node(0).new_configure
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances
@@ -106,7 +106,7 @@ module PoolParty
     # Reconfigure the running instances
     def reconfigure_running_instances      
       nodes.each do |node|
-        node.configure if node.status =~ /running/
+        node.new_configure if node.status =~ /running/
       end
     end
     # Build the basic haproxy config file from the config file in the config directory and return a tempfile
@@ -203,21 +203,25 @@ module PoolParty
       # Build the scp script for the specific node
       def build_scp_instances_script_for(node)
         authkeys_file = write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read.strip)
-        ha_d_file = Master.build_heartbeat_config_file_for(node)
-        haresources_file = Master.build_heartbeat_resources_file_for(node)
-        haproxy_file = Master.new.build_haproxy_file        
+        if Master.requires_heartbeat?
+          ha_d_file =  Master.build_heartbeat_config_file_for(node)
+          haresources_file = Master.build_heartbeat_resources_file_for(node)
+        end
+        haproxy_file = Master.new.build_haproxy_file
         hosts_file = Master.build_hosts_file_for(node)        
                 
         str = open(Application.sh_scp_instances_script).read.strip ^ {
             :cloud_master_takeover => "#{node.scp_string("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/")}",
             :config_file => "#{node.scp_string(Application.config_file, "~/.config")}",
             :authkeys => "#{node.scp_string(authkeys_file.path, "/etc/ha.d/authkeys")}",
-            :ha_d => "#{node.scp_string(ha_d_file.path, "/etc/ha.d/ha.cf")}",
-            :haresources => "#{node.scp_string(haresources_file.path, "/etc/ha.d/ha.cf")}",
             :resources => "#{node.scp_string("#{root_dir}/config/resource.d/*", "/etc/ha.d/resource.d/", {:switches => "-r"})}",
             :monitrc => "#{node.scp_string(Application.monit_config_file, "/etc/monit/monitrc")}",
             :monit_d => "#{node.scp_string("#{File.dirname(Application.monit_config_file)}/monit/*", "/etc/monit.d/", {:switches => "-r"})}",
             :haproxy => "#{node.scp_string(haproxy_file.path, "/etc/haproxy.cfg")}",
+            
+            :ha_d => Master.requires_heartbeat? ? "#{node.scp_string(ha_d_file.path, "/etc/ha.d/ha.cf")}" : "",
+            :haresources => Master.requires_heartbeat? ? "#{node.scp_string(haresources_file.path, "/etc/ha.d/ha.cf")}" : "",
+            
             :hosts => "#{node.scp_string(hosts_file.path, "/etc/hosts")}"
           }
         write_to_temp_file(str)
@@ -225,7 +229,8 @@ module PoolParty
       # Build basic configuration script for the node
       def build_reconfigure_instances_script_for(node)
         str = open(Application.sh_reconfigure_instances_script).read.strip ^ {
-          :config_master => "pool maintain -c ~/.config",
+          :config_master => "",
+          :start_pool_maintain => "pool maintain -c ~/.config",
           :set_hostname => "hostname -v #{node.name}",
           :start_s3fs => "/usr/bin/s3fs #{Application.shared_bucket} -ouse_cache=/tmp -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data"
         }

@@ -46,6 +46,7 @@ module PoolParty
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
           op.on('-O os', '--os os', "Configure for os (default: ubuntu)") { |os| default_options[:os] = os }          
           op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
+          op.on('-a address', '--public-ip address', "Associate this public address with the master node") {|s| default_options[:public_ip] = s}
           op.on('-s size', '--size size', "Run specific sized instance") {|s| default_options[:size] = s}
           op.on('-u username', '--username name', "Login with the user (default: root)") {|s| default_options[:user] = s}
           op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:user_data] = data }
@@ -82,6 +83,7 @@ module PoolParty
           :light_load => 0.15,
           :minimum_instances => 2,
           :maximum_instances => 4,
+          :public_ip => "",
           :access_key => ENV["ACCESS_KEY"],
           :secret_access_key => ENV["SECRET_ACCESS_KEY"],
           :config_file => ((ENV["CONFIG_FILE"] && ENV["CONFIG_FILE"].empty?) ? "config/config.yml" : ENV["CONFIG_FILE"]),

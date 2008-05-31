@@ -1,7 +1,9 @@
 require File.dirname(__FILE__) + '/spec_helper'
+require File.dirname(__FILE__) + "/helpers/ec2_mock"
 
 describe "Master remoting: " do
   before(:each) do
+    Kernel.stub!(:system).and_return true
     Application.stub!(:environment).and_return("test") # So it doesn't daemonize
     Application.stub!(:minimum_instances).and_return(2)
     Application.stub!(:maximum_instances).and_return(10)
@@ -62,7 +64,7 @@ describe "Master remoting: " do
     it "should call configure on all of the nodes when calling reconfigure_running_instances" do
       @master.nodes.each {|a| 
         a.stub!(:status).and_return("running")
-        a.should_receive(:configure).and_return true 
+        a.should_receive(:new_configure).and_return true 
       }
       @master.reconfigure_running_instances
     end    

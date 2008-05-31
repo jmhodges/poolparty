@@ -24,6 +24,9 @@ module PoolParty
       def terminate_instance!(instance_id)
         ec2.terminate_instances(:instance_id => instance_id)
       end
+      def associate_address_with(ip, instance_id)
+        ec2.associate_address(:instance_id => instance_id, :public_ip => ip)
+      end
       # Instance description
       def describe_instance(id)
         instance = ec2.describe_instances(:instance_id => id)

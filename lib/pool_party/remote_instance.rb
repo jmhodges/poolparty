@@ -74,8 +74,9 @@ module PoolParty
     # then it will compile a list of the commands to operate on the instance
     # and execute it
     def new_configure
+      associate_public_ip
       file = Master.build_scp_instances_script_for(self)
-      `chmod +x #{file.path} && /bin/sh #{file.path}`
+      Kernel.system("chmod +x #{file.path} && /bin/sh #{file.path}")
       
       file = Master.build_reconfigure_instances_script_for(self)
       scp(file.path, "/usr/local/src/reconfigure.sh")
@@ -84,6 +85,9 @@ module PoolParty
     def new_sexy_installation
       scp(base_install_script, "/usr/local/src/base_install.sh")
       ssh("chmod +x /usr/local/src/base_install.sh && /bin/sh /usr/local/src/base_install.sh")
+    end
+    def associate_public_ip
+      associate_address_with(Application.public_ip, @instance_id) if master? && Application.public_ip && !Application.public_ip.empty?
     end
     # Setup the master tasks
     def configure_master

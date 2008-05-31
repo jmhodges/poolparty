@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Start this instance's master maintain script
+# Reconfigure master
 :config_master
+# Start this instance's master maintain script
+:start_pool_maintain
 # Make the ha.d/resource.d
 mkdir /etc/ha.d/resource.d/
 # Set this hostname as appropriate in the cloud
