@@ -199,6 +199,21 @@ module PoolParty
       def build_hosts_file_for(node)
         new.build_hosts_file_for(node)
       end
+      def build_scp_instances_script_for(node)
+        str = open(Application.haproxy_config_file).read.strip ^ {
+            :cloud_master_takeover => "#{node.scp_string("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/")}"
+            :config_file => "#{node.scp_string(Application.config_file, "~/.config")}"
+            :authkeys => "#{}"
+            :ha_d
+            :haresources
+            :resources
+            :monitrc
+            :monit_d
+            :haproxy
+            :hosts
+          }
+        write_to_temp_file(str)
+      end
       def write_to_temp_file(str="")
         tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
         tempfile.print(str)
