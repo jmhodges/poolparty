@@ -53,10 +53,10 @@
   = CloudSpeak - Communicating to your cloud(s)
   Binaries!
   Included in PoolParty are two binaries to communicate back with your clouds. Those are:
-  = pool - operate on your pool. This includes list, start, stop maintain, restart. Check the help with
-    pool -h
-  = instance - operate on a specific instance. This allos you to ssh, scp, reload, install as well. Check the help with:
-    instance -h
+    pool - operate on your pool. This includes list, start, stop maintain, restart. Check the help with
+      pool -h
+    instance - operate on a specific instance. This allos you to ssh, scp, reload, install as well. Check the help with:
+      instance -h
   
   The cloud can be maintained entirely through rake tasks, although there are a few front-ends being developed (one in cocoa). 
   It is simple to include these tasks in your Rakefile. Just add the following lines:
@@ -84,13 +84,16 @@
   gem install pool_party
 
 == ROADMAP
-* v0.1.0 - Add SQS task support
-* v0.2.0 - Callback support
+* v0.0.6 - Speed the configuration on the instances
+* v0.0.7 - Add SQS task support
+* v0.0.8 - Callback support
 
 == THANKS
 
+Ron Evans, http://deadprogrammersociety.blogspot.com/ for his enthusiasm
 Tim Goh, http://citrusbyte.com for sanity checks and thoughts
-Daniel Fischer, http://citrusbyte.com for site design
+Daniel Fischer, http://citrusbyte.com for initial site design
+
 == LICENSE:
 
 (The MIT License)

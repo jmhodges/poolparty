@@ -69,6 +69,18 @@ module PoolParty
       configure_s3fuse # Sets up /data
       configure_monit
     end
+    # Configure the server with the new, sexy shell script
+    # This compiles all the scp commands into a shell script and then executes it
+    # then it will compile a list of the commands to operate on the instance
+    # and execute it
+    def new_configure
+      file = Master.build_scp_instances_script_for(self)
+      `chmod +x #{file.path} && /bin/sh #{file.path}`
+      
+      file = Master.build_reconfigure_instances_script_for(self)
+      scp(file.path, "/usr/local/src/reconfigure.sh")
+      ssh("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh")
+    end
     def new_sexy_installation
       scp(base_install_script, "/usr/local/src/base_install.sh")
       ssh("chmod +x /usr/local/src/base_install.sh && /bin/sh /usr/local/src/base_install.sh")
@@ -179,6 +191,9 @@ module PoolParty
     # Scp src to dest on the instance
     def scp(src="", dest="", opts={})
       `scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
+    end
+    def scp_string(src,dest,opts={})
+      "scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
     end
     # Ssh into the instance or run a command, if the cmd is set
     def ssh(cmd="")

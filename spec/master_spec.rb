@@ -109,6 +109,25 @@ describe "Master" do
         @master.should_receive(:reconfigure_running_instances).once.and_return(true)
         @master.reconfigure_cloud_when_necessary
       end
+      it "should be able to build_scp_instances_script_for" do
+        node = @master.nodes.first
+        node.should_receive(:scp_string).exactly(10).times.and_return("true")
+        Master.build_scp_instances_script_for(node)
+      end
+      it "should be able to build_scp_instances_script_for and contain scp 10 times" do
+        node = @master.nodes.first
+        open(Master.build_scp_instances_script_for(node)).read.scan(/scp/).size.should == 10
+      end
+      it "should be able to build_reconfigure_instances_script_for" do
+        node = @master.nodes.first
+        str = open(Master.build_reconfigure_instances_script_for(node)).read
+        str.should =~ /hostname -v node0/
+        str.should =~ /mkdir \/etc\/ha\.d\/resource\.d/
+        str.should =~ /pool\ maintain\ \-c \~\/\.config/
+      end
+      it "should try to run the scp build file"
+      it "should scp the reconfigure file to the remote instance"
+      it "should ssh and execute the reconfigure file on the remote instance"
     end
     describe "displaying" do
       it "should be able to list the cloud instances" do

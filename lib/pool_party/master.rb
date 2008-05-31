@@ -196,24 +196,42 @@ module PoolParty
         return nil unless node
         write_to_temp_file("#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}")
       end
+      # Build hosts files for a specific node
       def build_hosts_file_for(node)
         new.build_hosts_file_for(node)
       end
+      # Build the scp script for the specific node
       def build_scp_instances_script_for(node)
-        str = open(Application.haproxy_config_file).read.strip ^ {
-            :cloud_master_takeover => "#{node.scp_string("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/")}"
-            :config_file => "#{node.scp_string(Application.config_file, "~/.config")}"
-            :authkeys => "#{}"
-            :ha_d
-            :haresources
-            :resources
-            :monitrc
-            :monit_d
-            :haproxy
-            :hosts
+        authkeys_file = write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read.strip)
+        ha_d_file = Master.build_heartbeat_config_file_for(node)
+        haresources_file = Master.build_heartbeat_resources_file_for(node)
+        haproxy_file = Master.new.build_haproxy_file        
+        hosts_file = Master.build_hosts_file_for(node)        
+                
+        str = open(Application.sh_scp_instances_script).read.strip ^ {
+            :cloud_master_takeover => "#{node.scp_string("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/")}",
+            :config_file => "#{node.scp_string(Application.config_file, "~/.config")}",
+            :authkeys => "#{node.scp_string(authkeys_file.path, "/etc/ha.d/authkeys")}",
+            :ha_d => "#{node.scp_string(ha_d_file.path, "/etc/ha.d/ha.cf")}",
+            :haresources => "#{node.scp_string(haresources_file.path, "/etc/ha.d/ha.cf")}",
+            :resources => "#{node.scp_string("#{root_dir}/config/resource.d/*", "/etc/ha.d/resource.d/", {:switches => "-r"})}",
+            :monitrc => "#{node.scp_string(Application.monit_config_file, "/etc/monit/monitrc")}",
+            :monit_d => "#{node.scp_string("#{File.dirname(Application.monit_config_file)}/monit/*", "/etc/monit.d/", {:switches => "-r"})}",
+            :haproxy => "#{node.scp_string(haproxy_file.path, "/etc/haproxy.cfg")}",
+            :hosts => "#{node.scp_string(hosts_file.path, "/etc/hosts")}"
           }
         write_to_temp_file(str)
       end
+      # Build basic configuration script for the node
+      def build_reconfigure_instances_script_for(node)
+        str = open(Application.sh_reconfigure_instances_script).read.strip ^ {
+          :config_master => "pool maintain -c ~/.config",
+          :set_hostname => "hostname -v #{node.name}",
+          :start_s3fs => "/usr/bin/s3fs #{Application.shared_bucket} -ouse_cache=/tmp -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data"
+        }
+        write_to_temp_file(str)        
+      end
+      # Write a temp file with the content str
       def write_to_temp_file(str="")
         tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
         tempfile.print(str)

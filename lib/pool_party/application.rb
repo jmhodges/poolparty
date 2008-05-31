@@ -128,6 +128,11 @@ module PoolParty
       def maintain_pid_path
         "/var/run/pool_maintain.pid"
       end
+      %w(scp_instances_script reconfigure_instances_script).each do |file|
+        define_method "sh_#{file}" do
+          File.join(File.dirname(__FILE__), "../..", "config", "#{file}.sh")
+        end
+      end
       # Standard configuration files
       %w(haproxy monit heartbeat heartbeat_authkeys).each do |file|
         define_method "#{file}_config_file" do

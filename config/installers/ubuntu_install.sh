@@ -7,13 +7,11 @@ apt-get -y install build-essential
 
 # Install ruby
 echo 'Installing ruby...'
-if [[ which ruby | grep -v "bin" ]]; then
-  apt-get -y install ruby1.8-dev ruby1.8 ri1.8 rdoc1.8 irb1.8 libreadline-ruby1.8 libruby1.8
-  ln -sf /usr/bin/ruby1.8 /usr/local/bin/ruby
-  ln -sf /usr/bin/ri1.8 /usr/local/bin/ri
-  ln -sf /usr/bin/rdoc1.8 /usr/local/bin/rdoc
-  ln -sf /usr/bin/irb1.8 /usr/local/bin/irb  
-fi
+apt-get -y install ruby1.8-dev ruby1.8 ri1.8 rdoc1.8 irb1.8 libreadline-ruby1.8 libruby1.8
+ln -sf /usr/bin/ruby1.8 /usr/local/bin/ruby
+ln -sf /usr/bin/ri1.8 /usr/local/bin/ri
+ln -sf /usr/bin/rdoc1.8 /usr/local/bin/rdoc
+ln -sf /usr/bin/irb1.8 /usr/local/bin/irb
 
 # Install rubygems
 echo '-- Installing Rubygems'
