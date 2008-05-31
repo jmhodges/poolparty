@@ -6,6 +6,7 @@ module PoolParty
         # Save the old method
         if method_defined?("#{type}_#{m}".to_sym)
           puts "method already defined"
+          undef_method("#{type}_#{m}".to_sym)
         end
                 
         case type

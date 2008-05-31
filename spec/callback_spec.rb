@@ -61,5 +61,7 @@ describe "Multiple callbacks" do
   before(:each) do
     @klass = TestMultipleCallbacks.new
   end
-  it "should be able to have multiple callbacks on the same call"
+  it "should be able to have multiple callbacks on the same call" do
+    @klass.world
+  end
 end
