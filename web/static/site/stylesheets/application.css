@@ -19,7 +19,8 @@ h2 {
   padding-bottom: 20px; }
 
 a {
-  text-decoration: none; }
+  text-decoration: none;
+  z-index: 900; }
 
 strong, a, code {
   color: #f55321; }
@@ -46,21 +47,32 @@ p {
   background-color: #fff;
   padding: 20px;
   padding-top: 70px;
-  margin-top: -26px;
-  z-index: -1; }
+  margin-top: -26px; }
 
 .tout {
   padding-bottom: 20px; }
 
-.header * {
-  float: left; }
-
-.clouds {
-  padding-top: 15px; }
+.header {
+  position: relative;
+  width: 800px;
+  height: 40px;
+  margin-bottom: 40px; }
+  .header h1, .header .clouds {
+    float: left; }
+  .header h1 {
+    z-index: 1;
+    position: absolute; }
+  .header .clouds {
+    padding-top: 15px;
+    position: absolute;
+    left: 280px;
+    z-index: 1; }
 
 .links {
-  float: right;
-  padding-top: 40px; }
+  position: absolute;
+  z-index: 1;
+  margin-top: 45px;
+  right: 0px; }
   .links a {
     padding-right: 10px; }
 
@@ -72,3 +84,7 @@ p {
 .cb {
   float: right;
   padding-top: 10px; }
+
+.amp {
+  font-family: "Goudy Old Style", "Palatino", "Book Antiqua", serif;
+  color: #666; }
