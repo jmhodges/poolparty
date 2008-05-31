@@ -122,7 +122,19 @@ describe "remote instance" do
       @instance.should_receive(:configure_s3fuse).and_return true
       @instance.should_receive(:configure_monit).and_return true
       @instance.configure
-    end    
+    end
+    describe "new configuration style (build scripts)" do
+      before(:each) do
+        @tempfile = Tempfile.new("/tmp")
+      end
+      it "should try to run the scp build file" do
+        Master.should_receive(:build_scp_instances_script_for).with(@instance).and_return @tempfile
+        @instance.new_configure
+      end
+      it "should scp the reconfigure file to the remote instance"
+      it "should ssh and execute the reconfigure file on the remote instance"
+
+    end
   end  
   describe "in failover" do
     it "should be able to become master " do
