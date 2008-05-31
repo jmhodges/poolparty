@@ -1,7 +1,7 @@
 module PoolParty
   module Callbacks
     module ClassMethods      
-      attr_accessor :callbacks
+      attr_reader :callbacks
       def define_callback_module(mod)
         (@callbacks ||= []) << mod
       end
