@@ -82,10 +82,12 @@ module PoolParty
       scp(file.path, "/usr/local/src/reconfigure.sh")
       ssh("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh")
     end
+    # Installs with one commandline and an scp, rather than 10
     def new_sexy_installation
       scp(base_install_script, "/usr/local/src/base_install.sh")
       ssh("chmod +x /usr/local/src/base_install.sh && /bin/sh /usr/local/src/base_install.sh")
     end
+    # Associate a public ip if it is set and this is the master
     def associate_public_ip
       associate_address_with(Application.public_ip, @instance_id) if master? && Application.public_ip && !Application.public_ip.empty?
     end

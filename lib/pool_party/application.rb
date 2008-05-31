@@ -92,7 +92,7 @@ module PoolParty
           :keypair => ENV["KEYPAIR_NAME"],
           :ami => 'ami-4a46a323',
           :shared_bucket => "",
-          :services => "nginx",
+          :services => "",
           :expand_when => "web_usage < 1.5\n memory_usage > 0.85",
           :contract_when => "cpu_usage < 0.20\n memory_usage < 0.10",
           :os => "ubuntu"
