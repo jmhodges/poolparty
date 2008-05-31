@@ -20,6 +20,7 @@ h2
   :padding-bottom 20px
 a
   :text-decoration none
+  :z-index 900
   
 strong, a, code
   :color #f55321
@@ -47,18 +48,29 @@ p
   :padding 20px
   :padding-top 70px
   :margin-top -26px
-  :z-index -1
-  
 .tout
   :padding-bottom 20px
   
-.header *
-  :float left
-.clouds
-  :padding-top 15px
+.header
+  :position relative
+  :width 800px
+  :height 40px
+  :margin-bottom 40px
+  h1, .clouds
+    :float left
+  h1
+    :z-index 1
+    :position absolute
+  .clouds
+    :padding-top 15px
+    :position absolute
+    :left 280px
+    :z-index 1
 .links
-  :float right
-  :padding-top 40px
+  :position absolute
+  :z-index 1
+  :margin-top 45px
+  :right 0px
   a
     :padding-right 10px
     

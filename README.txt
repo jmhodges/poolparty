@@ -90,7 +90,7 @@
 == THANKS
 
 Tim Goh, http://citrusbyte.com for sanity checks and thoughts
-
+Daniel Fischer, http://citrusbyte.com for site design
 == LICENSE:
 
 (The MIT License)
