@@ -3,6 +3,7 @@ bin/pool
 CHANGELOG
 config/cloud_master_takeover
 config/config.yml
+config/configures/total_reconfigure.sh
 config/create_proxy_ami.sh
 config/haproxy.conf
 config/heartbeat.conf
