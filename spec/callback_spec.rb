@@ -12,7 +12,7 @@ class TestCallbacks
   def thanks
     string << ", thank you"
   end
-  before :world, :hello
+  before :world, :hello  # before_world
   after :world, :thanks
   def pop
     string << "pop"
@@ -54,12 +54,14 @@ class TestMultipleCallbacks
   def string
     @str ||= String.new
   end
-  before :world, :hi
   before :world, :hello
+  before :world, :hi
 end
 describe "Multiple callbacks" do
   before(:each) do
     @klass = TestMultipleCallbacks.new
   end
-  it "should be able to have multiple callbacks on the same call"
+  it "should be able to have multiple callbacks on the same call" do
+    @klass.world.should == "hi, hello world"
+  end
 end

@@ -1,18 +1,17 @@
 module PoolParty
   module Callbacks
-    module ClassMethods
+    module ClassMethods      
+      attr_reader :callbacks
+      def define_callback_module(mod)
+        (@callbacks ||= []) << mod
+      end
+      
       def callback(type,m,e,*args, &block)
         
-        # Save the old method
-        if method_defined?("#{type}_#{m}".to_sym)
-          puts "method already defined"
-          undef_method("#{type}_#{m}".to_sym)
-        end
-                
         case type
         when :before          
           str=<<-EOD
-            def #{type}_#{m}
+            def #{m}              
               #{e}              
               yield if block_given?
               super
@@ -20,7 +19,7 @@ module PoolParty
           EOD
         when :after
           str=<<-EOD
-            def #{type}_#{m}
+            def #{m}
               super
               yield if block_given?
               #{e}
@@ -28,14 +27,9 @@ module PoolParty
           EOD
         end
                 
-        mMod = Module.new {eval str}
-        
-        module_eval %{alias_method :#{type}_#{m}, :#{m}}
-        
-        self.send :define_method, "#{m}".to_sym, Proc.new {
-          extend(mMod)
-          method("#{type}_#{m}".to_sym).call
-        }
+        mMode = Module.new {eval str}
+                
+        define_callback_module(mMode)
       end
       def before(m,e,*args, &block)
         callback(:before,m,e,*args, &block)
@@ -45,7 +39,12 @@ module PoolParty
       end
     end
     
-    module InstanceMethods            
+    module InstanceMethods
+      def initialize
+        self.class.callbacks.each do |mod|
+          self.extend(mod)
+        end
+      end
     end
     
     def self.included(receiver)
