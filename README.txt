@@ -73,11 +73,10 @@
   For more help, check http://poolpartyrb.com 
 
 == REQUIREMENTS:
-  * yaml
   * aws/s3
+  * SQS
   * aska
   * EC2
-  * fastthread
 
 == INSTALL:
 

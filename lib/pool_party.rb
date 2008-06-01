@@ -61,6 +61,7 @@ module PoolParty
   def include_cloud_tasks
     Tasks.new
   end
+  
   alias_method :tasks, :include_cloud_tasks
   alias_method :include_tasks, :include_cloud_tasks
 end

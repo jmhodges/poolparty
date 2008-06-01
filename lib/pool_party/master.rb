@@ -5,6 +5,7 @@ require "aska"
 module PoolParty
   class Master < Remoting
     include Aska
+    include Callbacks
     
     def initialize
       super

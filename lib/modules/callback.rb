@@ -3,17 +3,25 @@ module PoolParty
     module ClassMethods      
       attr_reader :callbacks
       def define_callback_module(mod)
-        (@callbacks ||= []) << mod
+        callbacks << mod
       end
-      
-      def callback(type,m,e,*args, &block)
+      def callbacks
+        @callbacks ||= []
+      end
+      def callback(type,m,e,opts={})
+        other = if opts[:class]
+          "#{opts[:class]}.send :#{e}" 
+        elsif opts[:instance]
+          "#{instance_variable_get(opts[:instance]).send :"#{e}" }" 
+        else 
+          "#{e}"
+        end
         
         case type
         when :before          
           str=<<-EOD
             def #{m}              
-              #{e}              
-              yield if block_given?
+              #{other}
               super
             end
           EOD
@@ -21,26 +29,26 @@ module PoolParty
           str=<<-EOD
             def #{m}
               super
-              yield if block_given?
-              #{e}
+              #{other}
             end
           EOD
         end
-                
+        
         mMode = Module.new {eval str}
                 
         define_callback_module(mMode)
       end
-      def before(m,e,*args, &block)
-        callback(:before,m,e,*args, &block)
+      def before(m, e, opts={}, *args)
+        callback(:before, m, e, opts, *args)
       end
-      def after(m,e,*args, &block)
-        callback(:after,m,e,*args,&block)
+      def after(m, e, opts={}, *args)
+        callback(:after, m, e, opts, *args)
       end
     end
     
     module InstanceMethods
       def initialize
+        return true if self.class.callbacks.empty?
         self.class.callbacks.each do |mod|
           self.extend(mod)
         end

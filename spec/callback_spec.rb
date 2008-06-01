@@ -3,6 +3,10 @@ require File.dirname(__FILE__) + '/spec_helper'
 class TestCallbacks
   include Callbacks
   attr_reader :str
+  
+  before :world, :hello
+  after :world, :thanks
+  
   def hello
     string << "hello "
   end
@@ -12,15 +16,13 @@ class TestCallbacks
   def thanks
     string << ", thank you"
   end
-  before :world, :hello  # before_world
-  after :world, :thanks
+  after :pop, :boom
   def pop
     string << "pop"
   end
   def boom
     string << " goes boom"
-  end  
-  after :pop, :boom
+  end    
   def string
     @str ||= String.new
   end
@@ -63,5 +65,41 @@ describe "Multiple callbacks" do
   end
   it "should be able to have multiple callbacks on the same call" do
     @klass.world.should == "hi, hello world"
+  end
+end
+class TestOutsideClass
+  include Callbacks
+  before :world, :hello, :class => "OutsideClass"
+  def world
+    "world"
+  end
+end
+class OutsideClass
+  def hello
+    puts "hello"
+  end
+end
+describe "Options" do
+  before(:each) do
+    @c = TestOutsideClass.new
+  end
+  it "should be able to pass external class options to the callback" do
+    OutsideClass.should_receive(:hello).and_return "hello"
+    @c.world
+  end
+end
+class EvalClass
+  include Callbacks
+  def world
+    "world"
+  end
+end
+describe "Eval'd outside the the class" do
+  it "should be able to eval outside of the class" do
+    @oc = OutsideClass.new
+    class EvalClass
+      before :world, :hello, :instance => '@oc'
+    end
+    EvalClass.new.world.should == "world"
   end
 end
