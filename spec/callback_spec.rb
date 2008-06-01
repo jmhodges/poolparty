@@ -75,7 +75,7 @@ class TestOutsideClass
   end
 end
 class OutsideClass
-  def hello
+  def self.hello
     puts "hello"
   end
 end
@@ -86,20 +86,5 @@ describe "Options" do
   it "should be able to pass external class options to the callback" do
     OutsideClass.should_receive(:hello).and_return "hello"
     @c.world
-  end
-end
-class EvalClass
-  include Callbacks
-  def world
-    "world"
-  end
-end
-describe "Eval'd outside the the class" do
-  it "should be able to eval outside of the class" do
-    @oc = OutsideClass.new
-    class EvalClass
-      before :world, :hello, :instance => '@oc'
-    end
-    EvalClass.new.world.should == "world"
   end
 end

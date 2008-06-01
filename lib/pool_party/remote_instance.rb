@@ -1,12 +1,19 @@
 module PoolParty
   class RemoteInstance
-    include PoolParty # WTF -> why isn't message included
+    include PoolParty
     include Callbacks
     
     attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed
     attr_accessor :name, :number
     
+    # CALLBACKS
+    before :configure, :mark_installed # We want to make sure
+    after :install, :configure # After we install the stack, let's make sure we configure it too
+    after :configure, :restart_with_monit # Anytime we configure the server, we want the server to restart it's services
+    
     def initialize(obj={})
+      super
+      
       @ip = obj[:ip]
       @instance_id = obj[:instance_id]      
       @name = obj[:name] || "node"
@@ -55,25 +62,12 @@ module PoolParty
         ssh("monit #{cmd} all")
       end
     end
-    # Gets called everytime the cloud reloads itself
-    # This is how the cloud reconfigures itself
-    def configure
-      new_sexy_installation
-      configure_ruby
-      configure_master if master?
-      configure_master_failover if secondary?
-      configure_linux
-      configure_hosts      
-      configure_haproxy
-      configure_heartbeat if Master.requires_heartbeat?
-      configure_s3fuse # Sets up /data
-      configure_monit
-    end
     # Configure the server with the new, sexy shell script
     # This compiles all the scp commands into a shell script and then executes it
     # then it will compile a list of the commands to operate on the instance
     # and execute it
-    def new_configure
+    # This is how the cloud reconfigures itself
+    def configure
       associate_public_ip
       file = Master.build_scp_instances_script_for(self)
       Kernel.system("chmod +x #{file.path} && /bin/sh #{file.path}")
@@ -83,94 +77,13 @@ module PoolParty
       ssh("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh")
     end
     # Installs with one commandline and an scp, rather than 10
-    def new_sexy_installation
+    def install
       scp(base_install_script, "/usr/local/src/base_install.sh")
       ssh("chmod +x /usr/local/src/base_install.sh && /bin/sh /usr/local/src/base_install.sh")
     end
     # Associate a public ip if it is set and this is the master
     def associate_public_ip
       associate_address_with(Application.public_ip, @instance_id) if master? && Application.public_ip && !Application.public_ip.empty?
-    end
-    # Setup the master tasks
-    def configure_master
-      message "configuring master (#{name})"      
-      ssh("ps aux | grep ruby | awk '{ print $2 }' | xargs kill -9")
-      ssh("pool maintain -c ~/.config") # Let's set it to maintain, ey?
-    end
-    def configure_master_failover
-      message "Installing secondary master failover"
-      ssh("mkdir /etc/ha.d/resource.d/")
-      scp("config/cloud_master_takeover", "/etc/ha.d/resource.d/")
-    end
-    # Setup ruby on this instance
-    def configure_ruby
-      message "Configuring ruby, rubygems and pool party"
-      install_ruby unless has?("ruby -v") 
-      install_rubygems unless has?("gem1.8 -v") # Install ruby and the gems required to run the master
-      install_required_gems unless has?("pool -h")
-      scp(Application.config_file, "~/.config")
-    end
-    # Change the hostname for the instance
-    def configure_linux
-      ssh("hostname -v #{name}") rescue message "error in setting hostname"
-    end
-    # Configure s3fs if the bucket is specified in the config.yml
-    def configure_s3fuse
-      message("Configuring s3fuse")
-      
-      unless Application.shared_bucket.empty?
-        install_s3fuse unless ssh("s3fs -v") =~ /missing\ bucket/
-        ssh("/usr/bin/s3fs #{Application.shared_bucket} -ouse_cache=/tmp -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data")
-      end
-    end
-    # Configure heartbeat only if there is enough servers
-    def configure_heartbeat
-      message "Configuring heartbeat"
-      install_heartbeat unless has?("/etc/init.d/heartbeat")
-      
-      file = write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read.strip)
-      scp(file.path, "/etc/ha.d/authkeys")
-      
-      file = Master.build_heartbeat_config_file_for(self)
-      scp(file.path, "/etc/ha.d/ha.cf")
-      
-      file = Master.build_heartbeat_resources_file_for(self)
-      scp(file.path, "/etc/ha.d/haresources")
-      
-      message "Installing services in config/resouce.d"
-      ssh("mkdir /etc/ha.d/resource.d/")
-      scp("config/resource.d/*", "/etc/ha.d/resource.d/", {:switches => "-r"})
-      
-      ssh("/etc/init.d/heartbeat start")
-    end
-    # Some configures for monit
-    def configure_monit
-      message "Configuring monit"
-      install_monit unless has?("monit -V")
-      
-      scp(Application.monit_config_file, "/etc/monit/monitrc")
-      ssh("mkdir /etc/monit.d")
-      scp("#{File.dirname(Application.monit_config_file)}/monit/*", "/etc/monit.d/", {:switches => "-r"})
-    end
-    # Configure haproxy
-    def configure_haproxy
-      message "Configuring haproxy"
-      install_haproxy unless has?("haproxy")
-      
-      file = Master.new.build_haproxy_file
-      scp(file.path, "/etc/haproxy.cfg")
-    end
-    # Configure the hosts for the linux file
-    def configure_hosts
-      message "Configuring hosts"
-      file = Master.build_hosts_file_for(self)
-      scp(file.path, "/etc/hosts") rescue message("Error in uploading new /etc/hosts file")
-    end
-    # Restart all services with monit
-    # Send a generic version command to test if the stdout contains
-    # any information to test if the software is on the instance
-    def has?(str)
-      !ssh("#{str} -v").empty?
     end
     # MONITORS
     # Monitor the number of web requests that can be accepted at a time
@@ -231,10 +144,5 @@ module PoolParty
     def base_install_script
       "#{root_dir}/config/installers/#{Application.os.downcase}_install.sh"
     end
-    
-    # CALLBACKS
-    after :install_stack, :configure # After we install the stack, let's make sure we configure it too
-    before :configure, :mark_installed # We want to make sure
-    after :configure, :restart_with_monit # Anytime we configure the server, we want the server to restart it's services
   end
 end

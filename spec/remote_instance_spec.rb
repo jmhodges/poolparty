@@ -12,8 +12,10 @@ end
 describe "remote instance" do
   before(:each) do
     @instance = RemoteInstance.new({:ip => "127.0.0.1", :instance_id => "i-abcdef1"})
-    @instance.stub!(:ssh).and_return ""
-    @instance.stub!(:scp).and_return ""
+    @instance.stub!(:ssh).and_return true
+    @instance.stub!(:scp).and_return true
+    Kernel.stub!(:system).and_return true
+    
     @master = Master.new
   end
   
@@ -46,83 +48,17 @@ describe "remote instance" do
     it "should be able to build a haproxy_entry" do
       @instance.haproxy_entry.should =~ /server/
     end
-    it "should call configure after it calls install_stack" do
-      @instance.should_receive(:configure).once.and_return(true)
-      @instance.install_stack
-    end
-    it "should call restart_with_monit after it calls configure" do
-      @instance.should_receive(:restart_with_monit).once.and_return(true)
-      @instance.configure
+    describe "callbacks" do
+      it "should call configure after it calls install" do
+        @instance.should_receive(:configure).once.and_return(true)
+        @instance.install
+      end
+      it "should call restart_with_monit after it calls configure" do
+        @instance.should_receive(:restart_with_monit).once.and_return(true)
+        @instance.configure
+      end
     end
   end
-  describe "configuration" do
-    it "should be able to configure_ruby" do
-      @instance.should_receive(:install_ruby).and_return true
-      @instance.should_receive(:install_rubygems).and_return true
-      @instance.should_receive(:install_required_gems).and_return true
-      @instance.configure_ruby.should == ""
-    end
-    it "should be able to configure_master" do
-      @instance.should_receive(:ssh).with("pool maintain -c ~/.config").and_return true
-      @instance.configure_master
-    end
-    it "should be able to build configure_master_failover" do
-      @instance.should_receive(:ssh).with("mkdir /etc/ha.d/resource.d/").and_return true
-      @instance.configure_master_failover
-    end
-    it "should be able to configure_linux" do
-      @instance.should_receive(:ssh).with("hostname -v node0").and_return true
-      @instance.configure_linux
-    end
-    it "should be able to configure_hosts" do
-      file = Tempfile.new("/tmp")
-      Master.should_receive(:build_hosts_file_for).with(@instance).and_return file
-      @instance.should_receive(:scp).and_return true
-      @instance.configure_hosts
-    end
-    it "should be able to configure_haproxy" do
-      @instance.should_receive(:install_haproxy).and_return true
-      @instance.should_receive(:scp).and_return true
-      @instance.configure_haproxy
-    end
-    it "should be able to configure_heartbeat" do
-      file = Tempfile.new("/tmp")
-      @instance.should_receive(:install_heartbeat).and_return true
-      @instance.should_receive(:write_to_temp_file).and_return file
-      
-      Master.should_receive(:build_heartbeat_config_file_for).and_return file
-      Master.should_receive(:build_heartbeat_resources_file_for).and_return file
-      
-      @instance.should_receive(:ssh).with("mkdir /etc/ha.d/resource.d/").and_return true
-      @instance.should_receive(:ssh).with("/etc/init.d/heartbeat start").and_return true
-      
-      @instance.configure_heartbeat
-    end
-    it "should be able to configure_s3fuse" do
-      Application.should_receive(:shared_bucket).twice.and_return "test_bucketz"
-      @instance.should_receive(:install_s3fuse).and_return true
-      @instance.should_receive(:ssh).at_least(1).and_return true
-      @instance.configure_s3fuse
-    end
-    it "should be able to configure_monit" do
-      @instance.should_receive(:install_monit).and_return true
-      @instance.should_receive(:ssh).with("mkdir /etc/monit.d").and_return true
-      @instance.should_receive(:scp).twice.and_return true
-      @instance.configure_monit
-    end
-    it "should be able to configure the stack" do
-      @instance.should_receive(:configure_ruby).and_return true
-      @instance.should_receive(:configure_master).and_return true
-      @instance.should_not_receive(:configure_master_failover)
-      @instance.should_receive(:configure_linux).and_return true
-      @instance.should_receive(:configure_hosts).and_return true
-      @instance.should_receive(:configure_haproxy).and_return true
-      Master.should_receive(:requires_heartbeat?).and_return true
-      @instance.should_receive(:configure_heartbeat).and_return true
-      @instance.should_receive(:configure_s3fuse).and_return true
-      @instance.should_receive(:configure_monit).and_return true
-      @instance.configure
-    end
     describe "new configuration style (build scripts)" do
       before(:each) do
         @tempfile = Tempfile.new("/tmp")
@@ -130,19 +66,19 @@ describe "remote instance" do
       end
       it "should try to run the scp build file" do
         Master.should_receive(:build_scp_instances_script_for).with(@instance).and_return @tempfile
-        @instance.new_configure
+        @instance.configure
       end
       it "should try to run and build the reconfigure script for the node" do
         Master.should_receive(:build_reconfigure_instances_script_for).with(@instance).and_return @tempfile
-        @instance.new_configure
+        @instance.configure
       end
       it "should scp the reconfigure file to the remote instance" do
         @instance.should_receive(:scp).once.and_return true
-        @instance.new_configure
+        @instance.configure
       end
       it "should ssh and execute the reconfigure file on the remote instance" do
         @instance.should_receive(:ssh).once.with("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh").and_return true
-        @instance.new_configure
+        @instance.configure
       end
       describe "with a public ip" do
         before(:each) do
@@ -150,14 +86,13 @@ describe "remote instance" do
         end
         it "should run associate_address if there is a public_ip set in the Application.options" do
           @instance.should_receive(:associate_address_with).with(Application.public_ip, @instance.instance_id).and_return true
-          @instance.new_configure
+          @instance.configure
         end
         it "should not run associate_address_with if the public_ip is empty" do
           Application.stub!(:public_ip).and_return ""
           @instance.should_not_receive(:associate_address_with)
-          @instance.new_configure
+          @instance.configure
         end
-      end
 
     end
   end  

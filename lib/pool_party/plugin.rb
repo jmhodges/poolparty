@@ -1,31 +1,22 @@
 =begin rdoc
   Allow for plugins based in callbacks
+  
+  A plugin should be able to hook into any method and run their command
+  either before or after the plugin.
 =end
 module PoolParty
   class Plugin
     
-    # A plugin should be able to hook into any method and run their command
-    # either before or after the plugin. The syntax to hook into these commands
-    # on the plugin level should look like
-    #   # plugin file
-    #   run_after :install, :install_nginx
-    #   run_before :configure, :restart_nginx
-    %w(before after).each do |type|
-      eval <<-EOE
-        def self.run_#{type}(wrapper, method, &block)
-          # Classes that can have callbacks on them
-          %w(RemoteInstance Master).each do |klass|
-            if eval(klass).instance_methods.include?(wrapper.to_s)
-              str = "#{type} :"+wrapper.to_s+", :"+method.to_s+", :class => '"+name.to_s+"'"
-              
-              p eval(klass).class_eval(%{str})
-              eval(klass).send :class_eval, %{str}
-            end
-          end          
+    def self.create_method(name, klass)
+      %w(before after).each do |time|
+        define_method ":#{time}_#{name}" do |meth|
+          (klass.is_a?(String) ? eval(klass) : klass).class_eval "#{time}, :#{name}, :#{meth}, :class => '#{klass}'"
         end
-      EOE
+      end
     end
     
+    create_method :install, RemoteInstance
+    create_method :configure, RemoteInstance
     
   end
 end

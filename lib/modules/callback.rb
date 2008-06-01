@@ -1,3 +1,6 @@
+=begin rdoc
+  Basic callbacks
+=end
 module PoolParty
   module Callbacks
     module ClassMethods      
@@ -11,12 +14,10 @@ module PoolParty
       def callback(type,m,e,opts={})
         other = if opts[:class]
           "#{opts[:class]}.send :#{e}" 
-        elsif opts[:instance]
-          "#{instance_variable_get(opts[:instance]).send :"#{e}" }" 
         else 
           "#{e}"
         end
-        
+
         case type
         when :before          
           str=<<-EOD
@@ -33,9 +34,9 @@ module PoolParty
             end
           EOD
         end
-        
+
         mMode = Module.new {eval str}
-                
+
         define_callback_module(mMode)
       end
       def before(m, e, opts={}, *args)
@@ -45,19 +46,23 @@ module PoolParty
         callback(:after, m, e, opts, *args)
       end
     end
-    
+
     module InstanceMethods
-      def initialize
-        return true if self.class.callbacks.empty?
-        self.class.callbacks.each do |mod|
-          self.extend(mod)
+      def initialize(*args)
+        
+        unless self.class.callbacks.empty?
+          self.class.callbacks.each do |mod|
+            self.extend(mod)
+          end
         end
+        
       end
     end
-    
+
     def self.included(receiver)
       receiver.extend         ClassMethods
       receiver.send :include, InstanceMethods
     end
   end
+  
 end

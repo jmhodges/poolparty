@@ -30,7 +30,7 @@ module PoolParty
       message "Give some time for the instance ssh to start up"
       wait "10.seconds" unless Application.test?
       message "Configuring master"
-      get_node(0).new_configure
+      get_node(0).configure
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances
