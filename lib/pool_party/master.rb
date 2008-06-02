@@ -69,7 +69,7 @@ module PoolParty
       nodes.reject {|a| a.stack_installed? }.size
     end
     # Add an instance if the load is high
-    def add_instance_if_load_is_high      
+    def add_instance_if_load_is_high
       request_launch_new_instance if expand?
     end
     # Teardown an instance if the load is pretty low

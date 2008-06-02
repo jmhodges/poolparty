@@ -71,7 +71,12 @@ module PoolParty
       out
     end
     def self.get_hash_from_response(resp)
-      {:instance_id => resp.instanceId, :ip => resp.dnsName, :status => resp.instanceState.name, :launching_time => resp.launchTime} rescue nil
+      {
+        :instance_id => resp.instanceId, 
+        :ip => resp.dnsName, 
+        :status => resp.instanceState.name, 
+        :launching_time => resp.launchTime
+      } rescue nil
     end
   end
 end
