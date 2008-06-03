@@ -38,5 +38,9 @@ describe "Plugin" do
       TestPlugin.should_receive(:echo_hosts).at_least(1).and_return "hi"
       @instance.configure      
     end
+    it "should not call echo_hosts after if configures" do
+      TestPlugin.should_not_receive(:email_updates)
+      @instance.configure
+    end
   end
 end

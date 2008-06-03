@@ -14,7 +14,6 @@ module PoolParty
             callee = self.name
             #{klass}.class_eval do
               meth.each do |m|
-                # before :world, {:hello => "OutsideClass"}
                 #{time} :#{name}, {m => "#\{callee\}"}
               end
             end
