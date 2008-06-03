@@ -142,7 +142,7 @@ module PoolParty
         end
       end
       def version
-        "0.0.4"
+        "0.0.6"
       end
       
       # Call the options from the Application

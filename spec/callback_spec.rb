@@ -104,3 +104,23 @@ describe "Block callbacks" do
     BlockClass.new.world.should == "hello world"
   end
 end
+class BlockAndMethodClass
+  include Callbacks
+  before :world, :hi do
+    string << "hello "
+  end
+  def world
+    string << "world"
+  end
+  def hi
+    string << "hi, "
+  end
+  def string
+    @string ||= ""
+  end
+end
+describe "Block and method callbacks" do
+  it "should call the block on the callback and add the " do
+    BlockAndMethodClass.new.world.should == "hi, hello world"
+  end
+end

@@ -1,3 +1,7 @@
+v0.0.6 * Plugin support
+       * Cleaned up base
+       * Extensible monitoring
+v0.0.5 Initial launched release
 v0.0.4 Rewrite before release - with haproxy, heartbeat, hosts and s3fuse
 v0.0.3 Rewrite - Cleanup
 v0.0.2 Rewrite - with web-proxy methods

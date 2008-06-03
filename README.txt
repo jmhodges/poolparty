@@ -83,9 +83,10 @@
   gem install pool_party
 
 == ROADMAP
+* v0.0.5 - Released!
 * v0.0.6 - Speed the configuration on the instances
-* v0.0.7 - Add SQS task support
-* v0.0.8 - Callback support
+* v0.0.7 - Callback support
+* v0.0.8 - Add SQS task support
 
 == THANKS
 

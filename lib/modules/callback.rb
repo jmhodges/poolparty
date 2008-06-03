@@ -8,9 +8,6 @@ module PoolParty
       def define_callback_module(mod)
         callbacks << mod
       end
-      def callbacks
-        @callbacks ||= []
-      end
       def callback(type, m, *args, &block)
         arr = []
        
@@ -73,6 +70,10 @@ module PoolParty
           EOD
         end
         str
+      end
+      
+      def callbacks
+        @callbacks ||= []
       end
       
     end
