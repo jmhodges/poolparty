@@ -64,7 +64,7 @@ module PoolParty
         # Install the required services on this node
         desc "Install stack on this node"
         task :install => :init do          
-          @node.install_stack
+          @node.install
         end
         # Turnoff this instance
         desc "Teardown instance"
@@ -107,7 +107,7 @@ module PoolParty
         desc "Prepare all servers"
         task :prepare => :init do
           PoolParty::Master.new.nodes.each do |node|
-            node.install_stack
+            node.install
           end
         end
         # Start the cloud

@@ -138,9 +138,6 @@ module PoolParty
     def mark_installed
       @stack_installed = true
     end
-    # Include the os specific tasks as specified in the application options (config.yml)
-    instance_eval "include PoolParty::Os::#{Application.os.capitalize}"
-    
     def base_install_script
       "#{root_dir}/config/installers/#{Application.os.downcase}_install.sh"
     end

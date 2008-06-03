@@ -49,7 +49,7 @@ when "stop"
   instance.stop_with_monit
 when "install"
   message "Installing services"
-  instance.install_stack
+  instance.install
 when "start_maintain"
   message "Running heartbeat failover service"
   pid = Master.run_thread_loop(:daemonize => true) do
