@@ -9,4 +9,7 @@ class Proc
       method
     end.bind(object)
   end
+  def in_context(klass_or_obj)
+    klass_or_obj.send(:eval, self.to_ruby)
+  end
 end

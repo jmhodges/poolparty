@@ -7,6 +7,11 @@
 module PoolParty
   class Plugin
     
+    # Create a class-level method for the name on the class
+    # For instance:
+    #   create_methods :install, RemoteInstance
+    # will give the following methods to the class
+    #   before_install and after_install
     def self.create_methods(name, klass)
       %w(before after).each do |time|        
         str=<<-EOE
@@ -29,12 +34,14 @@ module PoolParty
     create_methods :associate_public_ip, RemoteInstance
     create_methods :become_master, RemoteInstance
     
-    create_methods :start_cloud!, Master
-    create_methods :start!, Master
-    create_methods :start_monitor!, Master
-    create_methods :scale_cloud!, Master
-    create_methods :reconfigure_cloud_when_necessary, Master
-    create_methods :add_instance_if_load_is_high, Master
-    create_methods :terminate_instance_if_load_is_low, Master
+    create_methods :start, Master
+    create_methods :start_monitor, Master
+    create_methods :scale_cloud, Master
+    create_methods :reconfiguration, Master
+    create_methods :add_instance, Master
+    create_methods :terminate_instance, Master
+    create_methods :check_stats, Master
+    
+    create_methods :run_tasks, Scheduler
   end
 end

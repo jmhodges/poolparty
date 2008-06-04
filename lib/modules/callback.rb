@@ -15,7 +15,25 @@ module PoolParty
           arr << case arg.class.to_s
           when "Hash"
             arg.collect do |meth, klass|
-              "#{klass}.send :#{meth}"
+              case klass.class.to_s
+              when "String"
+                # self => instance of callback from class
+                # klass => class with callback
+                "ubmeth = #{klass}.new.method(:#{meth}).to_proc                
+                self.class.send :define_method, :#{meth} do
+                  ubmeth.bind(self).call
+                end
+                instance = self
+                #{klass}.class_eval do
+                  def method_missing(name,*args) 
+                    instance.send(name,*args)
+                  end
+                end
+                # puts methods.sort - self.class.ancestors.first.methods
+                #{meth}"
+              else
+                "#{klass}.send :#{meth}"
+              end
             end
           when "Symbol"
             "#{arg}"            
@@ -32,8 +50,8 @@ module PoolParty
         
         string = create_eval_for_mod_with_string_and_type!(m, type) do
           arr.join("\n")
-        end
-        
+        end        
+
         mMode = Module.new {eval string}
 
         define_callback_module(mMode)

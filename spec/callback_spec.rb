@@ -67,13 +67,13 @@ describe "Multiple callbacks" do
   end
 end
 class OutsideClass
-  def self.hello
+  def hello
     puts "hello"
   end
 end
 class TestOutsideClass
   include Callbacks
-  before :world, {:hello => "OutsideClass"}
+  before :world, {:hello => OutsideClass}
   def world
     "world"
   end
@@ -120,7 +120,55 @@ class BlockAndMethodClass
   end
 end
 describe "Block and method callbacks" do
-  it "should call the block on the callback and add the " do
+  it "should call the block on the callback and add the block" do
     BlockAndMethodClass.new.world.should == "hi, hello world"
+  end
+end
+class ExternalMethodCallClass
+  include Callbacks
+  before :world, :hello
+  after :hello, :peter
+  def world
+    string << "world"
+  end
+  def hello
+    string << "hello "
+  end
+  def peter
+    string << "peter "
+  end
+  def peter
+    string << "peter "
+  end
+  def string
+    @string ||= ""
+  end
+end
+describe "External method callbacks inside a method" do
+  it "should call the block on the callback and add the " do
+    ExternalMethodCallClass.new.world.should == "hello peter world"
+  end
+end
+class OutsideBindingClass
+  def hello
+    string << "hello"
+  end
+end
+class BindingClass
+  include Callbacks
+  before :world, :hello
+  def world
+    string << "#{@hello} world"
+  end
+  def hello
+    @hello = "hello"
+  end
+  def string
+    @string ||= ""
+  end
+end
+describe "Methods" do
+  it "should have access to the local variables of the call" do
+    BindingClass.new.world.should == "hello world"
   end
 end

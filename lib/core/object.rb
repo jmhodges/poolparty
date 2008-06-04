@@ -11,4 +11,8 @@ class Object
     yield receiver
     receiver
   end
+  def extended(&block)
+    block.in_context(self).call
+    self
+  end
 end

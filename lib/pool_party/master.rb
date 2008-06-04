@@ -17,6 +17,7 @@ module PoolParty
     def start_cloud!
       start!
     end
+    alias_method :start_cloud, :start_cloud!
     # Start the cloud, which launches the minimum_instances
     def start!
       message "Launching minimum_instances"
@@ -32,6 +33,7 @@ module PoolParty
       message "Configuring master"
       get_node(0).configure
     end
+    alias_method :start, :start!
     # Launch the minimum number of instances. 
     def launch_minimum_instances
       request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances)
@@ -44,20 +46,30 @@ module PoolParty
           on_exit
           exit
         end
-        run_thread_loop(:daemonize => true) do
+        # Daemonize only if we are not in the test environment
+        run_thread_loop(:daemonize => !Application.test?) do
           add_task {launch_minimum_instances} # If the base instances go down...
           add_task {reconfigure_cloud_when_necessary}
           add_task {scale_cloud!}
+          add_task {check_stats}
         end
       rescue Exception => e
         puts "There was an error: #{e.nice_message}"
       end
     end
-    # 
+    alias_method :start_monitor, :start_monitor!
+    def user_tasks
+      puts "in user_tasks"
+    end
+    # Sole purpose to check the stats, mainly in a plugin
+    def check_stats      
+    end
+    # Add an instance if the cloud needs one ore terminate one if necessary
     def scale_cloud!
       add_instance_if_load_is_high
       terminate_instance_if_load_is_low
     end
+    alias_method :scale_cloud, :scale_cloud!
     # Tough method:
     # We need to make sure that all the instances have the required software installed
     # This is a basic check against the local store of the instances that have the 
@@ -65,6 +77,7 @@ module PoolParty
     def reconfigure_cloud_when_necessary
       reconfigure_running_instances if number_of_unconfigured_nodes > 0
     end
+    alias_method :reconfiguration, :reconfigure_cloud_when_necessary
     def number_of_unconfigured_nodes
       nodes.reject {|a| a.stack_installed? }.size
     end
@@ -72,6 +85,7 @@ module PoolParty
     def add_instance_if_load_is_high
       request_launch_new_instance if expand?
     end
+    alias_method :add_instance, :add_instance_if_load_is_high
     # Teardown an instance if the load is pretty low
     def terminate_instance_if_load_is_low
       if contract?
@@ -79,6 +93,7 @@ module PoolParty
         request_termination_of_instance(node.instance_id) if node
       end
     end
+    alias_method :terminate_instance, :terminate_instance_if_load_is_low
     # FOR MONITORING
     def contract?
       valid_rules?(:contract_when)

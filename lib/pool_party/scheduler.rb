@@ -34,6 +34,7 @@ module PoolParty
   end
   # Scheduler class
   module Scheduler
+    include Callbacks
     attr_reader :tasks
     # Get the tasks or ScheduleTasks
     def tasks
@@ -51,6 +52,7 @@ module PoolParty
     def run_threads
       tasks.run
     end
+    alias_method :run_tasks, :run_threads
     # Daemonize the process
     def daemonize
       puts "Daemonizing..."
