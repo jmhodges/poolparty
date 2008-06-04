@@ -58,6 +58,11 @@ module PoolParty
     tempfile.flush
     tempfile
   end
+  def register_plugin(*names)
+    names.each do |name|
+      Plugin.send(:include, name)
+    end
+  end
   def include_cloud_tasks
     Tasks.new
   end

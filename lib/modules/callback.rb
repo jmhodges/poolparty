@@ -9,34 +9,22 @@ module PoolParty
         callbacks << mod
       end
       def callback(type, m, *args, &block)
-        arr = []
-       
+        arr = []                
         args.each do |arg|
           arr << case arg.class.to_s
           when "Hash"
             arg.collect do |meth, klass|
               case klass.class.to_s
               when "String"
-                # self => instance of callback from class
-                # klass => class with callback
-                "ubmeth = #{klass}.new.method(:#{meth}).to_proc                
-                self.class.send :define_method, :#{meth} do
-                  ubmeth.bind(self).call
-                end
-                instance = self
-                #{klass}.class_eval do
-                  def method_missing(name,*args) 
-                    instance.send(name,*args)
-                  end
-                end
-                # puts methods.sort - self.class.ancestors.first.methods
-                #{meth}"
+                "#{klass}.send :#{meth}, self"
               else
-                "#{klass}.send :#{meth}"
-              end
+                "self.instance_eval %{def #{klass.to_s.downcase};@#{klass.to_s.downcase} ||= #{klass}.new;end}                
+                #{klass.to_s.downcase}.send :#{meth}, self
+                "
+              end              
             end
           when "Symbol"
-            "#{arg}"            
+            "self.send :#{arg}, self"
           end
         end
         
@@ -68,21 +56,21 @@ module PoolParty
         case type
         when :before          
           str << <<-EOD
-            def #{meth}
+            def #{meth}(*args)
               #{yield}
               super
             end
           EOD
         when :after
           str << <<-EOD
-            def #{meth}
+            def #{meth}(*args)
               super
               #{yield}
             end
           EOD
         else
           str << <<-EOD
-            def #{meth}
+            def #{meth}(*args)
               #{yield}
             end
           EOD

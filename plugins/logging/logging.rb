@@ -4,7 +4,7 @@
   We declare this is a plugin by subclassing the PoolParty::Plugin class
 =end
 require "logger"
-class Logging < PoolParty::Plugin  
+class Logging < PoolParty::Plugin
   # For this plugin, we want to monitor when instances start up, when the shutdown and the load
   # plus, I also want to store the status of the cloud at any given point.
   after_start :log_start
@@ -18,7 +18,7 @@ class Logging < PoolParty::Plugin
   end  
   # Variables in the RemoteInstance class are now available to us
   # in this lower class
-  def log_change_master
+  def log_change_master(caller)
     log  "[NEW MASTER], #{@ip}, #{@name}"
   end  
   # Variables in the Master class are now available to us

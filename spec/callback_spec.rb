@@ -7,20 +7,20 @@ class TestCallbacks
   before :world, :hello
   after :world, :thanks
   
-  def hello
+  def hello(caller)
     string << "hello "
   end
   def world
     string << "world"
   end
-  def thanks
+  def thanks(caller)
     string << ", thank you"
   end
   after :pop, :boom
   def pop
     string << "pop"
   end
-  def boom
+  def boom(caller)
     string << " goes boom"
   end    
   def string
@@ -44,10 +44,10 @@ end
 class TestMultipleCallbacks
   include Callbacks
   attr_reader :str
-  def hi
+  def hi(caller)
     string << "hi, "
   end
-  def hello
+  def hello(caller)
     string << "hello "
   end
   def world
@@ -67,13 +67,13 @@ describe "Multiple callbacks" do
   end
 end
 class OutsideClass
-  def hello
+  def self.hello(caller)
     puts "hello"
   end
 end
 class TestOutsideClass
   include Callbacks
-  before :world, {:hello => OutsideClass}
+  before :world, {:hello => "OutsideClass"}
   def world
     "world"
   end
@@ -112,7 +112,7 @@ class BlockAndMethodClass
   def world
     string << "world"
   end
-  def hi
+  def hi(caller)
     string << "hi, "
   end
   def string
@@ -128,16 +128,14 @@ class ExternalMethodCallClass
   include Callbacks
   before :world, :hello
   after :hello, :peter
+  
   def world
     string << "world"
   end
-  def hello
+  def hello(caller)
     string << "hello "
   end
-  def peter
-    string << "peter "
-  end
-  def peter
+  def peter(caller)
     string << "peter "
   end
   def string
@@ -150,21 +148,21 @@ describe "External method callbacks inside a method" do
   end
 end
 class OutsideBindingClass
-  def hello
-    string << "hello"
+  def hello(caller)
+    caller.string << "hello"
   end
 end
 class BindingClass
   include Callbacks
-  before :world, :hello
+  before :world, :hello => OutsideBindingClass
   def world
     string << "#{@hello} world"
   end
-  def hello
-    @hello = "hello"
-  end
   def string
     @string ||= ""
+  end
+  def binding_class
+    @binding_class ||= OutsideBindingClass.new
   end
 end
 describe "Methods" do

@@ -19,7 +19,7 @@ module PoolParty
             callee = self.name
             #{klass}.class_eval do
               meth.each do |m|
-                #{time} :#{name}, {m => "#\{callee\}"}
+                #{time} self, :#{name}, {m => "#\{callee\}"}
               end
             end
           end
