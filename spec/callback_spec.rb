@@ -161,12 +161,33 @@ class BindingClass
   def string
     @string ||= ""
   end
-  def binding_class
-    @binding_class ||= OutsideBindingClass.new
-  end
 end
 describe "Methods" do
   it "should have access to the local variables of the call" do
     BindingClass.new.world.should == "hello world"
+  end
+end
+class EvilOutsideClass
+  attr_reader :name
+  def get_name(caller)
+    @name = caller.hello
+  end
+  def show_name(caller)
+    @name
+  end
+end
+class BindingClass
+  include Callbacks
+  before :print, :get_name => EvilOutsideClass
+  def print
+    "hello"
+  end
+  def hello
+    "franke"
+  end
+end
+describe "Variables on the plugin callbacker class" do
+  it "should be able to get to the same data twice" do
+    BindingClass.new.print
   end
 end

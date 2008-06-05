@@ -93,8 +93,8 @@ module PoolParty
           :ami => 'ami-4a46a323',
           :shared_bucket => "",
           :services => "",
-          :expand_when => "web_usage < 1.5\n memory_usage > 0.85",
-          :contract_when => "cpu_usage < 0.20\n memory_usage < 0.10",
+          :expand_when => "web_usage < 1.5\n memory > 0.85",
+          :contract_when => "cpu < 0.20\n memory < 0.10",
           :os => "ubuntu"
         }
       end

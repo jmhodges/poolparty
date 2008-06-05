@@ -18,9 +18,11 @@ module PoolParty
               when "String"
                 "#{klass}.send :#{meth}, self"
               else
-                "self.instance_eval %{def #{klass.to_s.downcase};@#{klass.to_s.downcase} ||= #{klass}.new;end}                
-                #{klass.to_s.downcase}.send :#{meth}, self
                 "
+                # k = #{klass.to_s.split("::")[-1].downcase}
+                # self.class.module_eval %{def #\{k\};@#\{k\} ||= #{klass}.new;end}
+                self.instance_eval %{def #{klass.to_s.downcase};@#{klass.to_s.downcase} ||= #{klass}.new;end}                
+                #{klass.to_s.downcase}.#{meth}(self)"
               end              
             end
           when "Symbol"

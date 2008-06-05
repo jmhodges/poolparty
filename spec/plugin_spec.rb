@@ -4,10 +4,10 @@ class TestPlugin < PoolParty::Plugin
   after_install :echo_hosts, :email_updates
   before_configure :echo_hosts
   
-  def self.echo_hosts
+  def echo_hosts(caller)
     "hosts"
   end
-  def self.email_updates
+  def email_updates(caller)
     "email"
   end
 end
@@ -22,24 +22,29 @@ describe "Plugin" do
   describe "usage" do
     before(:each) do
       @instance = RemoteInstance.new
+      @test = Class.new
+      @test.stub!(:echo_hosts).and_return("true")
+      @test.stub!(:email_updates).and_return("true")
+      TestPlugin.stub!(:new).and_return(@test)
+      
       @instance.stub!(:ssh).and_return "true"
       @instance.stub!(:scp).and_return "true"
       Kernel.stub!(:system).and_return "true"
     end
-    it "should should call echo_hosts after calling configure" do
-      TestPlugin.should_receive(:echo_hosts).at_least(1)
+    it "should should call echo_hosts after calling configure" do      
+      @test.should_receive(:echo_hosts).at_least(1)
       @instance.install
     end
     it "should call email_updates after calling install" do
-      TestPlugin.should_receive(:email_updates).at_least(1)
+      @test.should_receive(:email_updates).at_least(1)
       @instance.install
     end
     it "should call echo_hosts before it calls configure" do
-      TestPlugin.should_receive(:echo_hosts).at_least(1).and_return "hi"
+      @test.should_receive(:echo_hosts).at_least(1).and_return "hi"
       @instance.configure      
     end
     it "should not call echo_hosts after if configures" do
-      TestPlugin.should_not_receive(:email_updates)
+      @test.should_not_receive(:email_updates)
       @instance.configure
     end
   end

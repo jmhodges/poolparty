@@ -102,16 +102,16 @@ module PoolParty
       valid_rules?(:expand_when)
     end
     # Get the average web requests per cloud
-    def web_requests
-      nodes.collect {|a| a.web } / nodes.size
+    def web
+      nodes.size > 0 ? nodes.collect {|a| a.web } / nodes.size : 0.0
     end
     # Get the average cpu usage per cloud
-    def cpu_usage
-      nodes.collect {|a| a.cpu } / nodes.size
+    def cpu
+      nodes.size > 0 ? nodes.collect {|a| a.cpu } / nodes.size : 0.0
     end
     # Get the average memory usage over the cloud
-    def memory_usage
-      nodes.collect {|a| a.memory } / nodes.size
+    def memory
+      nodes.size > 0 ? nodes.collect {|a| a.memory } / nodes.size : 0.0      
     end
     # Restart the running instances services with monit on all the nodes
     def restart_running_instances_services

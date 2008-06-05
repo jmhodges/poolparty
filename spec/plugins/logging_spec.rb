@@ -23,9 +23,17 @@ describe "Logging plugin" do
     @logging.should_receive(:log_start)
     @master.start
   end
+  it "should log the start into a log" do
+    @master.start
+    open("logs/#{Application.environment.to_s}").read.should =~ /START/
+  end
   it "should receive log_new_stats after a a check_stats" do
     @logging.should_receive(:log_new_stats).once
     @master.check_stats
+  end
+  it "should log the check_stats stats" do
+    @master.check_stats
+    open("logs/#{Application.environment.to_s}").read.should =~ /STATS/
   end
   it "should have access to the master variables when calling log_new_instance" do
     @logging.should_receive(:log_new_instance)

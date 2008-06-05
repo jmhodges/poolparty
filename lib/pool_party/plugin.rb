@@ -16,10 +16,10 @@ module PoolParty
       %w(before after).each do |time|        
         str=<<-EOE
           def self.#{time}_#{name}(*meth)
-            callee = self.name
+            callee = self
             #{klass}.class_eval do
               meth.each do |m|
-                #{time} self, :#{name}, {m => "#\{callee\}"}
+                #{time} :#{name}, {m => callee}
               end
             end
           end

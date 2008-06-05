@@ -9,7 +9,7 @@ module PoolParty
     # CALLBACKS
     before :configure, :mark_installed # We want to make sure
     after :install, :configure # After we install the stack, let's make sure we configure it too
-    after :configure, :restart_with_monit # Anytime we configure the server, we want the server to restart it's services
+    # after :configure, :restart_with_monit # Anytime we configure the server, we want the server to restart it's services
     
     def initialize(obj={})
       super
@@ -67,7 +67,7 @@ module PoolParty
     # then it will compile a list of the commands to operate on the instance
     # and execute it
     # This is how the cloud reconfigures itself
-    def configure
+    def configure(caller=nil)
       associate_public_ip
       file = Master.build_scp_instances_script_for(self)
       Kernel.system("chmod +x #{file.path} && /bin/sh #{file.path}")
@@ -135,7 +135,7 @@ module PoolParty
     def stack_installed?
       @stack_installed == true
     end
-    def mark_installed
+    def mark_installed(caller=nil)
       @stack_installed = true
     end
     def base_install_script

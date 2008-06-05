@@ -6,8 +6,8 @@ describe "Master" do
     Kernel.stub!(:exec).and_return true
     Kernel.stub!(:sleep).and_return true # WHy wait?
     
-    Application.options.stub!(:contract_when).and_return("web_requests > 30.0\n cpu_usage < 0.10")
-    Application.options.stub!(:expand_when).and_return("web_requests < 3.0\n cpu_usage > 0.80")
+    Application.options.stub!(:contract_when).and_return("web > 30.0\n cpu < 0.10")
+    Application.options.stub!(:expand_when).and_return("web < 3.0\n cpu > 0.80")
     @master = Master.new
   end  
   it "should launch the first instances and set the first as the master and the rest as slaves" do
@@ -150,26 +150,26 @@ describe "Master" do
     end
     describe "expanding and contracting" do      
       it "should be able to say that it should not contract" do            
-        @master.stub!(:web_requests).and_return(10.2)
-        @master.stub!(:cpu_usage).and_return(0.32)
+        @master.stub!(:web).and_return(10.2)
+        @master.stub!(:cpu).and_return(0.32)
         
         @master.contract?.should == false
       end
       it "should be able to say that it should contract" do      
-        @master.stub!(:web_requests).and_return(30.2)
-        @master.stub!(:cpu_usage).and_return(0.05)
+        @master.stub!(:web).and_return(30.2)
+        @master.stub!(:cpu).and_return(0.05)
 
         @master.contract?.should == true
       end
       it "should be able to say that it should not expand if it shouldn't expand" do
-        @master.stub!(:web_requests).and_return(30.2)
-        @master.stub!(:cpu_usage).and_return(0.92)
+        @master.stub!(:web).and_return(30.2)
+        @master.stub!(:cpu).and_return(0.92)
 
         @master.expand?.should == false
       end
       it "should be able to say that it should expand if it should expand" do
-        @master.stub!(:web_requests).and_return(1.2)
-        @master.stub!(:cpu_usage).and_return(0.92)
+        @master.stub!(:web).and_return(1.2)
+        @master.stub!(:cpu).and_return(0.92)
 
         @master.expand?.should == true
       end      
