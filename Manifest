@@ -46,7 +46,6 @@ Manifest
 misc/basics_tutorial.txt
 plugins/logging/init.rb
 plugins/logging/logging.rb
-poolparty.gemspec
 Rakefile
 README.txt
 spec/application_spec.rb
