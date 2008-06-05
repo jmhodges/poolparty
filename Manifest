@@ -1,5 +1,6 @@
 bin/instance
 bin/pool
+bin/poolparty
 CHANGELOG
 config/cloud_master_takeover
 config/config.yml
@@ -42,6 +43,10 @@ lib/pool_party/tasks.rb
 lib/pool_party.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
+misc/basics_tutorial.txt
+plugins/logging/init.rb
+plugins/logging/logging.rb
+poolparty.gemspec
 Rakefile
 README.txt
 spec/application_spec.rb
@@ -53,6 +58,7 @@ spec/master_spec.rb
 spec/monitor_spec.rb
 spec/optioner_spec.rb
 spec/plugin_spec.rb
+spec/plugins/logging_spec.rb
 spec/poolparty_spec.rb
 spec/remote_instance_spec.rb
 spec/remoting_spec.rb
