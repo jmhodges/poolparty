@@ -16,20 +16,19 @@ module PoolParty
             arg.collect do |meth, klass|
               case klass.class.to_s
               when "String"
-                "#{klass}.send :#{meth}, self"
-              else
                 "
-                # k = #{klass.to_s.split("::")[-1].downcase}
-                # self.class.module_eval %{def #\{k\};@#\{k\} ||= #{klass}.new;end}
                 self.instance_eval %{def #{klass.to_s.downcase};@#{klass.to_s.downcase} ||= #{klass}.new;end}                
-                #{klass.to_s.downcase}.#{meth}(self)"
+                #{klass.to_s.downcase}.#{meth}(self)
+                "                
+              else
+                "#{klass}.send :#{meth}, self"
               end              
             end
           when "Symbol"
             "self.send :#{arg}, self"
           end
         end
-        
+
         string = ""
         if block_given?
           num = store_proc(block.to_proc)
@@ -37,7 +36,7 @@ module PoolParty
             self.class.get_proc(#{num}).bind(self).call
           EOM
         end
-        
+
         string = create_eval_for_mod_with_string_and_type!(m, type) do
           arr.join("\n")
         end        
@@ -52,7 +51,7 @@ module PoolParty
       def after(m, *args, &block)
         callback(:after, m, *args, &block)
       end
-      
+
       def create_eval_for_mod_with_string_and_type!(meth, type=nil, &block)
         str = ""
         case type
@@ -79,25 +78,25 @@ module PoolParty
         end
         str
       end
-      
+
       def callbacks
         @callbacks ||= []
       end
-      
+
     end
 
     module InstanceMethods
       def initialize(*args)
-        
+
         unless self.class.callbacks.empty?
           self.class.callbacks.each do |mod|
             self.extend(mod)
           end
         end
-        
+
       end
     end
-    
+
     module ProcStoreMethods
       def store_proc(proc)
         proc_storage << proc
@@ -117,5 +116,4 @@ module PoolParty
       receiver.send :include, InstanceMethods
     end    
   end
-  
 end
