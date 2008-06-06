@@ -7,19 +7,19 @@
 
 == DESCRIPTION:
   
-Pool Party (http://poolpartyrb.com), Ari Lerner (http://blog.xnot.org, http://blog.citrusbyte.com) - Pool Party is a framework for maintaining and running auto-scalable applications on Amazon's EC2 cloud. Run entire applications using the EC2 cluster and the unlimited S3 disk. More details to be listed at http://poolpartyrb.com.
+PoolParty (http://poolpartyrb.com), Ari Lerner (http://blog.xnot.org, http://blog.citrusbyte.com) - PoolParty is a framework for maintaining and running auto-scalable applications on Amazon's EC2 cloud. Run entire applications using the EC2 cluster and the unlimited S3 disk. More details to be listed at http://poolpartyrb.com.
 
 == Basics
 
-Pool Party is written with the intention of being as application-agnostic as possible. It installs only the basic required software to glue the cloud together on the instances as listed below.
+PoolParty is written with the intention of being as application-agnostic as possible. It installs only the basic required software to glue the cloud together on the instances as listed below.
 
-Pool Party is easily configuration. In fact, it makes little assumptions about your development environment and allows several options on how to begin configuring the cloud. 
+PoolParty is easily configuration. In fact, it makes little assumptions about your development environment and allows several options on how to begin configuring the cloud. 
 
 = Development setup
 
 === IN THE ENVIRONMENT
 
-There are 5 values that pool party reads from the environment, you can set these basic environment variables and leave the rest to the pool party defaults. Those values are:
+There are 5 values that PoolParty reads from the environment, you can set these basic environment variables and leave the rest to the PoolParty defaults. Those values are:
 
   ENV["ACCESS_KEY"] => AWS access key
   ENV["SECRET_ACCESS_KEY"] => AWS secret access key
