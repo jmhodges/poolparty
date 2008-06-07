@@ -13,24 +13,24 @@ class Logging < PoolParty::Plugin
   after_terminate_instance :log_stop_instance
   after_check_stats :log_new_stats
   
-  def log_start(caller)
-    log  "#{Time.now},[START]"
+  def log_start(master)
+    log "#{Time.now},[START]"
   end  
   # Variables in the RemoteInstance class are now available to us
   # in this lower class
-  def log_change_master(caller)
-    log  "#{caller.ip},#{caller.name},[NEW MASTER]"
-  end  
+  def log_change_master(instance)
+    log "#{instance.ip},#{instance.name},[NEW MASTER]"
+  end
   # Variables in the Master class are now available to us
   # in this plugin
-  def log_new_instance(caller)
-    log  "#{caller.ip},#{Time.now},[ADDING NEW INSTANCE]"
+  def log_new_instance(master)
+    log "#{master.ip},#{Time.now},[ADDING NEW INSTANCE]"
   end
-  def log_stop_instance(caller)
-    log  "#{caller.ip},#{Time.now},[TERMINATING INSTANCE]"
+  def log_stop_instance(master)
+    log "#{master.ip},#{Time.now},[TERMINATING INSTANCE]"
   end
-  def log_new_stats(caller)
-    log  "#{caller.web},#{caller.cpu},[STATS]"
+  def log_new_stats(instance)
+    log "#{instance.web},#{instance.cpu},[STATS]"
   end
   def log(str="")
     logger << "#{str}\n"
