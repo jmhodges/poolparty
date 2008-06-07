@@ -1,13 +1,11 @@
 =begin rdoc
   Basic monitors for the master
 =end
-module PoolParty  
-  module Monitors    
-    class Monitor
+module PoolParty
+  module Monitors
+    module Master      
+    end
+    module Remote
     end    
-  end  
-end
-
-Dir["#{File.dirname(__FILE__)}/monitors/*"].each do |file|
-  require file
+  end
 end

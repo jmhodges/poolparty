@@ -1,18 +1,23 @@
 =begin rdoc
-  Monitor the web stats for the request rate the server can handle at a time
+  Basic monitor on the cpu stats
 =end
-module PoolParty
-  module Monitors
-    module Web
-      def self.monitor!(port)
-        IO.popen("httperf --server localhost --port #{port} --num-conn 3 --timeout 5 | grep 'Request rate'") do |io|
-          @req = monitor_from_string(io.gets)
-        end
-        @req
-      end
-      def self.monitor_from_string(str="")
-        str[/[.]* ([\d]*\.[\d]*) [.]*/, 0].chomp.to_f
-      end
+module Web
+  module Master
+    # Get the average web request capabilities over the cloud
+    def web
+      nodes.size > 0 ? nodes.inject(0) {|i,a| i += a.web } / nodes.size : 0.0
     end
   end
+
+  module Remote
+    def web
+      str = ssh("httperf --server localhost --port #{Application.client_port} --num-conn 3 --timeout 5 | grep 'Request rate'")
+      str[/[.]* ([\d]*\.[\d]*) [.]*/, 0].chomp.to_f
+    rescue
+      0.0
+    end    
+  end
+  
 end
+
+PoolParty.register_monitor Web

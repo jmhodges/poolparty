@@ -6,6 +6,7 @@ module PoolParty
   class Master < Remoting
     include Aska
     include Callbacks
+    include Monitors
     
     def initialize
       super
@@ -100,18 +101,6 @@ module PoolParty
     end
     def expand?
       valid_rules?(:expand_when)
-    end
-    # Get the average web requests per cloud
-    def web
-      nodes.size > 0 ? nodes.collect {|a| a.web } / nodes.size : 0.0
-    end
-    # Get the average cpu usage per cloud
-    def cpu
-      nodes.size > 0 ? nodes.collect {|a| a.cpu } / nodes.size : 0.0
-    end
-    # Get the average memory usage over the cloud
-    def memory
-      nodes.size > 0 ? nodes.collect {|a| a.memory } / nodes.size : 0.0      
     end
     # Restart the running instances services with monit on all the nodes
     def restart_running_instances_services

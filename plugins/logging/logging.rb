@@ -19,7 +19,7 @@ class Logging < PoolParty::Plugin
   # Variables in the RemoteInstance class are now available to us
   # in this lower class
   def log_change_master(caller)
-    log  "#{@ip},#{@name},[NEW MASTER]"
+    log  "#{caller.ip},#{caller.name},[NEW MASTER]"
   end  
   # Variables in the Master class are now available to us
   # in this plugin
