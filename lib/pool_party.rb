@@ -8,13 +8,14 @@ require 'rubygems'
 require "aws/s3"
 require "sqs"
 require "EC2"
+require "aska"
+require 'sprinkle'
+
 require 'thread'
 require "pp"
 require "tempfile"
-require "aska"
 begin
-  require 'fastthread'
-  require 'thin'
+  require 'fastthread'  
 rescue LoadError
 end
 
