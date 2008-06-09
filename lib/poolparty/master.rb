@@ -111,7 +111,7 @@ module PoolParty
     # Reconfigure the running instances
     def reconfigure_running_instances      
       nodes.each do |node|
-        node.new_configure if node.status =~ /running/
+        node.configure if node.status =~ /running/
       end
     end
     # Build the basic haproxy config file from the config file in the config directory and return a tempfile

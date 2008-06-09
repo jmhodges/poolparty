@@ -12,13 +12,18 @@ module PoolParty
     before :install, :create_plugin_directory
     
     # Create a new plugin in the directory specified here
-    def self.new(location)
-      FileUtils.mkdir_p plugin_directory(location)
-      loc = Git.init(plugin_directory(location))
+    def self.new_plugin(location)
+      FileUtils.mkdir_p plugin_directory(location)      
+      begin
+        Git.open(plugin_directory(location))
+      rescue Exception => e
+        Git.init(plugin_directory(location))
+        Git.open(plugin_directory(location))
+      end
     end
     
-    def self.install(location)
-      
+    def self.install_plugin(location)
+      Git.clone(location, plugin_directory(location))
     end
     
     private

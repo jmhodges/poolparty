@@ -27,7 +27,9 @@ list.each do |act|
       # Here we will init a new git repository in the plugins directory where this is run
       # We will create a new git repository for you, it will set the name and all
     when "new"
-      PoolParty::PluginManager.new(list.pop)
+      PoolParty::PluginManager.new_plugin(list.pop)
+    when "install"
+      PoolParty::PluginManager.install_plugin(list.pop)
     end    
   end
 end
