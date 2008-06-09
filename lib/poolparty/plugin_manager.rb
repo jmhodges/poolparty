@@ -9,15 +9,20 @@ module PoolParty
     include Callbacks
     
     before :new, :create_plugin_directory
+    before :install, :create_plugin_directory
     
     # Create a new plugin in the directory specified here
     def self.new(location)
       FileUtils.mkdir_p plugin_directory(location)
       loc = Git.init(plugin_directory(location))
-      puts loc
     end
     
-    protected
+    def self.install(location)
+      
+    end
+    
+    private
+    
     def self.plugin_directory(path)
       File.join(base_plugin_dir, path)
     end
