@@ -53,10 +53,6 @@ describe "remote instance" do
         @instance.should_receive(:configure).once.and_return(true)
         @instance.install
       end
-      it "should call restart_with_monit after it calls configure" do
-        @instance.should_receive(:restart_with_monit).once.and_return(true)
-        @instance.configure
-      end
     end
   end
     describe "new configuration style (build scripts)" do

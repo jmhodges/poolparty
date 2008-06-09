@@ -4,7 +4,7 @@ To get PoolParty up and running on your very own ec2 instances, you have to do a
 
 First, install the gem with:
 
-gem install poolparty
+sudo gem install auser-poolparty -s http://gems.github.com
 
 First, head on over to http://aws.amazon.com and sign up for an account. Make sure you make note of the access key and the secret access key on the access identifiers page. Also, scroll down to the bottom of that page and download your x.509 certificate and the private one as well. You only can generate that once, so make sure you download it immediately. Finally, take note of your account id.
 
@@ -139,4 +139,4 @@ Those are the basics of PoolParty.
 
 You can check it out at http://poolpartyrb.com/.
 
-If you are interested in active development, check out the source at github at http://github.com/auser/pool-party/tree/master. Active discussion is held here: http://groups.google.com/group/poolpartyrb.
+If you are interested in active development, check out the source at github at http://github.com/auser/pool-party/tree/master. Active discussion is held here: http://groups.google.com/group/poolpartyrb. Of course, the latest and greatest information will always be released first at http://blog.citrusbyte.com.
