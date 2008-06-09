@@ -68,7 +68,7 @@ If you are not familiar with ruby, I suggest you look into it, it's a beautiful 
 Create a file in your development directory called Rakefile and add this to it.
 
 require 'rubygems'
-require 'pool_party'
+require 'poolparty'
 
 PoolParty.include_tasks
 

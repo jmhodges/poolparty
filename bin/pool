@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 require 'rubygems'
-require 'pool_party'
+require 'poolparty'
 
 # Set defaults
 list = PoolParty::Optioner.parse(ARGV.dup)

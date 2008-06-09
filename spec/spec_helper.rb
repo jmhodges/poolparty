@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), *%w[.. lib pool_party])
+require File.join(File.dirname(__FILE__), *%w[.. lib poolparty])
 
 %w(test/spec).each do |library|
   begin
