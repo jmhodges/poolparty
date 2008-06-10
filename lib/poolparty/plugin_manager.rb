@@ -5,6 +5,9 @@
 =end
 require "git"
 module PoolParty
+  def installed_plugins
+    @@installed_plugins ||= []
+  end  
   class PluginManager
     include Callbacks
     
@@ -26,10 +29,19 @@ module PoolParty
       Git.clone(location, plugin_directory(location))
     end
     
+    def self.scan
+      reset!
+      returning installed_plugins do
+        Dir["#{Application.root_dir}/plugins/*"].each do |plugin|
+          installed_plugins << [File.basename(plugin)]
+        end
+      end
+    end
+    
     private
     
     def self.plugin_directory(path)
-      File.join(base_plugin_dir, path)
+      File.join(base_plugin_dir, File.basename(path, File.extname(path)))
     end
     def self.create_plugin_directory
       FileUtils.mkdir_p base_plugin_dir rescue ""

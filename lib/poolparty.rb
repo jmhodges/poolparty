@@ -63,6 +63,17 @@ module PoolParty
       Plugin.send(:include, name)
     end
   end
+  def register_monitor(*names)
+    names.each do |name|
+      PoolParty::Monitors.extend name
+      
+      PoolParty::Master.send :include, name::Master
+      PoolParty::RemoteInstance.send :include, name::Remote
+    end
+  end
+  def reset!
+    @@installed_plugins = []
+  end
   def include_cloud_tasks
     Tasks.new
   end

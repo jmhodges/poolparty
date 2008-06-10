@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/../spec_helper'
-require "lib/pool_party/monitors/memory"
+require "lib/poolparty/monitors/memory"
 
 describe "monitors" do
   describe "when included" do

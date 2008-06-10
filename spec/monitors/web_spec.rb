@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/../spec_helper'
-require "lib/pool_party/monitors/web"
+require "lib/poolparty/monitors/web"
 
 describe "monitors" do
   describe "when included" do

@@ -81,22 +81,13 @@ module PoolParty
       scp(base_install_script, "/usr/local/src/base_install.sh")
       ssh("chmod +x /usr/local/src/base_install.sh && /bin/sh /usr/local/src/base_install.sh")
     end
+    # Install the plugins if the instance is the master
+    def install_plugins
+      
+    end
     # Associate a public ip if it is set and this is the master
     def associate_public_ip
       associate_address_with(Application.public_ip, @instance_id) if master? && Application.public_ip && !Application.public_ip.empty?
-    end
-    # MONITORS
-    # Monitor the number of web requests that can be accepted at a time
-    def web
-      Monitors::Web.monitor_from_string ssh("httperf --server localhost --port #{Application.client_port} --num-conn 3 --timeout 5 | grep 'Request rate'") rescue 0.0
-    end
-    # Monitor the cpu status of the instance
-    def cpu
-      Monitors::Cpu.monitor_from_string ssh("uptime") rescue 0.0
-    end
-    # Monitor the memory
-    def memory
-      Monitors::Memory.monitor_from_string ssh("free -m | grep -i mem") rescue 0.0
     end
     def become_master
       @master = Master.new

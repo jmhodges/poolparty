@@ -64,7 +64,7 @@ describe "Master remoting: " do
     it "should call configure on all of the nodes when calling reconfigure_running_instances" do
       @master.nodes.each {|a| 
         a.stub!(:status).and_return("running")
-        a.should_receive(:new_configure).and_return true 
+        a.should_receive(:configure).and_return true 
       }
       @master.reconfigure_running_instances
     end    
