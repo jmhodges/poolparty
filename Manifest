@@ -17,6 +17,7 @@ config/reconfigure_instances_script.sh
 config/scp_instances_script.sh
 lib/core/array.rb
 lib/core/exception.rb
+lib/core/float.rb
 lib/core/hash.rb
 lib/core/kernel.rb
 lib/core/module.rb
@@ -28,6 +29,7 @@ lib/modules/callback.rb
 lib/modules/ec2_wrapper.rb
 lib/modules/safe_instance.rb
 lib/poolparty/application.rb
+lib/poolparty/dns.rb
 lib/poolparty/init.rb
 lib/poolparty/master.rb
 lib/poolparty/monitors/cpu.rb
@@ -36,6 +38,7 @@ lib/poolparty/monitors/web.rb
 lib/poolparty/monitors.rb
 lib/poolparty/optioner.rb
 lib/poolparty/plugin.rb
+lib/poolparty/plugin_manager.rb
 lib/poolparty/remote_instance.rb
 lib/poolparty/remoting.rb
 lib/poolparty/scheduler.rb
@@ -44,8 +47,8 @@ lib/poolparty.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
 misc/basics_tutorial.txt
-plugins/logging/init.rb
 plugins/logging/logging.rb
+poolparty.gemspec
 Rakefile
 README.txt
 spec/application_spec.rb
@@ -54,16 +57,18 @@ spec/core_spec.rb
 spec/helpers/ec2_mock.rb
 spec/kernel_spec.rb
 spec/master_spec.rb
-spec/monitor_spec.rb
+spec/monitors/cpu_monitor_spec.rb
+spec/monitors/memory_spec.rb
+spec/monitors/misc_monitor_spec.rb
+spec/monitors/web_spec.rb
 spec/optioner_spec.rb
+spec/plugin_manager_spec.rb
 spec/plugin_spec.rb
-spec/plugins/logging_spec.rb
 spec/poolparty_spec.rb
 spec/remote_instance_spec.rb
 spec/remoting_spec.rb
 spec/spec_helper.rb
 spec/string_spec.rb
-test/test_pool_party.rb
 web/static/conf/nginx.conf
 web/static/site/images/balloon.png
 web/static/site/images/cb.png
