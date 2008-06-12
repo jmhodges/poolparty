@@ -1,13 +1,12 @@
 =begin rdoc
   The basic master for PoolParty
 =end
-require "aska"
 module PoolParty
   class Master < Remoting
     include Aska
     include Callbacks
     include Monitors
-    
+        
     def initialize
       super
       
@@ -63,7 +62,7 @@ module PoolParty
       puts "in user_tasks"
     end
     # Sole purpose to check the stats, mainly in a plugin
-    def check_stats      
+    def check_stats
     end
     # Add an instance if the cloud needs one ore terminate one if necessary
     def scale_cloud!
@@ -237,7 +236,7 @@ module PoolParty
           :config_master => "",
           :start_pool_maintain => "pool maintain -c ~/.config",
           :set_hostname => "hostname -v #{node.name}",
-          :start_s3fs => "/usr/bin/s3fs #{Application.shared_bucket} -ouse_cache=/tmp -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data"
+          :start_s3fs => "/usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data"
         }
         write_to_temp_file(str)        
       end
@@ -247,7 +246,7 @@ module PoolParty
         tempfile.print(str)
         tempfile.flush
         tempfile
-      end      
+      end
     end
     
   end

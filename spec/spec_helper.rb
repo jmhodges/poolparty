@@ -13,6 +13,7 @@ Dir["#{File.dirname(__FILE__)}/helpers/**"].each {|a| require a}
 include PoolParty
 extend PoolParty
 
+Application.environment = "test"
 Application.verbose = false
 
 def wait_launch(time=5)

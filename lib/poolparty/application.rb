@@ -127,6 +127,9 @@ module PoolParty
       def test?
         environment == "test"
       end
+      def environment=(env)
+        environment = env
+      end
       def maintain_pid_path
         "/var/run/pool_maintain.pid"
       end

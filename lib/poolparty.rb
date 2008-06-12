@@ -58,11 +58,6 @@ module PoolParty
     tempfile.flush
     tempfile
   end
-  def register_plugin(*names)
-    names.each do |name|
-      Plugin.send(:include, name)
-    end
-  end
   def register_monitor(*names)
     names.each do |name|
       PoolParty::Monitors.extend name
@@ -75,7 +70,7 @@ module PoolParty
     @@installed_plugins = []
   end
   def include_cloud_tasks
-    Tasks.new
+    Tasks.new.define_tasks
   end
   
   alias_method :tasks, :include_cloud_tasks
