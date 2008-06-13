@@ -6,7 +6,7 @@ module PoolParty
     include Aska
     include Callbacks
     include Monitors
-        
+    
     def initialize
       super
       
@@ -177,6 +177,14 @@ module PoolParty
     
     class << self
       include PoolParty
+      
+      def with_nodes(&block)
+        new.nodes.each &block
+      end
+      
+      def collect_nodes(&block)
+        new.nodes.collect &block
+      end
       
       def requires_heartbeat?
         new.nodes.size > 1

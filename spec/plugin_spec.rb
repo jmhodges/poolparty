@@ -35,7 +35,7 @@ describe "Plugin" do
       @instance = RemoteInstance.new
       @master = Master.new
       
-      @test = Class.new
+      @test = TestPlugin.new
       @test.stub!(:echo_hosts).and_return("true")
       @test.stub!(:email_updates).and_return("true")
       @test.stub!(:echo_start).and_return("true")
@@ -69,18 +69,6 @@ describe "Plugin" do
     it "should say that it started on the master" do
       @test.should_receive(:echo_start).at_least(1).and_return "hi"
       @master.start
-    end
-    describe "tasks" do
-      before(:each) do
-        @tasks = Tasks.new
-      end
-      it "should be able to have a callback on the tasks" do
-        # @test.should_receive(:takss).once
-        # puts @tasks.methods.sort - Tasks.methods #include?("testplugin").should == true
-        @master.putsme
-        @tasks.putsme
-        @tasks.define_tasks
-      end
     end
   end
 end

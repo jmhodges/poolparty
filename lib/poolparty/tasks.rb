@@ -10,7 +10,7 @@ module PoolParty
     end
   end
   class Tasks
-    include TaskCommands
+    # include TaskCommands
     include Callbacks
     
     # Setup and define all the tasks
@@ -24,15 +24,6 @@ module PoolParty
       # Require the poolparty specific tasks
       Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].each { |t| load t }
       true
-    end
-    
-    before :putsme, :congrats    
-    def putsme
-      puts "me!"
-    end
-    def congrats(h)
-      puts "congrats"
-    end
-    
+    end    
   end
 end

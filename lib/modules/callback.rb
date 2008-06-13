@@ -89,19 +89,25 @@ module PoolParty
 
     module InstanceMethods
       def initialize(*args)
-
-        unless self.class.callbacks.empty?
-          self.class.callbacks.each do |mod|
-            self.extend(mod)
-          end
-        end
+        extend_callbacks
+        extend_callback_methods
+      end
+      
+      def extend_callback_methods
         unless self.class.classes.empty? 
           self.class.classes.each do |klass|
             m = %{def #{klass.to_s.downcase};@#{klass.to_s.downcase} ||= #{klass}.new;end}
             self.class.class_eval m unless self.class.method_defined?(m)
           end
         end
-
+      end
+      
+      def extend_callbacks
+        unless self.class.callbacks.empty?
+          self.class.callbacks.each do |mod|
+            self.extend(mod)
+          end
+        end
       end
     end
 
