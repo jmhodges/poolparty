@@ -28,9 +28,7 @@ lib/core/time.rb
 lib/modules/callback.rb
 lib/modules/ec2_wrapper.rb
 lib/modules/safe_instance.rb
-lib/modules/test.rb
 lib/poolparty/application.rb
-lib/poolparty/dns.rb
 lib/poolparty/init.rb
 lib/poolparty/master.rb
 lib/poolparty/monitors/cpu.rb
@@ -47,13 +45,13 @@ lib/poolparty/tasks/cloud.rake
 lib/poolparty/tasks/development.rake
 lib/poolparty/tasks/ec2.rake
 lib/poolparty/tasks/instance.rake
+lib/poolparty/tasks/plugins.rake
 lib/poolparty/tasks/server.rake
 lib/poolparty/tasks.rb
 lib/poolparty.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
 misc/basics_tutorial.txt
-plugins/logging/logging.rb
 Rakefile
 README.txt
 sim_vironment.rb

@@ -10,36 +10,35 @@ module PoolParty
   end  
   class PluginManager
     include Callbacks
-    
-    before :new, :create_plugin_directory
-    before :install, :create_plugin_directory
-    
-    # Create a new plugin in the directory specified here
-    def self.new_plugin(location)
-      FileUtils.mkdir_p plugin_directory(location)      
-      begin
-        Git.open(plugin_directory(location))
-      rescue Exception => e
-        Git.init(plugin_directory(location))
-        Git.open(plugin_directory(location))
+            
+    def self.install_plugin(location)
+      unless File.directory?(plugin_directory(location))
+        begin
+          Git.clone(location, plugin_directory(location))      
+          PoolParty.installed_plugins << location
+        rescue Exception => e
+          puts "There was an error"
+          puts e
+        end
+      else
+        puts "Plugin already installed"
       end
     end
     
-    def self.install_plugin(location)
-      Git.clone(location, plugin_directory(location))
+    def self.remove_plugin(name)
+      Dir["#{PoolParty.root_dir}/vendor/*"].select {|a| a =~ /#{name}/}.each do |dir|
+        FileUtils.rm_rf dir
+      end
     end
     
     def self.scan
-      reset!
-      returning installed_plugins do
-        Dir["#{Application.root_dir}/plugins/*"].each do |plugin|
-          installed_plugins << [File.basename(plugin)]
+      returning Array.new do |a|
+        Dir["#{Application.root_dir}/vendor/*"].each do |plugin|
+          a << File.basename(plugin)
         end
       end
     end
-    
-    private
-    
+        
     def self.plugin_directory(path)
       File.join(base_plugin_dir, File.basename(path, File.extname(path)))
     end
@@ -47,7 +46,7 @@ module PoolParty
       FileUtils.mkdir_p base_plugin_dir rescue ""
     end
     def self.base_plugin_dir
-      File.join(PoolParty.root_dir, "plugins")
+      File.join(PoolParty.root_dir, "vendor")
     end
   end
 end

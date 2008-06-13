@@ -7,10 +7,12 @@ $:.unshift File.dirname(__FILE__)
 module PoolParty  
   class Application
     class << self
+      attr_accessor :verbose
       
       # The application options
       def options(opts={})
         @options ||= make_options(opts)
+        PoolParty.load_plugins
       end      
       # Make the options with the config_file overrides included
       # Default config file assumed to be at config/config.yml

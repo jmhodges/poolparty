@@ -3,7 +3,7 @@ namespace(:instance) do
   # interface can be: num=0, i=0, inst=0, 0
   # defaults to the master instance (0)
   task :init do
-    num = (ENV['num'] || ENV["i"] || ENV["inst"] || ARGV.shift || 0).to_i          
+    num = (ENV['num'] || ENV["i"] || ENV["inst"] || ARGV.shift || 0).to_i
     raise Exception.new("Please set the number of the instance (i.e. num=1, i=1, or as an argument)") unless num
     @node = PoolParty::Master.new.get_node(num)
   end

@@ -66,6 +66,9 @@ module PoolParty
       PoolParty::RemoteInstance.send :include, name::Remote
     end
   end
+  def load_plugins
+    Dir["#{PluginManager.base_plugin_dir}/**/init.rb"].each {|a| require a}
+  end
   def reset!
     @@installed_plugins = []
   end

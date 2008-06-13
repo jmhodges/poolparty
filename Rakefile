@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'echoe'
 require 'lib/poolparty'
-require "plugins/logging/logging"
 
 task :default => :test
 

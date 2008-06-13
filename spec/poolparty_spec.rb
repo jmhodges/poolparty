@@ -5,4 +5,8 @@ describe "Application options" do
     YAML.should_receive(:load).and_return({:config_file => "config/config.yml"})
     Application.make_options(:config_file => "config/config.yml")
   end
+  it "should require all the plugin's init files in the plugin directory" do
+    PoolParty.should_receive(:load_plugins).once
+    Application.options
+  end
 end
