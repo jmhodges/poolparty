@@ -81,20 +81,18 @@ module PoolParty
       scp(base_install_script, "/usr/local/src/base_install.sh")
       ssh("chmod +x /usr/local/src/base_install.sh && /bin/sh /usr/local/src/base_install.sh")
     end
-    # Install the plugins if the instance is the master
-    def install_plugins
-      
-    end
     # Associate a public ip if it is set and this is the master
     def associate_public_ip
       associate_address_with(Application.public_ip, @instance_id) if master? && Application.public_ip && !Application.public_ip.empty?
     end
+    # Become the new master
     def become_master
       @master = Master.new
       @number = 0
       @master.nodes[0] = self
       configure
     end
+    # Is this the master and if not, is the master running?
     def is_not_master_and_master_is_not_running?
       !master? && !Master.is_master_responding?
     end

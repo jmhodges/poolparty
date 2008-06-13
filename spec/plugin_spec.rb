@@ -70,5 +70,32 @@ describe "Plugin" do
       @test.should_receive(:echo_start).at_least(1).and_return "hi"
       @master.start
     end
+    describe "instance methods" do
+      before(:each) do
+        @str = "filename"
+        @str.stub!(:read).and_return "filename"
+        @test.stub!(:open).and_return @str
+      end
+      it "should try to open the file with the given filename" do
+        @test.should_receive(:open).with("filename").and_return @str
+        @test.read_config_file("filename")
+      end
+      it "should open a yaml file" do
+        YAML.should_receive(:load).with("filename").and_return ""
+        @test.read_config_file("filename")
+      end
+      describe "when reading the yaml file" do
+        before(:each) do
+          @str.stub!(:read).and_return ":username: eddie\n:password: eddie"
+        end
+        it "should parse the yaml file to a Hash" do
+          @str.should_receive(:read).and_return ":username: eddie\n:password: eddie"
+          @test.read_config_file("filename").class.should == Hash
+        end
+        it "should parse the yaml file into the proper hash" do
+          @test.read_config_file("filename").should == {:username => "eddie", :password => "eddie"}
+        end
+      end
+    end
   end
 end

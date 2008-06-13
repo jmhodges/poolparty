@@ -39,5 +39,11 @@ module PoolParty
     %w(run_tasks).each do |method|
       create_methods method, Scheduler
     end
+    
+    # Some useful instance methods
+    def read_config_file(filename)
+      return {} unless filename
+      YAML.load(open(filename).read)
+    end
   end
 end
