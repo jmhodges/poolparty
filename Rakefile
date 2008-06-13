@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'echoe'
-require 'lib/poolparty'
+require 'poolparty'
 
 task :default => :test
 
