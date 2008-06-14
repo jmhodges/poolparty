@@ -1,16 +1,5 @@
 module PoolParty
-  module TaskCommands
-    # Run the command on the local system
-    def run(cmd)
-      system(cmd.runnable)
-    end
-    # Basic setup action
-    def setup_application
-      Application.options({:config_file => (ENV["CONFIG_FILE"] || ENV["config"]) })
-    end
-  end
   class Tasks
-    # include TaskCommands
     include Callbacks
     
     # Setup and define all the tasks
@@ -20,9 +9,18 @@ module PoolParty
     # Define the tasks in the rakefile
     # From the rakefile
     def define_tasks
-      require "rake"
+      # Run the command on the local system
+      def run(cmd)
+        system(cmd.runnable)
+      end
+      # Basic setup action
+      def setup_application
+        Application.options({:config_file => (ENV["CONFIG_FILE"] || ENV["config"]) })
+      end
+                  
       # Require the poolparty specific tasks
-      Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].each { |t| load t }
+      Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].each { |t| eval open(t).read }
+      
       true
     end    
   end

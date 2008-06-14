@@ -1,17 +1,15 @@
 namespace(:dev) do
   task :init do
     setup_application
-    
-    run "mkdir ~/.ec2" unless File.directory?("~/.ec2")
-      
+    run "mkdir ~/.ec2 >/dev/null 2>/dev/null" unless File.directory?("~/.ec2")      
   end
   # Setup a basic development environment for the user 
   desc "Setup development environment specify the config_file"
-  task :setup => [:init, :setup_keypair] do
+  task :setup => [:init] do
     keyfilename = ".#{Application.keypair}_pool_keys"
     run <<-EOR
-      echo 'export ACCESS_KEY=\"#{Application.access_key}\"' > $HOME/#{keyfilename}
-      echo 'export SECRET_ACCESS_KEY=\"#{Application.secret_access_key}\"' >> $HOME/#{keyfilename}
+      echo 'export AWS_ACCESS_KEY_ID=\"#{Application.access_key}\"' > $HOME/#{keyfilename}
+      echo 'export AWS_SECRET_ACCESS_ID=\"#{Application.secret_access_key}\"' >> $HOME/#{keyfilename}
       echo 'export EC2_HOME=\"#{Application.ec2_dir}\"' >> $HOME/#{keyfilename}
       echo 'export KEYPAIR_NAME=\"#{Application.keypair}\"' >> $HOME/#{keyfilename}
       echo 'export CONFIG_FILE=\"#{Application.config_file}\"' >> $HOME/#{keyfilename}

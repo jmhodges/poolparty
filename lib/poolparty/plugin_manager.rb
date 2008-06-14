@@ -49,7 +49,7 @@ module PoolParty
     end
     
     def self.plugin_dirs
-      Dir["#{Application.root_dir}/vendor/*"]
+      Dir["#{PoolParty.root_dir}/vendor/*"]
     end
         
     def self.plugin_directory(path)

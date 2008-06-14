@@ -2,17 +2,16 @@
   Application
   This handles user interaction
 =end
-$:.unshift File.dirname(__FILE__)
-
 module PoolParty  
   class Application
     class << self
       attr_accessor :verbose
       
       # The application options
-      def options(opts={})
+      def options(opts={})        
+        @options ||= make_options(opts)
         PoolParty.load_plugins
-        @options ||= make_options(opts)        
+        @options
       end      
       # Make the options with the config_file overrides included
       # Default config file assumed to be at config/config.yml
@@ -86,9 +85,9 @@ module PoolParty
           :minimum_instances => 2,
           :maximum_instances => 4,
           :public_ip => "",
-          :access_key => ENV["ACCESS_KEY"],
-          :secret_access_key => ENV["SECRET_ACCESS_KEY"],
-          :config_file => ((ENV["CONFIG_FILE"] && ENV["CONFIG_FILE"].empty?) ? "config/config.yml" : ENV["CONFIG_FILE"]),
+          :access_key => ENV["AWS_ACCESS_KEY_ID"],
+          :secret_access_key => ENV["AWS_SECRET_ACCESS_ID"],
+          :config_file => (ENV["CONFIG_FILE"] ? ENV["CONFIG_FILE"] : nil),
           :username => "root",
           :ec2_dir => ENV["EC2_HOME"],
           :keypair => ENV["KEYPAIR_NAME"],
