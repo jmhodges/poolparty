@@ -70,7 +70,7 @@ module PoolParty
     Dir["#{PluginManager.base_plugin_dir}/**/init.rb"].each {|a| require a}
   end
   def reset!
-    @@installed_plugins = []
+    @@installed_plugins = nil
   end
   def include_cloud_tasks
     Tasks.new.define_tasks

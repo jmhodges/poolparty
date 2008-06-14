@@ -123,5 +123,18 @@ describe "remote instance" do
     it "should be able to detect if the stack_installed?" do
       @instance.stack_installed?.should == false
     end
+    
+    describe "when installing plugins" do
+      it "should call update_plugins after become master" do
+        @instance.should_receive(:update_plugin_string).at_least(1)
+        @instance.become_master
+      end
+      it "should try to install the plugins from the git repos of the installed plugins" do
+        PluginManager.remove_plugin "pool-party-plugins"
+        PluginManager.install_plugin "git@github.com:auser/pool-party-plugins.git"
+        @instance.update_plugin_string("hi").should == "cd ~ && git clone git@github.com:auser/pool-party-plugins.git"
+      end
+    end
+    
   end
 end

@@ -241,7 +241,7 @@ module PoolParty
       # Build basic configuration script for the node
       def build_reconfigure_instances_script_for(node)
         str = open(Application.sh_reconfigure_instances_script).read.strip ^ {
-          :config_master => "",
+          :config_master => "#{node.update_plugin_string(node)}",
           :start_pool_maintain => "pool maintain -c ~/.config",
           :set_hostname => "hostname -v #{node.name}",
           :start_s3fs => "/usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data"

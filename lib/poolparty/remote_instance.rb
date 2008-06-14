@@ -92,6 +92,16 @@ module PoolParty
       @master.nodes[0] = self
       configure
     end
+    def update_plugin_string(caller)
+      reset!
+      str = "cd ~\n"
+      installed_plugins.each do |plugin_source|
+        str << "git clone #{plugin_source}\n"
+      end
+      str.runnable
+    end
+    after :become_master, :update_plugin_string
+    
     # Is this the master and if not, is the master running?
     def is_not_master_and_master_is_not_running?
       !master? && !Master.is_master_responding?

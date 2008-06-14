@@ -11,8 +11,8 @@ module PoolParty
       
       # The application options
       def options(opts={})
-        @options ||= make_options(opts)
         PoolParty.load_plugins
+        @options ||= make_options(opts)        
       end      
       # Make the options with the config_file overrides included
       # Default config file assumed to be at config/config.yml

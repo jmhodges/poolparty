@@ -6,8 +6,8 @@
 require "git"
 module PoolParty
   def installed_plugins
-    @@installed_plugins ||= []
-  end  
+    @@installed_plugins ||= PluginManager.extract_git_repos_from_plugin_dirs
+  end
   class PluginManager
     include Callbacks
             
@@ -33,10 +33,23 @@ module PoolParty
     
     def self.scan
       returning Array.new do |a|
-        Dir["#{Application.root_dir}/vendor/*"].each do |plugin|
+        plugin_dirs.each do |plugin|
           a << File.basename(plugin)
         end
       end
+    end
+    
+    def self.extract_git_repos_from_plugin_dirs
+      returning [] do |arr|
+        plugin_dirs.each do |dir|
+          puts arr
+          arr << open(File.join(dir, ".git", "config")).read[/url[\s]*=[\s](.*)/,1]
+        end
+      end
+    end
+    
+    def self.plugin_dirs
+      Dir["#{Application.root_dir}/vendor/*"]
     end
         
     def self.plugin_directory(path)

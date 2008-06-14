@@ -22,4 +22,9 @@ describe "Plugin manager" do
     PluginManager.remove_plugin "pool-party-plugins"
     PluginManager.scan.should == %w()
   end
+  it "should be able to extract the git repos from the .git/config file" do
+    PluginManager.install_plugin "git@github.com:auser/pool-party-plugins.git"
+    PoolParty.reset!
+    PoolParty.installed_plugins.should == ["git@github.com:auser/pool-party-plugins.git"]
+  end
 end
