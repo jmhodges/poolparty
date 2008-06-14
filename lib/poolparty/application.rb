@@ -40,7 +40,7 @@ module PoolParty
           op.on('-k keypair', '--keypair name', "Keypair name (ENV['KEYPAIR_NAME'])") { |key| default_options[:keypair] = key }
           op.on('-b bucket', '--bucket bucket', "Application bucket") { |bucket| default_options[:shared_bucket] = bucket }          
           op.on('-D ec2 directory', '--ec2-dir dir', "Directory with ec2 data (default: '~/.ec2')") {|id| default_options[:ec2_dir] = id }
-          op.on('-S services', '--services names', "Monitored services (default: '')") {|id| default_options[:services] = id }
+          op.on('-r names', '--services names', "Monitored services (default: '')") {|id| default_options[:services] = id }
           op.on('-c file', '--config-file file', "Config file (default: '')") {|file| default_options[:config_file] = file }
           op.on('-p port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
           op.on('-m monitors', '--monitors names', "Monitor instances using (default: 'web,memory,cpu')") {|s| default_options[:monitor_load_on] = s }          
@@ -53,7 +53,7 @@ module PoolParty
           op.on('-u username', '--username name', "Login with the user (default: root)") {|s| default_options[:user] = s}
           op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:user_data] = data }
           op.on('-t seconds', '--polling-time', "Time between polling in seconds (default 50)") {|t| default_options[:polling_time] = t }
-          op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:verbose] = v}
+          op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:verbose] = true}
           op.on('-i number', '--minimum-instances', "The minimum number of instances to run at all times (default 1)") {|i| default_options[:minimum_instances] = i}
           op.on('-x number', '--maximum-instances', "The maximum number of instances to run (default 3)") {|x| default_options[:maximum_instances] = x}
           
@@ -77,7 +77,7 @@ module PoolParty
           :host_port => 80,
           :client_port => 8001,
           :environment => 'development',
-          :verbose => true,
+          :verbose => false,
           :logging => true,
           :size => "small",
           :polling_time => "30.seconds",

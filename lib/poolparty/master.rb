@@ -154,7 +154,7 @@ module PoolParty
     end
     # Get the node at the specific index from the cached nodes
     def get_node(i=0)
-      nodes.select {|a| a.number == i}.first
+      nodes.select {|a| a.number == i.to_i}.first
     end
     # Get the next node in sequence, so we can configure heartbeat to monitor the next node
     def get_next_node(node)

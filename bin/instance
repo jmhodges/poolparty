@@ -1,23 +1,22 @@
 #!/usr/bin/ruby
 require 'rubygems'
 require 'optparse'
-require 'poolparty'
+require 'lib/poolparty'
 require "fileutils"
 
 # Set defaults
 commandables = %w(ssh cmd scp restart start stop install start_maintain stop_maintain)
 options = PoolParty.options(:optsparse => 
-  {:banner => <<-EOU
+  { :banner => <<-EOU
 Usage: instance [OPTIONS] { #{commandables.join(" | ")} }
 -----------------------------------------------------------------
     EOU
     })
 master = PoolParty::Master.new
 list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
-
 num = list.reject {|a| commandables.include?(a) }.pop
 
-instance = master.get_node(num.to_i)
+instance = master.get_node(num)
 
 unless instance
   puts "Cloud is not running"
