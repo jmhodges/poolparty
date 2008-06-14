@@ -1,16 +1,28 @@
 #!/usr/bin/ruby
 require 'rubygems'
-require 'poolparty'
+$:.unshift(File.join(File.dirname(__FILE__), "lib"))
+require 'lib/poolparty'
 
 # Set defaults
-list = PoolParty::Optioner.parse(ARGV.dup)
 options = PoolParty.options(:optsparse => 
-  {:banner => "Usage: pool [OPTIONS] {start | stop | list | maintain | restart}"  })
+  {:banner => <<-EOU
+Usage: pool [OPTIONS] {start | stop | list | maintain | restart}
+-----------------------------------------------------------------
+    EOU
+    })
 master = PoolParty::Master.new
+list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
 
 case list[0]
 when "start"
-  PoolParty.message "Starting cloud"
+  PoolParty.message <<-EOM
+Starting #{PoolParty::Application.app_name ? "#{PoolParty::Application.app_name} " : "" }cloud
+  On #{PoolParty::Application.ami}
+  Minimum instances: #{PoolParty::Application.minimum_instances}
+  Maximum instances: #{PoolParty::Application.maximum_instances}
+  Polling every: #{PoolParty::Application.polling_time}
+  
+  EOM
   master.start_cloud!
 when "stop"
   PoolParty.message "Stopping cloud"

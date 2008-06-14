@@ -12,11 +12,15 @@ namespace(:instance) do
   task :ssh => [:init] do
     @node.ssh
   end
+  desc "Send a file to the remote instance"
+  remote_task :ssh => :init
+    rsync ENV['src'], ENV['dest']
+  end
   # Send a file to the remote instance
   # as designated by src='' and dest=''
   desc "Send a file to the remote instance"
-  task :scp => [:init] do
-    @node.scp ENV['src'], ENV['dest']
+  remote_task :scp => :init
+    rsync ENV['src'], ENV['dest']
   end
   # Execute a command on the remote instance as designated
   # by cmd=''

@@ -5,24 +5,19 @@ require 'poolparty'
 require "fileutils"
 
 # Set defaults
-list = PoolParty::Optioner.parse(ARGV.dup)
-options = PoolParty::Application.options(ARGV.dup)
+commandables = %w(ssh cmd scp restart start stop install start_maintain stop_maintain)
+options = PoolParty.options(:optsparse => 
+  {:banner => <<-EOU
+Usage: instance [OPTIONS] { #{commandables.join(" | ")} }
+-----------------------------------------------------------------
+    EOU
+    })
 master = PoolParty::Master.new
+list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
 
-instance_options = {
-  :instance_number => 0,
-  :cmd => "ls -l",
-  :src => "",
-  :dest => ""
-}
-OptionParser.new do |op|
-  op.on('-i inst', '--instance i', "The instance_number (default: 0)") {|x| instance_options[:instance_number] = x}
-  op.on('-C cmd', '--command command', "Run this command on the instance (default: 'ls -l')") {|x| instance_options[:cmd] = x}
-  op.on('-s src', '--source filename', "Send this file through scp (default: '')") {|x| instance_options[:src] = x}
-  op.on('-d dest', '--destination filename', "Send file to (default: '')") {|x| instance_options[:dest] = x}
-end.parse!(ARGV.dup)
+num = list.reject {|a| commandables.include?(a) }.pop
 
-instance = master.get_node(instance_options[:instance_number])
+instance = master.get_node(num.to_i)
 
 unless instance
   puts "Cloud is not running"

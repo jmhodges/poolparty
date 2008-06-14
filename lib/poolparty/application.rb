@@ -2,13 +2,13 @@
   Application
   This handles user interaction
 =end
-module PoolParty  
+module PoolParty
   class Application
     class << self
       attr_accessor :verbose
       
       # The application options
-      def options(opts={})        
+      def options(opts={})
         @options ||= make_options(opts)
         PoolParty.load_plugins
         @options
@@ -17,7 +17,7 @@ module PoolParty
       # Default config file assumed to be at config/config.yml
       def make_options(opts={})
         load_options!(opts.delete(:optsparse) || {})
-        default_options.merge!(opts)
+        # default_options.merge!(opts)
         # If the config_file options are specified and not empty
         unless default_options[:config_file].nil? || default_options[:config_file].empty?
           require "yaml"
@@ -26,7 +26,7 @@ module PoolParty
           default_options.safe_merge!( YAML.load(filedata) ) if filedata # We want the command-line to overwrite the config file
         end
 
-        OpenStruct.new(default_options)
+        OpenStruct.new(default_options.merge(opts))
       end
 
       # Load options via commandline
@@ -49,6 +49,7 @@ module PoolParty
           op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
           op.on('-a address', '--public-ip address', "Associate this public address with the master node") {|s| default_options[:public_ip] = s}
           op.on('-s size', '--size size', "Run specific sized instance") {|s| default_options[:size] = s}
+          op.on('-n name', '--name name', "Application name") {|n| default_options[:app_name] = n}
           op.on('-u username', '--username name', "Login with the user (default: root)") {|s| default_options[:user] = s}
           op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:user_data] = data }
           op.on('-t seconds', '--polling-time', "Time between polling in seconds (default 50)") {|t| default_options[:polling_time] = t }
@@ -72,6 +73,7 @@ module PoolParty
       # or in a config.yml file
       def default_options
         @default_options ||= {
+          :app_name => "application_name",
           :host_port => 80,
           :client_port => 8001,
           :environment => 'development',
@@ -146,7 +148,7 @@ module PoolParty
         end
       end
       def version
-        "0.0.6"
+        PoolParty::Version::STRING
       end
       
       # Call the options from the Application

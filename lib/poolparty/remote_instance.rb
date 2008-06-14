@@ -1,5 +1,5 @@
 module PoolParty
-  class RemoteInstance
+  class RemoteInstance < Remoter
     include PoolParty
     include Callbacks
     
@@ -76,6 +76,7 @@ module PoolParty
       scp(file.path, "/usr/local/src/reconfigure.sh")
       ssh("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh")
     end
+    
     # Installs with one commandline and an scp, rather than 10
     def install
       scp(base_install_script, "/usr/local/src/base_install.sh")
@@ -106,20 +107,7 @@ module PoolParty
     def is_not_master_and_master_is_not_running?
       !master? && !Master.is_master_responding?
     end
-    # Scp src to dest on the instance
-    def scp(src="", dest="", opts={})
-      `scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
-    end
-    def scp_string(src,dest,opts={})
-      "scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
-    end
-    # Ssh into the instance or run a command, if the cmd is set
-    def ssh(cmd="")
-      ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}"
-
-      cmd.empty? ? system("#{ssh}") : %x[#{ssh} '#{cmd.runnable}']
-    end
-    
+     
     # Description in the rake task
     def description
       case @status

@@ -5,7 +5,7 @@ module PoolParty
     include PoolParty
     include Ec2Wrapper
     include Scheduler
-                
+    
     # == GENERAL METHODS    
     # == LISTING
     # List all the running instances associated with this account

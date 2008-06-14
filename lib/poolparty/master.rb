@@ -26,12 +26,18 @@ module PoolParty
       reset!
       while !number_of_pending_instances.zero?
         wait "2.seconds" unless Application.test?
+        waited = true
         reset!
       end
-      message "Give some time for the instance ssh to start up"
-      wait "10.seconds" unless Application.test?
+      unless Application.test? || waited.nil?
+        message "Give some time for the instance ssh to start up"
+        wait "10.seconds"
+      end
       message "Configuring master"
-      get_node(0).configure
+      master = get_node 0
+      
+      master.install
+      master.configure
     end
     alias_method :start, :start!
     # Launch the minimum number of instances. 
@@ -223,12 +229,12 @@ module PoolParty
         hosts_file = Master.build_hosts_file_for(node)        
                 
         str = open(Application.sh_scp_instances_script).read.strip ^ {
-            :cloud_master_takeover => "#{node.scp_string("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/")}",
+            :cloud_master_takeover => "#{node.scp_string("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/", :dir => "/etc/ha.d/resource.d")}",
             :config_file => "#{node.scp_string(Application.config_file, "~/.config")}",
-            :authkeys => "#{node.scp_string(authkeys_file.path, "/etc/ha.d/authkeys")}",
+            :authkeys => "#{node.scp_string(authkeys_file.path, "/etc/ha.d/authkeys", :dir => "/etc/ha.d/")}",
             :resources => "#{node.scp_string("#{root_dir}/config/resource.d/*", "/etc/ha.d/resource.d/", {:switches => "-r"})}",
-            :monitrc => "#{node.scp_string(Application.monit_config_file, "/etc/monit/monitrc")}",
-            :monit_d => "#{node.scp_string("#{File.dirname(Application.monit_config_file)}/monit/*", "/etc/monit.d/", {:switches => "-r"})}",
+            :monitrc => "#{node.scp_string(Application.monit_config_file, "/etc/monit/monitrc", :dir => "/etc/monit")}",
+            :monit_d => "#{node.scp_string("#{File.dirname(Application.monit_config_file)}/monit/*", "/etc/monit.d/", {:switches => "-r", :dir => "/etc/monit.d/"})}",
             :haproxy => "#{node.scp_string(haproxy_file.path, "/etc/haproxy.cfg")}",
             
             :ha_d => Master.requires_heartbeat? ? "#{node.scp_string(ha_d_file.path, "/etc/ha.d/ha.cf")}" : "",

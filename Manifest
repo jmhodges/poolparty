@@ -67,6 +67,7 @@ spec/monitors/web_spec.rb
 spec/optioner_spec.rb
 spec/plugin_manager_spec.rb
 spec/plugin_spec.rb
+spec/pool_binary_spec.rb
 spec/poolparty_spec.rb
 spec/remote_instance_spec.rb
 spec/remoting_spec.rb

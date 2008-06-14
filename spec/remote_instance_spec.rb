@@ -120,8 +120,15 @@ describe "remote instance" do
       Master.stub!(:is_master_responding?).and_return false
       @instance.is_not_master_and_master_is_not_running?.should == true
     end
-    it "should be able to detect if the stack_installed?" do
-      @instance.stack_installed?.should == false
+    
+    describe "when installing the poolparty software" do
+      it "should be able to detect if the stack_installed? == false" do
+        @instance.stack_installed?.should == false
+      end
+      it "should set the stack_installed? once installed" do
+        @instance.install
+        @instance.stack_installed?.should == true
+      end
     end
     
     describe "when installing plugins" do

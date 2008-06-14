@@ -35,17 +35,24 @@ pwd = File.dirname(__FILE__)
 end
 
 module PoolParty
+  module Version #:nodoc:
+    MAJOR = 0
+    MINOR = 0
+    TINY  = 8
+
+    STRING = [MAJOR, MINOR, TINY].join('.')
+  end
   # PoolParty options
   def options(opts={})
     Application.options(opts)
   end
   # Are we working in verbose-mode
   def verbose?
-    Application.verbose == true
+    options.verbose == true
   end
   # Send a message if we are in verbose-mode
   def message(msg="")
-    pp "-- #{msg}" if verbose?
+    puts "-- #{msg}" if verbose?
   end
   # Root directory of the application
   def root_dir
@@ -71,6 +78,10 @@ module PoolParty
   end
   def reset!
     @@installed_plugins = nil
+  end
+  def read_config_file(filename)
+    return {} unless filename
+    YAML.load(open(filename).read)
   end
   def include_cloud_tasks
     Tasks.new.define_tasks
