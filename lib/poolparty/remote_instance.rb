@@ -1,7 +1,10 @@
 module PoolParty
-  class RemoteInstance < Remoter
+  class RemoteInstance
+    # ############################
+    extend Remoter # Included for legacy reasons.
+    # ############################
     include PoolParty
-    include Callbacks
+    include Callbacks    
     
     attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed
     attr_accessor :name, :number
@@ -55,6 +58,12 @@ module PoolParty
     end
     def secondary?
       @number == 1
+    end
+    def set_hosts
+      set :user, Application.username
+      set :domain, "#{user}@#{self.ip}"
+      set :application, Application.app_name
+      role :app, "#{self.ip}"
     end
     # Let's define some stuff for monit
     %w(stop start restart).each do |cmd|

@@ -3,19 +3,27 @@
   
   For now, default to using vlad
 =end
-require "vlad"
-
 module PoolParty
-  class Remoter
-        
+  module Remoter    
+    require "vlad"
+    include Callbacks
     # 
     # TODO: REPLACE THIS WITH Rake::RemoteTask
     # 
+    before :scp, :set_hosts
+    before :ssh, :set_hosts
     
+    # Set the RemoteRake tasks
+    def set_hosts
+    end
     # Scp src to dest on the instance
-    def scp(src="", dest="", opts={})
-      ssh("sudo mkdir -p #{opts[:dir]}") if opts[:dir]
-      `scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
+    def scp(src="", dest="", opts={}, &block)
+      unless block_given?        
+        block = Proc.new {open(src).read}
+      end
+      sudo("mkdir -p #{opts[:dir]}") if opts[:dir]
+      # `scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
+      put dest, File.basename(src), &block
     end
     def scp_string(src,dest,opts={})
       str = ""
@@ -27,7 +35,7 @@ module PoolParty
     def ssh(cmd="")
        ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}"
     
-       cmd.empty? ? system("#{ssh}") : %x[#{ssh} '#{cmd.runnable}']
+       cmd.empty? ? system("#{ssh}") : run(cmd.runnable)
      end
     
   end

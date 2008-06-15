@@ -152,6 +152,14 @@ module PoolParty
         RemoteInstance.new(inst.merge({:number => i}))
       end
     end
+    def set_hosts
+      set :user, Application.username
+      set :domain, "#{user}@#{self.ip}"
+      set :application, Application.app_name
+      nodes.each do |node|
+        role :app, "#{node.ip}"
+      end      
+    end
     # Get the node at the specific index from the cached nodes
     def get_node(i=0)
       nodes.select {|a| a.number == i.to_i}.first
