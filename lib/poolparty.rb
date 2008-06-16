@@ -56,7 +56,7 @@ module PoolParty
   end
   # Root directory of the application
   def root_dir
-    File.join(File.dirname(__FILE__), "..")
+    File.expand_path(File.dirname(__FILE__) + "/..")
   end
   # Write string to a tempfile
   def write_to_temp_file(str="")

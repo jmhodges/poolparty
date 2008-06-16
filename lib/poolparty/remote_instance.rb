@@ -84,12 +84,16 @@ module PoolParty
     end
     
     def set_hosts(c)
+      ssh_location = `which ssh`.gsub(/\n/, '')
+      rsync_location = `which rsync`.gsub(/\n/, '')
       rt.set :user, Application.username
       rt.set :domain, "#{user}@#{self.ip}"
       rt.set :application, Application.app_name
-      rt.set :ssh_flags, "-o StrictHostKeyChecking=no"
-      rt.set :rsync_flags , ['-azP', '--delete', '-e "ssh -i /Users/auser/.ec2/id_rsa-auser"']
-      # rsync -azvP --delete -e "ssh -i /Users/auser/.ec2/id_rsa-auser -o StrictHostKeyChecking=no" /Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/CHANGELOG root@ec2-75-101-234-8.compute-1.amazonaws.com:~/base_install.sh
+      # rt.set :ssh_cmd, ssh_location
+      # rt.set :rsync_cmd, rsync_location
+      rt.set :ssh_flags, "-i #{Application.keypair_path}"
+      rt.set :rsync_flags , ['-azP', '--delete', "-e '#{ssh_location} -l #{Application.user} -i #{Application.keypair_path} -o StrictHostKeyChecking=no'"]
+
       Master.with_nodes { |node|
         rt.host "#{Application.user}@#{node.ip}",:app if node.status =~ /running/
       }
@@ -98,20 +102,18 @@ module PoolParty
     def scp local, remote
       data = open(local).read
       rtask(:scp) do
-        put remote, "pool-party" do
-          data
-        end
+        rsync local, remote
       end.execute
     end
     before :scp, :set_hosts
     
-    def ssh command=nil, &block
-      block = Proc.new do
-        run command
+    def ssh command="ls -l", &block
+      blk = Proc.new do
+        run "\"#{command.runnable}\""
       end
       ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} "
 
-      command.empty? ? system("#{ssh}") : rtask(:ssh, &block).execute
+      command.empty? ? system("#{ssh}") : rtask(:ssh, &blk).execute
     end
     before :ssh, :set_hosts
     
