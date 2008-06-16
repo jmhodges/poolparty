@@ -114,10 +114,14 @@ module PoolParty
       end
     end
     # Reconfigure the running instances
+    # Since we are using vlad, running configure on one of the instances
+    # should configure all of the instances. We set the hosts in this file
     def reconfigure_running_instances      
-      nodes.each do |node|
-        node.configure if node.status =~ /running/
-      end
+      # nodes.each do |node|
+      #   node.configure if node.status =~ /running/
+      # end
+      master = get_node(0)
+      master.configure
     end
     # Build the basic haproxy config file from the config file in the config directory and return a tempfile
     def build_haproxy_file
@@ -152,14 +156,6 @@ module PoolParty
         RemoteInstance.new(inst.merge({:number => i}))
       end
     end
-    def set_hosts
-      set :user, Application.username
-      set :domain, "#{user}@#{self.ip}"
-      set :application, Application.app_name
-      nodes.each do |node|
-        role :app, "#{node.ip}"
-      end      
-    end
     # Get the node at the specific index from the cached nodes
     def get_node(i=0)
       nodes.select {|a| a.number == i.to_i}.first
@@ -191,7 +187,7 @@ module PoolParty
     
     class << self
       include PoolParty
-      
+            
       def with_nodes(&block)
         new.nodes.each &block
       end

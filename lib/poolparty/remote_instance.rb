@@ -1,7 +1,7 @@
 module PoolParty
   class RemoteInstance
     # ############################
-    extend Remoter # Included for legacy reasons.
+    include Remoter # Included for legacy reasons.
     # ############################
     include PoolParty
     include Callbacks    
@@ -60,10 +60,7 @@ module PoolParty
       @number == 1
     end
     def set_hosts
-      set :user, Application.username
-      set :domain, "#{user}@#{self.ip}"
-      set :application, Application.app_name
-      role :app, "#{self.ip}"
+      Master.set_hosts
     end
     # Let's define some stuff for monit
     %w(stop start restart).each do |cmd|
@@ -85,6 +82,35 @@ module PoolParty
       scp(file.path, "/usr/local/src/reconfigure.sh")
       ssh("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh")
     end
+    
+    def set_hosts(c)
+      rt.set :user, Application.username
+      rt.set :domain, "#{user}@#{self.ip}"
+      rt.set :application, Application.app_name
+      with_nodes.each do |node|
+        rt.host "#{node.ip}",:app
+      end
+    end
+    
+    def scp local, remote
+      require "tempfile"
+      rtask(:scp) do
+        put remote do
+          open(local).read
+        end
+      end.execute
+    end
+    before :scp, :set_hosts
+    
+    def ssh command=nil, &block
+      block = Proc.new do
+        run command
+      end
+      ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}"
+
+      command.empty? ? system("#{ssh}") : rtask(:ssh, &block).execute
+    end
+    before :ssh, :set_hosts
     
     # Installs with one commandline and an scp, rather than 10
     def install

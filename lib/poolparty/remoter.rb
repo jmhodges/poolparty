@@ -3,40 +3,52 @@
   
   For now, default to using vlad
 =end
+require "rake_remote_task"
 module PoolParty
-  module Remoter    
-    require "vlad"
-    include Callbacks
-    # 
-    # TODO: REPLACE THIS WITH Rake::RemoteTask
-    # 
-    before :scp, :set_hosts
-    before :ssh, :set_hosts
+  module Remoter        
     
-    # Set the RemoteRake tasks
-    def set_hosts
+    module ClassMethods      
+      include Callbacks
+      before :scp, :set_hosts
+      before :ssh, :set_hosts
     end
-    # Scp src to dest on the instance
-    def scp(src="", dest="", opts={}, &block)
-      unless block_given?        
-        block = Proc.new {open(src).read}
+    
+    module InstanceMethods
+      include Callbacks
+      # 
+      # Using Vlad, for the time being
+      #       
+      # Scp src to dest on the instance
+      # def scp(src="", dest="", opts={}, &block)
+      #   unless block_given?        
+      #     block = Proc.new {open(src).read}
+      #   end
+      #   sudo("mkdir -p #{opts[:dir]}") if opts[:dir]
+      #   # `scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
+      #   put dest, File.basename(src), &block
+      # end
+      def scp_string(src,dest,opts={})
+        str = ""
+        str << "mkdir -p #{opts[:dir]}\n" if opts[:dir]
+        str << "scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
+        str.runnable
       end
-      sudo("mkdir -p #{opts[:dir]}") if opts[:dir]
-      # `scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}`
-      put dest, File.basename(src), &block
+      
+      after :initialize, :set_hosts
+      def rt
+        @rt ||= Rake::RemoteTask
+      end
+
+      def rtask(name, *args, &block)
+        rt.remote_task(name.to_sym => args, &block)
+      end
+      
     end
-    def scp_string(src,dest,opts={})
-      str = ""
-      str << "mkdir -p #{opts[:dir]}\n" if opts[:dir]
-      str << "scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
-      str.runnable
+  
+    def self.included(receiver)            
+      receiver.extend         Callbacks
+      receiver.extend         ClassMethods
+      receiver.send :include, InstanceMethods
     end
-    # Ssh into the instance or run a command, if the cmd is set
-    def ssh(cmd="")
-       ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}"
-    
-       cmd.empty? ? system("#{ssh}") : run(cmd.runnable)
-     end
-    
   end
 end

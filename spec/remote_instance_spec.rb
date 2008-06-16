@@ -19,6 +19,11 @@ describe "remote instance" do
     @master = Master.new
   end
   
+  describe "scping" do
+  end
+  describe "ssh'ing" do
+  end
+  
   describe "in general" do
     it "should set the ip upon creation" do
       @instance.ip.should == "127.0.0.1"
