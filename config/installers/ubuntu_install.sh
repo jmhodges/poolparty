@@ -5,6 +5,9 @@ rm -rf /usr/local/src/*
 # Get the essentials
 apt-get -y install build-essential
 
+echo 'Installing git'
+apt-get -y install git-core
+
 # Install ruby
 echo 'Installing ruby...'
 apt-get -y install ruby1.8-dev ruby1.8 ri1.8 rdoc1.8 irb1.8 libreadline-ruby1.8 libruby1.8

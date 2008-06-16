@@ -42,6 +42,7 @@ module PoolParty
           op.on('-D ec2 directory', '--ec2-dir dir', "Directory with ec2 data (default: '~/.ec2')") {|id| default_options[:ec2_dir] = id }
           op.on('-r names', '--services names', "Monitored services (default: '')") {|id| default_options[:services] = id }
           op.on('-c file', '--config-file file', "Config file (default: '')") {|file| default_options[:config_file] = file }
+          op.on('-l plugin_dir', '--plugin-dir dir', "Plugin directory (default: '')") {|file| default_options[:plugin_dir] = file }
           op.on('-p port', '--host_port port', "Run on specific host_port (default: 7788)") { |host_port| default_options[:host_port] = host_port }
           op.on('-m monitors', '--monitors names', "Monitor instances using (default: 'web,memory,cpu')") {|s| default_options[:monitor_load_on] = s }          
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
@@ -98,7 +99,8 @@ module PoolParty
           :services => "",
           :expand_when => "web_usage < 1.5\n memory > 0.85",
           :contract_when => "cpu < 0.20\n memory < 0.10",
-          :os => "ubuntu"
+          :os => "ubuntu",
+          :plugin_dir => "vendor"
         }
       end
       # Services monitored by Heartbeat

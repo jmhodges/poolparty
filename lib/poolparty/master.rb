@@ -6,6 +6,7 @@ module PoolParty
     include Aska
     include Callbacks
     include Monitors
+    include Remoter
     
     def initialize
       super
@@ -39,8 +40,6 @@ module PoolParty
     def configure_cloud
       message "Configuring master"
       master = get_node 0
-      
-      master.install
       master.configure
     end
     # Launch the minimum number of instances. 
@@ -128,7 +127,7 @@ module PoolParty
     end
     # Build the basic haproxy config file from the config file in the config directory and return a tempfile
     def build_haproxy_file
-      servers=<<-EOS        
+      servers=<<-EOS
 #{nodes.collect {|node| node.haproxy_entry}.join("\n")}
       EOS
       write_to_temp_file(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
@@ -232,7 +231,7 @@ module PoolParty
           ha_d_file =  Master.build_heartbeat_config_file_for(node)
           haresources_file = Master.build_heartbeat_resources_file_for(node)
         end
-        haproxy_file = Master.new.build_haproxy_file
+        haproxy_file = Master.build_haproxy_file
         hosts_file = Master.build_hosts_file_for(node)        
                 
         str = open(Application.sh_scp_instances_script).read.strip ^ {
@@ -251,19 +250,75 @@ module PoolParty
           }
         write_to_temp_file(str)
       end
+      def scp_basic_config_files
+        Proc.new {
+          scp(Application.heartbeat_authkeys_config_file, "/etc/ha.d", :dir => "/etc/ha.d/resource.d")
+          scp("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d")
+          scp(Application.config_file, "~/.config")
+          Dir["#{root_dir}/config/resource.d/*"].each do |file|
+            scp(file, "/etc/ha.d/resource.d/#{File.basename(file)}")
+          end
+          scp(Application.monit_config_file, "/etc/monit/monitrc", :dir => "/etc/monit")
+          Dir["#{root_dir}/config/monit.d/*"].each do |file|
+            scp(file, "/etc/monit.d/#{File.basename(file)}")
+          end
+          # Node specifics
+          scp(Master.build_heartbeat_config_file_for(node))
+          scp(new.build_haproxy_file, "/etc/haproxy.cfg")
+        }
+      end
+      def scp_specific_config_files_for(node)
+        Proc.new {
+          if Master.requires_heartbeat?
+            scp(Master.build_heartbeat_config_file_for(node).path, "/etc/ha.d/ha.cf")
+            scp(Master.build_heartbeat_resources_file_for(node).path, "/etc/ha/haresources", :dir => "/etc/ha")
+          end
+          scp(Master.build_hosts_file_for(node), "/etc/hosts")
+        }
+      end
       # Build basic configuration script for the node
       def build_reconfigure_instances_script_for(node)
         str = open(Application.sh_reconfigure_instances_script).read.strip ^ {
           :config_master => "#{node.update_plugin_string(node)}",
-          :start_pool_maintain => "pool maintain -c ~/.config",
+          :start_pool_maintain => "pool maintain -c ~/.config -l ~/plugins",
           :set_hostname => "hostname -v #{node.name}",
           :start_s3fs => "/usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data"
         }
         write_to_temp_file(str)        
       end
+      
+      def set_hosts(c)
+        ssh_location = `which ssh`.gsub(/\n/, '')
+        rsync_location = `which rsync`.gsub(/\n/, '')
+        rt.set :user, Application.username
+        # rt.set :domain, "#{Application.user}@#{self.ip}"
+        rt.set :application, Application.app_name
+        rt.set :ssh_flags, "-i #{Application.keypair_path} -o StrictHostKeyChecking=no"
+        rt.set :rsync_flags , ['-azP', '--delete', "-e '#{ssh_location} -l #{Application.username} -i #{Application.keypair_path} -o StrictHostKeyChecking=no'"]
+
+        Master.with_nodes { |node|
+          rt.host "#{Application.username}@#{node.ip}",:app if node.status =~ /running/
+        }
+      end
+      
+      def rt
+        @rt ||= new.rt
+      end
+      
+      def ssh_configure_string_for(node)
+        cmd=<<-EOC
+          #{node.update_plugin_string(node)}
+          pool maintain -c ~/.config -l #{Application.plugin_dir}
+          hostname -v #{node.name}
+          /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
+        EOC
+      end
+      def build_haproxy_file
+        new.build_haproxy_file
+      end
       # Write a temp file with the content str
       def write_to_temp_file(str="")
-        tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
+        tempfile = Tempfile.new("pool-party---")
         tempfile.print(str)
         tempfile.flush
         tempfile

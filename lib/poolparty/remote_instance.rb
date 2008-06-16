@@ -1,18 +1,16 @@
 module PoolParty
   class RemoteInstance
     # ############################
-    include Remoter # Included for legacy reasons.
+    include Remoter
     # ############################
     include PoolParty
     include Callbacks    
     
-    attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed, :configure_file
-    attr_accessor :name, :number
+    attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed 
+    attr_accessor :name, :number, :scp_configure_file, :configure_file, :plugin_string
     
     # CALLBACKS
-    before :configure, :mark_installed # We want to make sure
-    after :install, :configure # After we install the stack, let's make sure we configure it too
-    # after :configure, :restart_with_monit # Anytime we configure the server, we want the server to restart it's services
+    after :install, :mark_installed
     
     def initialize(obj={})
       super
@@ -60,7 +58,7 @@ module PoolParty
       @number == 1
     end
     def set_hosts
-      Master.set_hosts
+      Master.set_hosts(rt)
     end
     # Let's define some stuff for monit
     %w(stop start restart).each do |cmd|
@@ -78,31 +76,30 @@ module PoolParty
       
       Master.with_nodes do |node|
         # These are node-specific
-        node.configure_file = Master.build_scp_instances_script_for(self)
-        Kernel.system("chmod +x #{file.path} && /bin/sh #{file.path}")
+        PoolParty.message "configuring #{node.name}"
+        node.scp_basic_config_files
+        node.scp_specific_config_files
       end
       
-      # This is not node-specific
-      file = Master.build_reconfigure_instances_script_for(self)
-      scp(file.path, "/usr/local/src/reconfigure.sh")
-      ssh("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh")
+      Master.with_nodes do |node|
+        # This is not node-specific
+        # ssh(ssh_configure_string_for(node))
+        node.ssh_configure_string
+      end
     end
     
-    def set_hosts(c)
-      ssh_location = `which ssh`.gsub(/\n/, '')
-      rsync_location = `which rsync`.gsub(/\n/, '')
-      rt.set :user, Application.username
-      # rt.set :domain, "#{Application.user}@#{self.ip}"
-      rt.set :application, Application.app_name
-      rt.set :ssh_flags, "-i #{Application.keypair_path} -o StrictHostKeyChecking=no"
-      rt.set :rsync_flags , ['-azP', '--delete', "-e '#{ssh_location} -l #{Application.user} -i #{Application.keypair_path} -o StrictHostKeyChecking=no'"]
-
-      Master.with_nodes { |node|
-        rt.host "#{Application.user}@#{node.ip}",:app if node.status =~ /running/
-      }
+    def ssh_configure_string
+      cmd=<<-EOC
+        #{update_plugin_string}
+        pool maintain -c ~/.config -l #{Application.plugin_dir}
+        hostname -v #{name}
+        /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
+      EOC
     end
-    
-    def scp local, remote
+        
+    def scp local, remote, opts={}
+      ssh("mkdir -p #{opts[:dir]}") if opts[:dir]
+      
       data = open(local).read
       rtask(:scp) do
         rsync local, remote
@@ -129,10 +126,36 @@ module PoolParty
       str.runnable
     end
     
+    def scp_basic_config_files
+      scp(Application.heartbeat_authkeys_config_file, "/etc/ha.d", :dir => "/etc/ha.d/resource.d")
+      scp("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d")
+      scp(Application.config_file, "~/.config") if Application.config_file
+      Dir["#{root_dir}/config/resource.d/*"].each do |file|
+        scp(file, "/etc/ha.d/resource.d/#{File.basename(file)}")
+      end
+      scp(Application.monit_config_file, "/etc/monit/monitrc", :dir => "/etc/monit")
+      Dir["#{root_dir}/config/monit.d/*"].each do |file|
+        scp(file, "/etc/monit.d/#{File.basename(file)}")
+      end
+      ha_prox_y_file = Master.build_haproxy_file.path
+            
+      scp(ha_prox_y_file, "/etc/haproxy.cfg")
+    end
+    def scp_specific_config_files
+      if Master.requires_heartbeat?
+        scp(Master.build_heartbeat_config_file_for(self).path, "/etc/ha.d/ha.cf")
+        scp(Master.build_heartbeat_resources_file_for(self).path, "/etc/ha/haresources", :dir => "/etc/ha")
+      end
+      scp(Master.build_hosts_file_for(self).path, "/etc/hosts")
+    end
+    
     # Installs with one commandline and an scp, rather than 10
-    def install      
-      scp(base_install_script, "~/base_install.sh")
-      ssh("chmod +x base_install.sh && /bin/sh base_install.sh")
+    def install
+      unless stack_installed?
+        scp(base_install_script, "~/base_install.sh")
+        ssh("chmod +x base_install.sh && /bin/sh base_install.sh && rm base_install.sh")
+        mark_installed(nil)
+      end
     end
     # Associate a public ip if it is set and this is the master
     def associate_public_ip
@@ -145,15 +168,16 @@ module PoolParty
       @master.nodes[0] = self
       configure
     end
-    def update_plugin_string(caller)
+    def update_plugin_string
       reset!
-      str = "cd ~\n"
+      str = "mkdir -p #{Application.plugin_dir} && cd #{Application.plugin_dir}\n"
       installed_plugins.each do |plugin_source|
         str << "git clone #{plugin_source}\n"
       end
-      str.runnable
     end
-    after :become_master, :update_plugin_string
+    def update_plugins
+      ssh(c.update_plugin_string)
+    end
     
     # Is this the master and if not, is the master running?
     def is_not_master_and_master_is_not_running?

@@ -1,4 +1,4 @@
-namespace(:plugins) do
+namespace(:plugin) do
   task :init do
     @command = ARGV.shift # Get rid of the command
     @name = (ENV['location'] || ENV["l"] || ARGV.shift)

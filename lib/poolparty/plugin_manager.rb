@@ -26,7 +26,7 @@ module PoolParty
     end
     
     def self.remove_plugin(name)
-      Dir["#{PoolParty.root_dir}/vendor/*"].select {|a| a =~ /#{name}/}.each do |dir|
+      Dir["#{PoolParty.root_dir}/#{PoolParty.plugin_dir}/*"].select {|a| a =~ /#{name}/}.each do |dir|
         FileUtils.rm_rf dir
       end
     end
