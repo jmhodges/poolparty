@@ -5,11 +5,11 @@
 # Start this instance's master maintain script
 :start_pool_maintain
 # Make the ha.d/resource.d
-mkdir /etc/ha.d/resource.d/
+sudo mkdir /etc/ha.d/resource.d/
 # Set this hostname as appropriate in the cloud
 :set_hostname
 # Configure heartbeat
-mkdir /etc/ha.d/resource.d/
+sudo mkdir /etc/ha.d/resource.d/
 # Start heartbeat
 /etc/init.d/heartbeat start
 # Start s3fs

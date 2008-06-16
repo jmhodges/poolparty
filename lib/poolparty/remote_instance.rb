@@ -6,7 +6,7 @@ module PoolParty
     include PoolParty
     include Callbacks    
     
-    attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed
+    attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed, :configure_file
     attr_accessor :name, :number
     
     # CALLBACKS
@@ -75,9 +75,14 @@ module PoolParty
     # This is how the cloud reconfigures itself
     def configure(caller=nil)
       associate_public_ip
-      file = Master.build_scp_instances_script_for(self)
-      Kernel.system("chmod +x #{file.path} && /bin/sh #{file.path}")
       
+      Master.with_nodes do |node|
+        # These are node-specific
+        node.configure_file = Master.build_scp_instances_script_for(self)
+        Kernel.system("chmod +x #{file.path} && /bin/sh #{file.path}")
+      end
+      
+      # This is not node-specific
       file = Master.build_reconfigure_instances_script_for(self)
       scp(file.path, "/usr/local/src/reconfigure.sh")
       ssh("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh")
@@ -87,7 +92,7 @@ module PoolParty
       ssh_location = `which ssh`.gsub(/\n/, '')
       rsync_location = `which rsync`.gsub(/\n/, '')
       rt.set :user, Application.username
-      rt.set :domain, "#{user}@#{self.ip}"
+      # rt.set :domain, "#{Application.user}@#{self.ip}"
       rt.set :application, Application.app_name
       rt.set :ssh_flags, "-i #{Application.keypair_path} -o StrictHostKeyChecking=no"
       rt.set :rsync_flags , ['-azP', '--delete', "-e '#{ssh_location} -l #{Application.user} -i #{Application.keypair_path} -o StrictHostKeyChecking=no'"]
@@ -117,6 +122,12 @@ module PoolParty
       end            
     end
     before :ssh, :set_hosts
+    def scp_string(src,dest,opts={})
+      str = ""
+      str << "mkdir -p #{opts[:dir]}\n" if opts[:dir]
+      str << "scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
+      str.runnable
+    end
     
     # Installs with one commandline and an scp, rather than 10
     def install      

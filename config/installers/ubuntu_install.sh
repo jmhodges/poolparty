@@ -46,7 +46,7 @@ fi
 # Install monit
 # if [[ which monit | grep -v "bin" ]]; then
   apt-get -y install monit
-  mkdir /etc/monit
+  sudo mkdir /etc/monit
   sed -i 's/startup=0/startup=1/g' /etc/default/monit
   /etc/init.d/monit start  
 # fi
