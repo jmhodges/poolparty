@@ -6,7 +6,7 @@ class Rake::RemoteTask < Rake::Task
     
     warn cmd.join(' ') if $TRACE
 
-    pid, inn, out, err = popen4(*cmd)
+    pid, inn, out, err = popen4(*cmd.join(" "))
 
     inn.sync   = true
     streams    = [out, err]

@@ -89,9 +89,7 @@ module PoolParty
       rt.set :user, Application.username
       rt.set :domain, "#{user}@#{self.ip}"
       rt.set :application, Application.app_name
-      # rt.set :ssh_cmd, ssh_location
-      # rt.set :rsync_cmd, rsync_location
-      rt.set :ssh_flags, "-i #{Application.keypair_path}"
+      rt.set :ssh_flags, "-i #{Application.keypair_path} -o StrictHostKeyChecking=no"
       rt.set :rsync_flags , ['-azP', '--delete', "-e '#{ssh_location} -l #{Application.user} -i #{Application.keypair_path} -o StrictHostKeyChecking=no'"]
 
       Master.with_nodes { |node|
@@ -113,7 +111,10 @@ module PoolParty
       end
       ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} "
 
-      command.empty? ? system("#{ssh}") : rtask(:ssh, &blk).execute
+      begin
+        command.empty? ? system("#{ssh}") : rtask(:ssh, &blk).execute
+      rescue Exception => e                            
+      end            
     end
     before :ssh, :set_hosts
     
