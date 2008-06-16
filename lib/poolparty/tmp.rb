@@ -41,5 +41,6 @@ t.scp("/Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/CHANGELO
 t.ssh("ls -l")
 t.ssh <<-EOE
   ls -l
-  cat ho
+  mv ho CHANGELOG
+  cat CHANGELOG
 EOE

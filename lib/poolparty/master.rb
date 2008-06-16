@@ -32,14 +32,17 @@ module PoolParty
       unless Application.test? || waited.nil?
         message "Give some time for the instance ssh to start up"
         wait "10.seconds"
-      end
+      end      
+      configure_cloud
+    end
+    alias_method :start, :start!
+    def configure_cloud
       message "Configuring master"
       master = get_node 0
       
       master.install
       master.configure
     end
-    alias_method :start, :start!
     # Launch the minimum number of instances. 
     def launch_minimum_instances
       request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances)

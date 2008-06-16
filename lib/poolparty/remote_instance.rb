@@ -87,16 +87,19 @@ module PoolParty
       rt.set :user, Application.username
       rt.set :domain, "#{user}@#{self.ip}"
       rt.set :application, Application.app_name
-      with_nodes.each do |node|
-        rt.host "#{node.ip}",:app
-      end
+      rt.set :ssh_flags, "-o StrictHostKeyChecking=no"
+      rt.set :rsync_flags , ['-azP', '--delete', '-e "ssh -i /Users/auser/.ec2/id_rsa-auser"']
+      # rsync -azvP --delete -e "ssh -i /Users/auser/.ec2/id_rsa-auser -o StrictHostKeyChecking=no" /Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/CHANGELOG root@ec2-75-101-234-8.compute-1.amazonaws.com:~/base_install.sh
+      Master.with_nodes { |node|
+        rt.host "#{Application.user}@#{node.ip}",:app if node.status =~ /running/
+      }
     end
     
     def scp local, remote
-      require "tempfile"
+      data = open(local).read
       rtask(:scp) do
-        put remote do
-          open(local).read
+        put remote, "pool-party" do
+          data
         end
       end.execute
     end
@@ -106,16 +109,16 @@ module PoolParty
       block = Proc.new do
         run command
       end
-      ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip}"
+      ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} "
 
       command.empty? ? system("#{ssh}") : rtask(:ssh, &block).execute
     end
     before :ssh, :set_hosts
     
     # Installs with one commandline and an scp, rather than 10
-    def install
-      scp(base_install_script, "/usr/local/src/base_install.sh")
-      ssh("chmod +x /usr/local/src/base_install.sh && /bin/sh /usr/local/src/base_install.sh")
+    def install      
+      scp(base_install_script, "~/base_install.sh")
+      ssh("chmod +x base_install.sh && /bin/sh base_install.sh")
     end
     # Associate a public ip if it is set and this is the master
     def associate_public_ip
