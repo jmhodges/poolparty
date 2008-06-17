@@ -63,5 +63,4 @@ fi
   tar -zxf s3fs-r166-source.tar.gz
   cd s3fs/ && make
   mv s3fs /usr/bin
-  sudo mkdir /data
 # fi  

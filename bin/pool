@@ -1,7 +1,19 @@
 #!/usr/bin/ruby
 require 'rubygems'
 $:.unshift(File.join(File.dirname(__FILE__), "lib"))
-require 'lib/poolparty'
+require 'poolparty'
+
+def display_config_data
+  PoolParty.message <<-EOM
+Starting #{PoolParty::Application.app_name ? "#{PoolParty::Application.app_name} " : "" }cloud
+  On #{PoolParty::Application.ami}
+  Minimum instances: #{PoolParty::Application.minimum_instances}
+  Maximum instances: #{PoolParty::Application.maximum_instances}
+  Polling every: #{PoolParty::Application.polling_time}
+  Keypair: #{PoolParty::Application.keypair}
+
+  EOM
+end
 
 # Set defaults
 options = PoolParty.options(:optsparse => 
@@ -17,16 +29,10 @@ list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
 
 case list[0]
 when "start"
-  PoolParty.message <<-EOM
-Starting #{PoolParty::Application.app_name ? "#{PoolParty::Application.app_name} " : "" }cloud
-  On #{PoolParty::Application.ami}
-  Minimum instances: #{PoolParty::Application.minimum_instances}
-  Maximum instances: #{PoolParty::Application.maximum_instances}
-  Polling every: #{PoolParty::Application.polling_time}
-  Keypair: #{PoolParty::Application.keypair}
-  
-  EOM
+  display_config_data
   master.start_cloud!
+when "show"
+  display_config_data
 when "add"
   master.grow_by_one
 when "install"

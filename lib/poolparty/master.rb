@@ -299,7 +299,8 @@ module PoolParty
         write_to_temp_file(str)        
       end
       
-      def set_hosts(c)
+      def set_hosts(c, remotetask=nil)
+        rt = remotetask if remotetask
         ssh_location = `which ssh`.gsub(/\n/, '')
         rsync_location = `which rsync`.gsub(/\n/, '')
         rt.set :user, Application.username

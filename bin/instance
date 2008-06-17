@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 require 'rubygems'
 require 'optparse'
-require 'lib/poolparty'
+require 'poolparty'
 require "fileutils"
 
 # Set defaults
