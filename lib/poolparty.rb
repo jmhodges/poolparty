@@ -79,6 +79,9 @@ module PoolParty
   def reset!
     @@installed_plugins = nil
   end
+  def plugin_dir
+    "vendor/"
+  end
   def read_config_file(filename)
     return {} unless filename
     YAML.load(open(filename).read)

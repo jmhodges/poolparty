@@ -33,7 +33,8 @@ module PoolParty
       unless Application.test? || waited.nil?
         message "Give some time for the instance ssh to start up"
         wait "10.seconds"
-      end      
+      end
+      install_cloud
       configure_cloud
     end
     alias_method :start, :start!
@@ -94,6 +95,11 @@ module PoolParty
     alias_method :reconfiguration, :reconfigure_cloud_when_necessary
     def number_of_unconfigured_nodes
       nodes.reject {|a| a.stack_installed? }.size
+    end
+    def grow_by_one
+      request_launch_new_instance
+      
+      self.class.get_master.configure
     end
     # Add an instance if the load is high
     def add_instance_if_load_is_high
@@ -316,7 +322,7 @@ module PoolParty
       def ssh_configure_string_for(node)
         cmd=<<-EOC
           #{node.update_plugin_string(node)}
-          pool maintain -c ~/.config -l #{Application.plugin_dir}
+          pool maintain -c ~/.config -l #{PoolParty.plugin_dir}
           hostname -v #{node.name}
           /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
         EOC

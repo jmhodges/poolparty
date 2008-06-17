@@ -15,13 +15,13 @@ module PoolParty
       end
       # Basic setup action
       def setup_application
-        Application.options({:config_file => (ENV["CONFIG_FILE"] || ENV["config"]) })
+        PoolParty.options({:config_file => (ENV["CONFIG_FILE"] || ENV["config"]) })
       end
       
       # Require the poolparty specific tasks
       Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].each { |t| eval open(t).read }
       
-      Dir["#{Application.plugin_dir}/*/Rakefile"].each {|t| load File.expand_path(PoolParty.root_dir + "/" + t) }
+      Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| load File.expand_path(PoolParty.root_dir + "/" + t) }
       
       true
     end    

@@ -129,6 +129,7 @@ module PoolParty
     def scp_basic_config_files
       scp(Application.heartbeat_authkeys_config_file, "/etc/ha.d", :dir => "/etc/ha.d/resource.d")
       scp("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d")
+      
       scp(Application.config_file, "~/.config") if Application.config_file
       Dir["#{root_dir}/config/resource.d/*"].each do |file|
         scp(file, "/etc/ha.d/resource.d/#{File.basename(file)}")

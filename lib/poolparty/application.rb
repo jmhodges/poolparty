@@ -14,7 +14,10 @@ module PoolParty
       # Make the options with the config_file overrides included
       # Default config file assumed to be at config/config.yml
       def make_options(opts={})
-        load_options!(opts.delete(:optsparse) || {})
+        loading_options = opts.delete(:optsparse) || {}
+        loading_options.merge!( {:argv => opts.delete(:argv)} )
+        
+        load_options!(loading_options)
         # default_options.merge!(opts)
         # If the config_file options are specified and not empty
         unless default_options[:config_file].nil? || default_options[:config_file].empty?
@@ -23,7 +26,7 @@ module PoolParty
           filedata = open(default_options[:config_file]).read if File.file?(default_options[:config_file])
           default_options.safe_merge!( YAML.load(filedata) ) if filedata # We want the command-line to overwrite the config file
         end
-
+        
         OpenStruct.new(default_options.merge(opts))
       end
 
@@ -64,7 +67,7 @@ module PoolParty
             puts op
             exit
           end
-        end.parse!(ARGV.dup)
+        end.parse!(opts[:argv] ? opts.delete(:argv) : ARGV.dup)
       end
       
       # Basic default options
