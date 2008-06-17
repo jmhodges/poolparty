@@ -184,10 +184,10 @@ module PoolParty
         str << "git clone #{plugin_source}\n"
       end
     end
-    def update_plugins
+    def update_plugins(c)
       ssh(c.update_plugin_string)
     end
-    
+    after :configure, :update_plugins
     # Is this the master and if not, is the master running?
     def is_not_master_and_master_is_not_running?
       !master? && !Master.is_master_responding?

@@ -6,12 +6,13 @@ describe "Plugin manager" do
     Dir["./spec/../lib/../vendor/*"].each {|a| FileUtils.rm_rf a}
   end
   it "should git clone the directory when it is installing a plugin" do
-    Git.should_receive(:clone).with("git@github.com:auser/pool-party.git", "./spec/../lib/../vendor/pool-party").and_return true
+    File.stub!(:directory?).and_return false
+    Git.should_receive(:clone).with("git@github.com:auser/pool-party.git", "/Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/vendor/pool-party").and_return true
     PluginManager.install_plugin "git@github.com:auser/pool-party.git"
   end
   it "should keep a list of the installed plugin locations" do
     PluginManager.install_plugin "git@github.com:auser/pool-party-plugins.git"
-    PoolParty.installed_plugins.should == ["git@github.com:auser/pool-party.git", "git@github.com:auser/pool-party-plugins.git"]
+    PoolParty.installed_plugins.should == ["git@github.com:auser/pool-party-plugins.git"]
   end
   it "should be able to rescan the plugin directory and tell which plugins are installed" do
     PluginManager.install_plugin "git@github.com:auser/pool-party-plugins.git"

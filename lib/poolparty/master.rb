@@ -253,12 +253,12 @@ module PoolParty
             :resources => "#{node.scp_string("#{root_dir}/config/resource.d/*", "/etc/ha.d/resource.d/", {:switches => "-r"})}",
             :monitrc => "#{node.scp_string(Application.monit_config_file, "/etc/monit/monitrc", :dir => "/etc/monit")}",
             :monit_d => "#{node.scp_string("#{File.dirname(Application.monit_config_file)}/monit/*", "/etc/monit.d/", {:switches => "-r", :dir => "/etc/monit.d/"})}",
-            :haproxy => "#{node.scp_string(haproxy_file.path, "/etc/haproxy.cfg")}",
+            :haproxy => "#{node.scp_string(haproxy_file, "/etc/haproxy.cfg")}",
             
-            :ha_d => Master.requires_heartbeat? ? "#{node.scp_string(ha_d_file.path, "/etc/ha.d/ha.cf")}" : "",
-            :haresources => Master.requires_heartbeat? ? "#{node.scp_string(haresources_file.path, "/etc/ha.d/ha.cf")}" : "",
+            :ha_d => Master.requires_heartbeat? ? "#{node.scp_string(ha_d_file, "/etc/ha.d/ha.cf")}" : "",
+            :haresources => Master.requires_heartbeat? ? "#{node.scp_string(haresources_file, "/etc/ha.d/ha.cf")}" : "",
             
-            :hosts => "#{node.scp_string(hosts_file.path, "/etc/hosts")}"
+            :hosts => "#{node.scp_string(hosts_file, "/etc/hosts")}"
           }
         write_to_temp_file(str)
       end

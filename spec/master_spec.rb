@@ -64,10 +64,10 @@ describe "Master" do
       open(@master.build_hosts_file.path).read.should == "ip-127-0-0-1.aws.amazon.com node0\nip-127-0-0-2.aws.amazon.com node1\nip-127-0-0-3.aws.amazon.com node2"
     end
     it "should be able to build a hosts file for a specific instance" do
-      open(@master.build_hosts_file_for(@master.nodes.first).path).read.should =~ "127.0.0.1 node0"
+      @master.build_hosts_file_for(@master.nodes.first).should =~ "127.0.0.1 node0"
     end
     it "should be able to build a haproxy file" do
-      open(@master.build_haproxy_file.path).read.should =~ "server node0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port}"
+      @master.build_haproxy_file.should =~ "server node0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port}"
     end
     it "should be able to reconfigure the instances (working on two files a piece)" do
       @master.nodes[0].should_receive(:configure).and_return true if @master.nodes[0].status =~ /running/
@@ -86,10 +86,10 @@ describe "Master" do
         Master.stub!(:new).and_return(@master)
       end
       it "should be able to build a heartbeat resources file for the specific node" do
-        open(Master.build_heartbeat_resources_file_for(@master.nodes.first)).read.should =~ /node0 ip-127/
+        Master.build_heartbeat_resources_file_for(@master.nodes.first).should =~ /node0 ip-127/
       end
       it "should be able to build a heartbeat config file" do
-        open(Master.build_heartbeat_config_file_for(@master.nodes.first)).read.should =~ /\nnode node0\nnode node1/
+        Master.build_heartbeat_config_file_for(@master.nodes.first).should =~ /\nnode node0\nnode node1/
       end      
       it "should be able to say if heartbeat is necessary with more than 1 server or not" do      
         Master.requires_heartbeat?.should == true

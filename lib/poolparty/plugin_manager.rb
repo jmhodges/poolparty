@@ -6,7 +6,7 @@
 require "git"
 module PoolParty
   def installed_plugins
-    @@installed_plugins ||= PluginManager.extract_git_repos_from_plugin_dirs
+    @@installed_plugins ||= PluginManager.extract_git_repos_from_plugin_dirs.uniq
   end
   class PluginManager
     include Callbacks
@@ -15,7 +15,7 @@ module PoolParty
       unless File.directory?(plugin_directory(location))
         begin
           Git.clone(location, plugin_directory(location))      
-          PoolParty.installed_plugins << location
+          reset!
         rescue Exception => e
           puts "There was an error"
           puts e
@@ -42,7 +42,6 @@ module PoolParty
     def self.extract_git_repos_from_plugin_dirs
       returning [] do |arr|
         plugin_dirs.each do |dir|
-          puts arr
           arr << open(File.join(dir, ".git", "config")).read[/url[\s]*=[\s](.*)/,1]
         end
       end

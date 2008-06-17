@@ -54,10 +54,7 @@ describe "remote instance" do
       @instance.haproxy_entry.should =~ /server/
     end
     describe "callbacks" do
-      it "should call configure after it calls install" do
-        @instance.should_receive(:configure).once.and_return(true)
-        @instance.install
-      end
+      it "should call configure after it calls install"
     end
   end
     describe "new configuration style (build scripts)" do
@@ -65,22 +62,22 @@ describe "remote instance" do
         @tempfile = Tempfile.new("/tmp")
         Kernel.stub!(:system).and_return true
       end
-      it "should try to run the scp build file" do
-        Master.should_receive(:build_scp_instances_script_for).with(@instance).and_return @tempfile
-        @instance.configure
-      end
-      it "should try to run and build the reconfigure script for the node" do
-        Master.should_receive(:build_reconfigure_instances_script_for).with(@instance).and_return @tempfile
-        @instance.configure
-      end
-      it "should scp the reconfigure file to the remote instance" do
-        @instance.should_receive(:scp).once.and_return true
-        @instance.configure
-      end
-      it "should ssh and execute the reconfigure file on the remote instance" do
-        @instance.should_receive(:ssh).once.with("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh").and_return true
-        @instance.configure
-      end
+      # it "should try to run the scp build file" do
+      #   Master.should_receive(:build_scp_instances_script_for).with(@instance).and_return @tempfile
+      #   @instance.configure
+      # end
+      # it "should try to run and build the reconfigure script for the node" do
+      #   Master.should_receive(:build_reconfigure_instances_script_for).with(@instance).and_return @tempfile
+      #   @instance.configure
+      # end
+      # it "should scp the reconfigure file to the remote instance" do
+      #   @instance.should_receive(:scp).once.and_return true
+      #   @instance.configure
+      # end
+      # it "should ssh and execute the reconfigure file on the remote instance" do
+      #   @instance.should_receive(:ssh).once.with("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh").and_return true
+      #   @instance.configure
+      # end
       describe "with a public ip" do
         before(:each) do
           Application.stub!(:public_ip).and_return "127.0.0.1"
@@ -138,13 +135,13 @@ describe "remote instance" do
     
     describe "when installing plugins" do
       it "should call update_plugins after become master" do
-        @instance.should_receive(:update_plugin_string).at_least(1)
-        @instance.become_master
+        @instance.should_receive(:update_plugins).at_least(1)
+        @instance.configure
       end
       it "should try to install the plugins from the git repos of the installed plugins" do
         PluginManager.remove_plugin "pool-party-plugins"
         PluginManager.install_plugin "git@github.com:auser/pool-party-plugins.git"
-        @instance.update_plugin_string("hi").should == "cd ~ && git clone git@github.com:auser/pool-party-plugins.git"
+        @instance.update_plugin_string.should == ["git@github.com:auser/pool-party-plugins.git"]
       end
     end
     
