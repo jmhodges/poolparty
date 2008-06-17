@@ -5,7 +5,7 @@
 module PoolParty
   class Application
     class << self
-      attr_accessor :verbose
+      attr_accessor :verbose, :options
       
       # The application options
       def options(opts={})
@@ -27,7 +27,6 @@ module PoolParty
           default_options.merge!( YAML.load(filedata) ) if filedata # We want the command-line to overwrite the config file
         end
         
-        # puts default_options.merge(opts).inspect
         OpenStruct.new(default_options.merge(opts))
       end
 

@@ -78,6 +78,7 @@ module PoolParty
   end
   def reset!
     @@installed_plugins = nil
+    Application.options = nil
   end
   def plugin_dir
     "vendor/"

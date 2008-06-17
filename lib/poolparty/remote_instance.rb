@@ -58,7 +58,7 @@ module PoolParty
       @number == 1
     end
     def set_hosts(c)
-      Master.set_hosts(rt)
+      Master.set_hosts(nil)
     end
     # Let's define some stuff for monit
     %w(stop start restart).each do |cmd|

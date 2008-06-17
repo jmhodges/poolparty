@@ -271,6 +271,10 @@ module PoolParty
             scp(file, "/etc/ha.d/resource.d/#{File.basename(file)}")
           end
           scp(Application.monit_config_file, "/etc/monit/monitrc", :dir => "/etc/monit")
+          ssh <<-EOS
+            chmod 700 /etc/monit/monitrc
+            mkdir /etc/monit.d
+          EOS
           Dir["#{root_dir}/config/monit.d/*"].each do |file|
             scp(file, "/etc/monit.d/#{File.basename(file)}")
           end
@@ -300,7 +304,8 @@ module PoolParty
       end
       
       def set_hosts(c, remotetask=nil)
-        rt = remotetask if remotetask
+        rt = remotetask unless remotetask.nil?
+        
         ssh_location = `which ssh`.gsub(/\n/, '')
         rsync_location = `which rsync`.gsub(/\n/, '')
         rt.set :user, Application.username

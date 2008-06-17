@@ -63,4 +63,7 @@ class Rake::RemoteTask < Rake::Task
       raise Vlad::CommandFailedError, "execution failed: #{cmd.join ' '}"
     end
   end
+  def set name, val = nil, &b
+    Rake::RemoteTask.set name, val, &b
+  end
 end
