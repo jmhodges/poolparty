@@ -56,7 +56,6 @@ lib/poolparty.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
 misc/basics_tutorial.txt
-poolparty-sample-app-6b2b3614c8.tar.gz
 poolparty.gemspec
 Rakefile
 README.txt
@@ -80,6 +79,13 @@ spec/remoter_spec.rb
 spec/remoting_spec.rb
 spec/spec_helper.rb
 spec/string_spec.rb
+tmp/node0-pool-party-ha.cf
+tmp/node0-pool-party-haresources
+tmp/node0-pool-party-hosts
+tmp/node1-pool-party-ha.cf
+tmp/node1-pool-party-haresources
+tmp/node1-pool-party-hosts
+tmp/pool-party-haproxy.cfg
 vendor/pool-party-vlad-deployment/deploy_task.rb
 vendor/pool-party-vlad-deployment/init.rb
 vendor/pool-party-vlad-deployment/rake.rb

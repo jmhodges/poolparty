@@ -57,7 +57,7 @@ module PoolParty
     def secondary?
       @number == 1
     end
-    def set_hosts
+    def set_hosts(c)
       Master.set_hosts(rt)
     end
     # Let's define some stuff for monit
@@ -107,7 +107,7 @@ module PoolParty
     end
     before :scp, :set_hosts
     
-    def ssh command="ls -l", &block
+    def ssh command="", &block
       blk = Proc.new do
         run "\"#{command.runnable}\""
       end
@@ -137,16 +137,24 @@ module PoolParty
       Dir["#{root_dir}/config/monit.d/*"].each do |file|
         scp(file, "/etc/monit.d/#{File.basename(file)}")
       end
-      ha_prox_y_file = Master.build_haproxy_file.path
-            
-      scp(ha_prox_y_file, "/etc/haproxy.cfg")
+      
+      `mkdir -p tmp/`
+      File.open("tmp/pool-party-haproxy.cfg", 'w') {|f| f.write(Master.build_haproxy_file) }
+      scp("tmp/pool-party-haproxy.cfg", "/etc/haproxy.cfg")
     end
     def scp_specific_config_files
       if Master.requires_heartbeat?
-        scp(Master.build_heartbeat_config_file_for(self).path, "/etc/ha.d/ha.cf")
-        scp(Master.build_heartbeat_resources_file_for(self).path, "/etc/ha/haresources", :dir => "/etc/ha")
+        hafile = "tmp/#{name}-pool-party-ha.cf"
+        File.open(hafile, 'w') {|f| f.write(Master.build_heartbeat_config_file_for(self)) }
+        scp(hafile, "/etc/ha.d/ha.cf")
+        
+        haresources_file = "tmp/#{name}-pool-party-haresources"
+        File.open(haresources_file, 'w') {|f| f.write(Master.build_heartbeat_resources_file_for(self)) }
+        scp(haresources_file, "/etc/ha/haresources", :dir => "/etc/ha")
       end
-      scp(Master.build_hosts_file_for(self).path, "/etc/hosts")
+      hosts_file = "tmp/#{name}-pool-party-hosts"
+      File.open(hosts_file, 'w') {|f| f.write(Master.build_hosts_file_for(self)) }
+      scp(hosts_file, "/etc/hosts")
     end
     
     # Installs with one commandline and an scp, rather than 10

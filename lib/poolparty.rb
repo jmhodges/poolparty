@@ -58,9 +58,6 @@ module PoolParty
   def root_dir
     File.expand_path(File.dirname(__FILE__) + "/..")
   end
-  def plugin_dir
-    Application.plugin_dir
-  end
   # Write string to a tempfile
   def write_to_temp_file(str="")
     tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
@@ -77,7 +74,7 @@ module PoolParty
     end
   end
   def load_plugins
-    Dir["#{PluginManager.base_plugin_dir}/**/init.rb"].each {|a| require a}
+    Dir["#{Application.plugin_dir}/**/init.rb"].each {|a| require a}
   end
   def reset!
     @@installed_plugins = nil

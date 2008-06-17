@@ -9,9 +9,7 @@ module PoolParty
       
       # The application options
       def options(opts={})
-        @options ||= make_options(opts)
-        PoolParty.load_plugins
-        @options
+        @options ||= make_options(opts)        
       end      
       # Make the options with the config_file overrides included
       # Default config file assumed to be at config/config.yml
@@ -121,16 +119,12 @@ module PoolParty
         "#{ec2_dir}/id_rsa#{keypair ? "-#{keypair}" : "" }"
       end
       # Are we in development or test mode
-      def development?
-        environment == 'development'
-      end
-      # Are we in production mode?
-      def production?
-        environment == "production"
-      end
-      # Are we in test mode
-      def test?
-        environment == "test"
+      %w(development production test).each do |env|
+        eval <<-EOE
+          def #{env}?
+            environment == '#{env}'
+          end
+        EOE
       end
       def environment=(env)
         environment = env

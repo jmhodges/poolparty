@@ -12,6 +12,7 @@ Usage: instance [OPTIONS] { #{commandables.join(" | ")} }
 -----------------------------------------------------------------
     EOU
     })
+PoolParty.load_plugins
 master = PoolParty::Master.new
 list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
 num = list.reject {|a| commandables.include?(a) }.pop

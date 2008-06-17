@@ -6,10 +6,11 @@ require 'lib/poolparty'
 # Set defaults
 options = PoolParty.options(:optsparse => 
   {:banner => <<-EOU
-Usage: pool [OPTIONS] {start | stop | list | maintain | restart}
+Usage: pool [OPTIONS] {start | stop | list | maintain | restart | install | configure}
 -----------------------------------------------------------------
     EOU
     })
+PoolParty.load_plugins
 master = PoolParty::Master.new
 list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
 
@@ -25,6 +26,8 @@ Starting #{PoolParty::Application.app_name ? "#{PoolParty::Application.app_name}
   
   EOM
   master.start_cloud!
+when "install"
+  master.install_cloud
 when "configure"
   master.configure_cloud
 when "stop"

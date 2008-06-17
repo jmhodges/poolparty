@@ -37,9 +37,11 @@ fi
 # Install haproxy
 # if [[ which haproxy | grep -v "bin" ]]; then
   apt-get -y install haproxy
+  echo 'Configuring haproxy logging'
   sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/haproxy
   sed -i 's/SYSLOGD=\"\"/SYSLOGD=\"-r\"/g' /etc/default/syslogd
-  echo 'local0.* /var/log/haproxy.log' >> /etc/syslog.conf && killall -9 syslogd && syslogd  
+  echo 'local0.* /var/log/haproxy.log' >> /etc/syslog.conf && /etc/init.d/sysklogd restart
+  /etc/init.d/haproxy restart
 # fi
 # Install heartbeat
 # if [[ which heartbeat | grep -v "bin" ]]; then
@@ -62,4 +64,4 @@ fi
   cd s3fs/ && make
   mv s3fs /usr/bin
   sudo mkdir /data
-# fi
+# fi  

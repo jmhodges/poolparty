@@ -39,8 +39,14 @@ module PoolParty
     alias_method :start, :start!
     def configure_cloud
       message "Configuring master"
-      master = get_node 0
+      master = get_node 0      
       master.configure
+    end
+    def install_cloud
+      message "Installing software"
+      Master.with_nodes do |node|
+        node.install
+      end
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances
@@ -130,7 +136,7 @@ module PoolParty
       servers=<<-EOS
 #{nodes.collect {|node| node.haproxy_entry}.join("\n")}
       EOS
-      write_to_temp_file(open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port})
+      open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port}
     end
     # Build the hosts file and return a tempfile
     def build_hosts_file
@@ -141,7 +147,7 @@ module PoolParty
       servers=<<-EOS        
 #{nodes.collect {|node| node.ip == n.ip ? node.local_hosts_entry : node.hosts_entry}.join("\n")}
       EOS
-      write_to_temp_file(servers)
+      servers
     end
     # Build the basic auth file for the heartbeat
     def build_heartbeat_authkeys_file
@@ -150,7 +156,7 @@ module PoolParty
     # Build heartbeat config file
     def build_heartbeat_config_file_for(node)
       servers = "#{node.node_entry}\n#{get_next_node(node).node_entry}"
-      write_to_temp_file(open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers})
+      open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers}
     end
     # Return a list of the nodes and cache them
     def nodes
@@ -218,7 +224,7 @@ module PoolParty
       # Build a heartbeat resources file from the config directory and return a tempfile
       def build_heartbeat_resources_file_for(node)
         return nil unless node
-        write_to_temp_file("#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}")
+        "#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}"
       end
       # Build hosts files for a specific node
       def build_hosts_file_for(node)
@@ -279,7 +285,7 @@ module PoolParty
       # Build basic configuration script for the node
       def build_reconfigure_instances_script_for(node)
         str = open(Application.sh_reconfigure_instances_script).read.strip ^ {
-          :config_master => "#{node.update_plugin_string(node)}",
+          :config_master => "#{node.update_plugin_string}",
           :start_pool_maintain => "pool maintain -c ~/.config -l ~/plugins",
           :set_hostname => "hostname -v #{node.name}",
           :start_s3fs => "/usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data"
@@ -291,11 +297,13 @@ module PoolParty
         ssh_location = `which ssh`.gsub(/\n/, '')
         rsync_location = `which rsync`.gsub(/\n/, '')
         rt.set :user, Application.username
-        # rt.set :domain, "#{Application.user}@#{self.ip}"
+        # rt.set :domain, "#{Application.user}@#{ip}"
         rt.set :application, Application.app_name
         rt.set :ssh_flags, "-i #{Application.keypair_path} -o StrictHostKeyChecking=no"
         rt.set :rsync_flags , ['-azP', '--delete', "-e '#{ssh_location} -l #{Application.username} -i #{Application.keypair_path} -o StrictHostKeyChecking=no'"]
-
+        
+        master = get_master
+        rt.set :domain, "#{master.ip}" if master
         Master.with_nodes { |node|
           rt.host "#{Application.username}@#{node.ip}",:app if node.status =~ /running/
         }
@@ -314,14 +322,24 @@ module PoolParty
         EOC
       end
       def build_haproxy_file
-        new.build_haproxy_file
+      servers=<<-EOS
+#{collect_nodes {|node| node.haproxy_entry}.join("\n")}
+      EOS
+      open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port}
       end
       # Write a temp file with the content str
       def write_to_temp_file(str="")
-        tempfile = Tempfile.new("pool-party---")
+        tempfile = Tempfile.new("pool-party-#{rand(1000)}-#{rand(1000)}")
         tempfile.print(str)
         tempfile.flush
         tempfile
+      end
+      def with_temp_file(str="", &block)
+        Tempfile.open "pool-party-#{rand(10000)}" do |fp|
+          fp.puts str
+          fp.flush
+          block.call(fp)
+        end
       end
     end
     

@@ -54,11 +54,4 @@ namespace(:cloud) do
       puts "There was an error starting the monitor: #{e}"
     end
   end
-  # Deploy task. 
-  # TODO: Find a beautiful way of updating the user-defined configuration
-  # data
-  desc "Deploy web application from production git repos specified in config file"
-  task :deploy => :init do
-    puts "Deploying web app on nginx"
-  end
 end

@@ -70,7 +70,8 @@ describe "Master" do
       open(@master.build_haproxy_file.path).read.should =~ "server node0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port}"
     end
     it "should be able to reconfigure the instances (working on two files a piece)" do
-      @master.nodes.each {|a| a.should_receive(:configure).and_return true if a.status =~ /running/}
+      @master.nodes[0].should_receive(:configure).and_return true if @master.nodes[0].status =~ /running/
+      @master.stub!(:number_of_unconfigured_nodes).and_return 1
       @master.reconfigure_running_instances
     end
     it "should be able to restart the running instances' services" do
@@ -173,6 +174,11 @@ describe "Master" do
 
         @master.expand?.should == true
       end      
+    end
+  end
+  describe "Configuration" do
+    it "should be able to build the haproxy file" do
+      @master.build_haproxy_file
     end
   end
   describe "Singleton methods" do
