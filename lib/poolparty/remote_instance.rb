@@ -4,13 +4,13 @@ module PoolParty
     include Remoter
     # ############################
     include PoolParty
-    include Callbacks    
+    include Callbacks
     
     attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed 
     attr_accessor :name, :number, :scp_configure_file, :configure_file, :plugin_string
     
     # CALLBACKS
-    after :install, :mark_installed
+    after :install, :mark_installed    
     
     def initialize(obj={})
       super
@@ -73,20 +73,16 @@ module PoolParty
     # This is how the cloud reconfigures itself
     def configure(caller=nil)
       associate_public_ip
-      scp_basic_config_files
-      
-      Master.with_nodes do |node|
-        # These are node-specific
-        PoolParty.message "configuring #{node.name}"
-        node.scp_specific_config_files
+      execute_tasks do
+        scp_basic_config_files
+
+        Master.with_nodes do |node|
+          # These are node-specific
+          PoolParty.message "configuring #{node.name}"
+          node.scp_specific_config_files
+        end
+        configure_basics_through_ssh        
       end
-      
-      # Master.with_nodes do |node|
-        # This is not node-specific
-        # ssh(ssh_configure_string_for(node))
-        # rt.host "#{Application.username}@#{node.ip}",:app if node.status =~ /running/
-        node.configure_basics_through_ssh
-      # end
     end
     
     def configure_basics_through_ssh
@@ -96,80 +92,57 @@ module PoolParty
         hostname -v #{name}
         /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
       EOC
-      out = ssh(cmd)
-      out
-    end
-        
-    def scp local, remote, opts={}
-      PoolParty.message "uploading #{File.basename(local)}"
-      ssh("mkdir -p #{opts[:dir]}") if opts[:dir]
-      
-      data = open(local).read
-      begin
-        rtask(:scp) do
-          rsync local, remote
-        end.execute
-      rescue Exception => e        
-      end      
-    end
-    before :scp, :set_hosts
-    
-    def ssh command="", &block
-      blk = Proc.new do
-        run "\"#{command.runnable}\""
+      execute_tasks do
+        ssh(cmd)
       end
-      ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} "
-
-      begin
-        out = (command.empty? ? system("#{ssh}") : rtask(:ssh, &blk).execute)
-      rescue Exception => e                            
-      end
-      out
     end
-    before :ssh, :set_hosts
     
     def scp_string(src,dest,opts={})
     end
     
     def scp_basic_config_files
-      scp(Application.heartbeat_authkeys_config_file, "/etc/ha.d", :dir => "/etc/ha.d/resource.d")
-      scp(conf_file("cloud_master_takeover"), "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d/")
-      
-      scp(Application.config_file, "~/.config") if Application.config_file
-      Dir["#{root_dir}/config/resource.d/*"].each do |file|
-        scp(file, "/etc/ha.d/resource.d/#{File.basename(file)}")
+      execute_tasks do
+        scp(Application.heartbeat_authkeys_config_file, "/etc/ha.d", :dir => "/etc/ha.d/resource.d")
+        scp(conf_file("cloud_master_takeover"), "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d/")
+
+        scp(Application.config_file, "~/.config") if Application.config_file
+        Dir["#{root_dir}/config/resource.d/*"].each do |file|
+          scp(file, "/etc/ha.d/resource.d/#{File.basename(file)}")
+        end
+        scp(Application.monit_config_file, "/etc/monit/monitrc", :dir => "/etc/monit")
+        Dir["#{root_dir}/config/monit.d/*"].each do |file|
+          scp(file, "/etc/monit.d/#{File.basename(file)}")
+        end
+
+        `mkdir -p tmp/`
+        File.open("tmp/pool-party-haproxy.cfg", 'w') {|f| f.write(Master.build_haproxy_file) }
+        scp("tmp/pool-party-haproxy.cfg", "/etc/haproxy.cfg")
       end
-      scp(Application.monit_config_file, "/etc/monit/monitrc", :dir => "/etc/monit")
-      Dir["#{root_dir}/config/monit.d/*"].each do |file|
-        scp(file, "/etc/monit.d/#{File.basename(file)}")
-      end
-      
-      `mkdir -p tmp/`
-      File.open("tmp/pool-party-haproxy.cfg", 'w') {|f| f.write(Master.build_haproxy_file) }
-      scp("tmp/pool-party-haproxy.cfg", "/etc/haproxy.cfg")
     end
     def scp_specific_config_files
-      ENV["HOSTS"]="#{Application.username}@#{self.ip}"
-      
-      if Master.requires_heartbeat?
-        hafile = "tmp/#{name}-pool-party-ha.cf"
-        File.open(hafile, 'w') {|f| f.write(Master.build_heartbeat_config_file_for(self)) }
-        scp(hafile, "/etc/ha.d/ha.cf")
-        
-        haresources_file = "tmp/#{name}-pool-party-haresources"
-        File.open(haresources_file, 'w') {|f| f.write(Master.build_heartbeat_resources_file_for(self)) }
-        scp(haresources_file, "/etc/ha/haresources", :dir => "/etc/ha")
+      execute_tasks({:dont_set_hosts => true}) do
+        if Master.requires_heartbeat?
+          hafile = "tmp/#{name}-pool-party-ha.cf"
+          File.open(hafile, 'w') {|f| f.write(Master.build_heartbeat_config_file_for(self)) }
+          single_scp(hafile, "/etc/ha.d/ha.cf")
+
+          haresources_file = "tmp/#{name}-pool-party-haresources"
+          File.open(haresources_file, 'w') {|f| f.write(Master.build_heartbeat_resources_file_for(self)) }
+          single_scp(haresources_file, "/etc/ha/haresources", :dir => "/etc/ha")
+        end
+        hosts_file = "tmp/#{name}-pool-party-hosts"
+        File.open(hosts_file, 'w') {|f| f.write(Master.build_hosts_file_for(self)) }
+        single_scp(hosts_file, "/etc/hosts")
       end
-      hosts_file = "tmp/#{name}-pool-party-hosts"
-      File.open(hosts_file, 'w') {|f| f.write(Master.build_hosts_file_for(self)) }
-      scp(hosts_file, "/etc/hosts")
     end
     
     # Installs with one commandline and an scp, rather than 10
     def install
       unless stack_installed?
-        scp(base_install_script, "~/base_install.sh")
-        ssh("chmod +x base_install.sh && /bin/sh base_install.sh && rm base_install.sh")
+        execute_tasks do
+          scp(base_install_script, "~/base_install.sh")
+          ssh("chmod +x base_install.sh && /bin/sh base_install.sh && rm base_install.sh")
+        end
       end
     end
     # Associate a public ip if it is set and this is the master

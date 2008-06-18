@@ -66,7 +66,23 @@ class Rake::RemoteTask < Rake::Task
   def set name, val = nil, &b
     rt.set name, val, &b
   end
+  def execute
+    rt.execute
+  end
   def rt
     @rt ||= Rake::RemoteTask
+  end
+  
+  def target_hosts
+    if hosts = ENV["HOSTS"] then
+      hosts.strip.gsub(/\s+/, '').split(",")
+    elsif options[:single]
+      @roles = {}; @roles[:app] = {}      
+      @roles[:app][options[:single]] = options[:single]
+      roles = Rake::RemoteTask.hosts_for(@roles)
+    else
+      roles = options[:roles]
+      roles ? Rake::RemoteTask.hosts_for(roles) : Rake::RemoteTask.all_hosts
+    end
   end
 end

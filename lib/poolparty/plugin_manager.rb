@@ -42,13 +42,16 @@ module PoolParty
     def self.extract_git_repos_from_plugin_dirs
       returning [] do |arr|
         plugin_dirs.each do |dir|
-          arr << open(File.join(dir, ".git", "config")).read[/url[\s]*=[\s](.*)/,1]
+          begin
+            arr << open(File.join(dir, ".git", "config")).read[/url[\s]*=[\s](.*)/,1]
+          rescue Exception => e            
+          end          
         end
       end
     end
     
     def self.plugin_dirs
-      Dir["#{PoolParty.root_dir}/vendor/*"]
+      Dir["#{PoolParty.user_dir}/vendor/*"]
     end
         
     def self.plugin_directory(path)
