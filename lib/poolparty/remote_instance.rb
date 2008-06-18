@@ -45,7 +45,7 @@ module PoolParty
     end
     # Entry for haproxy
     def haproxy_entry
-      "server #{name} #{@ip}:#{Application.client_port} weight 1 check"
+      "\tserver #{name} #{@ip}:#{Application.client_port} weight 1 minconn 3 maxconn 6 check inter 20000 check"
     end
     def haproxy_resources_entry
       "#{name} #{@ip}"
@@ -58,7 +58,7 @@ module PoolParty
       @number == 1
     end
     def set_hosts(c)
-      Master.set_hosts(nil)
+      Master.set_hosts(nil, rt)
     end
     # Let's define some stuff for monit
     %w(stop start restart).each do |cmd|
@@ -73,31 +73,34 @@ module PoolParty
     # This is how the cloud reconfigures itself
     def configure(caller=nil)
       associate_public_ip
+      scp_basic_config_files
       
       Master.with_nodes do |node|
         # These are node-specific
         PoolParty.message "configuring #{node.name}"
-        node.scp_basic_config_files
         node.scp_specific_config_files
       end
       
-      Master.with_nodes do |node|
+      # Master.with_nodes do |node|
         # This is not node-specific
         # ssh(ssh_configure_string_for(node))
-        node.ssh_configure_string
-      end
+        # rt.host "#{Application.username}@#{node.ip}",:app if node.status =~ /running/
+        node.configure_basics_through_ssh
+      # end
     end
     
-    def ssh_configure_string
+    def configure_basics_through_ssh
       cmd=<<-EOC
         #{update_plugin_string}
         pool maintain -c ~/.config -l #{Application.plugin_dir}
         hostname -v #{name}
         /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
       EOC
+      ssh(cmd)
     end
         
     def scp local, remote, opts={}
+      PoolParty.message "uploading #{File.basename(local)}"
       ssh("mkdir -p #{opts[:dir]}") if opts[:dir]
       
       data = open(local).read
@@ -128,7 +131,7 @@ module PoolParty
     
     def scp_basic_config_files
       scp(Application.heartbeat_authkeys_config_file, "/etc/ha.d", :dir => "/etc/ha.d/resource.d")
-      scp("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d")
+      scp(conf_file("cloud_master_takeover"), "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d/")
       
       scp(Application.config_file, "~/.config") if Application.config_file
       Dir["#{root_dir}/config/resource.d/*"].each do |file|
@@ -144,6 +147,8 @@ module PoolParty
       scp("tmp/pool-party-haproxy.cfg", "/etc/haproxy.cfg")
     end
     def scp_specific_config_files
+      ENV["HOSTS"]="#{Application.username}@#{self.ip}"
+      
       if Master.requires_heartbeat?
         hafile = "tmp/#{name}-pool-party-ha.cf"
         File.open(hafile, 'w') {|f| f.write(Master.build_heartbeat_config_file_for(self)) }
@@ -163,7 +168,6 @@ module PoolParty
       unless stack_installed?
         scp(base_install_script, "~/base_install.sh")
         ssh("chmod +x base_install.sh && /bin/sh base_install.sh && rm base_install.sh")
-        mark_installed(nil)
       end
     end
     # Associate a public ip if it is set and this is the master
@@ -192,6 +196,15 @@ module PoolParty
     def is_not_master_and_master_is_not_running?
       !master? && !Master.is_master_responding?
     end
+    # User conf file if it exists, or default one
+    def conf_file(name)
+      user_conf = File.join(PoolParty.user_dir, "config", name)
+      if File.file?(user_conf)
+        File.join(PoolParty.user_dir, "config", name)
+      else
+        File.join(PoolParty.root_dir, "config", name)
+      end        
+    end
      
     # Description in the rake task
     def description
@@ -205,9 +218,12 @@ module PoolParty
       end
     end
     def stack_installed?
-      @stack_installed == true
+      puts "is the stack installed?: #{(ssh('if [[ -f ~/.installed ]]; then echo "true"; fi') == "true")}"
+      @stack_installed ||= (ssh('if [[ -f ~/.installed ]]; then echo "true"; fi') == "true")
     end
     def mark_installed(caller=nil)
+      puts "marking stack installed"
+      ssh("echo 'installed' > ~/.installed")
       @stack_installed = true
     end
     def base_install_script

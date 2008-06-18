@@ -11,6 +11,10 @@ Starting #{PoolParty::Application.app_name ? "#{PoolParty::Application.app_name}
   Maximum instances: #{PoolParty::Application.maximum_instances}
   Polling every: #{PoolParty::Application.polling_time}
   Keypair: #{PoolParty::Application.keypair}
+  size: #{PoolParty::Application.size}
+  Plugins:
+  --------------
+#{Dir["#{PoolParty::Application.plugin_dir}/*"].collect {|a| "   #{File.basename(a)}"}.join("\n")}
 
   EOM
 end
@@ -33,8 +37,10 @@ when "start"
   master.start_cloud!
 when "show"
   display_config_data
-when "add"
+when "grow"
   master.grow_by_one
+when "shrink"
+  master.shrink_by_one
 when "install"
   master.install_cloud
 when "configure"

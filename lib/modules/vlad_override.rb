@@ -64,6 +64,9 @@ class Rake::RemoteTask < Rake::Task
     end
   end
   def set name, val = nil, &b
-    Rake::RemoteTask.set name, val, &b
+    rt.set name, val, &b
+  end
+  def rt
+    @rt ||= Rake::RemoteTask
   end
 end

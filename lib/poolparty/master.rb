@@ -32,9 +32,9 @@ module PoolParty
       end
       unless Application.test? || waited.nil?
         message "Give some time for the instance ssh to start up"
-        wait "10.seconds"
+        wait "15.seconds"
       end
-      install_cloud
+      install_cloud if Application.install_on_load?
       configure_cloud
     end
     alias_method :start, :start!
@@ -45,9 +45,7 @@ module PoolParty
     end
     def install_cloud
       message "Installing software"
-      Master.with_nodes do |node|
-        node.install
-      end
+      get_node(0).install
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances
@@ -97,9 +95,12 @@ module PoolParty
       nodes.reject {|a| a.stack_installed? }.size
     end
     def grow_by_one
-      request_launch_new_instance
-      
+      request_launch_new_instance      
       self.class.get_master.configure
+    end
+    def shrink_by_one
+      node = nodes.reject {|a| a.master? }[-1]
+      request_termination_of_instance(node.instance_id) if node
     end
     # Add an instance if the load is high
     def add_instance_if_load_is_high
@@ -109,8 +110,7 @@ module PoolParty
     # Teardown an instance if the load is pretty low
     def terminate_instance_if_load_is_low
       if contract?
-        node = nodes.reject {|a| a.master? }[-1]
-        request_termination_of_instance(node.instance_id) if node
+        shrink_by_one
       end
     end
     alias_method :terminate_instance, :terminate_instance_if_load_is_low
@@ -262,36 +262,6 @@ module PoolParty
           }
         write_to_temp_file(str)
       end
-      def scp_basic_config_files
-        Proc.new {
-          scp(Application.heartbeat_authkeys_config_file, "/etc/ha.d", :dir => "/etc/ha.d/resource.d")
-          scp("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d")
-          scp(Application.config_file, "~/.config")
-          Dir["#{root_dir}/config/resource.d/*"].each do |file|
-            scp(file, "/etc/ha.d/resource.d/#{File.basename(file)}")
-          end
-          scp(Application.monit_config_file, "/etc/monit/monitrc", :dir => "/etc/monit")
-          ssh <<-EOS
-            chmod 700 /etc/monit/monitrc
-            mkdir /etc/monit.d
-          EOS
-          Dir["#{root_dir}/config/monit.d/*"].each do |file|
-            scp(file, "/etc/monit.d/#{File.basename(file)}")
-          end
-          # Node specifics
-          scp(Master.build_heartbeat_config_file_for(node))
-          scp(new.build_haproxy_file, "/etc/haproxy.cfg")
-        }
-      end
-      def scp_specific_config_files_for(node)
-        Proc.new {
-          if Master.requires_heartbeat?
-            scp(Master.build_heartbeat_config_file_for(node).path, "/etc/ha.d/ha.cf")
-            scp(Master.build_heartbeat_resources_file_for(node).path, "/etc/ha/haresources", :dir => "/etc/ha")
-          end
-          scp(Master.build_hosts_file_for(node), "/etc/hosts")
-        }
-      end
       # Build basic configuration script for the node
       def build_reconfigure_instances_script_for(node)
         str = open(Application.sh_reconfigure_instances_script).read.strip ^ {
@@ -304,7 +274,9 @@ module PoolParty
       end
       
       def set_hosts(c, remotetask=nil)
-        rt = remotetask unless remotetask.nil?
+        unless remotetask.nil?
+          rt = remotetask
+        end
         
         ssh_location = `which ssh`.gsub(/\n/, '')
         rsync_location = `which rsync`.gsub(/\n/, '')
@@ -323,6 +295,9 @@ module PoolParty
       
       def rt
         @rt ||= new.rt
+      end
+      def rt=(t)
+        @rt = t
       end
       
       def ssh_configure_string_for(node)

@@ -81,7 +81,7 @@ module PoolParty
           :environment => 'development',
           :verbose => false,
           :logging => true,
-          :size => "small",
+          :size => "m1.small",
           :polling_time => "30.seconds",
           :user_data => "",
           :heavy_load => 0.80,
@@ -101,7 +101,8 @@ module PoolParty
           :expand_when => "web_usage < 1.5\n memory > 0.85",
           :contract_when => "cpu < 0.20\n memory < 0.10",
           :os => "ubuntu",
-          :plugin_dir => "vendor"
+          :plugin_dir => "vendor",
+          :install_on_load => false
         }
       end
       # Services monitored by Heartbeat
@@ -149,7 +150,9 @@ module PoolParty
       def version
         PoolParty::Version::STRING
       end
-      
+      def install_on_load?
+        options.install_on_load == true
+      end
       # Call the options from the Application
       def method_missing(m,*args)
         options.methods.include?("#{m}") ? options.send(m,args) : super

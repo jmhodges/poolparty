@@ -9,4 +9,7 @@ describe "Application options" do
     PoolParty.should_receive(:load_plugins).once
     Application.options
   end
+  it "should be able to say that the plugin directory is the current directory" do
+    File.basename(PoolParty.plugin_dir).should == "vendor"
+  end
 end

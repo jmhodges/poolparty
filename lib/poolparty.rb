@@ -58,6 +58,10 @@ module PoolParty
   def root_dir
     File.expand_path(File.dirname(__FILE__) + "/..")
   end
+  # User directory
+  def user_dir
+    Dir.pwd
+  end
   # Write string to a tempfile
   def write_to_temp_file(str="")
     tempfile = Tempfile.new("rand#{rand(1000)}-#{rand(1000)}")
@@ -81,7 +85,7 @@ module PoolParty
     Application.options = nil
   end
   def plugin_dir
-    "vendor/"
+    "#{PoolParty.root_dir}/vendor/"
   end
   def read_config_file(filename)
     return {} unless filename
