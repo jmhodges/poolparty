@@ -96,7 +96,8 @@ module PoolParty
         hostname -v #{name}
         /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
       EOC
-      ssh(cmd)
+      out = ssh(cmd)
+      out
     end
         
     def scp local, remote, opts={}
@@ -104,9 +105,12 @@ module PoolParty
       ssh("mkdir -p #{opts[:dir]}") if opts[:dir]
       
       data = open(local).read
-      rtask(:scp) do
-        rsync local, remote
-      end.execute
+      begin
+        rtask(:scp) do
+          rsync local, remote
+        end.execute
+      rescue Exception => e        
+      end      
     end
     before :scp, :set_hosts
     
@@ -117,16 +121,14 @@ module PoolParty
       ssh = "ssh -i #{Application.keypair_path} #{Application.username}@#{@ip} "
 
       begin
-        command.empty? ? system("#{ssh}") : rtask(:ssh, &blk).execute
+        out = (command.empty? ? system("#{ssh}") : rtask(:ssh, &blk).execute)
       rescue Exception => e                            
-      end            
+      end
+      out
     end
     before :ssh, :set_hosts
+    
     def scp_string(src,dest,opts={})
-      str = ""
-      str << "mkdir -p #{opts[:dir]}\n" if opts[:dir]
-      str << "scp #{opts[:switches]} -i #{Application.keypair_path} #{src} #{Application.username}@#{@ip}:#{dest}"
-      str.runnable
     end
     
     def scp_basic_config_files
@@ -218,11 +220,9 @@ module PoolParty
       end
     end
     def stack_installed?
-      puts "is the stack installed?: #{(ssh('if [[ -f ~/.installed ]]; then echo "true"; fi') == "true")}"
-      @stack_installed ||= (ssh('if [[ -f ~/.installed ]]; then echo "true"; fi') == "true")
+      @stack_installed ||= (ssh('cat ~/.installed') == "installed")
     end
     def mark_installed(caller=nil)
-      puts "marking stack installed"
       ssh("echo 'installed' > ~/.installed")
       @stack_installed = true
     end

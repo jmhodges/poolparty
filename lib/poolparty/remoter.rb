@@ -16,6 +16,7 @@ module PoolParty
       end
 
       def rtask(name, *args, &block)
+        Rake::RemoteTask.reset
         rt.remote_task(name.to_sym => args, &block)
       end
       
