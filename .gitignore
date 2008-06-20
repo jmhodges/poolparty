@@ -6,4 +6,4 @@ Manifest
 .DS_Store
 config/config.yml
 vendor
-tmp/
+tmp

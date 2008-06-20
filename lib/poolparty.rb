@@ -15,7 +15,11 @@ require "aska"
 begin
   require 'fastthread'
   require 'thin'
+  require 'system_timer'
+  Timer = SystemTimer  
 rescue LoadError
+  require 'timeout'
+  Timer = Timeout
 end
 
 ## Load PoolParty

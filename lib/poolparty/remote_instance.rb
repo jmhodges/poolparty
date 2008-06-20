@@ -73,27 +73,26 @@ module PoolParty
     # This is how the cloud reconfigures itself
     def configure(caller=nil)
       associate_public_ip
-      execute_tasks do
-        scp_basic_config_files
+      scp_basic_config_files
 
-        Master.with_nodes do |node|
-          # These are node-specific
-          PoolParty.message "configuring #{node.name}"
-          node.scp_specific_config_files
-        end
-        configure_basics_through_ssh        
+      Master.with_nodes do |node|
+        # These are node-specific
+        PoolParty.message "configuring #{node.name}"
+        node.scp_specific_config_files
       end
+      configure_basics_through_ssh
     end
     
     def configure_basics_through_ssh
+      # -l #{Application.plugin_dir}
       cmd=<<-EOC
         #{update_plugin_string}
-        pool maintain -c ~/.config -l #{Application.plugin_dir}
+        pool maintain -c ~/.config
         hostname -v #{name}
         /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
       EOC
       execute_tasks do
-        ssh(cmd)
+        ssh(cmd.runnable)
       end
     end
     
@@ -141,8 +140,10 @@ module PoolParty
       unless stack_installed?
         execute_tasks do
           scp(base_install_script, "~/base_install.sh")
-          ssh("chmod +x base_install.sh && /bin/sh base_install.sh && rm base_install.sh")
+          ssh("chmod +x base_install.sh && /bin/sh base_install.sh && rm base_install.sh && echo 'installed!' ")
         end
+        PoolParty.message "After install execute_tasks"
+        mark_installed
       end
     end
     # Associate a public ip if it is set and this is the master
@@ -193,7 +194,7 @@ module PoolParty
       end
     end
     def stack_installed?
-      @stack_installed ||= (ssh('cat ~/.installed') == "installed")
+      @stack_installed ||= (ssh('echo ~/.installed') == "installed")
     end
     def mark_installed(caller=nil)
       ssh("echo 'installed' > ~/.installed")

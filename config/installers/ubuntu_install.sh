@@ -1,12 +1,21 @@
 #!/bin/sh
 
+echo 'running ubuntu_install.sh'
 rm -rf /usr/local/src/*
 
+echo 'deb http://ftp2.de.debian.org/debian/ etch main' >> /etc/apt/sources.list
+echo 'deb-src http://ftp2.de.debian.org/debian/ etch main' >> /etc/apt/sources.list
+echo 'deb http://ftp2.de.debian.org/debian/ lenny main' >> /etc/apt/sources.list
+echo 'deb http://security.debian.org/ etch/updates main contrib' >> /etc/apt/sources.list
+echo 'deb-src http://security.debian.org/ etch/updates main contrib' >> /etc/apt/sources.list
+
+apt-get update
+apt-get upgrade
 # Get the essentials
 apt-get -y install build-essential
 
 echo 'Installing git'
-apt-get -y install git-core
+apt-get -y install git-core rsync
 
 # Install ruby
 echo 'Installing ruby...'
@@ -18,7 +27,7 @@ ln -sf /usr/bin/irb1.8 /usr/local/bin/irb
 
 # Install rubygems
 echo '-- Installing Rubygems'
-if [[ ! -f /usr/local/src/rubygems-1.1.1 ]]; then
+# if [[ ! -f /usr/local/src/rubygems-1.1.1 ]]; then
   cd /usr/local/src
   wget http://rubyforge.org/frs/download.php/35283/rubygems-1.1.1.tgz
   tar -xzf rubygems-1.1.1.tgz
@@ -26,7 +35,7 @@ if [[ ! -f /usr/local/src/rubygems-1.1.1 ]]; then
   cd rubygems-1.1.1  
   ruby setup.rb --no-rdoc --no-ri
   ln -sf /usr/bin/gem1.8 /usr/bin/gem
-fi
+# fi
 
 # Install gems
 # if [[ which pool | grep -v "bin" ]]; then
@@ -58,9 +67,11 @@ fi
 
 # Install s3fuse
 # if [[ which s3fs | grep -v "bin" ]]; then
-  apt-get install -y build-essential libcurl4-openssl-dev libxml2-dev libfuse-dev
+  apt-get install -y libcurl4-openssl-dev libxml2-dev libfuse-dev
   cd /usr/local/src && wget http://s3fs.googlecode.com/files/s3fs-r166-source.tar.gz 
   tar -zxf s3fs-r166-source.tar.gz
   cd s3fs/ && make
   mv s3fs /usr/bin
 # fi  
+
+echo ' - installed from script!'

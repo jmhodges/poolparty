@@ -2,20 +2,19 @@ module PoolParty
   extend self
   # Schedule tasks container
   class ScheduleTasks
-    attr_reader :tasks
     include ThreadSafeInstance
     # Initialize tasks array and run
-    def initialize
-      @tasks = []
-      run
+    def tasks
+      @_tasks ||= []
     end
     # Synchronize the running threaded tasks
     def run
-      unless @tasks.empty?
+      unless tasks.empty?
         self.class.synchronize do
-          @tasks.reject!{|a| 
+          tasks.reject!{|a|            
             begin
-              a.run;a.join
+              a.run
+              a.join
             rescue Exception => e    
               puts "There was an error in the task: #{e} #{e.backtrace.join("\n")}"
             end
@@ -25,8 +24,13 @@ module PoolParty
       end
     end
     # Add a task in a new thread
-    def <<(a)
-      @tasks.push( Thread.new {a.call} )
+    def <<(a, *args)
+      thread = Thread.new(a) do |task|
+        Thread.stop
+        Thread.current[:callee] = task
+        a.call args
+      end
+      tasks << thread
     end
     alias_method :push, :<<
     # In the ThreadSafeInstance
@@ -34,15 +38,14 @@ module PoolParty
   end
   # Scheduler class
   module Scheduler
-    include Callbacks
-    attr_reader :tasks
+    attr_reader :tasker
     # Get the tasks or ScheduleTasks
-    def tasks
-      @tasks ||= ScheduleTasks.new
+    def _tasker
+      @_tasker ||= ScheduleTasks.new
     end
     # Add a task to the new threaded block
     def add_task(&blk)
-      tasks.push proc{blk.call}
+      _tasker.push proc{blk.call}
     end
     # Grab the polling_time
     def interval
@@ -50,12 +53,12 @@ module PoolParty
     end
     # Run the threads
     def run_threads
-      tasks.run
+      _tasker.run
     end
     alias_method :run_tasks, :run_threads
     # Daemonize the process
     def daemonize
-      puts "Daemonizing..."
+      PoolParty.message "Daemonizing..."
       
       pid = fork do
         Signal.trap('HUP', 'IGNORE') # Don't die upon logout
@@ -71,12 +74,11 @@ module PoolParty
     end
     # Run the loop and wait the amount of time between running the tasks
     # You can send it daemonize => true and it will daemonize
-    def run_thread_loop(opts={})
+    def run_thread_loop(opts={}, &block)
       block = lambda {        
         loop do
           begin
-            yield if block_given?
-            run_threads
+            run_thread_list(&block)
             wait interval
             reset!
           rescue Exception => e
@@ -86,6 +88,11 @@ module PoolParty
       }
       # Run the tasks
       opts[:daemonize] ? daemonize(&block) : block.call   
+    end
+    
+    def run_thread_list
+      yield if block_given?
+      run_threads
     end
     # Reset
     def reset!
