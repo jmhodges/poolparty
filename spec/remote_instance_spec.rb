@@ -124,6 +124,9 @@ describe "remote instance" do
     end
     
     describe "when installing the poolparty software" do
+      before(:each) do
+        @instance.stub!(:run_now).and_return ""
+      end
       it "should be able to detect if the stack_installed? == false" do
         @instance.stack_installed?.should == false
       end

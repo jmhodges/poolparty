@@ -14,12 +14,11 @@ require 'sprinkle'
 require 'thread'
 require "pp"
 require "tempfile"
-require "aska"
-require "vlad"
-require 'fastthread'
-require 'thin'
-require 'system_timer'
-Timer = SystemTimer  
+
+begin
+  require 'fastthread'
+  require 'system_timer'
+  Timer = SystemTimer  
 rescue LoadError
   require 'timeout'
   Timer = Timeout

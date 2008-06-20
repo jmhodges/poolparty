@@ -80,8 +80,6 @@ module PoolParty
         
         run_array_of_tasks(scp_tasks)
         run_array_of_tasks(ssh_tasks)
-        
-        PoolParty.message "running #{ssh_tasks.size} tasks"
       end
       
       def target_hosts

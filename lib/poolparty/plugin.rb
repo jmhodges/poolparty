@@ -12,14 +12,14 @@ module PoolParty
     #   create_methods :install, RemoteInstance
     # will give the following methods to the class
     #   before_install and after_install on the RemoteInstance
-    def self.create_methods(name, klass)
+    def self.create_methods(name, klass, opts={})
       str = ""
       %w(before after).each do |time|        
         str << <<-EOE
           def self.#{time}_#{name}(*meth)
             callee = self
             #{klass}.class_eval do
-              meth.each {|m| #{time} :#{name}, {m.to_sym => callee.to_s}}
+              meth.each {|m| #{time} :#{name}, {m.to_sym => callee.to_s }}
             end
           end
         EOE
@@ -40,7 +40,7 @@ module PoolParty
       create_methods method, Scheduler
     end
     
-    %w(sprinkle_install).each do |method|
+    %w(load_packages).each do |method|
       create_methods method, Provider
     end
   end  

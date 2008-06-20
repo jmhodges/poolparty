@@ -20,7 +20,7 @@ describe "Remoter" do
     Application.stub!(:username).and_return "root"
   end
   it "should have an ssh method that corresponds to ssm with the keypair" do
-    @remoter.ssh_string.should == "ssh -i /Users/id_rsa-app -o StrictHostKeyChecking=no"
+    RemoteInstance.ssh_string.should == "ssh -i /Users/id_rsa-app -o StrictHostKeyChecking=no -l root"
   end
   it "should have a list of ssh_tasks" do
     @remoter.ssh_tasks.should == []
