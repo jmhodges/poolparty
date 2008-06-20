@@ -38,6 +38,10 @@ module PoolParty
     end
     %w(run_tasks).each do |method|
       create_methods method, Scheduler
-    end    
+    end
+    
+    %w(sprinkle_install).each do |method|
+      create_methods method, Provider
+    end
   end  
 end

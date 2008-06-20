@@ -4,8 +4,7 @@ module PoolParty
   class Provider
     
     def self.install_poolparty(ips)
-      
-      $:.unshift( File.dirname(__FILE__) )
+      @ips = ips
       
       load_str = []
       
@@ -25,12 +24,21 @@ module PoolParty
           requires :poolparty
         end        
         
+        #{install_from_sprinkle_string(@ips)}
+      EOS
+            
+      Sprinkle::Script.sprinkle script
+    end
+    
+    def self.install_from_sprinkle_string
+      <<-EOS
         deployment do 
           delivery :vlad do 
             
             set :ssh_cmd, '#{RemoteInstance.ssh_string}'
             
-            #{string_roles_from_ips(ips)} 
+            #{string_roles_from_ips(@ips || [])}
+            #{sprinkle_install}
           end
           
           source do
@@ -39,15 +47,13 @@ module PoolParty
             builds   '/root/builds'
           end
             
-        end 
+        end
       EOS
-      
-      PoolParty.message "Installing required poolparty paraphernalia"      
-      install_from_sprinkle_string script
     end
     
-    def self.install_from_sprinkle_string(str)
-      Sprinkle::Script.sprinkle str
+    # Serves as a placeholder for plugins
+    def sprinkle_install
+      PoolParty.message "Installing required poolparty paraphernalia"
     end
     
     def self.string_roles_from_ips(ips)
