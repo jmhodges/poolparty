@@ -34,25 +34,25 @@ when "cmd"
 when "scp"
   instance.scp instance_options[:src], instance_options[:dest]
 when "restart"
-  message "Restarting services"
+  PoolParty.message "Restarting services"
   instance.restart_with_monit
 when "start"
-  message "Starting services"
+  PoolParty.message "Starting services"
   instance.start_with_monit
 when "stop"
-  message "Stopping services"
+  PoolParty.message "Stopping services"
   instance.stop_with_monit
 when "install"
-  message "Installing services"
+  PoolParty.message "Installing services"
   instance.install
 when "start_maintain"
-  message "Running heartbeat failover service"
+  PoolParty.message "Running heartbeat failover service"
   pid = Master.run_thread_loop(:daemonize => true) do
     instance.become_master if instance.is_not_master_and_master_is_not_running?
   end
   File.open(Application.maintain_pid_path) {|f| f.write(pid)}
 when "stop_maintain"
-  message "Stopping heartbeat failover service"
+  PoolParty.message "Stopping heartbeat failover service"
   pid = open(Application.maintain_pid_path).read
   `kill -9 #{pid}`
   FileUtils.rm Application.maintain_pid_path # Check this

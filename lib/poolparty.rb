@@ -12,6 +12,7 @@ require 'thread'
 require "pp"
 require "tempfile"
 require "aska"
+require "vlad"
 begin
   require 'fastthread'
   require 'thin'
@@ -82,14 +83,14 @@ module PoolParty
     end
   end
   def load_plugins
-    Dir["#{Application.plugin_dir}/**/init.rb"].each {|a| require a}
+    Dir["#{plugin_dir}/**/init.rb"].each {|a| require a}
   end
   def reset!
     @@installed_plugins = nil
     Application.options = nil
   end
   def plugin_dir
-    "#{PoolParty.root_dir}/vendor/"
+    "#{user_dir}/vendor"
   end
   def read_config_file(filename)
     return {} unless filename

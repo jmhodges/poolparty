@@ -1,17 +1,17 @@
 #!/bin/sh
 
+apt-get clean && apt-get update
+
+echo 'increasing the memory for apt'
+echo 'APT::Cache-Limit "516777216";' >> /etc/apt/apt.conf.d/70debconf
+
 echo 'running ubuntu_install.sh'
 rm -rf /usr/local/src/*
 
-echo 'deb http://ftp2.de.debian.org/debian/ etch main' >> /etc/apt/sources.list
-echo 'deb-src http://ftp2.de.debian.org/debian/ etch main' >> /etc/apt/sources.list
-echo 'deb http://ftp2.de.debian.org/debian/ lenny main' >> /etc/apt/sources.list
-echo 'deb http://security.debian.org/ etch/updates main contrib' >> /etc/apt/sources.list
-echo 'deb-src http://security.debian.org/ etch/updates main contrib' >> /etc/apt/sources.list
-
+echo 'updating apt'
 apt-get update
-apt-get upgrade
 # Get the essentials
+echo 'building essentials'
 apt-get -y install build-essential
 
 echo 'Installing git'
@@ -39,8 +39,8 @@ echo '-- Installing Rubygems'
 
 # Install gems
 # if [[ which pool | grep -v "bin" ]]; then
-  gem1.8 update --system
-  gem1.8 install SQS aws-s3 amazon-ec2 aska rake poolparty --no-rdoc --no-ri --no-test
+  gem update --system
+  gem install SQS aws-s3 amazon-ec2 aska rake poolparty --no-rdoc --no-ri --no-test
 # fi
 
 # Install haproxy
@@ -62,7 +62,7 @@ echo '-- Installing Rubygems'
   apt-get -y install monit
   sudo mkdir /etc/monit
   sed -i 's/startup=0/startup=1/g' /etc/default/monit
-  /etc/init.d/monit start  
+  /etc/init.d/monit start
 # fi
 
 # Install s3fuse

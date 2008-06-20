@@ -1,3 +1,4 @@
+archives/ruby-1.8.6-p111.tar.gz
 bin/instance
 bin/pool
 CHANGELOG
@@ -38,6 +39,16 @@ lib/poolparty/monitors.rb
 lib/poolparty/optioner.rb
 lib/poolparty/plugin.rb
 lib/poolparty/plugin_manager.rb
+lib/poolparty/provider/packages/essential.rb
+lib/poolparty/provider/packages/git.rb
+lib/poolparty/provider/packages/haproxy.rb
+lib/poolparty/provider/packages/heartbeat.rb
+lib/poolparty/provider/packages/monit.rb
+lib/poolparty/provider/packages/rsync.rb
+lib/poolparty/provider/packages/ruby.rb
+lib/poolparty/provider/packages/s3fuse.rb
+lib/poolparty/provider/provider.rb
+lib/poolparty/provider.rb
 lib/poolparty/remote_instance.rb
 lib/poolparty/remoter.rb
 lib/poolparty/remoting.rb
@@ -71,6 +82,7 @@ spec/plugin_manager_spec.rb
 spec/plugin_spec.rb
 spec/pool_binary_spec.rb
 spec/poolparty_spec.rb
+spec/provider_spec.rb
 spec/remote_instance_spec.rb
 spec/remoter_spec.rb
 spec/remoting_spec.rb

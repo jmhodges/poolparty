@@ -91,7 +91,13 @@ module PoolParty
           :public_ip => "",
           :access_key => ENV["AWS_ACCESS_KEY_ID"],
           :secret_access_key => ENV["AWS_SECRET_ACCESS_ID"],
-          :config_file => (ENV["CONFIG_FILE"] ? ENV["CONFIG_FILE"] : nil),
+          :config_file => if ENV["CONFIG_FILE"] && !ENV["CONFIG_FILE"].empty?
+            ENV["CONFIG_FILE"]
+          elsif File.file?("config/config.yml")
+            "config/config.yml"
+          else
+            nil
+          end,
           :username => "root",
           :ec2_dir => ENV["EC2_HOME"],
           :keypair => ENV["KEYPAIR_NAME"],
@@ -102,7 +108,7 @@ module PoolParty
           :contract_when => "cpu < 0.20\n memory < 0.10",
           :os => "ubuntu",
           :plugin_dir => "vendor",
-          :install_on_load => false
+          :install_on_load => true
         }
       end
       # Services monitored by Heartbeat

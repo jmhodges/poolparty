@@ -46,10 +46,7 @@ class Rake::RemoteTask < Rake::Task
       end
     end
 
-    unless status.success? then
-      raise(Vlad::CommandFailedError,
-            "execution failed with status #{status.exitstatus}: #{cmd.join ' '}")
-    end
+    PoolParty.message "execution failed with status #{status.exitstatus}: #{cmd.join ' '}" unless status.success?
 
     result.join
   end

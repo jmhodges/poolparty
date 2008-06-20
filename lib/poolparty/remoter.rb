@@ -3,18 +3,21 @@
 =end
 module PoolParty
   module Remoter        
-    module ClassMethods      
+    module ClassMethods
+      def ssh_string
+        "ssh -i #{Application.keypair_path} -o StrictHostKeyChecking=no -l #{Application.username}"
+      end
     end
     
     module InstanceMethods      
       include Callbacks
       include Scheduler
-                  
+      
       def scp local, remote, opts={}
         data = open(local).read
         begin
           
-          cmd = "rsync --delete -azP -e '#{ssh_string} -l #{Application.username} -i #{Application.keypair_path}' "
+          cmd = "rsync --delete -azP -e '#{self.class.ssh_string} -l #{Application.username} -i #{Application.keypair_path}' "
           
           if opts[:dir]
             ssh("mkdir -p #{opts[:dir]}")
@@ -31,17 +34,13 @@ module PoolParty
         rescue Exception => e        
         end      
       end
-      
-      def ssh_string
-        "ssh -i #{Application.keypair_path} -o StrictHostKeyChecking=no"
-      end
 
       def single_scp local, remote, opts={}
         scp local, remote, opts.merge({:single => self.ip})
       end
 
       def ssh command="", opts={}, &block
-        cmd = ssh_string
+        cmd = self.class.ssh_string
         if command.empty?
           system("#{cmd} #{Application.username}@#{self.ip}")
         else
@@ -53,6 +52,10 @@ module PoolParty
             end
           end
         end
+      end
+      
+      def run_now command=""
+        system("#{self.class.ssh_string} #{Application.username}@#{self.ip} #{command.runnable}")
       end
       
       def install *names
@@ -67,7 +70,7 @@ module PoolParty
         @ssh_tasks = @scp_tasks = nil
         @hosts = nil
       end
-      
+            
       def execute_tasks(opts={})
         # reset!
         

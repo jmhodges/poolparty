@@ -58,7 +58,6 @@ module PoolParty
       @number == 1
     end
     def set_hosts(c)
-      Master.set_hosts(nil, rt)
     end
     # Let's define some stuff for monit
     %w(stop start restart).each do |cmd|
@@ -87,6 +86,7 @@ module PoolParty
       # -l #{Application.plugin_dir}
       cmd=<<-EOC
         #{update_plugin_string}
+        chmod 700 /etc/monit/monitrc
         pool maintain -c ~/.config
         hostname -v #{name}
         /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
@@ -100,6 +100,11 @@ module PoolParty
     end
     
     def scp_basic_config_files
+      cmd=<<-EOC
+        mkdir -p /etc/ha.d/resource.d
+        mkdir -p /etc/monit
+        mkdir -p /etc/monit.d
+      EOC
       execute_tasks do
         scp(Application.heartbeat_authkeys_config_file, "/etc/ha.d", :dir => "/etc/ha.d/resource.d")
         scp(conf_file("cloud_master_takeover"), "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d/")
@@ -112,7 +117,7 @@ module PoolParty
         Dir["#{root_dir}/config/monit.d/*"].each do |file|
           scp(file, "/etc/monit.d/#{File.basename(file)}")
         end
-
+        
         `mkdir -p tmp/`
         File.open("tmp/pool-party-haproxy.cfg", 'w') {|f| f.write(Master.build_haproxy_file) }
         scp("tmp/pool-party-haproxy.cfg", "/etc/haproxy.cfg")
@@ -137,14 +142,18 @@ module PoolParty
     
     # Installs with one commandline and an scp, rather than 10
     def install
-      unless stack_installed?
-        execute_tasks do
-          scp(base_install_script, "~/base_install.sh")
-          ssh("chmod +x base_install.sh && /bin/sh base_install.sh && rm base_install.sh && echo 'installed!' ")
-        end
-        PoolParty.message "After install execute_tasks"
-        mark_installed
-      end
+      # unless stack_installed?
+      #   execute_tasks do
+      #     # scp(base_install_script, "~/base_install.sh")          
+      #     ssh("chmod +x base_install.sh && /bin/sh base_install.sh && rm base_install.sh && echo 'installed!' ")
+      #   end
+      #   PoolParty.message "After install execute_tasks"
+      #   mark_installed
+      # end
+    end
+    # Login to store the authenticity
+    def login_once
+      run_now "ls -l"
     end
     # Associate a public ip if it is set and this is the master
     def associate_public_ip
@@ -194,10 +203,10 @@ module PoolParty
       end
     end
     def stack_installed?
-      @stack_installed ||= (ssh('echo ~/.installed') == "installed")
+      @stack_installed ||= (run_now('echo ~/.installed') == "installed")
     end
     def mark_installed(caller=nil)
-      ssh("echo 'installed' > ~/.installed")
+      run_now("echo 'installed' > ~/.installed")
       @stack_installed = true
     end
     def base_install_script

@@ -44,8 +44,10 @@ module PoolParty
       master.configure
     end
     def install_cloud
-      message "Installing software"
-      get_node(0).install
+      Master.with_nodes do |node|
+        node.login_once
+      end
+      Provider.install_poolparty(nodes.collect {|a| a.ip })
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances
@@ -292,14 +294,7 @@ module PoolParty
           rt.host "#{Application.username}@#{node.ip}",:app if node.status =~ /running/
         }
       end
-      
-      def rt
-        @rt ||= new.rt
-      end
-      def rt=(t)
-        @rt = t
-      end
-      
+            
       def ssh_configure_string_for(node)
         cmd=<<-EOC
           #{node.update_plugin_string(node)}
