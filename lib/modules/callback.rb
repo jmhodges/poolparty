@@ -3,10 +3,12 @@
 =end
 module PoolParty
   module Callbacks
-    module ClassMethods      
-      attr_reader :callbacks
+    module ClassMethods
       def define_callback_module(mod)
         callbacks << mod
+      end
+      def define_callback_class(cla)
+        classes << cla
       end
       def callback(type, m, *args, &block)
         arr = []                
@@ -16,10 +18,8 @@ module PoolParty
             arg.collect do |meth, klass|
               case klass.class.to_s
               when "String"
-                "
-                self.instance_eval %{def #{klass.to_s.downcase};@#{klass.to_s.downcase} ||= #{klass}.new;end}                
-                #{klass.to_s.downcase}.#{meth}(self)
-                "                
+                define_callback_class(klass)
+                "self.#{klass.to_s.downcase}.#{meth}(self)"
               else
                 "#{klass}.send :#{meth}, self"
               end              
@@ -82,18 +82,32 @@ module PoolParty
       def callbacks
         @callbacks ||= []
       end
-
+      def classes
+        @classes ||= []
+      end
     end
 
     module InstanceMethods
       def initialize(*args)
-
+        extend_callbacks
+        extend_callback_methods
+      end
+      
+      def extend_callback_methods
+        unless self.class.classes.empty? 
+          self.class.classes.each do |klass|
+            m = %{def #{klass.to_s.downcase};@#{klass.to_s.downcase} ||= #{klass}.new;end}
+            self.class.class_eval m unless self.class.method_defined?(m)
+          end
+        end
+      end
+      
+      def extend_callbacks
         unless self.class.callbacks.empty?
           self.class.callbacks.each do |mod|
             self.extend(mod)
           end
         end
-
       end
     end
 

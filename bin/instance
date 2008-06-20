@@ -1,28 +1,23 @@
 #!/usr/bin/ruby
 require 'rubygems'
 require 'optparse'
-require 'pool_party'
+require 'poolparty'
 require "fileutils"
 
 # Set defaults
-list = PoolParty::Optioner.parse(ARGV.dup)
-options = PoolParty::Application.options(ARGV.dup)
+commandables = %w(ssh cmd scp restart start stop install start_maintain stop_maintain)
+options = PoolParty.options(:optsparse => 
+  { :banner => <<-EOU
+Usage: instance [OPTIONS] { #{commandables.join(" | ")} }
+-----------------------------------------------------------------
+    EOU
+    })
+PoolParty.load_plugins
 master = PoolParty::Master.new
+list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
+num = list.reject {|a| commandables.include?(a) }.pop
 
-instance_options = {
-  :instance_number => 0,
-  :cmd => "ls -l",
-  :src => "",
-  :dest => ""
-}
-OptionParser.new do |op|
-  op.on('-i inst', '--instance i', "The instance_number (default: 0)") {|x| instance_options[:instance_number] = x}
-  op.on('-C cmd', '--command command', "Run this command on the instance (default: 'ls -l')") {|x| instance_options[:cmd] = x}
-  op.on('-s src', '--source filename', "Send this file through scp (default: '')") {|x| instance_options[:src] = x}
-  op.on('-d dest', '--destination filename', "Send file to (default: '')") {|x| instance_options[:dest] = x}
-end.parse!(ARGV.dup)
-
-instance = master.get_node(instance_options[:instance_number])
+instance = master.get_node(num)
 
 unless instance
   puts "Cloud is not running"
@@ -39,25 +34,25 @@ when "cmd"
 when "scp"
   instance.scp instance_options[:src], instance_options[:dest]
 when "restart"
-  message "Restarting services"
+  PoolParty.message "Restarting services"
   instance.restart_with_monit
 when "start"
-  message "Starting services"
+  PoolParty.message "Starting services"
   instance.start_with_monit
 when "stop"
-  message "Stopping services"
+  PoolParty.message "Stopping services"
   instance.stop_with_monit
 when "install"
-  message "Installing services"
+  PoolParty.message "Installing services"
   instance.install
 when "start_maintain"
-  message "Running heartbeat failover service"
+  PoolParty.message "Running heartbeat failover service"
   pid = Master.run_thread_loop(:daemonize => true) do
     instance.become_master if instance.is_not_master_and_master_is_not_running?
   end
   File.open(Application.maintain_pid_path) {|f| f.write(pid)}
 when "stop_maintain"
-  message "Stopping heartbeat failover service"
+  PoolParty.message "Stopping heartbeat failover service"
   pid = open(Application.maintain_pid_path).read
   `kill -9 #{pid}`
   FileUtils.rm Application.maintain_pid_path # Check this

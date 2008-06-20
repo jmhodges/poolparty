@@ -5,7 +5,7 @@ describe "Application" do
     options({:optparse => {:banner => "hi"}})
   end
   it "should have the root_dir defined" do
-    Application.root_dir.should_not be_nil
+    PoolParty.root_dir.should_not be_nil
   end
   it "should be able to call on the haproxy_config_file" do
     Application.haproxy_config_file.should_not be_nil
@@ -31,7 +31,7 @@ describe "Application" do
     Application.keypair_path.should == "~/.ec2/id_rsa-poolparty"
   end
   it "should be able to show the version of the gem" do
-    Application.version.should_not be_nil    
+    Application.version.should_not be_nil
   end
   it "should show the version as a string" do
     Application.version.class.should == String

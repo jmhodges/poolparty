@@ -1,4 +1,0 @@
-#!/usr/bin/ruby
-require 'rubygems'
-require 'pool_party'
-

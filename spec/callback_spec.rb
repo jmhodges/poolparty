@@ -187,7 +187,8 @@ class BindingClass
   end
 end
 describe "Variables on the plugin callbacker class" do
-  it "should be able to get to the same data twice" do
+  it "should have a new method of the class" do
     BindingClass.new.print
+    BindingClass.new.methods.include?("eviloutsideclass").should == true
   end
 end

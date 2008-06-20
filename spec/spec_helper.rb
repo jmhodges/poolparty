@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), *%w[.. lib pool_party])
+require File.join(File.dirname(__FILE__), *%w[.. lib poolparty])
 
 %w(test/spec).each do |library|
   begin
@@ -13,6 +13,7 @@ Dir["#{File.dirname(__FILE__)}/helpers/**"].each {|a| require a}
 include PoolParty
 extend PoolParty
 
+Application.environment = "test"
 Application.verbose = false
 
 def wait_launch(time=5)

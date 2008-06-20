@@ -99,7 +99,7 @@ For more help, check http://poolpartyrb.com
 
 == INSTALL:
 
-  gem install pool_party
+  gem install poolparty
 
 == ROADMAP
 
