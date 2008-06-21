@@ -76,25 +76,29 @@ module PoolParty
 
       Master.with_nodes do |node|
         # These are node-specific
-        # PoolParty.message "configuring #{node.name}"
+        PoolParty.message "configuring #{node.name}"
         node.scp_specific_config_files
       end
       configure_basics_through_ssh
     end
     
     def configure_basics_through_ssh
-      # -l #{Application.plugin_dir}
-      cmd=<<-EOC
-        chmod 700 /etc/monit/monitrc        
-        hostname -v #{name}        
-      EOC
       execute_tasks do        
+        ssh(configure_monit)
         ssh(setup_haproxy)
-        ssh(cmd)
+        ssh(change_hostname)
         ssh(update_plugin_string)
         ssh(mount_s3_drive) unless Application.shared_bucket.empty?
         ssh("pool maintain -c ~/.config")
       end
+    end
+    
+    def configure_monit
+      "chmod 700 /etc/monit/monitrc"
+    end
+    
+    def change_hostname
+      "hostname -v #{name}"
     end
     
     def setup_haproxy

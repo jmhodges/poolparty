@@ -51,12 +51,13 @@ module PoolParty
           op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
           op.on('-a address', '--public-ip address', "Associate this public address with the master node") {|s| default_options[:public_ip] = s}
           op.on('-s size', '--size size', "Run specific sized instance") {|s| default_options[:size] = s}
-          op.on('-n name', '--name name', "Application name") {|n| default_options[:app_name] = n}
+          op.on('-a name', '--name name', "Application name") {|n| default_options[:app_name] = n}
           op.on('-u username', '--username name', "Login with the user (default: root)") {|s| default_options[:user] = s}
           op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:user_data] = data }
+          op.on('-i', '--install-on-boot', 'Install the PoolParty and custom software on boot (default: false)') {|b| default_options[:install_on_load] = true}
           op.on('-t seconds', '--polling-time', "Time between polling in seconds (default 50)") {|t| default_options[:polling_time] = t }
           op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:verbose] = true}
-          op.on('-i number', '--minimum-instances', "The minimum number of instances to run at all times (default 1)") {|i| default_options[:minimum_instances] = i.to_i}
+          op.on('-n number', '--minimum-instances', "The minimum number of instances to run at all times (default 1)") {|i| default_options[:minimum_instances] = i.to_i}
           op.on('-x number', '--maximum-instances', "The maximum number of instances to run (default 3)") {|x| default_options[:maximum_instances] = x.to_i}
           
           op.on_tail("-V", "Show version") do

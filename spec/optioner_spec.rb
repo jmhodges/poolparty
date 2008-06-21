@@ -13,6 +13,9 @@ describe "Optioner with options" do
   it "should be able to pull out the lonely arguments with optional argument switches" do
     Optioner.parse("-s 30 -q -n start".split(" "), %w(-q -n)).should == ["start"]
   end
+  it "should be able to pull out the lonely, default arguments with optional argument switches" do
+    Optioner.parse("-s 30 -q -n start -i -v".split(" "), %w(-q -n)).should == ["start"]
+  end
   it "should pull out the lonely arguments if none are there" do
     Optioner.parse("-s 30 -q".split(" ")).should == []
   end

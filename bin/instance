@@ -14,7 +14,7 @@ Usage: instance [OPTIONS] { #{commandables.join(" | ")} }
     })
 PoolParty.load_plugins
 master = PoolParty::Master.new
-list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
+list = PoolParty::Optioner.parse(ARGV.dup)
 num = list.reject {|a| commandables.include?(a) }.pop
 
 instance = master.get_node(num)

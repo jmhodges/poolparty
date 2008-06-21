@@ -34,32 +34,33 @@ module PoolParty
         message "Give some time for the instance ssh to start up"
         wait "15.seconds"
       end
-      install_cloud if Application.install_on_load?
-      install_user_packages
+      install_cloud
       configure_cloud
     end
     alias_method :start, :start!
+    # Configure the master because 
     def configure_cloud
       message "Configuring master"
       master = get_node 0      
       master.configure
     end
     def install_cloud
-      update_apt_string =<<-EOE        
-        echo 'deb http://mirrors.cs.wmich.edu/ubuntu hardy main universe' >> /etc/apt/sources.list
-        sudo apt-get update --fix-missing
-      EOE
-      Master.with_nodes do |node|
-        node.run_now update_apt_string
+      if Application.install_on_load?
+        # Just in case, add the new ubuntu apt-sources as well as updating and fixing the 
+        # update packages.
+        update_apt_string =<<-EOE        
+          echo 'deb http://mirrors.cs.wmich.edu/ubuntu hardy main universe' >> /etc/apt/sources.list
+          sudo apt-get update --fix-missing
+        EOE
+        Master.with_nodes do |node|
+          node.run_now update_apt_string
+        end
+        Provider.install_poolparty(cloud_ips)
+        Provider.install_userpackages(cloud_ips)
       end
-      Provider.install_poolparty(cloud_ips)
-    end
-    # Install the packages the user defined
-    def install_user_packages
-      Provider.install_userpackages(cloud_ips)
     end
     def cloud_ips
-      nodes.collect {|a| a.ip }
+      @ips ||= nodes.collect {|a| a.ip }
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances

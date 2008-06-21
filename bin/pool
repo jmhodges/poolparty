@@ -29,7 +29,7 @@ Usage: pool [OPTIONS] {start | stop | list | maintain | restart | install | conf
 
 PoolParty.load_plugins
 master = PoolParty::Master.new
-list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
+list = PoolParty::Optioner.parse(ARGV.dup)
 
 case list[0]
 when "start"
