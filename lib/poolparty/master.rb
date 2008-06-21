@@ -38,7 +38,7 @@ module PoolParty
       configure_cloud
     end
     alias_method :start, :start!
-    # Configure the master because 
+    # Configure the master because the master will take care of the rest after that
     def configure_cloud
       message "Configuring master"
       master = get_node 0      
@@ -49,11 +49,13 @@ module PoolParty
         # Just in case, add the new ubuntu apt-sources as well as updating and fixing the 
         # update packages.
         update_apt_string =<<-EOE        
+          touch /etc/apt/sources.list
           echo 'deb http://mirrors.cs.wmich.edu/ubuntu hardy main universe' >> /etc/apt/sources.list
           sudo apt-get update --fix-missing
         EOE
-        Master.with_nodes do |node|
-          node.run_now update_apt_string
+        
+        execute_tasks do
+          ssh(update_apt_string)
         end
         Provider.install_poolparty(cloud_ips)
         Provider.install_userpackages(cloud_ips)

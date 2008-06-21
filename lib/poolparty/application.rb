@@ -109,7 +109,7 @@ module PoolParty
           :contract_when => "cpu < 0.20\n memory < 0.10",
           :os => "ubuntu",
           :plugin_dir => "vendor",
-          :install_on_load => true
+          :install_on_load => false
         }
       end
       # Services monitored by Heartbeat
