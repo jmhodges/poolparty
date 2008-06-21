@@ -76,7 +76,7 @@ module PoolParty
 
       Master.with_nodes do |node|
         # These are node-specific
-        PoolParty.message "configuring #{node.name}"
+        # PoolParty.message "configuring #{node.name}"
         node.scp_specific_config_files
       end
       configure_basics_through_ssh

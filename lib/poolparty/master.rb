@@ -35,6 +35,7 @@ module PoolParty
         wait "15.seconds"
       end
       install_cloud if Application.install_on_load?
+      install_user_packages
       configure_cloud
     end
     alias_method :start, :start!
@@ -51,7 +52,14 @@ module PoolParty
       Master.with_nodes do |node|
         node.run_now update_apt_string
       end
-      Provider.install_poolparty(nodes.collect {|a| a.ip })
+      Provider.install_poolparty(cloud_ips)
+    end
+    # Install the packages the user defined
+    def install_user_packages
+      Provider.install_userpackages(cloud_ips)
+    end
+    def cloud_ips
+      nodes.collect {|a| a.ip }
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances

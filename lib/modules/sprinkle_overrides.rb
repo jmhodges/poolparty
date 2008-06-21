@@ -17,5 +17,16 @@ module Sprinkle
       end
     end
     
+    class Gem < Installer
+      protected
+        def install_sequence
+          cmd = "gem install -y #{gem}"
+          cmd << " --version '#{version}'" if version
+          cmd << " --source #{source}" if source
+          cmd
+        end
+    end
+    
+    
   end
 end
