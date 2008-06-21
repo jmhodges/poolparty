@@ -29,9 +29,9 @@ end
 
 package :poolparty do
   description "Pool party gem"
-  gem "auser-pool-party" do
-    source 'http://gems.github.com'
-  end
+  gem "poolparty" #do
+  #   source 'http://gems.github.com'
+  # end
   
   required :poolparty_required_gems
 end

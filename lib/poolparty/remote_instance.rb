@@ -85,15 +85,26 @@ module PoolParty
     def configure_basics_through_ssh
       # -l #{Application.plugin_dir}
       cmd=<<-EOC
-        #{update_plugin_string}
-        chmod 700 /etc/monit/monitrc
-        pool maintain -c ~/.config
+        #{update_plugin_string.join("\n").strip}        
+        chmod 700 /etc/monit/monitrc        
         hostname -v #{name}
-        /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
+        /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data        
       EOC
       execute_tasks do
+        ssh("#{setup_haproxy.strip}")
         ssh(cmd.runnable)
+        ssh("pool maintain -c ~/.config")
       end
+    end
+    
+    def setup_haproxy
+      <<-EOS
+        sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/haproxy
+        sed '$d' < /etc/default/syslogd > /etc/default/syslogd2 ; mv /etc/default/syslogd2 /etc/default/syslogd
+        echo 'SYSLOGD=-r' >> /etc/default/syslogd
+        echo 'local0.* /var/log/haproxy.log' >> /etc/syslog.conf && /etc/init.d/sysklogd restart
+        /etc/init.d/haproxy restart
+      EOS
     end
     
     def scp_string(src,dest,opts={})
@@ -109,7 +120,7 @@ module PoolParty
         scp(Application.heartbeat_authkeys_config_file, "/etc/ha.d", :dir => "/etc/ha.d/resource.d")
         scp(conf_file("cloud_master_takeover"), "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d/")
 
-        scp(Application.config_file, "~/.config") if Application.config_file
+        scp(Application.config_file, "~/.config") if File.file?(Application.config_file)
         Dir["#{root_dir}/config/resource.d/*"].each do |file|
           scp(file, "/etc/ha.d/resource.d/#{File.basename(file)}")
         end

@@ -55,7 +55,7 @@ module PoolParty
       end
       
       def run_now command=""
-        system("#{self.class.ssh_string} #{Application.username}@#{self.ip} #{command.runnable}")
+        `#{self.class.ssh_string} #{Application.username}@#{self.ip} #{command.runnable}`
       end
       
       def install *names

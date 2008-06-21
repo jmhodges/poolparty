@@ -27,6 +27,10 @@ module PoolParty
       eval str
     end
     
+    def self.install_package_string(str)
+      PoolParty.Provider.user_packages=str
+    end
+    
     %w(install configure associate_public_ip become_master).each do |method|
       create_methods method, RemoteInstance
     end    
@@ -40,8 +44,5 @@ module PoolParty
       create_methods method, Scheduler
     end
     
-    %w(load_packages).each do |method|
-      create_methods method, Provider
-    end
   end  
 end

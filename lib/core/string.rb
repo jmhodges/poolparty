@@ -14,6 +14,9 @@ class String
   def ^(h={})
     self.gsub(/:([\w]+)/) {h[$1.to_sym] if h.include?($1.to_sym)}
   end
+  def arrayable
+    self.strip.split(/\n/)
+  end
   def runnable
     self.strip.gsub(/\n/, " && ")
   end

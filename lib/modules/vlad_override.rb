@@ -1,12 +1,13 @@
 require "vlad"
 class Rake::RemoteTask < Rake::Task
   def run command
-    cmd = [ssh_cmd, ssh_flags, target_host, command].compact
+    cmd = [ssh_cmd, ssh_flags, target_host].compact
     result = []
     
-    warn cmd.join(' ') if $TRACE
+    commander = cmd.join(" ") << " \"#{command}\""
+    warn commander if $TRACE
 
-    pid, inn, out, err = popen4(*cmd.join(" "))
+    pid, inn, out, err = popen4(commander)
 
     inn.sync   = true
     streams    = [out, err]

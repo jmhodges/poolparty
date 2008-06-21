@@ -52,6 +52,7 @@ describe "Plugin" do
     end
     it "should should call echo_hosts after calling configure" do      
       @test.should_receive(:echo_hosts).at_least(1)
+      # @instance.stub!(:)
       @instance.install
     end
     it "should call email_updates after calling install" do
@@ -68,6 +69,7 @@ describe "Plugin" do
     end
     it "should say that it started on the master" do
       @test.should_receive(:echo_start).at_least(1).and_return "hi"
+      @master.stub!(:install_cloud)
       @master.start
     end
     describe "instance methods" do

@@ -44,8 +44,12 @@ module PoolParty
       master.configure
     end
     def install_cloud
+      update_apt_string =<<-EOE        
+        "echo 'deb http://mirrors.cs.wmich.edu/ubuntu hardy main universe' >> /etc/apt/sources.list
+        sudo apt-get update --fix-missing"
+      EOE
       Master.with_nodes do |node|
-        node.login_once
+        node.run_now update_apt_string
       end
       Provider.install_poolparty(nodes.collect {|a| a.ip })
     end
@@ -179,7 +183,7 @@ module PoolParty
     # Get the next node in sequence, so we can configure heartbeat to monitor the next node
     def get_next_node(node)
       i = node.number + 1
-      i = 0 if i >= (nodes.size - 1)
+      i = 0 if i >= nodes.size
       get_node(i)
     end
     # On exit command

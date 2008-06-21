@@ -1,7 +1,8 @@
-require "sprinkle"
-
 module PoolParty
   class Provider
+    class << self
+      attr_accessor :user_packages
+    end
     
     def self.install_poolparty(ips)
       @ips = ips
@@ -21,7 +22,7 @@ module PoolParty
           requires :rsync          
           requires :poolparty          
           
-          #{user_packages}
+          #{@user_packages}
         end        
         
         #{install_from_sprinkle_string}
@@ -36,9 +37,6 @@ module PoolParty
       returning load_str do
         Dir["#{File.expand_path(File.dirname(__FILE__))}/packages/*"].each {|f| load_str << open(f).read}
       end
-    end
-    
-    def self.user_packages      
     end
     
     def self.install_from_sprinkle_string

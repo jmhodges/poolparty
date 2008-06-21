@@ -74,7 +74,7 @@ module PoolParty
       {
         :instance_id => resp.instanceId, 
         :ip => resp.dnsName, 
-        :status => resp.instanceState.name, 
+        :status => resp.instanceState.name,
         :launching_time => resp.launchTime
       } rescue nil
     end
