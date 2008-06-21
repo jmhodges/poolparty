@@ -27,7 +27,7 @@ package :poolparty_required_gems do
   gems %w(SQS aws-s3 amazon-ec2 aska rake)
 end
 
-package :poolparty do
+package :prequired_gems do
   description "Pool party gem"
   gem "poolparty" #do
   #   source 'http://gems.github.com'

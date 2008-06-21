@@ -28,7 +28,11 @@ module PoolParty
     end
     
     def self.install_package_string(str)
-      PoolParty.Provider.user_packages=str
+      PoolParty::Provider.define_user_packages str
+    end
+    
+    def self.define_package_string(str)
+      PoolParty::Provider.user_defined_packages str
     end
     
     %w(install configure associate_public_ip become_master).each do |method|
@@ -42,6 +46,10 @@ module PoolParty
     end
     %w(run_tasks).each do |method|
       create_methods method, Scheduler
+    end
+    
+    %w(load_packages).each do |method|
+      create_methods method, Provider
     end
     
   end  

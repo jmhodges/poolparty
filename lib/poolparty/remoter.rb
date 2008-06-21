@@ -17,17 +17,15 @@ module PoolParty
         data = open(local).read
         begin
           
-          cmd = "rsync --delete -azP -e '#{self.class.ssh_string} -l #{Application.username} -i #{Application.keypair_path}' "
-          
-          if opts[:dir]
-            ssh("mkdir -p #{opts[:dir]}")
-          end
+          cmd = "rsync --delete -azP -e '#{self.class.ssh_string}' "
+                    
+          ssh("mkdir -p #{opts[:dir]}") if opts[:dir]
           
           if opts[:single]
-            scp_tasks << "#{cmd} #{local} #{Application.username}@#{opts[:single]}:#{remote}"
+            scp_tasks << "#{cmd} #{local} #{opts[:single]}:#{remote}"
           else
             target_hosts.each do |ip|
-              scp_tasks << "#{cmd} #{local} #{Application.username}@#{ip}:#{remote}"
+              scp_tasks << "#{cmd} #{local} #{ip}:#{remote}"
             end
           end
           
@@ -41,21 +39,25 @@ module PoolParty
 
       def ssh command="", opts={}, &block
         cmd = self.class.ssh_string
+        
         if command.empty?
-          system("#{cmd} #{Application.username}@#{self.ip}")
+          system("#{cmd} #{self.ip}")
         else
           if opts[:single]
-            ssh_tasks << "#{cmd} #{Application.username}@#{self.ip} '#{command.runnable}'"
+            ssh_tasks << "#{cmd} #{self.ip} '#{command.runnable}'"
           else
             target_hosts.each do |ip|
-              ssh_tasks << "#{cmd} #{Application.username}@#{ip} '#{command.runnable}'"
+              ssh_tasks << "#{cmd} #{ip} '#{command.runnable}'"
             end
           end
         end
+          
       end
       
-      def run_now command=""
-        `#{self.class.ssh_string} #{Application.username}@#{self.ip} #{command.runnable}`
+      def run_now command
+        unless command.empty?
+          `#{self.class.ssh_string} #{self.ip} #{command.runnable}`
+        end
       end
       
       def install *names
@@ -87,8 +89,12 @@ module PoolParty
       end
       
       def run_array_of_tasks(task_list)
-        add_task {`#{task_list.join(" && ")}`}
-        run_thread_list
+        unless task_list.size == 0
+          task_list.each do |task|
+            add_task {`#{task}`}
+          end          
+          run_thread_list
+        end
       end
       
       def set_hosts(c=nil)

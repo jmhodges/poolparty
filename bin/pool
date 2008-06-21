@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 require 'rubygems'
 $:.unshift(File.join(File.dirname(__FILE__), "lib"))
-require 'lib/poolparty'
+require 'poolparty'
 
 def display_config_data
   PoolParty.message <<-EOM

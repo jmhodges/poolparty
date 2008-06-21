@@ -90,6 +90,7 @@ spec/remoting_spec.rb
 spec/scheduler_spec.rb
 spec/spec_helper.rb
 spec/string_spec.rb
+tmp/node0-pool-party-hosts
 tmp/pool-party-haproxy.cfg
 web/static/conf/nginx.conf
 web/static/site/images/balloon.png

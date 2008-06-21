@@ -45,8 +45,8 @@ module PoolParty
     end
     def install_cloud
       update_apt_string =<<-EOE        
-        "echo 'deb http://mirrors.cs.wmich.edu/ubuntu hardy main universe' >> /etc/apt/sources.list
-        sudo apt-get update --fix-missing"
+        echo 'deb http://mirrors.cs.wmich.edu/ubuntu hardy main universe' >> /etc/apt/sources.list
+        sudo apt-get update --fix-missing
       EOE
       Master.with_nodes do |node|
         node.run_now update_apt_string
