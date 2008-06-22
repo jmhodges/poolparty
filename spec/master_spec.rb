@@ -187,8 +187,28 @@ describe "Master" do
       end
       it "should copy the cloud_master_takeover script to the tmp directory" do
         @master.should_receive(:get_config_file_for).once.and_return "true"
-        File.should_receive(:copy).at_least(1).and_return true
+        File.should_receive(:copy).twice.and_return true
         @master.build_config_files_in_temp_directory
+      end
+      it "should copy the config file if it exists" do
+        Application.stub!(:config_file).and_return "config.yml"
+        File.stub!(:exists?).and_return true        
+        File.should_receive(:copy).exactly(3).times.and_return true
+        @master.build_config_files_in_temp_directory
+      end
+      describe "with copy_config_files_in_directory_to_tmp_dir method" do
+        it "should check to see if there is a directory in the user directory to grab the files from" do
+          File.should_receive(:directory?).with("#{user_dir}/resource.d").and_return true
+          @master.copy_config_files_in_directory_to_tmp_dir("resource.d")
+        end
+        it "should copy all the files that are in the directory" do
+          Dir.stub!(:[]).with("#{user_dir}/resource.d/*").and_return ["1","2","3"]
+          File.should_receive(:copy).exactly(3).times.and_return true
+          @master.copy_config_files_in_directory_to_tmp_dir("resource.d")
+        end
+        it "should copy all the resource.d files from the monit directory to the tmp directory" do
+          @master.copy_config_files_in_directory_to_tmp_dir("resource.d")
+        end
       end
     end
   end

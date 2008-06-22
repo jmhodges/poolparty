@@ -38,7 +38,7 @@ when "start"
 when "show"
   display_config_data
 when "grow"
-  master.grow_by_one
+  master.grow_by
 when "shrink"
   master.shrink_by
 when "install"

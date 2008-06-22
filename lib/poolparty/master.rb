@@ -129,7 +129,7 @@ module PoolParty
       require 'ftools'
       File.copy(get_config_file_for("cloud_master_takeover"), "#{base_tmp_dir}/cloud_master_takeover")      
       
-      File.copy(Application.config_file, "#{base_tmp_dir}/config.yml") if Application.config_file && File.file?(Application.config_file)
+      File.copy(Application.config_file, "#{base_tmp_dir}/config.yml") if Application.config_file && File.exists?(Application.config_file)
       File.copy(Application.monit_config_file, "#{base_tmp_dir}/monitrc")
       
       copy_config_files_in_directory_to_tmp_dir("resource.d")
@@ -217,7 +217,7 @@ module PoolParty
     end
     # Try the user's directory before the master directory
     def get_config_file_for(name)
-      if File.file?("#{user_dir}/config/#{name}")
+      if File.exists?("#{user_dir}/config/#{name}")
         "#{user_dir}/config/#{name}"
       else 
         "#{root_dir}/config/#{name}"
