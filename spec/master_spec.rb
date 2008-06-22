@@ -42,6 +42,9 @@ describe "Master" do
           {:instance_id => "i-5849bc", :ip => "ip-127-0-0-3.aws.amazon.com", :status => "pending"}
         ])
       Kernel.stub!(:exec).and_return true
+      @instance = RemoteInstance.new
+      @instance.stub!(:ip).and_return("127.0.0.1")
+      @instance.stub!(:name).and_return("node0")
     end
     
     it "should be able to go through the instances and assign them numbers" do
@@ -61,13 +64,13 @@ describe "Master" do
       @master.get_node(2).instance_id.should == "i-5849bc"
     end
     it "should be able to build a hosts file" do
-      open(@master.build_hosts_file.path).read.should == "ip-127-0-0-1.aws.amazon.com node0\nip-127-0-0-2.aws.amazon.com node1\nip-127-0-0-3.aws.amazon.com node2"
+      open(@master.build_hosts_file_for(@instance).path).read.should == "ip-127-0-0-1.aws.amazon.com node0\nip-127-0-0-2.aws.amazon.com node1\nip-127-0-0-3.aws.amazon.com node2"
     end
     it "should be able to build a hosts file for a specific instance" do
-      @master.build_hosts_file_for(@master.nodes.first).should =~ "127.0.0.1 node0"
+      open(@master.build_hosts_file_for(@instance).path).read.should =~ "ip-127-0-0-1.aws.amazon.com node0"
     end
     it "should be able to build a haproxy file" do
-      @master.build_haproxy_file.should =~ "server node0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port}"
+      open(@master.build_haproxy_file.path).read.should =~ "server node0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port}"
     end
     it "should be able to reconfigure the instances (working on two files a piece)" do
       @master.nodes[0].should_receive(:configure).and_return true if @master.nodes[0].status =~ /running/
@@ -79,17 +82,17 @@ describe "Master" do
       @master.restart_running_instances_services
     end
     it "should be able to build a heartbeat auth file" do
-      open(@master.build_heartbeat_authkeys_file).read.should =~ /1 md5/
+      open(@master.build_and_copy_heartbeat_authkeys_file.path).read.should =~ /1 md5/
     end
     describe "configuring" do
       before(:each) do
         Master.stub!(:new).and_return(@master)
       end
       it "should be able to build a heartbeat resources file for the specific node" do
-        Master.build_heartbeat_resources_file_for(@master.nodes.first).should =~ /node0 ip-127/
+        open(Master.build_heartbeat_resources_file_for(@master.nodes.first).path).read.should =~ /node0 ip-127/
       end
       it "should be able to build a heartbeat config file" do
-        Master.build_heartbeat_config_file_for(@master.nodes.first).should =~ /\nnode node0\nnode node1/
+        open(Master.build_heartbeat_config_file_for(@master.nodes.first).path).read.should =~ /\nnode node0\nnode node1/
       end      
       it "should be able to say if heartbeat is necessary with more than 1 server or not" do      
         Master.requires_heartbeat?.should == true
@@ -117,9 +120,6 @@ describe "Master" do
         it "should be able to build_scp_instances_script_for" do
           @node.should_receive(:scp_string).exactly(10).times.and_return("true")
           Master.build_scp_instances_script_for(@node)
-        end
-        it "should be able to build_scp_instances_script_for and contain scp 10 times" do
-          open(Master.build_scp_instances_script_for(@node)).read.scan(/scp/).size.should == 10
         end
         it "should be able to build_reconfigure_instances_script_for" do          
           str = open(Master.build_reconfigure_instances_script_for(@node)).read
@@ -179,6 +179,17 @@ describe "Master" do
   describe "Configuration" do
     it "should be able to build the haproxy file" do
       @master.build_haproxy_file
+    end
+    describe "by copying files to the poolpartytmp directory" do
+      it "should build and copy files to the tmp directory" do
+        @master.build_config_files_in_temp_directory
+        File.directory?(@master.base_tmp_dir).should == true
+      end
+      it "should copy the cloud_master_takeover script to the tmp directory" do
+        @master.should_receive(:get_config_file_for).once.and_return "true"
+        File.should_receive(:copy).at_least(1).and_return true
+        @master.build_config_files_in_temp_directory
+      end
     end
   end
   describe "Singleton methods" do

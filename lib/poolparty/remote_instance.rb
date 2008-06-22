@@ -83,7 +83,7 @@ module PoolParty
     end
     
     def configure_basics_through_ssh
-      execute_tasks do        
+      execute_tasks do
         ssh(configure_monit)
         ssh(setup_haproxy)
         ssh(change_hostname)

@@ -7,6 +7,7 @@ module PoolParty
     include Callbacks
     include Monitors
     include Remoter
+    include FileWriter
     
     def initialize
       super
@@ -111,24 +112,56 @@ module PoolParty
     def number_of_unconfigured_nodes
       nodes.reject {|a| a.stack_installed? }.size
     end
-    def grow_by_one
-      request_launch_new_instance      
-      self.class.get_master.configure
+    def grow_by(num=1)
+      num.times do |i|
+        request_launch_new_instance      
+        self.class.get_master.configure
+      end      
     end
-    def shrink_by_one
-      node = nodes.reject {|a| a.master? }[-1]
-      request_termination_of_instance(node.instance_id) if node
+    def shrink_by(num=1)
+      num.times do |i|
+        node = nodes.reject {|a| a.master? }[-1]
+        request_termination_of_instance(node.instance_id) if node
+      end      
     end
+    
+    def build_config_files_in_temp_directory
+      require 'ftools'
+      File.copy(get_config_file_for("cloud_master_takeover"), "#{base_tmp_dir}/cloud_master_takeover")      
+      
+      File.copy(Application.config_file, "#{base_tmp_dir}/config.yml") if Application.config_file && File.file?(Application.config_file)
+      File.copy(Application.monit_config_file, "#{base_tmp_dir}/monitrc")
+      
+      copy_config_files_in_directory_to_tmp_dir("resource.d")
+      copy_config_files_in_directory_to_tmp_dir("monit.d")
+      
+      build_and_copy_heartbeat_authkeys_file
+      build_haproxy_file
+      
+      if Master.requires_heartbeat?
+        ha_d_file =  Master.build_heartbeat_config_file_for(node)
+        haresources_file = Master.build_heartbeat_resources_file_for(node)
+      end
+      
+      Master.with_nodes do |node|
+        build_hosts_file_for(node)
+        if Master.requires_heartbeat?
+          build_heartbeat_config_file_for(node)
+        end
+      end
+    end
+    def scp_config_files_to_hosts(c)
+      # Write rsync task here
+    end
+    after :build_config_files_in_temp_directory, :scp_config_files_to_hosts
     # Add an instance if the load is high
     def add_instance_if_load_is_high
-      request_launch_new_instance if expand?
+      grow_by(1) if expand?
     end
     alias_method :add_instance, :add_instance_if_load_is_high
     # Teardown an instance if the load is pretty low
-    def terminate_instance_if_load_is_low
-      if contract?
-        shrink_by_one
-      end
+    def terminate_instance_if_load_is_low      
+      shrink_by(1) if contract?
     end
     alias_method :terminate_instance, :terminate_instance_if_load_is_low
     # FOR MONITORING
@@ -156,30 +189,51 @@ module PoolParty
     end
     # Build the basic haproxy config file from the config file in the config directory and return a tempfile
     def build_haproxy_file
-      servers=<<-EOS
+      write_to_file_for("haproxy") do
+        servers=<<-EOS
 #{nodes.collect {|node| node.haproxy_entry}.join("\n")}
-      EOS
-      open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port}
-    end
-    # Build the hosts file and return a tempfile
-    def build_hosts_file
-      write_to_temp_file(nodes.collect {|a| a.hosts_entry }.join("\n"))
+        EOS
+        open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port}
+      end
     end
     # Build host file for a specific node
     def build_hosts_file_for(n)
-      servers=<<-EOS        
-#{nodes.collect {|node| node.ip == n.ip ? node.local_hosts_entry : node.hosts_entry}.join("\n")}
-      EOS
-      servers
+      write_to_file_for("hosts", n) do
+        "#{nodes.collect {|node| node.ip == n.ip ? node.local_hosts_entry : node.hosts_entry}.join("\n")}"
+      end
     end
     # Build the basic auth file for the heartbeat
-    def build_heartbeat_authkeys_file
-      write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read)
+    def build_and_copy_heartbeat_authkeys_file
+      write_to_file_for("authkeys") do
+        open(Application.heartbeat_authkeys_config_file).read
+      end
     end
     # Build heartbeat config file
     def build_heartbeat_config_file_for(node)
-      servers = "#{node.node_entry}\n#{get_next_node(node).node_entry}"
-      open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers}
+      write_to_file_for("heartbeat", node) do
+        servers = "#{node.node_entry}\n#{get_next_node(node).node_entry}"
+        open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers}
+      end
+    end
+    # Try the user's directory before the master directory
+    def get_config_file_for(name)
+      if File.file?("#{user_dir}/config/#{name}")
+        "#{user_dir}/config/#{name}"
+      else 
+        "#{root_dir}/config/#{name}"
+      end
+    end
+    # Copy all the files in the directory to the dest
+    def copy_config_files_in_directory_to_tmp_dir(dir)
+      if File.directory?("#{user_dir}/#{dir}")
+        Dir["#{user_dir}/#{dir}/*"].each do |file|
+          File.copy(file, "#{base_tmp_dir}/#{File.basename(file)}")
+        end
+      else
+        Dir["#{root_dir}/#{dir}/*"].each do |file|
+          File.copy(file, "#{base_tmp_dir}/#{File.basename(file)}")
+        end
+      end      
     end
     # Return a list of the nodes and cache them
     def nodes
@@ -247,7 +301,9 @@ module PoolParty
       # Build a heartbeat resources file from the config directory and return a tempfile
       def build_heartbeat_resources_file_for(node)
         return nil unless node
-        "#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}"
+        new.write_to_file_for("haresources", node) do
+          "#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}"
+        end        
       end
       # Build hosts files for a specific node
       def build_hosts_file_for(node)
@@ -323,20 +379,6 @@ module PoolParty
 #{collect_nodes {|node| node.haproxy_entry}.join("\n")}
       EOS
       open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port}
-      end
-      # Write a temp file with the content str
-      def write_to_temp_file(str="")
-        tempfile = Tempfile.new("pool-party-#{rand(1000)}-#{rand(1000)}")
-        tempfile.print(str)
-        tempfile.flush
-        tempfile
-      end
-      def with_temp_file(str="", &block)
-        Tempfile.open "pool-party-#{rand(10000)}" do |fp|
-          fp.puts str
-          fp.flush
-          block.call(fp)
-        end
       end
     end
     
