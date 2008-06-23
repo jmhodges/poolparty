@@ -129,7 +129,8 @@ module PoolParty
     
     def build_and_send_config_files_in_temp_directory
       require 'ftools'
-      File.copy(get_config_file_for("cloud_master_takeover"), "#{base_tmp_dir}/cloud_master_takeover")      
+      File.copy(get_config_file_for("cloud_master_takeover"), "#{base_tmp_dir}/cloud_master_takeover")
+      File.copy(get_config_file_for("heartbeat.conf"), "#{base_tmp_dir}/ha.cf")
       
       File.copy(Application.config_file, "#{base_tmp_dir}/config.yml") if Application.config_file && File.exists?(Application.config_file)
       File.copy(Application.monit_config_file, "#{base_tmp_dir}/monitrc")
@@ -152,19 +153,19 @@ module PoolParty
     end
     # Send the files to the nodes
     def send_config_files_to_nodes(c)
-      run_array_of_tasks(rsync_tasks("#{base_tmp_dir}", "tmp"))
+      run_array_of_tasks(rsync_tasks("#{base_tmp_dir}/*", "#{remote_base_tmp_dir}"))
     end
     after :build_and_send_config_files_in_temp_directory, :send_config_files_to_nodes
     def remote_configure_instances
       arr = []
       Master.with_nodes do |node|
-        script_file = "#{RemoteInstance.remote_base_tmp_dir}/#{node.name}-configuration"
+        script_file = "#{remote_base_tmp_dir}/#{node.name}-configuration"
         arr << <<-EOC
 chmod +x #{script_file}
 /bin/sh #{script_file}
         EOC
       end
-      run_array_of_tasks(arr)
+      run_array_of_tasks(remote_command_tasks(arr))
     end
     # Add an instance if the load is high
     def add_instance_if_load_is_high

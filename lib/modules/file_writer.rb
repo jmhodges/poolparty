@@ -1,7 +1,6 @@
 module PoolParty
   module FileWriter
-    def write_to_file_for(f="haproxy", node=nil, str="", &block)
-      clear_base_directory
+    def write_to_file_for(f="haproxy", node=nil, str="", &block)      
       make_base_directory
       File.open("#{base_tmp_dir}/#{node ? "#{node.name}-" : ""}#{f}", "w+") do |file|
         file << str
@@ -26,6 +25,9 @@ module PoolParty
     def base_tmp_dir
       File.join(user_dir, "tmp")
     end
+    def remote_base_tmp_dir
+      "~/tmp"
+    end    
     def make_base_directory
       `mkdir -p #{base_tmp_dir}` unless File.directory?(base_tmp_dir)
     end

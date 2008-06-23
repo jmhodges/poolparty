@@ -78,16 +78,21 @@ module PoolParty
         :configure_authkeys => configure_authkeys,
         :configure_resouce_d => configure_resouce_d,
         :configure_haproxy => setup_haproxy,
-        :configure_heartbeat => configure_heartbeat
+        :configure_heartbeat => configure_heartbeat,
+        :user_tasks => user_tasks
       }
+    end
+    def user_tasks
+      @@user_tasks ||= []
     end
     def move_config_file
       <<-EOC
-        mv #{remote_base_tmp_dir}/.config ~/.config
+        mv #{remote_base_tmp_dir}/config.yml ~/.config
       EOC
     end
     def configure_heartbeat
       <<-EOC
+        mv #{remote_base_tmp_dir}/ha.cf /etc/ha.d/ha.cf
         /etc/init.d/heartbeat start
       EOC
     end    
@@ -118,6 +123,7 @@ module PoolParty
     
     def configure_monit
       <<-EOC
+        mv #{remote_base_tmp_dir}/monitrc /etc/monit/monitrc
         chmod 700 /etc/monit/monitrc
       EOC
     end
@@ -131,7 +137,7 @@ module PoolParty
     
     def setup_haproxy
       <<-EOS
-        mv #{remote_base_tmp_dir}/#{name}-haproxy /etc/haproxy.cfg
+        mv #{remote_base_tmp_dir}/haproxy /etc/haproxy.cfg
         sed -i "s/ENABLED=0/ENABLED=1/g" /etc/default/haproxy
         sed -i 's/SYSLOGD=""/SYSLOGD="-r"/g' /etc/default/syslogd
         echo "local0.* /var/log/haproxy.log" >> /etc/syslog.conf && /etc/init.d/sysklogd restart
@@ -219,12 +225,6 @@ module PoolParty
       else
         File.join(PoolParty.root_dir, "config", name)
       end        
-    end
-    def remote_base_tmp_dir
-      self.class.remote_base_tmp_dir
-    end
-    def self.remote_base_tmp_dir
-      "tmp"
     end
     # Description in the rake task
     def description

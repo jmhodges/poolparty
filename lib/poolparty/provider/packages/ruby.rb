@@ -2,7 +2,7 @@ package :ruby do
   description 'Ruby Virtual Machine'
   # version '1.8.6'
   # source "ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-#{version}-p111.tar.gz" # implicit :style => :gnu
-  apt %w( ruby )
+  apt %w( ruby ruby1.8-dev )
   requires :ruby_dependencies
 end
 

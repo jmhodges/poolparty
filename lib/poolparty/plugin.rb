@@ -27,6 +27,10 @@ module PoolParty
       eval str
     end
     
+    def self.user_tasks str
+      PoolParty::RemoteInstance.user_tasks << str
+    end
+    
     def self.install_package_string(str)
       PoolParty::Provider.define_user_package str
     end
@@ -35,10 +39,10 @@ module PoolParty
       PoolParty::Provider.define_user_install str
     end
     
-    %w(install configure associate_public_ip become_master).each do |method|
+    %w(install associate_public_ip become_master).each do |method|
       create_methods method, RemoteInstance
     end    
-    %w(start start_monitor scale_cloud reconfiguration add_instance terminate_instance check_stats).each do |method|
+    %w(start start_monitor configure_cloud scale_cloud reconfiguration add_instance terminate_instance check_stats).each do |method|
       create_methods method, Master
     end    
     %w(define_tasks).each do |method|

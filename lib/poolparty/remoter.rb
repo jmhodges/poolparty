@@ -28,31 +28,23 @@ module PoolParty
       def remote_command_tasks commands
         reset!
         commands = commands.join ' && ' if commands.is_a? Array
+        
         returning ssh_tasks do |tasks|
           target_hosts.each do |ip|
-            tasks << "#{self.class.ssh_string} #{ip} #{commands}"
+            ssh_tasks << "#{self.class.ssh_string} #{ip} '#{commands}'"
           end
         end
       end
       
-      def scp local, remote, opts={}
-        data = open(local).read
-        begin
-          
-          cmd = self.class.rsync_string
-                    
-          ssh("mkdir -p #{opts[:dir]}") if opts[:dir]
-          
-          if opts[:single]
-            scp_tasks << "#{cmd} #{local} #{opts[:single]}:#{remote}"
-          else
-            target_hosts.each do |ip|
-              scp_tasks << "#{cmd} #{local} #{ip}:#{remote}"
-            end
-          end
-          
-        rescue Exception => e        
-        end      
+      def scp local, remote, opts={}          
+        cmd = self.class.rsync_string
+        arr = []
+        
+        target_hosts.each do |ip|
+          arr << "#{cmd} #{local} #{ip}:#{remote}"
+        end          
+        
+        run_array_of_tasks(arr)
       end
 
       def single_scp local, remote, opts={}
@@ -61,19 +53,17 @@ module PoolParty
 
       def ssh command="", opts={}, &block
         cmd = self.class.ssh_string
+        arr = []
         
         if command.empty?
           system("#{cmd} #{self.ip}")
         else
-          if opts[:single]
-            ssh_tasks << "#{cmd} #{self.ip} '#{command.runnable}'"
-          else
-            target_hosts.each do |ip|
-              ssh_tasks << "#{cmd} #{ip} '#{command.runnable}'"
-            end
+          target_hosts.each do |ip|
+            arr << "#{cmd} #{ip} '#{command.runnable}'"
           end
         end
-          
+        
+        run_array_of_tasks arr
       end
       
       def run_now command
@@ -81,14 +71,9 @@ module PoolParty
           Kernel.system "#{self.class.ssh_string} #{self.ip} #{command.runnable}"
         end
       end
-      
-      def install *names
-        names.each {|name| install_tasks << name }
-      end
-      
+            
       def ssh_tasks;@ssh_tasks ||= [];end
       def scp_tasks;@scp_tasks ||= [];end
-      def install_tasks;@install_tasks ||= [];end
             
       def reset!
         @ssh_tasks = @scp_tasks = nil
