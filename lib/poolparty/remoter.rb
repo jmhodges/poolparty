@@ -7,17 +7,39 @@ module PoolParty
       def ssh_string
         "ssh -i #{Application.keypair_path} -o StrictHostKeyChecking=no -l #{Application.username}"
       end
+      def rsync_string
+        "rsync --delete -azP -e '#{ssh_string}' "
+      end
     end
     
     module InstanceMethods      
       include Callbacks
       include Scheduler
       
+      def rsync_tasks local, remote
+        reset!
+        returning scp_tasks do |tasks|
+          target_hosts.each do |ip|
+            tasks << "#{self.class.rsync_string} #{local} #{ip}:#{remote}"
+          end
+        end
+      end
+      
+      def remote_command_tasks commands
+        reset!
+        commands = commands.join ' && ' if commands.is_a? Array
+        returning ssh_tasks do |tasks|
+          target_hosts.each do |ip|
+            tasks << "#{self.class.ssh_string} #{ip} #{commands}"
+          end
+        end
+      end
+      
       def scp local, remote, opts={}
         data = open(local).read
         begin
           
-          cmd = "rsync --delete -azP -e '#{self.class.ssh_string}' "
+          cmd = self.class.rsync_string
                     
           ssh("mkdir -p #{opts[:dir]}") if opts[:dir]
           
@@ -56,7 +78,7 @@ module PoolParty
       
       def run_now command
         unless command.empty?
-          `#{self.class.ssh_string} #{self.ip} #{command.runnable}`
+          Kernel.system "#{self.class.ssh_string} #{self.ip} #{command.runnable}"
         end
       end
       
@@ -91,7 +113,7 @@ module PoolParty
       def run_array_of_tasks(task_list)
         unless task_list.size == 0
           task_list.each do |task|
-            add_task {`#{task}`}
+            add_task {Kernel.system("#{task}")}
           end          
           run_thread_list
         end

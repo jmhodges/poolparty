@@ -5,6 +5,7 @@ module PoolParty
     # ############################
     include PoolParty
     include Callbacks
+    include FileWriter
     
     attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed 
     attr_accessor :name, :number, :scp_configure_file, :configure_file, :plugin_string
@@ -65,59 +66,89 @@ module PoolParty
         ssh("monit #{cmd} all")
       end
     end
-    # Configure the server with the new, sexy shell script
-    # This compiles all the scp commands into a shell script and then executes it
-    # then it will compile a list of the commands to operate on the instance
-    # and execute it
-    # This is how the cloud reconfigures itself
-    def configure(caller=nil)
-      associate_public_ip
-      scp_basic_config_files
-
-      Master.with_nodes do |node|
-        # These are node-specific
-        PoolParty.message "configuring #{node.name}"
-        node.scp_specific_config_files
-      end
-      configure_basics_through_ssh
+    def configure_tasks
+      {
+        :move_hostfile => change_hostname,
+        :config_master => configure_master,
+        :move_config_file => move_config_file,
+        :set_hostname => change_hostname,
+        :mount_s3_drive => mount_s3_drive,
+        :update_plugins => update_plugin_string,
+        :configure_monit => configure_monit,
+        :configure_authkeys => configure_authkeys,
+        :configure_resouce_d => configure_resouce_d,
+        :configure_haproxy => setup_haproxy,
+        :configure_heartbeat => configure_heartbeat
+      }
+    end
+    def move_config_file
+      <<-EOC
+        mv #{remote_base_tmp_dir}/.config ~/.config
+      EOC
+    end
+    def configure_heartbeat
+      <<-EOC
+        /etc/init.d/heartbeat start
+      EOC
+    end    
+    def configure_authkeys
+      <<-EOC
+        mkdir -p /etc/ha.d
+        mv #{remote_base_tmp_dir}/authkeys /etc/ha.d/
+      EOC
     end
     
-    def configure_basics_through_ssh
-      execute_tasks do
-        ssh(configure_monit)
-        ssh(setup_haproxy)
-        ssh(change_hostname)
-        ssh(update_plugin_string)
-        ssh(mount_s3_drive) unless Application.shared_bucket.empty?
-        ssh("pool maintain -c ~/.config")
+    def configure_master
+      if master?
+        <<-EOC
+          pool maintain -c ~/.config -l ~/plugins
+        EOC
+      else
+        ""
       end
+    end
+    
+    def configure_resouce_d
+      <<-EOC
+        mkdir -p /etc/ha.d/resource.d
+        mv #{remote_base_tmp_dir}/cloud_master_takeover /etc/ha.d/resource.d
+        mv #{remote_base_tmp_dir}/resource-* /etc/ha.d/resource.d
+      EOC
     end
     
     def configure_monit
-      "chmod 700 /etc/monit/monitrc"
+      <<-EOC
+        chmod 700 /etc/monit/monitrc
+      EOC
     end
     
     def change_hostname
-      "hostname -v #{name}"
+      <<-EOC
+        mv #{remote_base_tmp_dir}/#{name}-hosts /etc/hosts
+        hostname -v #{name}
+      EOC
     end
     
     def setup_haproxy
       <<-EOS
+        mv #{remote_base_tmp_dir}/#{name}-haproxy /etc/haproxy.cfg
         sed -i "s/ENABLED=0/ENABLED=1/g" /etc/default/haproxy
-        sed "$d" < /etc/default/syslogd > /etc/default/syslogd2 ; mv /etc/default/syslogd2 /etc/default/syslogd
-        echo "SYSLOGD=-r" >> /etc/default/syslogd
+        sed -i 's/SYSLOGD=""/SYSLOGD="-r"/g' /etc/default/syslogd
         echo "local0.* /var/log/haproxy.log" >> /etc/syslog.conf && /etc/init.d/sysklogd restart
         /etc/init.d/haproxy restart
       EOS
     end
     
     def mount_s3_drive
-      "mkdir -p /data && /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data"
+      if Application.shared_bucket.empty?
+        ""
+      else
+        <<-EOC
+          mkdir -p /data && /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
+        EOC
+      end
     end
-    
-    def scp_string(src,dest,opts={})
-    end
-    
+        
     def scp_basic_config_files
       cmd=<<-EOC
         mkdir -p /etc/ha.d/resource.d
@@ -141,24 +172,7 @@ module PoolParty
         File.open("tmp/pool-party-haproxy.cfg", 'w') {|f| f.write(Master.build_haproxy_file) }
         scp("tmp/pool-party-haproxy.cfg", "/etc/haproxy.cfg")
       end
-    end
-    def scp_specific_config_files
-      execute_tasks({:dont_set_hosts => true}) do
-        if Master.requires_heartbeat?
-          hafile = "tmp/#{name}-pool-party-ha.cf"
-          File.open(hafile, 'w') {|f| f.write(Master.build_heartbeat_config_file_for(self)) }
-          single_scp(hafile, "/etc/ha.d/ha.cf")
-
-          haresources_file = "tmp/#{name}-pool-party-haresources"
-          File.open(haresources_file, 'w') {|f| f.write(Master.build_heartbeat_resources_file_for(self)) }
-          single_scp(haresources_file, "/etc/ha/haresources", :dir => "/etc/ha")
-        end
-        hosts_file = "tmp/#{name}-pool-party-hosts"
-        File.open(hosts_file, 'w') {|f| f.write(Master.build_hosts_file_for(self)) }
-        single_scp(hosts_file, "/etc/hosts")
-      end
-    end
-    
+    end    
     # Installs with one commandline and an scp, rather than 10
     def install
       # unless stack_installed?
@@ -206,7 +220,12 @@ module PoolParty
         File.join(PoolParty.root_dir, "config", name)
       end        
     end
-     
+    def remote_base_tmp_dir
+      self.class.remote_base_tmp_dir
+    end
+    def self.remote_base_tmp_dir
+      "tmp"
+    end
     # Description in the rake task
     def description
       case @status

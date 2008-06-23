@@ -6,7 +6,9 @@ module PoolParty
     include Aska
     include Callbacks
     include Monitors
+    # ############################
     include Remoter
+    # ############################
     include FileWriter
     
     def initialize
@@ -42,8 +44,8 @@ module PoolParty
     # Configure the master because the master will take care of the rest after that
     def configure_cloud
       message "Configuring master"
-      master = get_node 0      
-      master.configure
+      build_and_send_config_files_in_temp_directory
+      remote_configure_instances
     end
     def install_cloud
       if Application.install_on_load?
@@ -106,7 +108,7 @@ module PoolParty
     # This is a basic check against the local store of the instances that have the 
     # stack installed.
     def reconfigure_cloud_when_necessary
-      reconfigure_running_instances if number_of_unconfigured_nodes > 0
+      configure_cloud if number_of_unconfigured_nodes > 0
     end
     alias_method :reconfiguration, :reconfigure_cloud_when_necessary
     def number_of_unconfigured_nodes
@@ -125,7 +127,7 @@ module PoolParty
       end      
     end
     
-    def build_config_files_in_temp_directory
+    def build_and_send_config_files_in_temp_directory
       require 'ftools'
       File.copy(get_config_file_for("cloud_master_takeover"), "#{base_tmp_dir}/cloud_master_takeover")      
       
@@ -137,23 +139,33 @@ module PoolParty
       
       build_and_copy_heartbeat_authkeys_file
       build_haproxy_file
-      
-      if Master.requires_heartbeat?
-        ha_d_file =  Master.build_heartbeat_config_file_for(node)
-        haresources_file = Master.build_heartbeat_resources_file_for(node)
-      end
-      
+        
       Master.with_nodes do |node|
         build_hosts_file_for(node)
+        build_reconfigure_instances_script_for(node)
+        
         if Master.requires_heartbeat?
           build_heartbeat_config_file_for(node)
+          build_heartbeat_resources_file_for(node)
         end
+      end      
+    end
+    # Send the files to the nodes
+    def send_config_files_to_nodes(c)
+      run_array_of_tasks(rsync_tasks("#{base_tmp_dir}", "tmp"))
+    end
+    after :build_and_send_config_files_in_temp_directory, :send_config_files_to_nodes
+    def remote_configure_instances
+      arr = []
+      Master.with_nodes do |node|
+        script_file = "#{RemoteInstance.remote_base_tmp_dir}/#{node.name}-configuration"
+        arr << <<-EOC
+chmod +x #{script_file}
+/bin/sh #{script_file}
+        EOC
       end
+      run_array_of_tasks(arr)
     end
-    def scp_config_files_to_hosts(c)
-      # Write rsync task here
-    end
-    after :build_config_files_in_temp_directory, :scp_config_files_to_hosts
     # Add an instance if the load is high
     def add_instance_if_load_is_high
       grow_by(1) if expand?
@@ -176,16 +188,6 @@ module PoolParty
       nodes.each do |node|
         node.restart_with_monit
       end
-    end
-    # Reconfigure the running instances
-    # Since we are using vlad, running configure on one of the instances
-    # should configure all of the instances. We set the hosts in this file
-    def reconfigure_running_instances      
-      # nodes.each do |node|
-      #   node.configure if node.status =~ /running/
-      # end
-      master = get_node(0)
-      master.configure
     end
     # Build the basic haproxy config file from the config file in the config directory and return a tempfile
     def build_haproxy_file
@@ -215,6 +217,18 @@ module PoolParty
         open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers}
       end
     end
+    def build_heartbeat_resources_file_for(node)
+      write_to_file_for("haresources", node) do
+        "#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}"
+      end        
+    end
+    # Build basic configuration script for the node
+    def build_reconfigure_instances_script_for(node)
+      write_to_file_for("configuration", node) do
+        open(Application.sh_reconfigure_instances_script).read.strip ^ node.configure_tasks
+      end        
+    end
+    
     # Try the user's directory before the master directory
     def get_config_file_for(name)
       if File.exists?("#{user_dir}/config/#{name}")
@@ -227,7 +241,7 @@ module PoolParty
     def copy_config_files_in_directory_to_tmp_dir(dir)
       if File.directory?("#{user_dir}/#{dir}")
         Dir["#{user_dir}/#{dir}/*"].each do |file|
-          File.copy(file, "#{base_tmp_dir}/#{File.basename(file)}")
+          File.copy(file, "#{base_tmp_dir}/resource-#{File.basename(file)}")
         end
       else
         Dir["#{root_dir}/#{dir}/*"].each do |file|
@@ -304,48 +318,7 @@ module PoolParty
         new.write_to_file_for("haresources", node) do
           "#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}"
         end        
-      end
-      # Build hosts files for a specific node
-      def build_hosts_file_for(node)
-        new.build_hosts_file_for(node)
-      end
-      # Build the scp script for the specific node
-      def build_scp_instances_script_for(node)
-        authkeys_file = write_to_temp_file(open(Application.heartbeat_authkeys_config_file).read.strip)
-        if Master.requires_heartbeat?
-          ha_d_file =  Master.build_heartbeat_config_file_for(node)
-          haresources_file = Master.build_heartbeat_resources_file_for(node)
-        end
-        haproxy_file = Master.build_haproxy_file
-        hosts_file = Master.build_hosts_file_for(node)        
-                
-        str = open(Application.sh_scp_instances_script).read.strip ^ {
-            :cloud_master_takeover => "#{node.scp_string("#{root_dir}/config/cloud_master_takeover", "/etc/ha.d/resource.d/", :dir => "/etc/ha.d/resource.d")}",
-            :config_file => "#{node.scp_string(Application.config_file, "~/.config")}",
-            :authkeys => "#{node.scp_string(authkeys_file.path, "/etc/ha.d/authkeys", :dir => "/etc/ha.d/")}",
-            :resources => "#{node.scp_string("#{root_dir}/config/resource.d/*", "/etc/ha.d/resource.d/", {:switches => "-r"})}",
-            :monitrc => "#{node.scp_string(Application.monit_config_file, "/etc/monit/monitrc", :dir => "/etc/monit")}",
-            :monit_d => "#{node.scp_string("#{File.dirname(Application.monit_config_file)}/monit/*", "/etc/monit.d/", {:switches => "-r", :dir => "/etc/monit.d/"})}",
-            :haproxy => "#{node.scp_string(haproxy_file, "/etc/haproxy.cfg")}",
-            
-            :ha_d => Master.requires_heartbeat? ? "#{node.scp_string(ha_d_file, "/etc/ha.d/ha.cf")}" : "",
-            :haresources => Master.requires_heartbeat? ? "#{node.scp_string(haresources_file, "/etc/ha.d/ha.cf")}" : "",
-            
-            :hosts => "#{node.scp_string(hosts_file, "/etc/hosts")}"
-          }
-        write_to_temp_file(str)
-      end
-      # Build basic configuration script for the node
-      def build_reconfigure_instances_script_for(node)
-        str = open(Application.sh_reconfigure_instances_script).read.strip ^ {
-          :config_master => "#{node.update_plugin_string}",
-          :start_pool_maintain => "pool maintain -c ~/.config -l ~/plugins",
-          :set_hostname => "hostname -v #{node.name}",
-          :start_s3fs => "/usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data"
-        }
-        write_to_temp_file(str)        
-      end
-      
+      end      
       def set_hosts(c, remotetask=nil)
         unless remotetask.nil?
           rt = remotetask

@@ -4,7 +4,7 @@ describe "Master" do
   before(:each) do
     Kernel.stub!(:system).and_return true
     Kernel.stub!(:exec).and_return true
-    Kernel.stub!(:sleep).and_return true # WHy wait?
+    Kernel.stub!(:sleep).and_return true # WHy wait?, just do it
     
     Application.options.stub!(:contract_when).and_return("web > 30.0\n cpu < 0.10")
     Application.options.stub!(:expand_when).and_return("web < 3.0\n cpu > 0.80")
@@ -33,6 +33,25 @@ describe "Master" do
     @master.start_cloud!
     
     @master.nodes.first.instance_id.should == "i-5849ba"
+  end
+  describe "Singleton methods" do
+    before(:each) do
+      @master = Master.new
+      @instance = RemoteInstance.new
+      @blk = Proc.new {puts "new"}
+      Master.stub!(:new).once.and_return @master
+    end
+    it "should be able to run with_nodes" do      
+      Master.should_receive(:new).once.and_return @master
+      @master.should_receive(:nodes).once.and_return []
+      Master.with_nodes &@blk
+    end
+    it "should run the block on each node" do      
+      collection = [@instance]
+      @master.should_receive(:nodes).once.and_return collection
+      collection.should_receive(:each).once
+      Master.with_nodes &@blk
+    end
   end
   describe "with stubbed instances" do
     before(:each) do
@@ -73,9 +92,9 @@ describe "Master" do
       open(@master.build_haproxy_file.path).read.should =~ "server node0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port}"
     end
     it "should be able to reconfigure the instances (working on two files a piece)" do
-      @master.nodes[0].should_receive(:configure).and_return true if @master.nodes[0].status =~ /running/
+      @master.should_receive(:remote_configure_instances).and_return true
       @master.stub!(:number_of_unconfigured_nodes).and_return 1
-      @master.reconfigure_running_instances
+      @master.reconfigure_cloud_when_necessary
     end
     it "should be able to restart the running instances' services" do
       @master.nodes.each {|a| a.should_receive(:restart_with_monit).and_return true }
@@ -84,50 +103,66 @@ describe "Master" do
     it "should be able to build a heartbeat auth file" do
       open(@master.build_and_copy_heartbeat_authkeys_file.path).read.should =~ /1 md5/
     end
-    describe "configuring" do
-      before(:each) do
-        Master.stub!(:new).and_return(@master)
-      end
-      it "should be able to build a heartbeat resources file for the specific node" do
-        open(Master.build_heartbeat_resources_file_for(@master.nodes.first).path).read.should =~ /node0 ip-127/
-      end
-      it "should be able to build a heartbeat config file" do
-        open(Master.build_heartbeat_config_file_for(@master.nodes.first).path).read.should =~ /\nnode node0\nnode node1/
-      end      
-      it "should be able to say if heartbeat is necessary with more than 1 server or not" do      
-        Master.requires_heartbeat?.should == true
-      end
-      it "should be able to say that heartbeat is not necessary if there is 1 server" do
-        @master.stub!(:list_of_nonterminated_instances).and_return([
-            {:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"}
-          ])
-        Master.requires_heartbeat?.should == false
-      end
-      it "should only install the stack on nodes that don't have it marked locally as installed" do
-        @master.nodes.each {|i| i.should_receive(:stack_installed?).and_return(true)}
-        @master.should_not_receive(:reconfigure_running_instances)
-        @master.reconfigure_cloud_when_necessary
-      end
-      it "should install the stack on all the nodes (because it needs reconfiguring) if there is any node that needs the stack" do
-        @master.nodes.first.should_receive(:stack_installed?).and_return(false)
-        @master.should_receive(:reconfigure_running_instances).once.and_return(true)
-        @master.reconfigure_cloud_when_necessary
-      end
-      describe "with new configuration and installation (build scripts)" do
+    describe "configuration" do
+      describe "sending configuration files" do
         before(:each) do
-          @node = @master.nodes.first
+          Master.stub!(:new).and_return(@master)
         end
-        it "should be able to build_scp_instances_script_for" do
-          @node.should_receive(:scp_string).exactly(10).times.and_return("true")
-          Master.build_scp_instances_script_for(@node)
+        it "should be able to build a heartbeat resources file for the specific node" do
+          open(Master.build_heartbeat_resources_file_for(@master.nodes.first).path).read.should =~ /node0 ip-127/
         end
-        it "should be able to build_reconfigure_instances_script_for" do          
-          str = open(Master.build_reconfigure_instances_script_for(@node)).read
-          str.should =~ /hostname -v node0/
-          str.should =~ /mkdir \/etc\/ha\.d\/resource\.d/
-          str.should =~ /pool\ maintain\ \-c \~\/\.config/
-        end        
-      end
+        it "should be able to build a heartbeat config file" do
+          open(Master.build_heartbeat_config_file_for(@master.nodes.first).path).read.should =~ /\nnode node0\nnode node1/
+        end      
+        it "should be able to say if heartbeat is necessary with more than 1 server or not" do      
+          Master.requires_heartbeat?.should == true
+        end
+        it "should be able to say that heartbeat is not necessary if there is 1 server" do
+          @master.stub!(:list_of_nonterminated_instances).and_return([
+              {:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"}
+            ])
+          Master.requires_heartbeat?.should == false
+        end
+        it "should only install the stack on nodes that don't have it marked locally as installed" do
+          @master.nodes.each {|i| i.should_receive(:stack_installed?).and_return(true)}
+          @master.should_not_receive(:reconfigure_running_instances)
+          @master.reconfigure_cloud_when_necessary
+        end
+        it "should install the stack on all the nodes (because it needs reconfiguring) if there is any node that needs the stack" do
+          @master.nodes.first.should_receive(:stack_installed?).and_return(false)
+          @master.should_receive(:configure_cloud).once.and_return(true)
+          @master.reconfigure_cloud_when_necessary
+        end
+        describe "rsync'ing the files to the instances" do
+          it "should receive send_config_files_to_nodes after it builds the config files in the temp directory" do
+            @master.should_receive(:send_config_files_to_nodes).once
+            @master.build_and_send_config_files_in_temp_directory
+          end
+          it "should run_array_of_tasks(scp_tasks)" do
+            @master.should_receive(:run_array_of_tasks).and_return true
+            @master.build_and_send_config_files_in_temp_directory
+          end
+          it "should compile a list of files to rsync" do
+            @master.stub!(:run_array_of_tasks).and_return true
+            @master.rsync_tasks("#{@master.base_tmp_dir}", "tmp")[0].should =~ /rsync/
+          end
+        end
+        describe "remote configuration" do
+          before(:each) do
+            @master.stub!(:nodes).and_return [@instance]
+          end
+          it "should call remote_configure_instances when configuring" do
+            @master.should_receive(:remote_configure_instances).and_return true
+            @master.configure_cloud
+          end
+          it "should change the configuration script into an executable and run it" do
+            tasks = ["chmod +x tmp/node0-configuration\n/bin/sh tmp/node0-configuration\n"]                        
+            @master.should_receive(:run_array_of_tasks).with(tasks).and_return true
+            @master.remote_configure_instances
+          end
+        end
+        
+      end      
     end
     describe "displaying" do
       it "should be able to list the cloud instances" do
@@ -177,26 +212,33 @@ describe "Master" do
     end
   end
   describe "Configuration" do
+    before(:each) do
+      @instance = RemoteInstance.new
+    end
     it "should be able to build the haproxy file" do
       @master.build_haproxy_file
     end
     describe "by copying files to the poolpartytmp directory" do
       it "should build and copy files to the tmp directory" do
-        @master.build_config_files_in_temp_directory
+        @master.build_and_send_config_files_in_temp_directory
         File.directory?(@master.base_tmp_dir).should == true
       end
       it "should copy the cloud_master_takeover script to the tmp directory" do
         @master.should_receive(:get_config_file_for).once.and_return "true"
         File.should_receive(:copy).twice.and_return true
-        @master.build_config_files_in_temp_directory
+        @master.build_and_send_config_files_in_temp_directory
       end
       it "should copy the config file if it exists" do
         Application.stub!(:config_file).and_return "config.yml"
         File.stub!(:exists?).and_return true        
         File.should_receive(:copy).exactly(3).times.and_return true
-        @master.build_config_files_in_temp_directory
+        @master.build_and_send_config_files_in_temp_directory
       end
       describe "with copy_config_files_in_directory_to_tmp_dir method" do
+        before(:each) do
+          Master.stub!(:new).and_return @master
+          @master.stub!(:nodes).and_return [@instance]
+        end
         it "should check to see if there is a directory in the user directory to grab the files from" do
           File.should_receive(:directory?).with("#{user_dir}/resource.d").and_return true
           @master.copy_config_files_in_directory_to_tmp_dir("resource.d")
@@ -207,28 +249,40 @@ describe "Master" do
           @master.copy_config_files_in_directory_to_tmp_dir("resource.d")
         end
         it "should copy all the resource.d files from the monit directory to the tmp directory" do
-          @master.copy_config_files_in_directory_to_tmp_dir("resource.d")
+          @master.stub!(:copy_config_files_in_directory_to_tmp_dir).with("resource.d").and_return true
+          @master.should_receive(:copy_config_files_in_directory_to_tmp_dir).with("monit.d").and_return true
+          @master.build_and_send_config_files_in_temp_directory
+        end
+        it "should build the authkeys file for haproxy" do
+          @master.should_receive(:build_and_copy_heartbeat_authkeys_file).and_return true
+          @master.build_and_send_config_files_in_temp_directory
+        end
+        it "should build the haproxy configuration file" do
+          @master.should_receive(:build_haproxy_file).and_return true
+          @master.build_and_send_config_files_in_temp_directory
+        end
+        it "should build the hosts file for nodes" do
+          @master.should_receive(:build_hosts_file_for).and_return true
+          @master.build_and_send_config_files_in_temp_directory
+        end
+        it "should build the ssh reconfigure script" do
+          @master.should_receive(:build_reconfigure_instances_script_for).and_return ""
+          @master.build_and_send_config_files_in_temp_directory
+        end
+        describe "when the cloud requires heartbeat" do
+          before(:each) do
+            Master.stub!(:requires_heartbeat?).and_return true
+          end
+          it "should build the heartbeat configuration file" do
+              @master.should_receive(:build_heartbeat_config_file_for).with(@instance).and_return true
+              @master.build_and_send_config_files_in_temp_directory
+          end
+          it "should build the ha resources file" do
+            @master.should_receive(:build_heartbeat_resources_file_for).with(@instance).and_return true
+            @master.build_and_send_config_files_in_temp_directory
+          end
         end
       end
-    end
-  end
-  describe "Singleton methods" do
-    before(:each) do
-      @master = Master.new
-      @instance = RemoteInstance.new
-      @blk = Proc.new {puts "new"}
-      Master.stub!(:new).once.and_return @master
-    end
-    it "should be able to run with_nodes" do      
-      Master.should_receive(:new).once.and_return @master
-      @master.should_receive(:nodes).once.and_return []
-      Master.with_nodes &@blk
-    end
-    it "should run the block on each node" do      
-      collection = [@instance]
-      @master.should_receive(:nodes).once.and_return collection
-      collection.should_receive(:each).once
-      Master.with_nodes &@blk
     end
   end
 end

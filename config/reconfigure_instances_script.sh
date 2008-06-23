@@ -1,18 +1,24 @@
 #!/bin/sh
 
-# Reconfigure master
+# Move the hosts file
+:move_hostfile
+# Move the authkeys
+:configure_authkeys
+# Move the config file
+:move_config_file
+# Reconfigure master if master?
 :config_master
-# Start this instance's master maintain script
-:start_pool_maintain
-# Make the ha.d/resource.d
-sudo mkdir /etc/ha.d/resource.d/
+# Configure haproxy
+:configure_haproxy
 # Set this hostname as appropriate in the cloud
 :set_hostname
 # Configure heartbeat
-sudo mkdir /etc/ha.d/resource.d/
+:configure_resouce_d
 # Start heartbeat
-/etc/init.d/heartbeat start
+:configure_heartbeat
 # Start s3fs
-:start_s3fs
+:mount_s3_drive
 # Configure monit
-mkdir /etc/monit.d
+:configure_monit
+# Update the plugins
+:update_plugins
