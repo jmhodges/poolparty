@@ -26,6 +26,7 @@ lib/core/string.rb
 lib/core/time.rb
 lib/modules/callback.rb
 lib/modules/ec2_wrapper.rb
+lib/modules/file_writer.rb
 lib/modules/safe_instance.rb
 lib/modules/sprinkle_overrides.rb
 lib/modules/vlad_override.rb
@@ -65,12 +66,14 @@ lib/poolparty.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
 misc/basics_tutorial.txt
+poolparty.gemspec
 Rakefile
 README.txt
 spec/application_spec.rb
 spec/callback_spec.rb
 spec/core_spec.rb
 spec/deployment_spec.rb
+spec/file_writer_spec.rb
 spec/helpers/ec2_mock.rb
 spec/kernel_spec.rb
 spec/master_spec.rb
@@ -90,8 +93,7 @@ spec/remoting_spec.rb
 spec/scheduler_spec.rb
 spec/spec_helper.rb
 spec/string_spec.rb
-tmp/node0-pool-party-hosts
-tmp/pool-party-haproxy.cfg
+tmp/node0-heartbeat
 web/static/conf/nginx.conf
 web/static/site/images/balloon.png
 web/static/site/images/cb.png

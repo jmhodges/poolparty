@@ -7,3 +7,4 @@ Manifest
 config/config.yml
 vendor
 tmp
+tmp/*
