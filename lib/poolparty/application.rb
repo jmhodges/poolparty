@@ -18,7 +18,7 @@ module PoolParty
         loading_options.merge!( {:argv => opts.delete(:argv)} )
         
         load_options!(loading_options)
-        # default_options.merge!(opts)
+        default_options.merge!(opts)
         # If the config_file options are specified and not empty
         unless default_options[:config_file].nil? || default_options[:config_file].empty?
           require "yaml"

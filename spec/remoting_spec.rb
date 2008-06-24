@@ -61,12 +61,19 @@ describe "Master remoting: " do
     end
   end
   describe "configuring" do
+    before(:each) do
+      @instance = RemoteInstance.new
+      @instance.stub!(:ip).and_return "127.0.0.1"
+      @instance.stub!(:name).and_return "node0"
+      Master.stub!(:new).and_return @master
+      @master.stub!(:nodes).and_return [@instance]
+    end
     it "should call configure on all of the nodes when calling reconfigure_running_instances" do
       @master.nodes.each {|a| 
         a.stub!(:status).and_return("running")
         a.should_receive(:configure).and_return true 
       }
-      @master.reconfigure_running_instances
+      @master.configure_cloud
     end    
     it "should call restart_with_monit on all of the nodes when calling restart_running_instances_services" do
       @master.nodes.each {|a| a.should_receive(:restart_with_monit).and_return true }

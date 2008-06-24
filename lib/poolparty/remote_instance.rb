@@ -11,8 +11,8 @@ module PoolParty
     attr_accessor :name, :number, :scp_configure_file, :configure_file, :plugin_string
     
     # CALLBACKS
-    after :install, :mark_installed    
-    
+    after :install, :mark_installed
+    after :configure, :associate_public_ip
     def initialize(obj={})
       super
       
@@ -195,7 +195,7 @@ module PoolParty
       run_now "ls -l"
     end
     # Associate a public ip if it is set and this is the master
-    def associate_public_ip
+    def associate_public_ip(c)
       associate_address_with(Application.public_ip, @instance_id) if master? && Application.public_ip && !Application.public_ip.empty?
     end
     # Become the new master
@@ -203,7 +203,11 @@ module PoolParty
       @master = Master.new
       @number = 0
       @master.nodes[0] = self
+      @master.configure_cloud
       configure
+    end
+    # Placeholder
+    def configure      
     end
     def update_plugin_string
       reset!

@@ -156,7 +156,8 @@ describe "Master" do
             @master.configure_cloud
           end
           it "should change the configuration script into an executable and run it" do
-            tasks = ["chmod +x tmp/node0-configuration\n/bin/sh tmp/node0-configuration\n"]                        
+            tasks = ["ssh -i /Users/auser/.ec2/id_rsa -o StrictHostKeyChecking=no -l root 127.0.0.1 'chmod +x ~/tmp/node0-configuration\n/bin/sh ~/tmp/node0-configuration\n'"]
+            
             @master.should_receive(:run_array_of_tasks).with(tasks).and_return true
             @master.remote_configure_instances
           end
@@ -224,14 +225,14 @@ describe "Master" do
         File.directory?(@master.base_tmp_dir).should == true
       end
       it "should copy the cloud_master_takeover script to the tmp directory" do
-        @master.should_receive(:get_config_file_for).once.and_return "true"
-        File.should_receive(:copy).twice.and_return true
+        @master.should_receive(:get_config_file_for).at_least(1).and_return "true"
+        File.should_receive(:copy).exactly(3).and_return true
         @master.build_and_send_config_files_in_temp_directory
       end
       it "should copy the config file if it exists" do
         Application.stub!(:config_file).and_return "config.yml"
         File.stub!(:exists?).and_return true        
-        File.should_receive(:copy).exactly(3).times.and_return true
+        File.should_receive(:copy).exactly(4).times.and_return true
         @master.build_and_send_config_files_in_temp_directory
       end
       describe "with copy_config_files_in_directory_to_tmp_dir method" do

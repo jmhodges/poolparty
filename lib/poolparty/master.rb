@@ -46,6 +46,10 @@ module PoolParty
       message "Configuring master"
       build_and_send_config_files_in_temp_directory
       remote_configure_instances
+      
+      Master.with_nodes do |node|
+        node.configure
+      end
     end
     def install_cloud
       if Application.install_on_load?
@@ -117,7 +121,7 @@ module PoolParty
     def grow_by(num=1)
       num.times do |i|
         request_launch_new_instance      
-        self.class.get_master.configure
+        configure_cloud
       end      
     end
     def shrink_by(num=1)

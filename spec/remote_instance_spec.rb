@@ -53,9 +53,6 @@ describe "remote instance" do
     it "should be able to build a haproxy_entry" do
       @instance.haproxy_entry.should =~ /server/
     end
-    describe "callbacks" do
-      it "should call configure after it calls install"
-    end
   end
     describe "new configuration style (build scripts)" do
       before(:each) do
@@ -81,27 +78,37 @@ describe "remote instance" do
       describe "with a public ip" do
         before(:each) do
           Application.stub!(:public_ip).and_return "127.0.0.1"
+          Master.stub!(:new).and_return @master
+          @master.stub!(:nodes).and_return [@instance]
+        end
+        it "should call configure on the instances after configure_cloud" do
+          @instance.should_receive(:configure).and_return true
+          @master.configure_cloud
         end
         it "should run associate_address if there is a public_ip set in the Application.options" do
           @instance.should_receive(:associate_address_with).with(Application.public_ip, @instance.instance_id).and_return true
-          @instance.configure
+          @master.configure_cloud
         end
         it "should not run associate_address_with if the public_ip is empty" do
           Application.stub!(:public_ip).and_return ""
           @instance.should_not_receive(:associate_address_with)
-          @instance.configure
+          @master.configure_cloud
         end
 
     end
   end  
   describe "in failover" do
+    before(:each) do
+      Master.stub!(:new).and_return @master
+    end
     it "should be able to become master " do
       @instance.stub!(:configure).and_return true
       @instance.number = 1
       @instance.become_master
       @instance.number.should == 0
     end
-    it "should reconfigure after becoming master" do
+    it "should reconfigure after becoming master" do      
+      @master.should_receive(:configure_cloud).and_return true
       @instance.should_receive(:configure).and_return true
       @instance.become_master
     end
@@ -133,18 +140,6 @@ describe "remote instance" do
       it "should set the stack_installed? once installed" do
         @instance.install
         @instance.stack_installed?.should == true
-      end
-    end
-    
-    describe "when installing plugins" do
-      it "should call update_plugins after become master" do
-        @instance.should_receive(:update_plugins).at_least(1)
-        @instance.configure
-      end
-      it "should try to install the plugins from the git repos of the installed plugins" do
-        PluginManager.remove_plugin "pool-party-plugins"
-        PluginManager.install_plugin "git@github.com:auser/pool-party-plugins.git"
-        @instance.update_plugin_string.should == ["git@github.com:auser/pool-party-plugins.git"]
       end
     end
     

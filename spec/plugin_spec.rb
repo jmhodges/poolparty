@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 class TestPlugin < PoolParty::Plugin
   after_define_tasks :takss
   after_install :echo_hosts, :email_updates
-  before_configure :echo_hosts  
+  before_configure_cloud :echo_hosts  
   after_start :echo_start
   
   def echo_start(master)
@@ -61,11 +61,11 @@ describe "Plugin" do
     end
     it "should call echo_hosts before it calls configure" do
       @test.should_receive(:echo_hosts).at_least(1).and_return "hi"
-      @instance.configure
+      @master.configure_cloud
     end
     it "should not call echo_hosts after if configures" do
       @test.should_not_receive(:email_updates)
-      @instance.configure
+      @master.configure_cloud
     end
     it "should say that it started on the master" do
       @test.should_receive(:echo_start).at_least(1).and_return "hi"

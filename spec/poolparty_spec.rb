@@ -5,10 +5,6 @@ describe "Application options" do
     YAML.should_receive(:load).and_return({:config_file => "config/sample-config.yml"})
     Application.make_options(:config_file => "config/sample-config.yml")
   end
-  it "should require all the plugin's init files in the plugin directory" do
-    PoolParty.should_receive(:load_plugins).once
-    Application.options
-  end
   it "should be able to say that the plugin directory is the current directory" do
     File.basename(PoolParty.plugin_dir).should == "vendor"
   end
