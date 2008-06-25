@@ -56,7 +56,7 @@ module PoolParty
         arr = []
         
         if command.empty?
-          system("#{cmd} #{self.ip}")
+          system("#{cmd} #{self.ip}") if self.class == RemoteInstance
         else
           target_hosts.each do |ip|
             arr << "#{cmd} #{ip} '#{command.runnable}'"

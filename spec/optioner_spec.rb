@@ -22,4 +22,7 @@ describe "Optioner with options" do
   it "should pull out empty array if there are no lonely arguments" do
     Optioner.parse("-s 30".split(" ")).should == []
   end
+  it "should pull out quoted arguments" do
+    Optioner.parse("-s 30 'ls'".split(" ")).should == ["'ls'"]
+  end
 end

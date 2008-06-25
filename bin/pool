@@ -22,7 +22,7 @@ end
 # Set defaults
 options = PoolParty.options(:optsparse => 
   {:banner => <<-EOU
-Usage: pool [OPTIONS] {start | stop | list | maintain | restart | install | configure | grow | shrink}
+Usage: pool [OPTIONS] {start | stop | list | maintain | restart | install | configure | grow | shrink | ssh}
 -----------------------------------------------------------------
     EOU
     })
@@ -31,7 +31,8 @@ PoolParty.load_plugins
 master = PoolParty::Master.new
 list = PoolParty::Optioner.parse(ARGV.dup)
 
-case list.pop
+cmd = list.shift
+case cmd
 when "start"
   display_config_data
   master.start_cloud!
@@ -46,8 +47,8 @@ when "install"
 when "configure"
   master.configure_cloud
 when "ssh"
-  PoolParty.message "Running #{list.runnable} on the cloud"
-  master.ssh list.runnable
+  PoolParty.message "Running #{list} on the cloud"
+  master.ssh list
 when "stop"
   PoolParty.message "Stopping cloud"
   master.request_termination_of_all_instances  
