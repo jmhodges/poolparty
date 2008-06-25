@@ -9,36 +9,60 @@ module PoolParty
     # == GENERAL METHODS    
     # == LISTING
     # List all the running instances associated with this account
-    def list_of_running_instances
-      list_of_nonterminated_instances.select {|a| a[:status] =~ /running/}
+    def list_of_running_instances(list = list_of_nonterminated_instances)
+      list.select {|a| a[:status] =~ /running/}
     end
     # Get a list of the pending instances
-    def list_of_pending_instances
-      list_of_nonterminated_instances.select {|a| a[:status] =~ /pending/}
+    def list_of_pending_instances(list = list_of_nonterminated_instances)
+      list.select {|a| a[:status] =~ /pending/}
     end
     # list of shutting down instances
-    def list_of_terminating_instances
-      list_of_nonterminated_instances.select {|a| a[:status] =~ /shutting/}
+    def list_of_terminating_instances(list = list_of_nonterminated_instances)
+      list.select {|a| a[:status] =~ /shutting/}
     end
     # list all the nonterminated instances
-    def list_of_nonterminated_instances
-      list_of_instances.reject {|a| a[:status] =~ /terminated/}
+    def list_of_nonterminated_instances(list = list_of_instances)
+      list.reject {|a| a[:status] =~ /terminated/}
     end
-    # List the instances, regardless of their states
-    def list_of_instances
-      get_instances_description
+    # List the instances for the current key pair, regardless of their states
+    def list_of_instances(keypair = Application.keypair)
+      get_instances_description.select {|a| a[:keypair] == keypair}
+    end
+    # List all instances, regardless of their key pairs or states
+    def list_of_all_instances
+      a_list = []
+      cloud_keypairs.each {|keypair| list_of_instances(keypair).each { |inst| a_list << inst } }
+      a_list
+    end
+    # list of keypairs for the current AWS access key and secret key
+    def cloud_keypairs
+      instances = get_instances_description.sort{|x,y| x[:keypair] <=> y[:keypair]}
+      keypair = nil
+      instances.map {|a| keypair != a[:keypair] ? (keypair = a[:keypair]; keypair) : nil }.compact
     end
     # Get number of pending instances
-    def number_of_pending_instances
-      list_of_pending_instances.size
+    def number_of_pending_instances(list = list_of_pending_instances)
+      list.size
     end
     # get the number of running instances
-    def number_of_running_instances
-      list_of_running_instances.size
+    def number_of_running_instances(list = list_of_running_instances)
+      list.size
+    end
+    # get the number of pending and running instances for a list
+    def number_of_pending_and_running_instances_for_list(a_list = list_of_instances)
+      running_list = list_of_running_instances( a_list )
+      pending_list = list_of_pending_instances( a_list )
+      number_of_running_instances(running_list) + number_of_pending_instances(pending_list)
+    end
+    # get the number of pending and running instances for a keypair
+    def number_of_pending_and_running_instances(keypair = Application.keypair)
+      a_list = list_of_nonterminated_instances( list_of_instances(keypair) )
+      number_of_pending_and_running_instances_for_list( a_list )
     end
     # get the number of pending and running instances
-    def number_of_pending_and_running_instances
-      number_of_running_instances + number_of_pending_instances
+    def number_of_all_pending_and_running_instances
+      a_list = list_of_nonterminated_instances( list_of_all_instances )
+      number_of_pending_and_running_instances_for_list( a_list )
     end
     # == LAUNCHING
     # Request to launch a new instance

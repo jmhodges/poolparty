@@ -7,8 +7,8 @@ module PoolParty
     include Callbacks
     include FileWriter
     
-    attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed 
-    attr_accessor :name, :number, :scp_configure_file, :configure_file, :plugin_string
+    attr_reader :ip, :instance_id, :name, :status, :launching_time, :stack_installed, :keypair 
+    attr_accessor :name, :number, :scp_configure_file, :configure_file, :plugin_string, :keypair
     
     # CALLBACKS
     after :install, :mark_installed
@@ -22,6 +22,7 @@ module PoolParty
       @number = obj[:number] || 0 # Defaults to the master
       @status = obj[:status] || "running"
       @launching_time = obj[:launching_time] || Time.now
+      @keypair = obj[:keypair] || Application.keypair
     end
     
     # Host entry for this instance

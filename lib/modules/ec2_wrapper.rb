@@ -17,7 +17,7 @@ module PoolParty
           :key_name => Application.keypair,
           :size => "#{Application.size}")
           
-        item = instance.RunInstancesResponse.instancesSet.item
+        item = instance.instancesSet.item.first
         EC2ResponseObject.get_hash_from_response(item)
       end
       # Shutdown the instance by instance_id
@@ -30,7 +30,7 @@ module PoolParty
       # Instance description
       def describe_instance(id)
         instance = ec2.describe_instances(:instance_id => id)
-        item = instance.DescribeInstancesResponse.reservationSet.item.instancesSet.item
+        item = instance.reservationSet.item.first.instancesSet.item.first
         EC2ResponseObject.get_hash_from_response(item)
       end
       # Get instance by id
@@ -56,14 +56,13 @@ module PoolParty
   # Provides a simple class to wrap around the amazon responses
   class EC2ResponseObject
     def self.get_descriptions(resp)
-      rs = resp.DescribeInstancesResponse.reservationSet.item
-      rs = rs.respond_to?(:instancesSet) ? rs.instancesSet : rs
+      rs = resp.reservationSet.item unless resp.reservationSet.nil? 
       out = begin
-        rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}.reject {|a| a.nil?  }
+        out = rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item.first)}.reject {|a| a.nil?  }
       rescue Exception => e
         begin
           # Really weird bug with amazon's ec2 gem
-          rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r)}.reject {|a| a.nil?  }
+          out = rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r.first)}.reject {|a| a.nil?  }
         rescue Exception => e
           []
         end                
@@ -75,7 +74,8 @@ module PoolParty
         :instance_id => resp.instanceId, 
         :ip => resp.dnsName, 
         :status => resp.instanceState.name,
-        :launching_time => resp.launchTime
+        :launching_time => resp.launchTime,
+        :keypair => resp.keyName
       } rescue nil
     end
   end

@@ -54,6 +54,8 @@ when "stop"
   master.request_termination_of_all_instances  
 when "list"
   puts master.list
+when "clouds_list"
+  puts master.clouds_list
 when "maintain"
   PoolParty.message "Maintaining cloud"
   master.start_monitor!

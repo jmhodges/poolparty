@@ -269,6 +269,18 @@ chmod +x #{script_file}
         RemoteInstance.new(inst.merge({:number => i}))
       end
     end
+    # Return a list of the nodes for each keypair and cache them
+    def cloud_nodes
+      @cloud_nodes ||= begin
+        nodes_list = []
+        cloud_keypairs.each {|keypair| 
+          list_of_nonterminated_instances(list_of_instances(keypair)).collect_with_index { |inst, i|
+            nodes_list << RemoteInstance.new(inst.merge({:number => i}))
+          }
+        }
+        nodes_list
+      end
+    end
     # Get the node at the specific index from the cached nodes
     def get_node(i=0)
       nodes.select {|a| a.number == i.to_i}.first
@@ -292,10 +304,28 @@ chmod +x #{script_file}
       end
       out
     end
+    def clouds_list
+      if number_of_all_pending_and_running_instances > 0
+        out = "-- ALL CLOUDS (#{number_of_all_pending_and_running_instances})--\n"
+        keypair = nil
+        out << cloud_nodes.collect {|node|
+          str = ""
+          if keypair != node.keypair
+            keypair = node.keypair;
+            str = "key pair: #{keypair} (#{number_of_pending_and_running_instances(keypair)})\n"
+          end
+          str += "\t"+node.description if !node.description.nil?
+        }.join("\n")
+      else
+        out = "Clouds are not running"
+      end
+      out
+    end
     # Reset and clear the caches
     def reset!
       @cached_descriptions = nil
       @nodes = nil
+      @cloud_nodes = nil
     end
     
     class << self
