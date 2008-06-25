@@ -16,6 +16,17 @@ extend PoolParty
 Application.environment = "test"
 Application.verbose = false
 
+def stub_option_load
+    @str=<<-EOS
+:access_key:    
+  3.14159
+    EOS
+    @sio = StringIO.new
+    StringIO.stub!(:new).and_return @sio
+    Application.stub!(:open).with("http://169.254.169.254/latest/user-data").and_return @sio
+    @sio.stub!(:read).and_return @str
+end
+
 def wait_launch(time=5)
   pid = fork {yield}
   wait time

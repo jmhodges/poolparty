@@ -2,6 +2,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe "Master" do
   before(:each) do
+    stub_option_load
     Kernel.stub!(:system).and_return true
     Kernel.stub!(:exec).and_return true
     Kernel.stub!(:sleep).and_return true # WHy wait?, just do it
@@ -10,6 +11,9 @@ describe "Master" do
     Application.options.stub!(:expand_when).and_return("web < 3.0\n cpu > 0.80")
     @master = Master.new
   end  
+  after(:all) do
+    @master.cleanup_tmp_directory(nil)
+  end
   it "should launch the first instances and set the first as the master and the rest as slaves" do
     Application.stub!(:minimum_instances).and_return(1)
     Application.stub!(:verbose).and_return(false) # Hide messages
@@ -240,18 +244,24 @@ describe "Master" do
           Master.stub!(:new).and_return @master
           @master.stub!(:nodes).and_return [@instance, @instance2]
         end
+        it "should be able to clean up after itself" do
+          File.open("#{@master.base_tmp_dir}/test", "w+") {|f| f << "hello world"}
+          @master.cleanup_tmp_directory(nil)
+          File.file?("#{@master.base_tmp_dir}/test").should == false
+        end
         it "should check to see if there is a directory in the user directory to grab the files from" do
-          File.should_receive(:directory?).at_least(1).with("#{user_dir}/resource.d").and_return true
-          @master.copy_config_files_in_directory_to_tmp_dir("resource.d")
+          File.stub!(:directory?).with("/Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/tmp/resource.d").and_return false
+          File.should_receive(:directory?).at_least(1).with("#{user_dir}/config/resource.d").at_least(1).and_return true
+          @master.copy_config_files_in_directory_to_tmp_dir("config/resource.d")
         end
         it "should copy all the files that are in the directory" do
-          Dir.stub!(:[]).with("#{user_dir}/resource.d/*").and_return ["1","2","3"]
+          Dir.stub!(:[]).and_return ["1","2","3"]
           File.should_receive(:copy).exactly(3).times.and_return true
-          @master.copy_config_files_in_directory_to_tmp_dir("resource.d")
+          @master.copy_config_files_in_directory_to_tmp_dir("config/resource.d")
         end
         it "should copy all the resource.d files from the monit directory to the tmp directory" do
-          @master.stub!(:copy_config_files_in_directory_to_tmp_dir).with("resource.d").and_return true
-          @master.should_receive(:copy_config_files_in_directory_to_tmp_dir).with("monit.d").and_return true
+          @master.stub!(:copy_config_files_in_directory_to_tmp_dir).with("config/resource.d").and_return true
+          @master.should_receive(:copy_config_files_in_directory_to_tmp_dir).at_least(1).with("config/monit.d").and_return true
           @master.build_and_send_config_files_in_temp_directory
         end
         it "should build the authkeys file for haproxy" do

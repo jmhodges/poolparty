@@ -2,14 +2,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe "Application" do
   before(:each) do
-    @str=<<-EOS
-:access_key:    
-  3.14159
-    EOS
-    @sio = StringIO.new
-    StringIO.stub!(:new).and_return @sio
-    Application.stub!(:open).with("http://169.254.169.254/latest/user-data").and_return @sio
-    @sio.stub!(:read).and_return @str
+    stub_option_load
   end
   it "should be able to send options in the Application.options" do
     options({:optparse => {:banner => "hi"}})

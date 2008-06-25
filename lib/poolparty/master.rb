@@ -157,7 +157,7 @@ module PoolParty
       end      
     end
     def cleanup_tmp_directory(c)
-      `rm -rf tmp/*` if File.directory?("tmp/")
+      Dir["#{base_tmp_dir}/*"].each {|f| FileUtils.rm_rf f} if File.directory?("tmp/")
     end
     before :build_and_send_config_files_in_temp_directory, :cleanup_tmp_directory
     # Send the files to the nodes
