@@ -140,8 +140,8 @@ module PoolParty
       File.copy(Application.config_file, "#{base_tmp_dir}/config.yml") if Application.config_file && File.exists?(Application.config_file)
       File.copy(Application.monit_config_file, "#{base_tmp_dir}/monitrc")
       
-      copy_config_files_in_directory_to_tmp_dir("resource.d")
-      copy_config_files_in_directory_to_tmp_dir("monit.d")
+      copy_config_files_in_directory_to_tmp_dir("config/resource.d")
+      copy_config_files_in_directory_to_tmp_dir("config/monit.d")
       
       build_and_copy_heartbeat_authkeys_file
       build_haproxy_file
@@ -157,7 +157,7 @@ module PoolParty
       end      
     end
     def cleanup_tmp_directory(c)
-      `rm tmp/*` if File.directory?("tmp/")
+      `rm -rf tmp/*` if File.directory?("tmp/")
     end
     before :build_and_send_config_files_in_temp_directory, :cleanup_tmp_directory
     # Send the files to the nodes
@@ -250,13 +250,16 @@ chmod +x #{script_file}
     end
     # Copy all the files in the directory to the dest
     def copy_config_files_in_directory_to_tmp_dir(dir)
-      if File.directory?("#{user_dir}/#{dir}")
+      dest_dir = "#{base_tmp_dir}/#{File.basename(dir)}"
+      FileUtils.mkdir_p dest_dir
+      
+      if File.directory?("#{user_dir}/#{dir}")        
         Dir["#{user_dir}/#{dir}/*"].each do |file|
-          File.copy(file, "#{base_tmp_dir}/resource-#{File.basename(file)}")
+          File.copy(file, dest_dir)
         end
       else
         Dir["#{root_dir}/#{dir}/*"].each do |file|
-          File.copy(file, "#{base_tmp_dir}/#{File.basename(file)}")
+          File.copy(file, dest_dir)
         end
       end      
     end

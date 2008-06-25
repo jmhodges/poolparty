@@ -76,7 +76,7 @@ module PoolParty
         :update_plugins => update_plugin_string,
         :configure_monit => configure_monit,
         :configure_authkeys => configure_authkeys,
-        :configure_resouce_d => configure_resouce_d,
+        :configure_resource_d => configure_resource_d,
         :configure_haproxy => setup_haproxy,
         :configure_heartbeat => configure_heartbeat,
         :user_tasks => user_tasks
@@ -113,17 +113,19 @@ module PoolParty
       end
     end
     
-    def configure_resouce_d
+    def configure_resource_d
       <<-EOC
         mkdir -p /etc/ha.d/resource.d
         mv #{remote_base_tmp_dir}/cloud_master_takeover /etc/ha.d/resource.d
-        mv #{remote_base_tmp_dir}/resource-* /etc/ha.d/resource.d
+        mv #{remote_base_tmp_dir}/resource.d/* /etc/ha.d/resource.d
       EOC
     end
     
     def configure_monit
       <<-EOC
         mv #{remote_base_tmp_dir}/monitrc /etc/monit/monitrc
+        mv #{remote_base_tmp_dir}/monit.d/* /etc/monit.d/
+        chown #{Application.username} /etc/monit/monitrc
         chmod 700 /etc/monit/monitrc
       EOC
     end

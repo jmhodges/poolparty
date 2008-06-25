@@ -241,7 +241,7 @@ describe "Master" do
           @master.stub!(:nodes).and_return [@instance, @instance2]
         end
         it "should check to see if there is a directory in the user directory to grab the files from" do
-          File.should_receive(:directory?).with("#{user_dir}/resource.d").and_return true
+          File.should_receive(:directory?).at_least(1).with("#{user_dir}/resource.d").and_return true
           @master.copy_config_files_in_directory_to_tmp_dir("resource.d")
         end
         it "should copy all the files that are in the directory" do

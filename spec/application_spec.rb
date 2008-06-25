@@ -1,6 +1,16 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
 describe "Application" do
+  before(:each) do
+    @str=<<-EOS
+:access_key:    
+  3.14159
+    EOS
+    @sio = StringIO.new
+    StringIO.stub!(:new).and_return @sio
+    Application.stub!(:open).with("http://169.254.169.254/latest/user-data").and_return @sio
+    @sio.stub!(:read).and_return @str
+  end
   it "should be able to send options in the Application.options" do
     options({:optparse => {:banner => "hi"}})
   end
@@ -35,5 +45,20 @@ describe "Application" do
   end
   it "should show the version as a string" do
     Application.version.class.should == String
+  end
+  it "should be able to start instances with the the key access information on the user-data" do
+    Application.launching_user_data.should =~ /:access_key/
+    Application.launching_user_data.should =~ /:secret_access_key/
+  end
+  it "should parse the yaml in the user-data and return a hash" do
+    YAML.should_receive(:load).once.with(@str).and_return({:access_key => "3.14159"})
+    Application.local_user_data
+  end
+  it "should be able to pull out the access_key from the user data" do
+    Application.local_user_data[:access_key].should == 3.14159
+  end
+  it "should overwrite the default_options when passing in to the instance data" do
+    Application.stub!(:default_options).and_return({:access_key => 42})
+    Application.options.access_key.should == 3.14159
   end
 end

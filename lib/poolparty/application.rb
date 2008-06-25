@@ -19,6 +19,7 @@ module PoolParty
         
         load_options!(loading_options)
         default_options.merge!(opts)
+        default_options.merge!(local_user_data)
         # If the config_file options are specified and not empty
         unless default_options[:config_file].nil? || default_options[:config_file].empty?
           require "yaml"
@@ -121,7 +122,13 @@ module PoolParty
         "cloud_master_takeover #{services}"
       end
       def launching_user_data
-        {:polling_time => polling_time}.to_yaml
+        {:polling_time => polling_time, 
+          :access_key => access_key, 
+          :secret_access_key => secret_access_key,
+          :user_data => user_data}.to_yaml
+      end
+      def local_user_data
+        YAML.load(open("http://169.254.169.254/latest/user-data").read) rescue {}
       end
       # Keypair path
       # Idiom:

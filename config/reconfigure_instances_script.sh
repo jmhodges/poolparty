@@ -20,7 +20,7 @@ echo "Setting new hostname"
 :set_hostname
 # Configure heartbeat
 echo "Moving all the resource.d files into place"
-:configure_resouce_d
+:configure_resource_d
 # Start heartbeat
 echo "Configuring and starting heartbeat"
 :configure_heartbeat
