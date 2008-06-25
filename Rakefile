@@ -20,6 +20,9 @@ Echoe.new("poolparty") do |p|
     Don't forget to check out the plugins for extending PoolParty!
     
     For more information, check http://poolpartyrb.com
+    On IRC: 
+      irc.freenode.net
+      #poolpartyrb
     *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
     
   EOM
