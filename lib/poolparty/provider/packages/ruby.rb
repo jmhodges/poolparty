@@ -24,7 +24,7 @@ end
 
 package :poolparty_required_gems do
   description "required gems"
-  gems %w(SQS aws-s3 amazon-ec2 aska rake rcov )
+  gems %w( SQS aws-s3 amazon-ec2 aska rake rcov )
 end
 
 package :required_gems do

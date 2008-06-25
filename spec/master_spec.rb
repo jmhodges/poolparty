@@ -156,7 +156,7 @@ describe "Master" do
             @master.configure_cloud
           end
           it "should change the configuration script into an executable and run it" do
-            tasks = ["ssh -i /Users/auser/.ec2/id_rsa -o StrictHostKeyChecking=no -l root 127.0.0.1 'chmod +x ~/tmp/node0-configuration\n/bin/sh ~/tmp/node0-configuration\n'"]
+            tasks = ["ssh -i /Users/auser/.ec2/id_rsa -o StrictHostKeyChecking=no -l root 127.0.0.1 'chmod +x ~/tmp/node0-configuration\n/bin/sh ~/tmp/node0-configuration'"]
             
             @master.should_receive(:run_array_of_tasks).with(tasks).and_return true
             @master.remote_configure_instances
@@ -237,8 +237,10 @@ describe "Master" do
       end
       describe "with copy_config_files_in_directory_to_tmp_dir method" do
         before(:each) do
+          @instance2 = RemoteInstance.new
+          @instance2.stub!(:ip).and_return "127.0.0.2"
           Master.stub!(:new).and_return @master
-          @master.stub!(:nodes).and_return [@instance]
+          @master.stub!(:nodes).and_return [@instance, @instance2]
         end
         it "should check to see if there is a directory in the user directory to grab the files from" do
           File.should_receive(:directory?).with("#{user_dir}/resource.d").and_return true
@@ -263,11 +265,14 @@ describe "Master" do
           @master.build_and_send_config_files_in_temp_directory
         end
         it "should build the hosts file for nodes" do
-          @master.should_receive(:build_hosts_file_for).and_return true
+          @master.should_receive(:build_hosts_file_for).at_least(1).and_return true
           @master.build_and_send_config_files_in_temp_directory
         end
         it "should build the ssh reconfigure script" do
-          @master.should_receive(:build_reconfigure_instances_script_for).and_return ""
+          @master.should_receive(:build_reconfigure_instances_script_for).at_least(1).and_return ""
+          @master.build_and_send_config_files_in_temp_directory
+        end
+        it "should be able to build the hosts file for the nodes" do
           @master.build_and_send_config_files_in_temp_directory
         end
         describe "when the cloud requires heartbeat" do
@@ -275,12 +280,8 @@ describe "Master" do
             Master.stub!(:requires_heartbeat?).and_return true
           end
           it "should build the heartbeat configuration file" do
-              @master.should_receive(:build_heartbeat_config_file_for).with(@instance).and_return true
+              @master.should_receive(:build_heartbeat_config_file_for).at_least(1).and_return true
               @master.build_and_send_config_files_in_temp_directory
-          end
-          it "should build the ha resources file" do
-            @master.should_receive(:build_heartbeat_resources_file_for).with(@instance).and_return true
-            @master.build_and_send_config_files_in_temp_directory
           end
         end
       end

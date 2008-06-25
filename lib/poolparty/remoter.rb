@@ -99,7 +99,7 @@ module PoolParty
         unless task_list.size == 0
           task_list.each do |task|
             add_task {Kernel.system("#{task}")}
-          end          
+          end
           run_thread_list
         end
       end

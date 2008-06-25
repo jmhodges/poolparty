@@ -164,12 +164,13 @@ module PoolParty
       arr = []
       Master.with_nodes do |node|
         script_file = "#{remote_base_tmp_dir}/#{node.name}-configuration"
-        arr << <<-EOC
+        str=<<-EOC
 chmod +x #{script_file}
 /bin/sh #{script_file}
         EOC
+        arr << "#{self.class.ssh_string} #{node.ip} '#{str.strip.runnable}'"
       end
-      run_array_of_tasks(remote_command_tasks(arr))
+      run_array_of_tasks(arr)
     end
     # Add an instance if the load is high
     def add_instance_if_load_is_high
@@ -218,13 +219,13 @@ chmod +x #{script_file}
     # Build heartbeat config file
     def build_heartbeat_config_file_for(node)
       write_to_file_for("heartbeat", node) do
-        servers = "#{node.node_entry}\n#{get_next_node(node).node_entry}"
+        servers = "#{node.node_entry}\n#{get_next_node(node).node_entry}" rescue ""
         open(Application.heartbeat_config_file).read.strip ^ {:nodes => servers}
       end
     end
     def build_heartbeat_resources_file_for(node)
       write_to_file_for("haresources", node) do
-        "#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}"
+        "#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}" rescue ""
       end        
     end
     # Build basic configuration script for the node
@@ -319,7 +320,7 @@ chmod +x #{script_file}
       end
       # Build a heartbeat resources file from the config directory and return a tempfile
       def build_heartbeat_resources_file_for(node)
-        return nil unless node
+        return nil unless node && get_next_node(node)
         new.write_to_file_for("haresources", node) do
           "#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}"
         end        

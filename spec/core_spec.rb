@@ -13,3 +13,12 @@ describe "Hash" do
     a.should == {:a => "10", :b => "20", :c => "40"}
   end
 end
+describe "String" do
+  it "should be able to convert a big string with \n to a runnable string" do
+    str =<<-EOS
+      echo 'hi'
+      puts 'hi'
+    EOS
+    str.runnable.should == "echo 'hi' &&       puts 'hi'"
+  end
+end

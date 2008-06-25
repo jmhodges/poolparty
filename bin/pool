@@ -22,7 +22,7 @@ end
 # Set defaults
 options = PoolParty.options(:optsparse => 
   {:banner => <<-EOU
-Usage: pool [OPTIONS] {start | stop | list | maintain | restart | install | configure}
+Usage: pool [OPTIONS] {start | stop | list | maintain | restart | install | configure | grow | shrink}
 -----------------------------------------------------------------
     EOU
     })
