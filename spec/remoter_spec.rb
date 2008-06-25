@@ -7,8 +7,10 @@ class TestRemote
 end
 describe "Remoter" do
   before(:each) do
+    stub_option_load
+    
     @instance = RemoteInstance.new
-    @master = Master.new
+    @master = Master.new    
     
     @remoter = TestRemote.new    
     @remoter.stub!(:put).and_return "true"

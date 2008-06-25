@@ -11,7 +11,7 @@ Echoe.new("poolparty") do |p|
   p.url = "http://blog.citrusbyte.com"
   p.dependencies = %w(aws-s3 amazon-ec2 aska git vlad crafterm-sprinkle)
   p.install_message =<<-EOM
-  
+    
     Thanks for installing PoolParty!
     
     Please check out the documentation for any questions or check out the google groups at

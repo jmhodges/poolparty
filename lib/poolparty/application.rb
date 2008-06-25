@@ -19,7 +19,7 @@ module PoolParty
         
         load_options!(loading_options)
         default_options.merge!(opts)
-        default_options.merge!(local_user_data)
+        default_options.merge!(local_user_data) unless local_user_data.nil? || local_user_data.empty?
         # If the config_file options are specified and not empty
         unless default_options[:config_file].nil? || default_options[:config_file].empty?
           require "yaml"

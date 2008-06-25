@@ -11,6 +11,7 @@ class RemoteInstance
 end
 describe "remote instance" do
   before(:each) do
+    stub_option_load
     @instance = RemoteInstance.new({:ip => "127.0.0.1", :instance_id => "i-abcdef1"})
     @instance.stub!(:ssh).and_return true
     @instance.stub!(:scp).and_return true
@@ -58,6 +59,7 @@ describe "remote instance" do
       before(:each) do
         @tempfile = Tempfile.new("/tmp")
         Kernel.stub!(:system).and_return true
+        stub_option_load
       end
       # it "should try to run the scp build file" do
       #   Master.should_receive(:build_scp_instances_script_for).with(@instance).and_return @tempfile

@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + "/helpers/ec2_mock"
 
 describe "Master remoting: " do
   before(:each) do
+    stub_option_load
     Kernel.stub!(:system).and_return true
     Application.stub!(:environment).and_return("test") # So it doesn't daemonize
     Application.stub!(:minimum_instances).and_return(2)
@@ -11,7 +12,7 @@ describe "Master remoting: " do
     Application.stub!(:verbose).and_return(false) # Turn off messaging
     
     @master = Master.new
-    @master.launch_new_instance!
+    @master.launch_new_instance!    
   end
   describe "starting" do
     before(:each) do

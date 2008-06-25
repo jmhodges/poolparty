@@ -3,7 +3,8 @@ require "lib/poolparty/monitors/cpu"
 
 describe "monitors" do
   describe "when included" do
-    before(:each) do      
+    before(:each) do
+      stub_option_load
       @master = Master.new
       @instance = RemoteInstance.new
     end

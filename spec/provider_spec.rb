@@ -2,6 +2,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe "Provider" do
   before(:each) do
+    stub_option_load
     @ips = ["127.0.0.1"]
   end
   it "should be able to make a roles from the ips" do

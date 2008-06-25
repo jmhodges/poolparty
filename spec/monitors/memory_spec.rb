@@ -4,6 +4,7 @@ require "lib/poolparty/monitors/memory"
 describe "monitors" do
   describe "when included" do
     before(:each) do      
+      stub_option_load
       @master = Master.new
       @instance = RemoteInstance.new
     end

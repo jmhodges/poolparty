@@ -64,12 +64,6 @@ describe "Scheduler" do
         @test.run_thread_list
         @test._tasker.tasks.size.should == 0
       end
-      describe "daemonizing" do
-        it "should detached the process" do
-          Process.should_receive(:detach).once
-          @test.daemonize
-        end
-      end
     end
   end
 end

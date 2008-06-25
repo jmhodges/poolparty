@@ -4,6 +4,7 @@ require "lib/poolparty/monitors/web"
 describe "monitors" do
   describe "when included" do
     before(:each) do      
+      stub_option_load
       Application.stub!(:client_port).and_return 8001
       @master = Master.new
       @instance = RemoteInstance.new

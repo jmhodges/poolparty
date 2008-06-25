@@ -18,6 +18,7 @@ PoolParty.register_monitor Database
 describe "monitors (random, to spec the inclusion)" do
   describe "when included" do
     before(:each) do      
+      stub_option_load
       @master = Master.new
       @instance = RemoteInstance.new
     end

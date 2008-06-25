@@ -32,6 +32,7 @@ describe "Plugin" do
   end
   describe "usage" do
     before(:each) do
+      stub_option_load
       @instance = RemoteInstance.new
       @master = Master.new
       
