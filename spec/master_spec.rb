@@ -195,7 +195,7 @@ describe "Master" do
         @master.contract?.should == false
       end
       it "should be able to say that it should contract" do      
-        @master.stub!(:web).and_return(30.2)
+        @master.stub!(:web).and_return(31.2)
         @master.stub!(:cpu).and_return(0.05)
 
         @master.contract?.should == true
