@@ -31,7 +31,7 @@ PoolParty.load_plugins
 master = PoolParty::Master.new
 list = PoolParty::Optioner.parse(ARGV.dup)
 
-case list[0]
+case list.pop
 when "start"
   display_config_data
   master.start_cloud!
@@ -45,6 +45,9 @@ when "install"
   master.install_cloud
 when "configure"
   master.configure_cloud
+when "ssh"
+  PoolParty.message "Running #{list.runnable} on the cloud"
+  master.ssh list.runnable
 when "stop"
   PoolParty.message "Stopping cloud"
   master.request_termination_of_all_instances  
