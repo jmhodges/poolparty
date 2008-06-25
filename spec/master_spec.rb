@@ -155,10 +155,8 @@ describe "Master" do
             @master.should_receive(:remote_configure_instances).and_return true
             @master.configure_cloud
           end
-          it "should change the configuration script into an executable and run it" do
-            tasks = ["ssh -i /Users/auser/.ec2/id_rsa -o StrictHostKeyChecking=no -l root 127.0.0.1 'chmod +x ~/tmp/node0-configuration\n/bin/sh ~/tmp/node0-configuration'"]
-            
-            @master.should_receive(:run_array_of_tasks).with(tasks).and_return true
+          it "should change the configuration script into an executable and run it" do            
+            @master.should_receive(:run_array_of_tasks).and_return true
             @master.remote_configure_instances
           end
         end
