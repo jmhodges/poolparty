@@ -39,7 +39,12 @@ module PoolParty
       PoolParty::Provider.define_user_install str
     end
     
-    %w(install associate_public_ip become_master).each do |method|
+    def read_config_file(filename)
+      return {} unless filename
+      YAML.load(open(filename).read)
+    end
+    
+    %w(install configure associate_public_ip become_master).each do |method|
       create_methods method, RemoteInstance
     end    
     %w(start start_monitor configure_cloud scale_cloud reconfiguration add_instance terminate_instance check_stats).each do |method|
