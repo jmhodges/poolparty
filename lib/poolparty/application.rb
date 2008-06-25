@@ -128,7 +128,14 @@ module PoolParty
           :user_data => user_data}.to_yaml
       end
       def local_user_data
-        YAML.load(open("http://169.254.169.254/latest/user-data").read) rescue {}
+        @local_user_data ||= 
+        begin
+          Timer.timeout(5.seconds) do
+            YAML.load(open("http://169.254.169.254/latest/user-data").read)
+          end
+        rescue Exception => e
+          {}
+        end
       end
       # Keypair path
       # Idiom:

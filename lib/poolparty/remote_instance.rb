@@ -124,6 +124,7 @@ module PoolParty
     def configure_monit
       <<-EOC
         mv #{remote_base_tmp_dir}/monitrc /etc/monit/monitrc
+        mkdir -p /etc/monit.d/
         mv #{remote_base_tmp_dir}/monit.d/* /etc/monit.d/
         chown #{Application.username} /etc/monit/monitrc
         chmod 700 /etc/monit/monitrc
