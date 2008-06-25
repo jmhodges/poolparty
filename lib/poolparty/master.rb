@@ -128,6 +128,7 @@ module PoolParty
       num.times do |i|
         node = nodes.reject {|a| a.master? }[-1]
         request_termination_of_instance(node.instance_id) if node
+        configure_cloud
       end      
     end
     
