@@ -43,10 +43,6 @@ describe "Application" do
     Application.launching_user_data.should =~ /:access_key/
     Application.launching_user_data.should =~ /:secret_access_key/
   end
-  it "should parse the yaml in the user-data and return a hash" do
-    YAML.should_receive(:load).once.with(@str).and_return({:access_key => "3.14159"})
-    Application.local_user_data
-  end
   it "should be able to pull out the access_key from the user data" do
     Application.local_user_data[:access_key].should == 3.14159
   end

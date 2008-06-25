@@ -26,7 +26,7 @@ def stub_option_load
     Application.stub!(:open).with("http://169.254.169.254/latest/user-data").and_return @sio
     @sio.stub!(:read).and_return @str
     PoolParty.stub!(:Timer).and_return Timeout
-    Timeout.stub!(:timeout).and_return lambda {YAML.load(open("http://169.254.169.254/latest/user-data").read)}
+    PoolParty.Timer.stub!(:timeout).and_return lambda {YAML.load(open("http://169.254.169.254/latest/user-data").read)}
 end
 
 def wait_launch(time=5)
