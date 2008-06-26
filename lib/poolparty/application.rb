@@ -106,7 +106,6 @@ module PoolParty
           :keypair => ENV["KEYPAIR_NAME"],
           :ami => 'ami-4a46a323',
           :shared_bucket => "",
-          :services => "",
           :expand_when => "web_usage < 1.5\n memory > 0.85",
           :contract_when => "cpu < 0.20\n memory < 0.10",
           :os => "ubuntu",
@@ -115,12 +114,8 @@ module PoolParty
         }
       end
       # Services monitored by Heartbeat
-      # Always at least monitors haproxy
-      def managed_services
-        "#{services}"
-      end
       def master_managed_services
-        "cloud_master_takeover #{services}"
+        "cloud_master_takeover"
       end
       def launching_user_data
         {:polling_time => polling_time, 
