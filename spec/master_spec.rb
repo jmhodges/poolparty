@@ -303,6 +303,20 @@ describe "Master" do
         File.should_receive(:copy).exactly(3).and_return true
         @master.build_and_send_config_files_in_temp_directory
       end
+      describe "get configs" do
+        before(:each) do
+          @master.stub!(:user_dir).and_return("user")
+          @master.stub!(:root_dir).and_return("root")
+        end
+        it "should try to get the config file in the user directory before the root_dir" do
+          File.should_receive(:exists?).with("#{@master.user_dir}/config/config.yml").and_return true
+          @master.get_config_file_for("config.yml").should == "user/config/config.yml"
+        end
+        it "should try to get the config file in the root directory if it doesn't exist in the user directory" do
+          File.should_receive(:exists?).with("#{@master.user_dir}/config/config.yml").and_return false
+          @master.get_config_file_for("config.yml").should == "root/config/config.yml"
+        end
+      end
       it "should copy the config file if it exists" do
         Application.stub!(:config_file).and_return "config.yml"
         File.stub!(:exists?).and_return true        
