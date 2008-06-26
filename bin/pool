@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 require 'rubygems'
-# $:.unshift(File.join(File.dirname(__FILE__), "lib"))
+$:.unshift(File.join(File.dirname(__FILE__), "lib"))
 require 'poolparty'
 
 def display_config_data
@@ -22,7 +22,7 @@ end
 # Set defaults
 options = PoolParty.options(:optsparse => 
   {:banner => <<-EOU
-Usage: pool [OPTIONS] {start | stop | list | maintain | restart | install | configure | grow | shrink | ssh}
+Usage: pool [OPTIONS] {start | stop | list | clouds_list | maintain | restart | install | configure | grow | shrink | ssh}
 -----------------------------------------------------------------
     EOU
     })
@@ -64,5 +64,6 @@ when "restart"
   master.request_termination_of_all_instances
   master.start_cloud!
 else
+  display_config_data if PoolParty.verbose?
   puts master.list
 end

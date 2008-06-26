@@ -17,7 +17,7 @@ module PoolParty
           :key_name => Application.keypair,
           :size => "#{Application.size}")
           
-        item = instance.instancesSet.item.first
+        item = instance.instancesSet.item
         EC2ResponseObject.get_hash_from_response(item)
       end
       # Shutdown the instance by instance_id
@@ -56,16 +56,20 @@ module PoolParty
   # Provides a simple class to wrap around the amazon responses
   class EC2ResponseObject
     def self.get_descriptions(resp)
-      rs = resp.reservationSet.item unless resp.reservationSet.nil? 
+      rs = resp.DescribeInstancesResponse.reservationSet.item
+      rs ||= rs.respond_to?(:instancesSet) ? rs.instancesSet : rs
+      rs ||= resp.reservationSet.item unless resp.reservationSet.nil?
+      rs.reject! {|a| a.empty? }
+      
       out = begin
-        out = rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item.first)}.reject {|a| a.nil?  }
+        outs = rs.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}.reject {|a| a.nil? }
       rescue Exception => e
         begin
           # Really weird bug with amazon's ec2 gem
-          out = rs.reject {|a| a.empty? }.collect {|r| EC2ResponseObject.get_hash_from_response(r.first)}.reject {|a| a.nil?  }
+          out = rs.collect {|r| EC2ResponseObject.get_hash_from_response(r)}.reject {|a| a.nil? }
         rescue Exception => e
-          []
-        end                
+          out = []
+        end
       end
       out
     end

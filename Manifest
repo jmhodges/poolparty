@@ -71,6 +71,7 @@ README.txt
 spec/application_spec.rb
 spec/callback_spec.rb
 spec/core_spec.rb
+spec/ec2_wrapper_spec.rb
 spec/file_writer_spec.rb
 spec/helpers/ec2_mock.rb
 spec/kernel_spec.rb

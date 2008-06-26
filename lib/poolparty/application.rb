@@ -16,10 +16,11 @@ module PoolParty
       def make_options(opts={})
         loading_options = opts.delete(:optsparse) || {}
         loading_options.merge!( {:argv => opts.delete(:argv)} )
+                
+        default_options.merge!(opts) # Load options from the binary
+        load_options!(loading_options) # Load command-line options
         
-        load_options!(loading_options)
-        default_options.merge!(opts)
-        default_options.merge!(local_user_data) unless local_user_data.nil? || local_user_data.empty?
+        default_options.merge!(local_user_data) unless local_user_data == {}
         # If the config_file options are specified and not empty
         unless default_options[:config_file].nil? || default_options[:config_file].empty?
           require "yaml"
@@ -28,7 +29,7 @@ module PoolParty
           default_options.merge!( YAML.load(filedata) ) if filedata # We want the command-line to overwrite the config file
         end
         
-        OpenStruct.new(default_options.merge(opts))
+        OpenStruct.new(default_options)
       end
 
       # Load options via commandline
