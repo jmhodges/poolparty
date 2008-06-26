@@ -18,10 +18,10 @@ require "tempfile"
 begin
   require 'fastthread'
   require 'system_timer'
-  Timer = SystemTimer  
+  @@timer = SystemTimer
 rescue LoadError
   require 'timeout'
-  Timer = Timeout
+  @@timer = Timeout
 end
 
 ## Load PoolParty
@@ -42,11 +42,14 @@ end
 
 module PoolParty
   module Version #:nodoc:
-    MAJOR = 0
-    MINOR = 0
-    TINY  = 9
+    @major = 0
+    @minor = 0
+    @tiny  = 9
 
-    STRING = [MAJOR, MINOR, TINY].join('.')
+    STRING = [@major, @minor, @tiny].join('.')
+  end
+  def timer
+    @@timer
   end
   # PoolParty options
   def options(opts={})

@@ -126,7 +126,7 @@ module PoolParty
       def local_user_data
         @local_user_data ||= 
         begin
-          Timer.timeout(5.seconds) do
+          @@timer.timeout(5.seconds) do
             YAML.load(open("http://169.254.169.254/latest/user-data").read)
           end
         rescue Exception => e

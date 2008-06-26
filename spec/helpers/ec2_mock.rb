@@ -24,6 +24,9 @@ module PoolParty
     def get_instances_description
       instances
     end
+    def get_non_empty_instances_description
+      EC2::Response.parse(:xml => open("#{File.dirname(__FILE__)}/../files/response.txt").read)
+    end
     # Fake the ec2 connection
     def ec2
       @ec2 ||= EC2::Base.new(:access_key_id => "not a key", :secret_access_key => "not a key")

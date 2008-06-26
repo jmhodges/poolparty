@@ -29,9 +29,9 @@ module PoolParty
       end
       # Instance description
       def describe_instance(id)
-        instance = ec2.describe_instances(:instance_id => id)
-        item = instance.reservationSet.item.first.instancesSet.item.first
-        EC2ResponseObject.get_hash_from_response(item)
+        # instance = ec2.describe_instances(:instance_id => id)
+        # item = instance.reservationSet.item.first.instancesSet.item.first
+        EC2ResponseObject.get_hash_from_response(ec2.describe_instances(:instance_id => id))
       end
       # Get instance by id
       def get_instance_by_id(id)
@@ -64,16 +64,16 @@ module PoolParty
       rescue Exception => e        
       end
       
-      out = begin
-        outs = rs.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}.reject {|a| a.nil? }
+      puts resp
+      
+      out = begin        
+        rs.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}.reject {|a| a.nil? }
       rescue Exception => e
-        begin
-          # Really weird bug with amazon's ec2 gem
-          out = rs.collect {|r| EC2ResponseObject.get_hash_from_response(r)}.reject {|a| a.nil? }
-        rescue Exception => e
-          out = []
-        end
+        # Really weird bug with amazon's ec2 gem
+        rs.collect {|r| EC2ResponseObject.get_hash_from_response(r)}.reject {|a| a.nil? } rescue []
       end
+      
+      puts "out: #{out}"
       out
     end
     def self.get_hash_from_response(resp)

@@ -22,7 +22,7 @@ end
 # Set defaults
 options = PoolParty.options(:optsparse => 
   {:banner => <<-EOU
-Usage: pool [OPTIONS] {start | stop | list | clouds_list | maintain | restart | install | configure | grow | shrink | ssh}
+Usage: pool [OPTIONS] {start | stop | list | clouds_list | maintain | restart | install | configure | grow | shrink | ssh | switch}
 -----------------------------------------------------------------
     EOU
     })
@@ -65,8 +65,7 @@ when "restart"
   master.start_cloud!
 when "switch"
   context = list.pop
-  raise Exception.new("You must supply a context to switch to") unless context
-  `source ~/.#{context}_pool_keys`
+  context ? `source ~/.#{context}_pool_keys` : puts("You must supply a context to switch")
 else
   display_config_data if PoolParty.verbose?
   puts master.list
