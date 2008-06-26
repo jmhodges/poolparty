@@ -96,7 +96,6 @@ module PoolParty
     end
     alias_method :start_monitor, :start_monitor!
     def user_tasks
-      puts "in user_tasks"
     end
     # Sole purpose to check the stats, mainly in a plugin
     def check_stats
@@ -120,7 +119,7 @@ module PoolParty
     end
     def grow_by(num=1)
       num.times do |i|
-        request_launch_new_instance      
+        request_launch_new_instance
         configure_cloud
       end      
     end

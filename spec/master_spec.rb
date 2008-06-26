@@ -24,11 +24,11 @@ describe "Master" do
     @master.stub!(:wait).and_return true
     
     @master.should_receive(:launch_new_instance!).and_return(
-    {:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"})
+    {:instance_id => "i-5849ba", :ip => "127.0.0.1", :status => "running"})
     @master.stub!(:list_of_nonterminated_instances).and_return(
-    [{:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"}])
+    [{:instance_id => "i-5849ba", :ip => "127.0.0.1", :status => "running"}])
     
-    node = RemoteInstance.new({:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"})
+    node = RemoteInstance.new({:instance_id => "i-5849ba", :ip => "127.0.0.1", :status => "running"})
     node.stub!(:scp).and_return "true"
     node.stub!(:ssh).and_return "true"
     
@@ -60,9 +60,9 @@ describe "Master" do
   describe "with stubbed instances" do
     before(:each) do
       @master.stub!(:list_of_nonterminated_instances).and_return([
-          {:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"},
-          {:instance_id => "i-5849bb", :ip => "ip-127-0-0-2.aws.amazon.com", :status => "running"},
-          {:instance_id => "i-5849bc", :ip => "ip-127-0-0-3.aws.amazon.com", :status => "pending"}
+          {:instance_id => "i-5849ba", :ip => "127.0.0.1", :status => "running"},
+          {:instance_id => "i-5849bb", :ip => "127.0.0.2", :status => "running"},
+          {:instance_id => "i-5849bc", :ip => "127.0.0.3", :status => "pending"}
         ])
       Kernel.stub!(:exec).and_return true
       @instance = RemoteInstance.new
@@ -87,18 +87,22 @@ describe "Master" do
       @master.get_node(2).instance_id.should == "i-5849bc"
     end
     it "should be able to build a hosts file" do
-      open(@master.build_hosts_file_for(@instance).path).read.should == "ip-127-0-0-1.aws.amazon.com node0\nip-127-0-0-2.aws.amazon.com node1\nip-127-0-0-3.aws.amazon.com node2"
+      open(@master.build_hosts_file_for(@instance).path).read.should == "127.0.0.1 node0\n127.0.0.1 localhost.localdomain localhost ubuntu\n127.0.0.2 node1\n127.0.0.3 node2"
     end
     it "should be able to build a hosts file for a specific instance" do
-      open(@master.build_hosts_file_for(@instance).path).read.should =~ "ip-127-0-0-1.aws.amazon.com node0"
+      open(@master.build_hosts_file_for(@instance).path).read.should =~ "127.0.0.1 node0"
     end
     it "should be able to build a haproxy file" do
-      open(@master.build_haproxy_file.path).read.should =~ "server node0 ip-127-0-0-1.aws.amazon.com:#{Application.client_port}"
+      open(@master.build_haproxy_file.path).read.should =~ "server node0 127.0.0.1:#{Application.client_port}"
     end
     it "should be able to reconfigure the instances (working on two files a piece)" do
       @master.should_receive(:remote_configure_instances).and_return true
       @master.stub!(:number_of_unconfigured_nodes).and_return 1
       @master.reconfigure_cloud_when_necessary
+    end
+    it "should return the number of unconfigured nodes when asked" do
+      @master.nodes.first.stub!(:stack_installed?).and_return false
+      @master.number_of_unconfigured_nodes.should == 1
     end
     it "should be able to restart the running instances' services" do
       @master.nodes.each {|a| a.should_receive(:restart_with_monit).and_return true }
@@ -113,7 +117,7 @@ describe "Master" do
           Master.stub!(:new).and_return(@master)
         end
         it "should be able to build a heartbeat resources file for the specific node" do
-          open(Master.build_heartbeat_resources_file_for(@master.nodes.first).path).read.should =~ /node0 ip-127/
+          open(Master.build_heartbeat_resources_file_for(@master.nodes.first).path).read.should =~ /node0 127/
         end
         it "should be able to build a heartbeat config file" do
           open(Master.build_heartbeat_config_file_for(@master.nodes.first).path).read.should =~ /\nnode node0\nnode node1/
@@ -123,7 +127,7 @@ describe "Master" do
         end
         it "should be able to say that heartbeat is not necessary if there is 1 server" do
           @master.stub!(:list_of_nonterminated_instances).and_return([
-              {:instance_id => "i-5849ba", :ip => "ip-127-0-0-1.aws.amazon.com", :status => "running"}
+              {:instance_id => "i-5849ba", :ip => "127.0.0.1", :status => "running"}
             ])
           Master.requires_heartbeat?.should == false
         end
@@ -167,9 +171,57 @@ describe "Master" do
         
       end      
     end
+    describe "installation" do
+      it "should not install on the instances if the application doesn't say it should" do
+         Application.stub!(:install_on_load?).and_return false
+         Provider.should_not_receive(:install_poolparty)
+         @master.install_cloud
+      end
+      describe "when asked" do
+        before(:each) do
+          Application.stub!(:install_on_load?).and_return true
+          Sprinkle::Script.stub!(:sprinkle).and_return true
+          @master.stub!(:execute_tasks).and_return true
+        end
+        it "should install on the instances if the application says it should" do        
+          Provider.should_receive(:install_poolparty)
+          @master.install_cloud
+        end
+        it "should execute the remote tasks on all of the instances" do
+          @master.should_receive(:execute_tasks).and_return true
+          @master.install_cloud
+        end
+        describe "stubbing installation" do
+          before(:each) do
+            @master.stub!(:execute_tasks).and_return true          
+          end
+          it "should install poolparty" do
+            Provider.should_receive(:install_poolparty).and_return true
+            Provider.should_receive(:install_userpackages).and_return true
+            @master.install_cloud
+          end
+          it "should install the user packages" do
+            Provider.should_receive(:install_poolparty).and_return true
+            Provider.should_receive(:install_userpackages).and_return true
+            @master.install_cloud
+          end
+        end
+      end
+    end
     describe "displaying" do
       it "should be able to list the cloud instances" do
         @master.list.should =~ /CLOUD \(/
+      end
+    end
+    it "should be able to grab a list of the instances" do
+      @master.cloud_ips.should == %w(127.0.0.1 127.0.0.2 127.0.0.3)
+    end
+    describe "starting" do
+      it "should request to launch the minimum number of instances" do
+        Application.stub!(:minimum_instances).and_return 3
+        @master.stub!(:number_of_pending_and_running_instances).and_return 1
+        @master.should_receive(:request_launch_new_instances).with(2).and_return true
+        @master.launch_minimum_instances
       end
     end
     describe "monitoring" do
@@ -212,6 +264,26 @@ describe "Master" do
 
         @master.expand?.should == true
       end      
+    end
+    describe "scaling" do
+      it "should try to add a new instance" do
+        @master.should_receive(:add_instance_if_load_is_high).and_return true
+        @master.scale_cloud!
+      end
+      it "should try to terminate an instance" do
+        @master.should_receive(:terminate_instance_if_load_is_low).and_return true
+        @master.scale_cloud!
+      end
+      it "should try to grow the cloud by 1 node when asked" do
+        @master.should_receive(:request_launch_new_instance).once.and_return true
+        @master.should_receive(:configure_cloud).once.and_return true
+        @master.grow_by(1)
+      end
+      it "should try to shrink the cloud by 1 when asked" do
+        @master.should_receive(:request_termination_of_instance).and_return true
+        @master.should_receive(:configure_cloud).and_return true
+        @master.shrink_by(1)
+      end
     end
   end
   describe "Configuration" do
