@@ -12,7 +12,7 @@ authors:
 autorequire: 
 bindir: bin
 
-date: 2008-06-25 00:00:00 -07:00
+date: 2008-06-26 00:00:00 -07:00
 default_executable: 
 dependencies: 
 - !ruby/object:Gem::Dependency 

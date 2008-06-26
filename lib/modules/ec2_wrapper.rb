@@ -56,10 +56,13 @@ module PoolParty
   # Provides a simple class to wrap around the amazon responses
   class EC2ResponseObject
     def self.get_descriptions(resp)
-      rs = resp.DescribeInstancesResponse.reservationSet.item
-      rs ||= rs.respond_to?(:instancesSet) ? rs.instancesSet : rs
-      rs ||= resp.reservationSet.item unless resp.reservationSet.nil?
-      rs.reject! {|a| a.empty? }
+      begin
+        rs = resp.DescribeInstancesResponse.reservationSet.item
+        rs ||= rs.respond_to?(:instancesSet) ? rs.instancesSet : rs
+        rs ||= resp.reservationSet.item unless resp.reservationSet.nil?
+        rs.reject! {|a| a.empty? }
+      rescue Exception => e        
+      end
       
       out = begin
         outs = rs.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}.reject {|a| a.nil? }
