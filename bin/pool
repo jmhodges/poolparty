@@ -63,6 +63,10 @@ when "restart"
   PoolParty.message "Restarting cloud"
   master.request_termination_of_all_instances
   master.start_cloud!
+when "switch"
+  context = list.pop
+  raise Exception.new("You must supply a context to switch to") unless context
+  `source ~/.#{context}_pool_keys`
 else
   display_config_data if PoolParty.verbose?
   puts master.list
