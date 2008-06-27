@@ -16,18 +16,19 @@ module PoolParty
       def make_options(opts={})
         loading_options = opts.delete(:optsparse) || {}
         loading_options.merge!( {:argv => opts.delete(:argv)} )
-                
-        default_options.merge!(opts) # Load options from the binary
-        load_options!(loading_options) # Load command-line options
-        
-        default_options.merge!(local_user_data) unless local_user_data == {}
+
         # If the config_file options are specified and not empty
         unless default_options[:config_file].nil? || default_options[:config_file].empty?
           require "yaml"
           # Try loading the file if it exists
           filedata = open(default_options[:config_file]).read if File.file?(default_options[:config_file])
-          default_options.merge!( YAML.load(filedata) ) if filedata # We want the command-line to overwrite the config file
+          # We want the command-line to overwrite the config file
+          default_options.merge!( YAML.load(filedata) ) if filedata
         end
+        
+        default_options.merge!(opts)
+        load_options!(loading_options) # Load command-line options        
+        default_options.merge!(local_user_data) unless local_user_data == {}
         
         OpenStruct.new(default_options)
       end
@@ -50,7 +51,7 @@ module PoolParty
           op.on('-m monitors', '--monitors names', "Monitor instances using (default: 'web,memory,cpu')") {|s| default_options[:monitor_load_on] = s }          
           op.on('-o port', '--client_port port', "Run on specific client_port (default: 7788)") { |client_port| default_options[:client_port] = client_port }
           op.on('-O os', '--os os', "Configure for os (default: ubuntu)") { |os| default_options[:os] = os }          
-          op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:env] = env }
+          op.on('-e env', '--environment env', "Run on the specific environment (default: development)") { |env| default_options[:environment] = env }
           op.on('-a address', '--public-ip address', "Associate this public address with the master node") {|s| default_options[:public_ip] = s}
           op.on('-s size', '--size size', "Run specific sized instance") {|s| default_options[:size] = s}
           op.on('-a name', '--name name', "Application name") {|n| default_options[:app_name] = n}

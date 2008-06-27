@@ -26,7 +26,7 @@ module PoolParty
     # Add a task in a new thread
     def <<(a, *args)
       thread = Thread.new(a) do |task|
-        Thread.stop
+        Thread.stop rescue ""
         Thread.current[:callee] = task
         a.call args
       end
@@ -78,7 +78,8 @@ module PoolParty
       block = lambda {        
         loop do
           begin
-            run_thread_list(&block)
+            yield if block_given?
+            run_thread_list
             wait interval
             reset!
           rescue Exception => e
@@ -90,8 +91,7 @@ module PoolParty
       opts[:daemonize] ? daemonize(&block) : block.call   
     end
     
-    def run_thread_list
-      yield if block_given?
+    def run_thread_list      
       run_threads
     end
     # Reset

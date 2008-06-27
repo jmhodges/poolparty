@@ -113,7 +113,6 @@ module PoolParty
     def reconfigure_cloud_when_necessary
       configure_cloud if number_of_unconfigured_nodes > 0
     end
-    alias_method :reconfiguration, :reconfigure_cloud_when_necessary
     def number_of_unconfigured_nodes
       nodes.reject {|a| a.stack_installed? }.size
     end

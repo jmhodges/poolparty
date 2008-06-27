@@ -248,7 +248,7 @@ module PoolParty
       end
     end
     def stack_installed?
-      @stack_installed ||= run_now('if [ $(cat installed) == "installed" ]; then echo "installed in here"; fi') != ""
+      @stack_installed ||= false
     end
     def mark_installed(caller=nil)
       run_now("echo 'installed' > ~/.installed")
