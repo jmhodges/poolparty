@@ -101,7 +101,7 @@ describe "Master" do
       @master.reconfigure_cloud_when_necessary
     end
     it "should return the number of unconfigured nodes when asked" do
-      @master.nodes.first.stub!(:stack_installed?).and_return false
+      @master.nodes.each {|node| node.stub!(:stack_installed?).and_return(true) unless node.master? }
       @master.number_of_unconfigured_nodes.should == 1
     end
     it "should be able to restart the running instances' services" do
@@ -320,7 +320,7 @@ describe "Master" do
       it "should copy the config file if it exists" do
         Application.stub!(:config_file).and_return "config.yml"
         File.stub!(:exists?).and_return true        
-        File.should_receive(:copy).exactly(4).times.and_return true
+        File.should_receive(:copy).exactly(5).times.and_return true
         @master.build_and_send_config_files_in_temp_directory
       end
       describe "with copy_config_files_in_directory_to_tmp_dir method" do
@@ -369,6 +369,14 @@ describe "Master" do
         it "should be able to build the hosts file for the nodes" do
           @master.build_and_send_config_files_in_temp_directory
         end
+        it "should build global files" do
+          Master.should_receive(:build_user_global_files).once
+          @master.build_and_send_config_files_in_temp_directory
+        end
+        it "should build user node files" do
+          Master.should_receive(:build_user_node_files_for).at_least(1)
+          @master.build_and_send_config_files_in_temp_directory
+        end
         describe "when the cloud requires heartbeat" do
           before(:each) do
             Master.stub!(:requires_heartbeat?).and_return true
@@ -377,6 +385,30 @@ describe "Master" do
               @master.should_receive(:build_heartbeat_config_file_for).at_least(1).and_return true
               @master.build_and_send_config_files_in_temp_directory
           end
+        end
+      end
+      describe "user define files" do
+        it "should have access to global_user_files as an array" do
+          Master.global_user_files.class.should == Array
+        end
+        it "should be able to add a global file to the array" do
+          Master.define_global_user_file(:box) {"box"}
+          Master.global_user_files.size.should == 1
+        end        
+        it "should have access to user_node_files as an array" do
+          Master.user_node_files.class.should == Array
+        end
+        it "should be able to add a node file to the array" do
+          Master.define_node_user_file(:box) {|a| "#{a}.box"}
+          Master.user_node_files.size.should == 1          
+        end
+        it "should write_to_file_for for each of the global_user_files" do
+          Master.should_receive(:write_to_file_for).once.and_return true
+          Master.build_user_global_files
+        end
+        it "should write_to_file_for for each of the user_node_files" do
+          Master.should_receive(:write_to_file_for).once.and_return true
+          Master.build_user_node_files_for(@instance)
         end
       end
     end

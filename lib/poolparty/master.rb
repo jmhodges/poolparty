@@ -145,10 +145,12 @@ module PoolParty
       
       build_and_copy_heartbeat_authkeys_file
       build_haproxy_file
+      Master.build_user_global_files
         
       Master.with_nodes do |node|
         build_hosts_file_for(node)
         build_reconfigure_instances_script_for(node)
+        Master.build_user_node_files_for(node)
         
         if Master.requires_heartbeat?
           build_heartbeat_config_file_for(node)
@@ -159,7 +161,7 @@ module PoolParty
     def cleanup_tmp_directory(c)
       Dir["#{base_tmp_dir}/*"].each {|f| FileUtils.rm_rf f} if File.directory?("tmp/")
     end
-    before :build_and_send_config_files_in_temp_directory, :cleanup_tmp_directory
+    before :build_and_send_config_files_in_temp_directory, :cleanup_tmp_directory    
     # Send the files to the nodes
     def send_config_files_to_nodes(c)
       run_array_of_tasks(rsync_tasks("#{base_tmp_dir}/*", "#{remote_base_tmp_dir}"))
@@ -397,6 +399,28 @@ chmod +x #{script_file}
       EOS
       open(Application.haproxy_config_file).read.strip ^ {:servers => servers, :host_port => Application.host_port}
       end
+      
+      # Placeholders
+      def build_user_global_files
+        global_user_files.each do |arr|
+          write_to_file_for(arr[0]) &arr[1]
+        end
+      end
+      def build_user_node_files_for(node)
+        user_node_files.each do |arr|
+          write_to_file_for(arr[0], node) do
+            arr[1].call(node)
+          end
+        end
+      end
+      def define_global_user_file(name, &block)
+        global_user_files << [name, block]
+      end
+      def global_user_files;@global_user_files ||= [];end
+      def define_node_user_file(name, &block)
+        user_node_files << [name, block]
+      end
+      def user_node_files;@user_node_files ||= [];end
     end
     
   end

@@ -39,6 +39,14 @@ module PoolParty
       PoolParty::Provider.define_user_install str
     end
     
+    def self.define_global_file(name, &block)
+      PoolParty::Master.define_global_user_file(name, &block)
+    end
+    
+    def self.define_node_file(name, &block)
+      PoolParty::Master.define_node_user_file(name, &block)
+    end
+    
     def read_config_file(filename)
       return {} unless filename
       YAML.load(open(filename).read)
