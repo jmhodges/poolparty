@@ -73,7 +73,7 @@ module PoolParty
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances
-      request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances)
+      grow_by(Application.minimum_instances - number_of_pending_and_running_instances)
       nodes
     end
     # Start monitoring the cloud with the threaded loop
