@@ -14,7 +14,7 @@ Usage: instance [OPTIONS] { #{commandables.join(" | ")} }
     })
 PoolParty.load_plugins
 master = PoolParty::Master.new
-list = PoolParty::Optioner.parse(ARGV.dup)
+list = PoolParty::Optioner.parse(ARGV.dup, %w(-v --verbose))
 num = list.reject {|a| commandables.include?(a) }.pop
 
 instance = master.get_node(num)
@@ -24,38 +24,43 @@ unless instance
   exit
 end
 
-case list[0]
-when "ssh"
-  PoolParty.message "Ssh'ing into #{instance.ip}"
-  instance.ssh
-when "cmd"
-  PoolParty.message "Executing #{instance_options[:cmd]} on #{instance.ip}"
-  instance.ssh instance_options[:cmd]
-when "scp"
-  instance.scp instance_options[:src], instance_options[:dest]
-when "restart"
-  PoolParty.message "Restarting services"
-  instance.restart_with_monit
-when "start"
-  PoolParty.message "Starting services"
-  instance.start_with_monit
-when "stop"
-  PoolParty.message "Stopping services"
-  instance.stop_with_monit
-when "install"
-  PoolParty.message "Installing services"
-  instance.install
-when "start_maintain"
-  PoolParty.message "Running heartbeat failover service"
-  pid = Master.run_thread_loop(:daemonize => true) do
-    instance.become_master if instance.is_not_master_and_master_is_not_running?
+list.each do |cmd|
+  case cmd
+  when "ssh"
+    PoolParty.message "Ssh'ing into #{instance.ip}"
+    instance.ssh
+  when "cmd"
+    PoolParty.message "Executing #{instance_options[:cmd]} on #{instance.ip}"
+    instance.ssh list.shift
+  when "scp"
+    list.shift
+    src, dest = list.shift, (list.shift || "~")
+    PoolParty.message "Scp'ing #{src} to #{dest}"
+    instance.scp src, (dest || "~")
+  when "restart"
+    PoolParty.message "Restarting services"
+    instance.restart_with_monit
+  when "start"
+    PoolParty.message "Starting services"
+    instance.start_with_monit
+  when "stop"
+    PoolParty.message "Stopping services"
+    instance.stop_with_monit
+  when "install"
+    PoolParty.message "Installing services"
+    instance.install
+  when "start_maintain"
+    PoolParty.message "Running heartbeat failover service"
+    pid = Master.run_thread_loop(:daemonize => true) do
+      instance.become_master if instance.is_not_master_and_master_is_not_running?
+    end
+    File.open(Application.maintain_pid_path) {|f| f.write(pid)}
+  when "stop_maintain"
+    PoolParty.message "Stopping heartbeat failover service"
+    pid = open(Application.maintain_pid_path).read
+    `kill -9 #{pid}`
+    FileUtils.rm Application.maintain_pid_path # Check this
+  else
+    puts master.list
   end
-  File.open(Application.maintain_pid_path) {|f| f.write(pid)}
-when "stop_maintain"
-  PoolParty.message "Stopping heartbeat failover service"
-  pid = open(Application.maintain_pid_path).read
-  `kill -9 #{pid}`
-  FileUtils.rm Application.maintain_pid_path # Check this
-else
-  puts master.list
 end

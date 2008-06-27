@@ -65,7 +65,13 @@ module PoolParty
         if rs.respond_to?(:instancesSet)
           [EC2ResponseObject.get_hash_from_response(rs.instancesSet.item)]
         else
-          rs.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}.reject {|a| a.nil? }
+          rs.collect {|r| 
+            if r.instancesSet.item.class == Array
+              r.instancesSet.item.map {|t| EC2ResponseObject.get_hash_from_response(t)}
+            else
+              [EC2ResponseObject.get_hash_from_response(r.instancesSet.item)]
+            end            
+          }.flatten.reject {|a| a.nil? }
         end
       rescue Exception => e
         # Really weird bug with amazon's ec2 gem
