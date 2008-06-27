@@ -137,7 +137,7 @@ module PoolParty
       File.copy(get_config_file_for("heartbeat.conf"), "#{base_tmp_dir}/ha.cf")
       
       File.copy(Application.config_file, "#{base_tmp_dir}/config.yml") if Application.config_file && File.exists?(Application.config_file)
-      File.copy(Application.monit_config_file, "#{base_tmp_dir}/monitrc")
+      File.copy(get_config_file_for("monit.conf"), "#{base_tmp_dir}/monitrc")
       
       copy_config_files_in_directory_to_tmp_dir("config/resource.d")
       copy_config_files_in_directory_to_tmp_dir("config/monit.d")
