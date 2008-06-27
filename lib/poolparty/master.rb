@@ -118,16 +118,16 @@ module PoolParty
     end
     def grow_by(num=1)
       num.times do |i|
-        request_launch_new_instance
-        configure_cloud
-      end      
+        request_launch_new_instance        
+      end
+      configure_cloud
     end
     def shrink_by(num=1)
       num.times do |i|
         node = nodes.reject {|a| a.master? }[-1]
-        request_termination_of_instance(node.instance_id) if node
-        configure_cloud
-      end      
+        request_termination_of_instance(node.instance_id) if node        
+      end
+      configure_cloud
     end
     
     def build_and_send_config_files_in_temp_directory
