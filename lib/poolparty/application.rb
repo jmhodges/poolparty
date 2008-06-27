@@ -117,6 +117,7 @@ module PoolParty
       def master_managed_services
         "cloud_master_takeover"
       end
+      alias_method :managed_services, :master_managed_services
       def launching_user_data
         {:polling_time => polling_time, 
           :access_key => access_key, 

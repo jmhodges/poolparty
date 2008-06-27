@@ -31,10 +31,11 @@ PoolParty.load_plugins
 master = PoolParty::Master.new
 list = PoolParty::Optioner.parse(ARGV.dup)
 
+display_config_data
+
 cmd = list.shift
 case cmd
-when "start"
-  display_config_data
+when "start"  
   master.start_cloud!
 when "show"
   display_config_data
@@ -65,8 +66,7 @@ when "restart"
   master.start_cloud!
 when "switch"
   context = list.pop
-  context ? `source ~/.#{context}_pool_keys` : puts("You must supply a context to switch")
+  context ? `source ~/.#{context}_pool_keys` : puts("You must supply a context to switch to")
 else
-  display_config_data if PoolParty.verbose?
   puts master.list
 end
