@@ -16,9 +16,11 @@ module PoolParty
           :maxCount => 1,
           :key_name => Application.keypair,
           :size => "#{Application.size}")
-          
-        item = instance.instancesSet.item
-        EC2ResponseObject.get_hash_from_response(item)
+        begin
+          item = instance#.instancesSet.item
+          EC2ResponseObject.get_hash_from_response(item)
+        rescue Exception => e          
+        end
       end
       # Shutdown the instance by instance_id
       def terminate_instance!(instance_id)
