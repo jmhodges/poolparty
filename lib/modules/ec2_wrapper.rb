@@ -55,35 +55,45 @@ module PoolParty
   end
   # Provides a simple class to wrap around the amazon responses
   class EC2ResponseObject
-    def self.get_descriptions(resp)
-      begin
-        rs = resp.DescribeInstancesResponse.reservationSet.item
-        rs ||= rs.respond_to?(:instancesSet) ? rs.instancesSet : rs
-        rs ||= resp.reservationSet.item unless resp.reservationSet.nil?
-        rs.reject! {|a| a.empty? }
-      rescue Exception => e        
-      end
+    def self.get_descriptions(resp)      
+      rs = get_response_from(resp)
       
-      puts resp
-      
-      out = begin        
-        rs.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}.reject {|a| a.nil? }
+      # puts rs.methods.sort - rs.ancestors.methods
+      out = begin
+        if rs.respond_to?(:instancesSet)
+          [EC2ResponseObject.get_hash_from_response(rs.instancesSet.item)]
+        else
+          rs.collect {|r| EC2ResponseObject.get_hash_from_response(r.instancesSet.item)}.reject {|a| a.nil? }
+        end
       rescue Exception => e
         # Really weird bug with amazon's ec2 gem
         rs.collect {|r| EC2ResponseObject.get_hash_from_response(r)}.reject {|a| a.nil? } rescue []
       end
       
-      puts "out: #{out}"
       out
     end
+    def self.get_response_from(resp)
+      begin
+        rs = resp.reservationSet.item unless resp.reservationSet.nil?
+        rs ||= resp.DescribeInstancesResponse.reservationSet.item
+        rs ||= rs.respond_to?(:instancesSet) ? rs.instancesSet : rs
+        rs.reject! {|a| a.nil? || a.empty? }
+      rescue Exception => e
+      end
+      rs
+    end
     def self.get_hash_from_response(resp)
-      {
-        :instance_id => resp.instanceId, 
-        :ip => resp.dnsName, 
-        :status => resp.instanceState.name,
-        :launching_time => resp.launchTime,
-        :keypair => resp.keyName
-      } rescue nil
+      begin
+        {
+          :instance_id => resp.instanceId, 
+          :ip => resp.dnsName, 
+          :status => resp.instanceState.name,
+          :launching_time => resp.launchTime,
+          :keypair => resp.keyName
+        }        
+      rescue Exception => e
+        nil
+      end      
     end
   end
 end

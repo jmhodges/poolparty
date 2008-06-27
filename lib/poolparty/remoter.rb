@@ -62,7 +62,7 @@ module PoolParty
             arr << "#{cmd} #{ip} '#{command.runnable}'"
           end
         end
-        
+                
         run_array_of_tasks arr
       end
       

@@ -9,7 +9,7 @@ Echoe.new("poolparty") do |p|
   p.email = "ari.lerner@citrusbyte.com"
   p.summary = "Run your entire application off EC2, managed and auto-scaling"
   p.url = "http://blog.citrusbyte.com"
-  p.dependencies = %w(aws-s3 amazon-ec2 auser-aska git vlad crafterm-sprinkle System@@timer)
+  p.dependencies = %w(aws-s3 amazon-ec2 auser-aska git vlad crafterm-sprinkle SystemTimer)
   p.install_message =<<-EOM
     
     Thanks for installing PoolParty!
