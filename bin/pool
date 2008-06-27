@@ -29,44 +29,45 @@ Usage: pool [OPTIONS] {start | stop | list | clouds_list | maintain | restart | 
 
 PoolParty.load_plugins
 master = PoolParty::Master.new
-list = PoolParty::Optioner.parse(ARGV.dup)
+list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
 
 display_config_data
 
-cmd = list.shift
-case cmd
-when "start"  
-  master.start_cloud!
-when "show"
-  display_config_data
-when "grow"
-  master.grow_by
-when "shrink"
-  master.shrink_by
-when "install"
-  master.install_cloud
-when "configure"
-  master.configure_cloud
-when "ssh"
-  PoolParty.message "Running #{list} on the cloud"
-  master.ssh list
-when "stop"
-  PoolParty.message "Stopping cloud"
-  master.request_termination_of_all_instances  
-when "list"
-  puts master.list
-when "clouds_list"
-  puts master.clouds_list
-when "maintain"
-  PoolParty.message "Maintaining cloud"
-  master.start_monitor!
-when "restart"
-  PoolParty.message "Restarting cloud"
-  master.request_termination_of_all_instances
-  master.start_cloud!
-when "switch"
-  context = list.pop
-  context ? `source ~/.#{context}_pool_keys` : puts("You must supply a context to switch to")
-else
-  puts master.list
+list.each do |cmd|
+  case cmd
+  when "start"  
+    master.start_cloud!
+  when "show"
+    display_config_data
+  when "grow"
+    master.grow_by
+  when "shrink"
+    master.shrink_by
+  when "install"
+    master.install_cloud
+  when "configure"
+    master.configure_cloud
+  when "ssh"
+    PoolParty.message "Running #{list} on the cloud"
+    master.ssh list.shift
+  when "stop"
+    PoolParty.message "Stopping cloud"
+    master.request_termination_of_all_instances  
+  when "list"
+    puts master.list
+  when "clouds_list"
+    puts master.clouds_list
+  when "maintain"
+    PoolParty.message "Maintaining cloud"
+    master.start_monitor!
+  when "restart"
+    PoolParty.message "Restarting cloud"
+    master.request_termination_of_all_instances
+    master.start_cloud!
+  when "switch"
+    context = list.shift
+    context ? `source ~/.#{context}_pool_keys` : puts("You must supply a context to switch to")
+  else
+    puts master.list
+  end
 end
