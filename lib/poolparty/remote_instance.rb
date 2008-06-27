@@ -161,30 +161,6 @@ module PoolParty
       end
     end
         
-    def scp_basic_config_files
-      cmd=<<-EOC
-        mkdir -p /etc/ha.d/resource.d
-        mkdir -p /etc/monit
-        mkdir -p /etc/monit.d
-      EOC
-      execute_tasks do
-        scp(Application.heartbeat_authkeys_config_file, "/etc/ha.d", :dir => "/etc/ha.d/resource.d")
-        scp(conf_file("cloud_master_takeover"), "/etc/ha.d/resource.d/cloud_master_takeover", :dir => "/etc/ha.d/resource.d/")
-
-        scp(Application.config_file, "~/.config") if Application.config_file && File.file?(Application.config_file)
-        Dir["#{root_dir}/config/resource.d/*"].each do |file|
-          scp(file, "/etc/ha.d/resource.d/#{File.basename(file)}")
-        end
-        scp(Application.monit_config_file, "/etc/monit/monitrc", :dir => "/etc/monit")
-        Dir["#{root_dir}/config/monit.d/*"].each do |file|
-          scp(file, "/etc/monit.d/#{File.basename(file)}")
-        end
-        
-        `mkdir -p tmp/`
-        File.open("tmp/pool-party-haproxy.cfg", 'w') {|f| f.write(Master.build_haproxy_file) }
-        scp("tmp/pool-party-haproxy.cfg", "/etc/haproxy.cfg")
-      end
-    end    
     # Installs with one commandline and an scp, rather than 10
     def install
       # unless stack_installed?
