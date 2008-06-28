@@ -1,25 +1,7 @@
 require 'rubygems'
 require "lib/poolparty"
 begin
-  require 'echoe'
-  
-  str=<<-EOM
-
-    Thanks for installing PoolParty!
-
-    Please check out the documentation for any questions or check out the google groups at
-      http://groups.google.com/group/poolpartyrb
-
-    Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!
-
-    For more information, check http://poolpartyrb.com
-    On IRC: 
-      irc.freenode.net
-      #poolpartyrb
-    *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
-
-  EOM
-  
+  require 'echoe'  
   
   Echoe.new("poolparty") do |s|
     s.author = "Ari Lerner"
@@ -29,7 +11,22 @@ begin
     s.runtime_dependencies = ["aws-s3" "amazon-ec2" "auser-aska" "git" "crafterm-sprinkle" "SystemTimer"]
     s.development_dependencies = []
     s.include_gemspec = true
-    s.install_message = "*** Ari Lerner @ <ari.lerner@citrusbyte.com> ***"
+    s.install_message = <<-EOM
+
+      Thanks for installing PoolParty!
+
+      Please check out the documentation for any questions or check out the google groups at
+        http://groups.google.com/group/poolpartyrb
+
+      Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!
+
+      For more information, check http://poolpartyrb.com
+      On IRC: 
+        irc.freenode.net
+        #poolpartyrb
+      *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
+
+    EOM
   end
   
 rescue LoadError => boom
