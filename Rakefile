@@ -11,19 +11,19 @@ begin
     s.runtime_dependencies = ["aws-s3", "amazon-ec2", "auser-aska", "git", "crafterm-sprinkle", "SystemTimer"]
     s.development_dependencies = []
     s.install_message = %q{
-
-      Thanks for installing PoolParty!
+      
+      Get ready to jump in the pool, you just installed PoolParty!
 
       Please check out the documentation for any questions or check out the google groups at
         http://groups.google.com/group/poolpartyrb
 
-      Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!
+      Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!      
 
       For more information, check http://poolpartyrb.com
       On IRC: 
         irc.freenode.net
         #poolpartyrb
-      *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***      
+      *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
     }
   end
   
