@@ -10,7 +10,6 @@ begin
     s.url = "http://blog.citrusbyte.com"
     s.runtime_dependencies = ["aws-s3" "amazon-ec2" "auser-aska" "git" "crafterm-sprinkle" "SystemTimer"]
     s.development_dependencies = []
-    s.include_gemspec = true
     s.install_message = <<-EOM
 
       Thanks for installing PoolParty!
