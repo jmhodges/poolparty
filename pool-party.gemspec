@@ -219,7 +219,6 @@ files:
 - lib/poolparty.rb
 - lib/s3/s3_object_store_folders.rb
 - Manifest
-- poolparty.gemspec
 - Rakefile
 - README.txt
 - spec/application_spec.rb
