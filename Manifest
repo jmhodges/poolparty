@@ -1,5 +1,6 @@
 bin/instance
 bin/pool
+bin/poolnotify
 CHANGELOG
 config/cloud_master_takeover
 config/create_proxy_ami.sh
