@@ -4,11 +4,17 @@ describe "Application options" do
   before(:each) do
     # stub_option_load
   end
-  it "should parse and use a config file if it is given for the options" do
-    YAML.should_receive(:load).and_return({:config_file => "config/sample-config.yml"})
-    Application.make_options(:config_file => "config/sample-config.yml")
-  end
   it "should be able to say that the plugin directory is the current directory" do
     File.basename(PoolParty.plugin_dir).should == "vendor"
+  end
+  it "should not load plugins if the directory doesn't exist" do
+    File.stub!(:directory?).with(plugin_dir).and_return false
+    Dir.should_not_receive(:[])
+    PoolParty.load_plugins
+  end
+  it "should load the plugins if the directory exists" do
+    File.stub!(:directory?).with(plugin_dir).and_return true
+    Dir.should_receive(:[]).and_return %w()
+    PoolParty.load_plugins
   end
 end

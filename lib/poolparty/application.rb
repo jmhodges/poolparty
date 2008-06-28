@@ -16,12 +16,13 @@ module PoolParty
       def make_options(opts={})
         loading_options = opts.delete(:optsparse) || {}
         loading_options.merge!( {:argv => opts.delete(:argv)} )
-
+        
+        config_file_location = (default_options[:config_file] || opts[:config_file])        
         # If the config_file options are specified and not empty
-        unless default_options[:config_file].nil? || default_options[:config_file].empty?
+        unless config_file_location.nil? || config_file_location.empty?
           require "yaml"
           # Try loading the file if it exists
-          filedata = open(default_options[:config_file]).read if File.file?(default_options[:config_file])
+          filedata = File.open("#{config_file_location}").read if File.file?("#{config_file_location}")
           # We want the command-line to overwrite the config file
           default_options.merge!( YAML.load(filedata) ) if filedata
         end

@@ -50,4 +50,18 @@ describe "Application" do
     Application.stub!(:default_options).and_return({:access_key => 42})
     Application.options.access_key.should == 3.14159
   end
+  it "should parse and use a config file if it is given for the options" do
+    YAML.should_receive(:load).and_return({:config_file => "config/sample-config.yml"})
+    Application.make_options(:config_file => "config/sample-config.yml")
+  end
+  it "should not read the config file if it is not passed and doesn't exist" do
+    File.stub!(:file?).and_return false
+    YAML.should_not_receive(:load)
+    Application.make_options
+  end
+  it "should not read the config file if it is passed and doesn't exist" do
+    File.stub!(:file?).and_return false
+    YAML.should_not_receive(:load)
+    Application.make_options(:config_file => "ted")
+  end
 end

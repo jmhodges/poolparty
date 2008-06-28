@@ -87,7 +87,7 @@ module PoolParty
     end
   end
   def load_plugins
-    Dir["#{plugin_dir}/**/init.rb"].each {|a| require a}
+    Dir["#{plugin_dir}/**/init.rb"].each {|a| require a} if File.directory?(plugin_dir)
   end
   def reset!
     @@installed_plugins = nil
