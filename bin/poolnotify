@@ -1,0 +1,21 @@
+require 'rubygems'
+$:.unshift(File.join(File.dirname(__FILE__), "lib"))
+require 'poolparty'
+
+@options = PoolParty.options
+master = PoolParty::Master.new
+
+def notify(mess);`/usr/local/bin/growlnotify -m "Your #{@options.keypair} cloud #{mess}"`;end
+
+@size = master.nodes.size
+
+notify("is #{@size} big")
+loop do
+  sz = master.nodes.size
+  
+  unless @size == sz
+    @size > sz ? notify("shrank") : notify("grew")
+  end
+  
+  wait 2.minutes  
+end
