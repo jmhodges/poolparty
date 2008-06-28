@@ -39,11 +39,26 @@ On IRC:
     s.specification_version = 2
 
     if current_version >= 3 then
-      s.add_runtime_dependency(%q<aws-s3amazon-ec2auser-askagitcrafterm-sprinkleSystemTimer>, [">= 0"])
+      s.add_runtime_dependency(%q<aws-s3>, [">= 0"])
+      s.add_runtime_dependency(%q<amazon-ec2>, [">= 0"])
+      s.add_runtime_dependency(%q<auser-aska>, [">= 0"])
+      s.add_runtime_dependency(%q<git>, [">= 0"])
+      s.add_runtime_dependency(%q<crafterm-sprinkle>, [">= 0"])
+      s.add_runtime_dependency(%q<SystemTimer>, [">= 0"])
     else
-      s.add_dependency(%q<aws-s3amazon-ec2auser-askagitcrafterm-sprinkleSystemTimer>, [">= 0"])
+      s.add_dependency(%q<aws-s3>, [">= 0"])
+      s.add_dependency(%q<amazon-ec2>, [">= 0"])
+      s.add_dependency(%q<auser-aska>, [">= 0"])
+      s.add_dependency(%q<git>, [">= 0"])
+      s.add_dependency(%q<crafterm-sprinkle>, [">= 0"])
+      s.add_dependency(%q<SystemTimer>, [">= 0"])
     end
   else
-    s.add_dependency(%q<aws-s3amazon-ec2auser-askagitcrafterm-sprinkleSystemTimer>, [">= 0"])
+    s.add_dependency(%q<aws-s3>, [">= 0"])
+    s.add_dependency(%q<amazon-ec2>, [">= 0"])
+    s.add_dependency(%q<auser-aska>, [">= 0"])
+    s.add_dependency(%q<git>, [">= 0"])
+    s.add_dependency(%q<crafterm-sprinkle>, [">= 0"])
+    s.add_dependency(%q<SystemTimer>, [">= 0"])
   end
 end

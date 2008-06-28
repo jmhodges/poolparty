@@ -8,7 +8,7 @@ begin
     s.email = "ari.lerner@citrusbyte.com"
     s.summary = "Run your entire application off EC2, managed and auto-scaling"
     s.url = "http://blog.citrusbyte.com"
-    s.runtime_dependencies = ["aws-s3" "amazon-ec2" "auser-aska" "git" "crafterm-sprinkle" "SystemTimer"]
+    s.runtime_dependencies = ["aws-s3", "amazon-ec2", "auser-aska", "git", "crafterm-sprinkle", "SystemTimer"]
     s.development_dependencies = []
     s.install_message = <<-EOM
 
