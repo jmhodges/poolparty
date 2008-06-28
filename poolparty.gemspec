@@ -14,20 +14,20 @@ Gem::Specification.new do |s|
   s.has_rdoc = true
   s.homepage = %q{http://blog.citrusbyte.com}
   s.post_install_message = %q{
-Thanks for installing PoolParty!
 
-Please check out the documentation for any questions or check out the google groups at
-  http://groups.google.com/group/poolpartyrb
+      Thanks for installing PoolParty! (Updated at 04:36PM, 06/28/08)
 
-Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!
+      Please check out the documentation for any questions or check out the google groups at
+        http://groups.google.com/group/poolpartyrb
 
-For more information, check http://poolpartyrb.com
-On IRC: 
-  irc.freenode.net
-  #poolpartyrb
-*** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
+      Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!
 
-}
+      For more information, check http://poolpartyrb.com
+      On IRC: 
+        irc.freenode.net
+        #poolpartyrb
+      *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
+    }
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Poolparty", "--main", "README.txt"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{poolparty}

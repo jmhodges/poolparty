@@ -1,7 +1,7 @@
 require 'rubygems'
 require "lib/poolparty"
 begin
-  require 'echoe'  
+  require 'echoe'
   
   Echoe.new("poolparty") do |s|
     s.author = "Ari Lerner"
@@ -10,7 +10,7 @@ begin
     s.url = "http://blog.citrusbyte.com"
     s.runtime_dependencies = ["aws-s3", "amazon-ec2", "auser-aska", "git", "crafterm-sprinkle", "SystemTimer"]
     s.development_dependencies = []
-    s.install_message = <<-EOM
+    s.install_message = %q{
 
       Thanks for installing PoolParty!
 
@@ -23,9 +23,8 @@ begin
       On IRC: 
         irc.freenode.net
         #poolpartyrb
-      *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
-
-    EOM
+      *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***      
+    }
   end
   
 rescue LoadError => boom
