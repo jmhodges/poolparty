@@ -5,6 +5,7 @@ v0.0.9 * Changed configuration style to rsync all files across every instance
        * Updated configuration style
        * Added cloud_list to pool
        * Changed listing of the clouds through pool
+       * Added poolnotify
 v0.0.8 * Added plugin_manager
        * Moved remoting to rake remote task (from vlad)
        * Changed configuration from instance-based to cloud-based
