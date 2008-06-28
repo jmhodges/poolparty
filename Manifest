@@ -60,6 +60,7 @@ lib/poolparty/tasks/cloud.rake
 lib/poolparty/tasks/development.rake
 lib/poolparty/tasks/ec2.rake
 lib/poolparty/tasks/instance.rake
+lib/poolparty/tasks/package.rake
 lib/poolparty/tasks/plugins.rake
 lib/poolparty/tasks/server.rake
 lib/poolparty/tasks.rb
@@ -67,10 +68,10 @@ lib/poolparty/tmp.rb
 lib/poolparty.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
-pool-party.gemspec
 poolparty.gemspec
 Rakefile
 README.txt
+safe
 spec/application_spec.rb
 spec/callback_spec.rb
 spec/core_spec.rb

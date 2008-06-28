@@ -19,7 +19,7 @@ module PoolParty
       end
       
       # Require the poolparty specific tasks
-      Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].each { |t| eval open(t).read }
+      Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].each { |t| load t }
       
       Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| load "#{t}" }
       

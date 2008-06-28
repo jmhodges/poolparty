@@ -1,32 +1,41 @@
 require 'rubygems'
-require 'echoe'
-require 'lib/poolparty'
+require "lib/poolparty"
+begin
+  require 'echoe'
+  
+  str=<<-EOM
 
-task :default => :test
-
-Echoe.new("poolparty") do |p|
-  p.author = "Ari Lerner"
-  p.email = "ari.lerner@citrusbyte.com"
-  p.summary = "Run your entire application off EC2, managed and auto-scaling"
-  p.url = "http://blog.citrusbyte.com"
-  p.dependencies = %w(aws-s3 amazon-ec2 auser-aska git crafterm-sprinkle SystemTimer)
-  p.install_message =<<-EOM
-    
     Thanks for installing PoolParty!
-    
+
     Please check out the documentation for any questions or check out the google groups at
       http://groups.google.com/group/poolpartyrb
-    
+
     Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!
-    
+
     For more information, check http://poolpartyrb.com
     On IRC: 
       irc.freenode.net
       #poolpartyrb
     *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
-    
+
   EOM
-  p.include_rakefile = true
+  
+  
+  Echoe.new("poolparty") do |s|
+    s.author = "Ari Lerner"
+    s.email = "ari.lerner@citrusbyte.com"
+    s.summary = "Run your entire application off EC2, managed and auto-scaling"
+    s.url = "http://blog.citrusbyte.com"
+    s.runtime_dependencies = ["aws-s3" "amazon-ec2" "auser-aska" "git" "crafterm-sprinkle" "SystemTimer"]
+    s.development_dependencies = []
+    s.include_gemspec = true
+    s.install_message = "*** Ari Lerner @ <ari.lerner@citrusbyte.com> ***"
+  end
+  
+rescue LoadError => boom
+  puts "You are missing a dependency required for meta-operations on this gem."
 end
+
+task :default => :test
 
 PoolParty.include_tasks
