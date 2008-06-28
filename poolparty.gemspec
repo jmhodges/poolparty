@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://blog.citrusbyte.com}
   s.post_install_message = %q{
       
-      Get ready to jump in the pool, you just installed PoolParty! (Updated at 04:41PM, 06/28/08)
+      Get ready to jump in the pool, you just installed PoolParty! (Updated at 04:42PM, 06/28/08) (Updated at 04:41PM, 06/28/08)
 
       Please check out the documentation for any questions or check out the google groups at
         http://groups.google.com/group/poolpartyrb

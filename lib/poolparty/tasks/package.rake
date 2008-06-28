@@ -17,6 +17,7 @@ namespace(:pkg) do
   end
   desc "Release them gem to the gem server"
   task :release => :gemspec_update do
+    `git ci -a -m "Updated gemspec for github"`
     `git push gem`
   end
 end
