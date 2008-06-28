@@ -7,11 +7,13 @@ namespace(:pkg) do
     File.open("poolparty.gemspec", "w+") {|f| f << data }
   end
   desc "Update gemspec with the time"
-  task :gemspec_update do
-    data = data = open("poolparty.gemspec").read
+  task :gemspec_update => :gemspec do
+    data = open("poolparty.gemspec").read
     str = "Updated at #{Time.now.strftime("%I:%M%p, %D")}"
-
-    data = data.gsub(/you just installed PoolParty!/, '\0'+" (#{str})")
+    
+    if data.scan(/Updated at/).empty?
+      data = data.gsub(/you just installed PoolParty\!/, '\0'+" (#{str})")
+    end
     
     File.open("poolparty.gemspec", "w+") {|f| f << data }
   end
