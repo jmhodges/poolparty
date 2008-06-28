@@ -18,13 +18,13 @@ package :rubygems do
   #   custom_install 'ruby setup.rb'
   # end
   apt %w( rubygems )
-  post :install, "gem update --system"
+  post :install, "gem update --system", "gem sources -a http://gems.github.com"
   requires :ruby
 end
 
 package :poolparty_required_gems do
   description "required gems"
-  gems %w( SQS aws-s3 amazon-ec2 aska rake rcov )
+  gems %w( SQS aws-s3 amazon-ec2 aska rake rcov auser-poolparty )
 end
 
 package :required_gems do

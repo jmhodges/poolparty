@@ -75,9 +75,9 @@ module PoolParty
         deployment do
           delivery :vlad do 
             
-            set :ssh_cmd, '#{RemoteInstance.ssh_string}'
+            set :ssh_flags, "#{RemoteInstance.ssh_string.gsub(/ssh/, '')}"
             
-            #{string_roles_from_ips(@ips || [])}            
+            #{string_roles_from_ips(@ips)}            
           end
           
           source do

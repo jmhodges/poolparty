@@ -217,6 +217,9 @@ describe "Master" do
       @master.cloud_ips.should == %w(127.0.0.1 127.0.0.2 127.0.0.3)
     end
     describe "starting" do
+      before(:each) do
+        Kernel.stub!(:sleep).and_return true
+      end
       it "should request to launch the minimum number of instances" do
         Application.stub!(:minimum_instances).and_return 3
         @master.stub!(:number_of_pending_and_running_instances).and_return 1

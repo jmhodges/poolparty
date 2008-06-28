@@ -51,8 +51,8 @@ module PoolParty
         node.configure
       end
     end
-    def install_cloud
-      if Application.install_on_load?
+    def install_cloud(bool=false)
+      if Application.install_on_load? || bool
         # Just in case, add the new ubuntu apt-sources as well as updating and fixing the 
         # update packages.
         update_apt_string =<<-EOE        
@@ -73,7 +73,7 @@ module PoolParty
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances
-      grow_by(Application.minimum_instances - number_of_pending_and_running_instances)
+      request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances)
       nodes
     end
     # Start monitoring the cloud with the threaded loop

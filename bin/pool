@@ -45,10 +45,11 @@ list.each do |cmd|
   when "shrink"
     master.shrink_by
   when "install"
-    master.install_cloud
+    master.install_cloud(true)
   when "configure"
     master.configure_cloud
   when "ssh"
+    list.shift
     PoolParty.message "Running #{list} on the cloud"
     master.ssh list.shift
   when "stop"

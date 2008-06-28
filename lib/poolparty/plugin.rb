@@ -55,7 +55,7 @@ module PoolParty
     %w(install configure associate_public_ip become_master).each do |method|
       create_methods method, RemoteInstance
     end    
-    %w(start start_monitor configure_cloud scale_cloud reconfiguration add_instance terminate_instance check_stats).each do |method|
+    %w(start start_monitor install_cloud configure_cloud scale_cloud reconfiguration add_instance terminate_instance check_stats).each do |method|
       create_methods method, Master
     end    
     %w(define_tasks).each do |method|

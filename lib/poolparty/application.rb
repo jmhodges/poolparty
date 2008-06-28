@@ -169,8 +169,8 @@ module PoolParty
       def version
         PoolParty::Version::STRING
       end
-      def install_on_load?
-        options.install_on_load == true
+      def install_on_load?(bool=false)
+        options.install_on_load == true || bool
       end
       # Call the options from the Application
       def method_missing(m,*args)

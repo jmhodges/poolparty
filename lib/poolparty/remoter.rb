@@ -5,7 +5,7 @@ module PoolParty
   module Remoter        
     module ClassMethods
       def ssh_string
-        "ssh -i #{Application.keypair_path} -o StrictHostKeyChecking=no -l #{Application.username}"
+        "ssh -i '#{Application.keypair_path}' -o StrictHostKeyChecking=no -l #{Application.username}"
       end
       def rsync_string
         "rsync --delete -azP -e '#{ssh_string}' "
