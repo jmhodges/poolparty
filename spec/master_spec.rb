@@ -270,151 +270,156 @@ describe "Master" do
 
         @master.expand?.should == true
       end      
-    end
-    describe "scaling" do
-      it "should try to add a new instance" do
-        @master.should_receive(:add_instance_if_load_is_high).and_return true
-        @master.scale_cloud!
-      end
-      it "should try to terminate an instance" do
-        @master.should_receive(:terminate_instance_if_load_is_low).and_return true
-        @master.scale_cloud!
-      end
-      it "should try to grow the cloud by 1 node when asked" do
-        @master.should_receive(:request_launch_new_instance).once.and_return true
-        @master.should_receive(:configure_cloud).once.and_return true
-        @master.grow_by(1)
-      end
-      it "should try to shrink the cloud by 1 when asked" do
-        @master.should_receive(:request_termination_of_instance).and_return true
-        @master.should_receive(:configure_cloud).and_return true
-        @master.shrink_by(1)
-      end
-    end
-  end
-  describe "Configuration" do
-    before(:each) do
-      @instance = RemoteInstance.new
-    end
-    it "should be able to build the haproxy file" do
-      @master.build_haproxy_file
-    end
-    describe "by copying files to the poolpartytmp directory" do
-      it "should build and copy files to the tmp directory" do
-        @master.build_and_send_config_files_in_temp_directory
-        File.directory?(@master.base_tmp_dir).should == true
-      end
-      it "should copy the cloud_master_takeover script to the tmp directory" do
-        @master.should_receive(:get_config_file_for).at_least(1).and_return "true"
-        File.should_receive(:copy).exactly(3).and_return true
-        @master.build_and_send_config_files_in_temp_directory
-      end
-      describe "get configs" do
+      describe "scaling" do
         before(:each) do
-          @master.stub!(:user_dir).and_return("user")
-          @master.stub!(:root_dir).and_return("root")
+          Kernel.stub!(:sleep).and_return true
+          @master.stub!(:wait_for_all_instances_to_boot).and_return true
+          @master.stub!(:wait_for_all_instances_to_terminate).and_return true        
         end
-        it "should try to get the config file in the user directory before the root_dir" do
-          File.should_receive(:exists?).with("#{@master.user_dir}/config/config.yml").and_return true
-          @master.get_config_file_for("config.yml").should == "user/config/config.yml"
+        it "should try to add a new instance" do
+          @master.should_receive(:add_instance_if_load_is_high).and_return true
+          @master.scale_cloud!
         end
-        it "should try to get the config file in the root directory if it doesn't exist in the user directory" do
-          File.should_receive(:exists?).with("#{@master.user_dir}/config/config.yml").and_return false
-          @master.get_config_file_for("config.yml").should == "root/config/config.yml"
+        it "should try to terminate an instance" do
+          @master.should_receive(:terminate_instance_if_load_is_low).and_return true
+          @master.scale_cloud!
+        end
+        it "should try to grow the cloud by 1 node when asked" do
+          @master.should_receive(:request_launch_new_instances).once.and_return true
+          @master.should_receive(:configure_cloud).once.and_return true
+          @master.grow_by(1)
+        end
+        it "should try to shrink the cloud by 1 when asked" do
+          @master.should_receive(:request_termination_of_instance).and_return true
+          @master.should_receive(:configure_cloud).and_return true
+          @master.shrink_by(1)
         end
       end
-      it "should copy the config file if it exists" do
-        Application.stub!(:config_file).and_return "config.yml"
-        File.stub!(:exists?).and_return true        
-        File.should_receive(:copy).exactly(5).times.and_return true
-        @master.build_and_send_config_files_in_temp_directory
+    end
+    describe "Configuration" do
+      before(:each) do
+        @instance = RemoteInstance.new
       end
-      describe "with copy_config_files_in_directory_to_tmp_dir method" do
-        before(:each) do
-          @instance2 = RemoteInstance.new
-          @instance2.stub!(:ip).and_return "127.0.0.2"
-          Master.stub!(:new).and_return @master
-          @master.stub!(:nodes).and_return [@instance, @instance2]
+      it "should be able to build the haproxy file" do
+        @master.build_haproxy_file
+      end
+      describe "by copying files to the poolpartytmp directory" do
+        it "should build and copy files to the tmp directory" do
+          @master.build_and_send_config_files_in_temp_directory
+          File.directory?(@master.base_tmp_dir).should == true
         end
-        it "should be able to clean up after itself" do
-          File.open("#{@master.base_tmp_dir}/test", "w+") {|f| f << "hello world"}
-          @master.cleanup_tmp_directory(nil)
-          File.file?("#{@master.base_tmp_dir}/test").should == false
-        end
-        it "should check to see if there is a directory in the user directory to grab the files from" do
-          File.stub!(:directory?).with("/Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/tmp/resource.d").and_return false
-          File.should_receive(:directory?).at_least(1).with("#{user_dir}/config/resource.d").at_least(1).and_return true
-          @master.copy_config_files_in_directory_to_tmp_dir("config/resource.d")
-        end
-        it "should copy all the files that are in the directory" do
-          Dir.stub!(:[]).and_return ["1","2","3"]
-          File.should_receive(:copy).exactly(3).times.and_return true
-          @master.copy_config_files_in_directory_to_tmp_dir("config/resource.d")
-        end
-        it "should copy all the resource.d files from the monit directory to the tmp directory" do
-          @master.stub!(:copy_config_files_in_directory_to_tmp_dir).with("config/resource.d").and_return true
-          @master.should_receive(:copy_config_files_in_directory_to_tmp_dir).at_least(1).with("config/monit.d").and_return true
+        it "should copy the cloud_master_takeover script to the tmp directory" do
+          @master.should_receive(:get_config_file_for).at_least(1).and_return "true"
+          File.should_receive(:copy).exactly(3).and_return true
           @master.build_and_send_config_files_in_temp_directory
         end
-        it "should build the authkeys file for haproxy" do
-          @master.should_receive(:build_and_copy_heartbeat_authkeys_file).and_return true
-          @master.build_and_send_config_files_in_temp_directory
-        end
-        it "should build the haproxy configuration file" do
-          @master.should_receive(:build_haproxy_file).and_return true
-          @master.build_and_send_config_files_in_temp_directory
-        end
-        it "should build the hosts file for nodes" do
-          @master.should_receive(:build_hosts_file_for).at_least(1).and_return true
-          @master.build_and_send_config_files_in_temp_directory
-        end
-        it "should build the ssh reconfigure script" do
-          @master.should_receive(:build_reconfigure_instances_script_for).at_least(1).and_return ""
-          @master.build_and_send_config_files_in_temp_directory
-        end
-        it "should be able to build the hosts file for the nodes" do
-          @master.build_and_send_config_files_in_temp_directory
-        end
-        it "should build global files" do
-          Master.should_receive(:build_user_global_files).once
-          @master.build_and_send_config_files_in_temp_directory
-        end
-        it "should build user node files" do
-          Master.should_receive(:build_user_node_files_for).at_least(1)
-          @master.build_and_send_config_files_in_temp_directory
-        end
-        describe "when the cloud requires heartbeat" do
+        describe "get configs" do
           before(:each) do
-            Master.stub!(:requires_heartbeat?).and_return true
+            @master.stub!(:user_dir).and_return("user")
+            @master.stub!(:root_dir).and_return("root")
           end
-          it "should build the heartbeat configuration file" do
-              @master.should_receive(:build_heartbeat_config_file_for).at_least(1).and_return true
-              @master.build_and_send_config_files_in_temp_directory
+          it "should try to get the config file in the user directory before the root_dir" do
+            File.should_receive(:exists?).with("#{@master.user_dir}/config/config.yml").and_return true
+            @master.get_config_file_for("config.yml").should == "user/config/config.yml"
+          end
+          it "should try to get the config file in the root directory if it doesn't exist in the user directory" do
+            File.should_receive(:exists?).with("#{@master.user_dir}/config/config.yml").and_return false
+            @master.get_config_file_for("config.yml").should == "root/config/config.yml"
           end
         end
-      end
-      describe "user define files" do
-        it "should have access to global_user_files as an array" do
-          Master.global_user_files.class.should == Array
+        it "should copy the config file if it exists" do
+          Application.stub!(:config_file).and_return "config.yml"
+          File.stub!(:exists?).and_return true        
+          File.should_receive(:copy).exactly(5).times.and_return true
+          @master.build_and_send_config_files_in_temp_directory
         end
-        it "should be able to add a global file to the array" do
-          Master.define_global_user_file(:box) {"box"}
-          Master.global_user_files.size.should == 1
-        end        
-        it "should have access to user_node_files as an array" do
-          Master.user_node_files.class.should == Array
+        describe "with copy_config_files_in_directory_to_tmp_dir method" do
+          before(:each) do
+            @instance2 = RemoteInstance.new
+            @instance2.stub!(:ip).and_return "127.0.0.2"
+            Master.stub!(:new).and_return @master
+            @master.stub!(:nodes).and_return [@instance, @instance2]
+          end
+          it "should be able to clean up after itself" do
+            File.open("#{@master.base_tmp_dir}/test", "w+") {|f| f << "hello world"}
+            @master.cleanup_tmp_directory(nil)
+            File.file?("#{@master.base_tmp_dir}/test").should == false
+          end
+          it "should check to see if there is a directory in the user directory to grab the files from" do
+            File.stub!(:directory?).with("/Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/tmp/resource.d").and_return false
+            File.should_receive(:directory?).at_least(1).with("#{user_dir}/config/resource.d").at_least(1).and_return true
+            @master.copy_config_files_in_directory_to_tmp_dir("config/resource.d")
+          end
+          it "should copy all the files that are in the directory" do
+            Dir.stub!(:[]).and_return ["1","2","3"]
+            File.should_receive(:copy).exactly(3).times.and_return true
+            @master.copy_config_files_in_directory_to_tmp_dir("config/resource.d")
+          end
+          it "should copy all the resource.d files from the monit directory to the tmp directory" do
+            @master.stub!(:copy_config_files_in_directory_to_tmp_dir).with("config/resource.d").and_return true
+            @master.should_receive(:copy_config_files_in_directory_to_tmp_dir).at_least(1).with("config/monit.d").and_return true
+            @master.build_and_send_config_files_in_temp_directory
+          end
+          it "should build the authkeys file for haproxy" do
+            @master.should_receive(:build_and_copy_heartbeat_authkeys_file).and_return true
+            @master.build_and_send_config_files_in_temp_directory
+          end
+          it "should build the haproxy configuration file" do
+            @master.should_receive(:build_haproxy_file).and_return true
+            @master.build_and_send_config_files_in_temp_directory
+          end
+          it "should build the hosts file for nodes" do
+            @master.should_receive(:build_hosts_file_for).at_least(1).and_return true
+            @master.build_and_send_config_files_in_temp_directory
+          end
+          it "should build the ssh reconfigure script" do
+            @master.should_receive(:build_reconfigure_instances_script_for).at_least(1).and_return ""
+            @master.build_and_send_config_files_in_temp_directory
+          end
+          it "should be able to build the hosts file for the nodes" do
+            @master.build_and_send_config_files_in_temp_directory
+          end
+          it "should build global files" do
+            Master.should_receive(:build_user_global_files).once
+            @master.build_and_send_config_files_in_temp_directory
+          end
+          it "should build user node files" do
+            Master.should_receive(:build_user_node_files_for).at_least(1)
+            @master.build_and_send_config_files_in_temp_directory
+          end
+          describe "when the cloud requires heartbeat" do
+            before(:each) do
+              Master.stub!(:requires_heartbeat?).and_return true
+            end
+            it "should build the heartbeat configuration file" do
+                @master.should_receive(:build_heartbeat_config_file_for).at_least(1).and_return true
+                @master.build_and_send_config_files_in_temp_directory
+            end
+          end
         end
-        it "should be able to add a node file to the array" do
-          Master.define_node_user_file(:box) {|a| "#{a}.box"}
-          Master.user_node_files.size.should == 1          
-        end
-        it "should write_to_file_for for each of the global_user_files" do
-          Master.should_receive(:write_to_file_for).once.and_return true
-          Master.build_user_global_files
-        end
-        it "should write_to_file_for for each of the user_node_files" do
-          Master.should_receive(:write_to_file_for).once.and_return true
-          Master.build_user_node_files_for(@instance)
+        describe "user define files" do
+          it "should have access to global_user_files as an array" do
+            Master.global_user_files.class.should == Array
+          end
+          it "should be able to add a global file to the array" do
+            Master.define_global_user_file(:box) {"box"}
+            Master.global_user_files.size.should == 1
+          end        
+          it "should have access to user_node_files as an array" do
+            Master.user_node_files.class.should == Array
+          end
+          it "should be able to add a node file to the array" do
+            Master.define_node_user_file(:box) {|a| "#{a}.box"}
+            Master.user_node_files.size.should == 1          
+          end
+          it "should write_to_file_for for each of the global_user_files" do
+            Master.should_receive(:write_to_file_for).once.and_return true
+            Master.build_user_global_files
+          end
+          it "should write_to_file_for for each of the user_node_files" do
+            Master.should_receive(:write_to_file_for).once.and_return true
+            Master.build_user_node_files_for(@instance)
+          end
         end
       end
     end

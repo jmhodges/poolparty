@@ -47,7 +47,7 @@ list.each do |cmd|
   when "install"
     master.install_cloud(true)
   when "configure"
-    master.configure_cloud
+    master.setup_cloud
   when "ssh"
     list.shift
     PoolParty.message "Running #{list} on the cloud"

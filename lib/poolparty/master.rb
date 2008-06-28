@@ -27,6 +27,17 @@ module PoolParty
       message "Launching minimum_instances"
       launch_minimum_instances
       message "Waiting for master to boot up" 
+      
+      wait_for_all_instances_to_boot
+      
+      setup_cloud
+    end
+    def setup_cloud
+      install_cloud
+      configure_cloud
+    end
+    alias_method :start, :start!
+    def wait_for_all_instances_to_boot
       reset!
       while !number_of_pending_instances.zero?
         wait "2.seconds" unless Application.test?
@@ -37,10 +48,20 @@ module PoolParty
         message "Give some time for the instance ssh to start up"
         wait "15.seconds"
       end
-      install_cloud
-      configure_cloud
     end
-    alias_method :start, :start!
+    def wait_for_all_instances_to_terminate
+      reset!
+      while !list_of_terminating_instances.size.zero?
+        wait "2.seconds" unless Application.test?
+        waited = true
+        reset!
+      end
+      unless Application.test? || waited.nil?
+        message "Give some time for the instance ssh to start up"
+        wait "15.seconds"
+      end
+      reset!
+    end
     # Configure the master because the master will take care of the rest after that
     def configure_cloud
       message "Configuring master"
@@ -117,9 +138,11 @@ module PoolParty
       nodes.reject {|a| a.stack_installed? }.size
     end
     def grow_by(num=1)
-      num.times do |i|
-        request_launch_new_instance        
-      end
+      request_launch_new_instances(num)
+      
+      wait_for_all_instances_to_boot
+      
+      reset!
       configure_cloud
     end
     def shrink_by(num=1)
@@ -127,6 +150,7 @@ module PoolParty
         node = nodes.reject {|a| a.master? }[-1]
         request_termination_of_instance(node.instance_id) if node        
       end
+      wait_for_all_instances_to_terminate
       configure_cloud
     end
     

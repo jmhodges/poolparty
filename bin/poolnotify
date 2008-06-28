@@ -3,20 +3,31 @@ require 'rubygems'
 $:.unshift(File.join(File.dirname(__FILE__), "lib"))
 require 'poolparty'
 
-def notify(mess);`/usr/local/bin/growlnotify -m "Your #{PoolParty.options.keypair} cloud #{mess}"`;end
+def notify(mess)
+  `/usr/local/bin/growlnotify --image #{File.expand_path(File.dirname(__FILE__))}/../assets/clouds.png -m "Your #{PoolParty.options.keypair} cloud #{mess}"`
+end
 
-master = PoolParty::Master.new
+@master = PoolParty::Master.new
 
-@size = master.nodes.size
+@@size = @master.nodes.size
 
-notify("is #{@size} big")
+notify("has #{@@size} nodes")
+
 blk = lambda {
   loop do
-    sz = master.nodes.size
+    sz = @master.nodes.size
+    PoolParty.message "Your cloud has #{sz} nodes from #{@@size} nodes"
+    unless @@size == sz
+      if @@size > sz 
+        notify("shrank to #{sz} nodes")
+      else
+        notify("grew to #{sz} nodes") 
+      end
+      @@size = sz
+    end
     
-    @size > sz ? notify("shrank") : notify("grew") unless @size == sz
-
-    wait 2.minutes  
+    @master.reset!
+    wait 20.seconds
   end
 }
 
