@@ -11,12 +11,12 @@ namespace(:pkg) do
     data = data = open("poolparty.gemspec").read
     str = "Updated at #{Time.now.strftime("%I:%M%p, %D")}"
 
-    data = data.gsub(/installing PoolParty!/, '\0'+" (#{str})")
+    data = data.gsub(/you just installed PoolParty!/, '\0'+" (#{str})")
     
     File.open("poolparty.gemspec", "w+") {|f| f << data }
   end
   desc "Release them gem to the gem server"
-  task :release => :gemspec do
+  task :release => :gemspec_update do
     `git push gem`
   end
 end

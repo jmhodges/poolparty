@@ -14,13 +14,13 @@ Gem::Specification.new do |s|
   s.has_rdoc = true
   s.homepage = %q{http://blog.citrusbyte.com}
   s.post_install_message = %q{
-
-      Thanks for installing PoolParty! (Updated at 04:36PM, 06/28/08)
+      
+      Get ready to jump in the pool, you just installed PoolParty! (Updated at 04:41PM, 06/28/08)
 
       Please check out the documentation for any questions or check out the google groups at
         http://groups.google.com/group/poolpartyrb
 
-      Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!
+      Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!      
 
       For more information, check http://poolpartyrb.com
       On IRC: 
