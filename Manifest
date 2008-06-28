@@ -71,7 +71,6 @@ Manifest
 poolparty.gemspec
 Rakefile
 README.txt
-safe
 spec/application_spec.rb
 spec/callback_spec.rb
 spec/core_spec.rb
@@ -99,6 +98,13 @@ spec/remoting_spec.rb
 spec/scheduler_spec.rb
 spec/spec_helper.rb
 spec/string_spec.rb
+tmp/authkeys
+tmp/cloud_master_takeover
+tmp/ha.cf
+tmp/haproxy
+tmp/monitrc
+tmp/node0-configuration
+tmp/node0-hosts
 vendor/pool-party-plugins/deployment/capistrano/deploy_tasks.rb
 vendor/pool-party-plugins/deployment/capistrano/init.rb
 vendor/pool-party-plugins/deployment/capistrano/master_capistrano.rb
