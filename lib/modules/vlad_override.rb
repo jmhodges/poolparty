@@ -1,5 +1,5 @@
-class Rake::RemoteTask < Rake::Task
-  require "vlad"
+require "vlad"
+class Rake::RemoteTask < Rake::Task  
   def run command
     cmd = [ssh_cmd, ssh_flags, target_host].compact
     result = []
