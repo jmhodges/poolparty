@@ -11,7 +11,7 @@ end
 Dir["#{File.dirname(__FILE__)}/helpers/**"].each {|a| require a}
 
 include PoolParty
-extend PoolParty
+extend poolparty
 
 Application.environment = "test"
 Application.verbose = false

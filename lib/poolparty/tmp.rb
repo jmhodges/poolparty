@@ -37,7 +37,7 @@ class Test
 end
 
 t = Test.new
-t.scp("/Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/CHANGELOG", "ho")
+t.scp("/Users/auser/Sites/work/citrusbyte/internal/gems/poolparty/pool/CHANGELOG", "ho")
 t.ssh("ls -l")
 t.ssh <<-EOE
   ls -l

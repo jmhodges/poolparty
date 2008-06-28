@@ -1,4 +1,4 @@
-= PoolParty
+= poolparty
 
   http://poolpartyrb.com
   Ari Lerner
@@ -7,19 +7,19 @@
 
 == DESCRIPTION:
   
-PoolParty (http://poolpartyrb.com), Ari Lerner (http://blog.xnot.org, http://blog.citrusbyte.com) - PoolParty is a framework for maintaining and running auto-scalable applications on Amazon's EC2 cloud. Run entire applications using the EC2 cluster and the unlimited S3 disk. More details to be listed at http://poolpartyrb.com.
+poolparty (http://poolpartyrb.com), Ari Lerner (http://blog.xnot.org, http://blog.citrusbyte.com) - poolparty is a framework for maintaining and running auto-scalable applications on Amazon's EC2 cloud. Run entire applications using the EC2 cluster and the unlimited S3 disk. More details to be listed at http://poolpartyrb.com.
 
 == Basics
 
-PoolParty is written with the intention of being as application-agnostic as possible. It installs only the basic required software to glue the cloud together on the instances as listed below.
+poolparty is written with the intention of being as application-agnostic as possible. It installs only the basic required software to glue the cloud together on the instances as listed below.
 
-PoolParty is easily configuration. In fact, it makes little assumptions about your development environment and allows several options on how to begin configuring the cloud. 
+poolparty is easily configuration. In fact, it makes little assumptions about your development environment and allows several options on how to begin configuring the cloud. 
 
 = Development setup
 
 === IN THE ENVIRONMENT
 
-There are 5 values that PoolParty reads from the environment, you can set these basic environment variables and leave the rest to the PoolParty defaults. Those values are:
+There are 5 values that poolparty reads from the environment, you can set these basic environment variables and leave the rest to the poolparty defaults. Those values are:
 
   ENV["ACCESS_KEY"] => AWS access key
   ENV["SECRET_ACCESS_KEY"] => AWS secret access key
@@ -31,11 +31,11 @@ The structure assumed for the keypair is EC2_HOME/id_rsa-<keypairname>
 
 === IN A CONFIG FILE
 
-PoolParty assumes your config directory is set in config/config.yml. However, you can set this in your environment variables and it will read the config file from the environment variable
+poolparty assumes your config directory is set in config/config.yml. However, you can set this in your environment variables and it will read the config file from the environment variable
 
 === WITH A RAKE TASK
 
-PoolParty comes with a rake task that can setup your environment for you. Set the environment variables above and run
+poolparty comes with a rake task that can setup your environment for you. Set the environment variables above and run
   
   rake dev:setup
 
@@ -47,9 +47,9 @@ and your environment will be all setup for you everytime you want to work on the
 
 = Basics
 
-PoolParty can work in two ways to load balance it's traffic. It can either do server-side or client-side load-balancing. Since every instance load balances itself, you can either set the client to grab an instance and send it to that using client-side load balancing (with a js library). Alternatively, you can set the master in dns and reference it when referring to the application.
+poolparty can work in two ways to load balance it's traffic. It can either do server-side or client-side load-balancing. Since every instance load balances itself, you can either set the client to grab an instance and send it to that using client-side load balancing (with a js library). Alternatively, you can set the master in dns and reference it when referring to the application.
 
-Since PoolParty makes no assumptions as to what you will be hosting on the application, the world is your oyster when running a cloud. You can set each instance to register with a dynDNS service so that your application has multiple points of entry and can run load-balanced on the fly.
+Since poolparty makes no assumptions as to what you will be hosting on the application, the world is your oyster when running a cloud. You can set each instance to register with a dynDNS service so that your application has multiple points of entry and can run load-balanced on the fly.
 
 Every instance will auto-mount the s3 bucket set in the config file (if it is set up) into the /data folder of the instance. This gives each instance access to the same data regardless of the instance. It uses s3fuse and caching through s3fuse in the /tmp directory to work as fast as possible on the local instances.
 
@@ -68,7 +68,7 @@ Each instance has a /etc/hosts file that has each node listed as the node name l
 
 = CloudSpeak - Communicating to your cloud(s)
 Binaries!
-Included in PoolParty are two binaries to communicate back with your clouds. Those are:
+Included in poolparty are two binaries to communicate back with your clouds. Those are:
   
 * pool - operate on your pool. This includes list, start, stop maintain, restart. Check the help with pool -h
 * instance - operate on a specific instance. This allos you to ssh, scp, reload, install as well. Check the help with: instance -h

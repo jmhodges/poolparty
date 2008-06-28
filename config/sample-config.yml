@@ -12,7 +12,7 @@
 :os: ubuntu
 :host_port: 80
 :client_port: 8001
-:shared_bucket: "pool-party-app-data"
+:shared_bucket: "poolparty-app-data"
 :services: nginx
 :environment: production
 :contract_when:

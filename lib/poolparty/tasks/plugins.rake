@@ -8,7 +8,7 @@ Usage:
 rake #{@command} location
 
 Example:
-rake #{@command} git://github.com/auser/pool-party-plugins.git
+rake #{@command} git://github.com/auser/poolparty-plugins.git
 
 Check the help does for more information how to install a plugin
 http://poolpartyrb.com

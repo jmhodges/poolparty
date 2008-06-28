@@ -346,7 +346,7 @@ describe "Master" do
             File.file?("#{@master.base_tmp_dir}/test").should == false
           end
           it "should check to see if there is a directory in the user directory to grab the files from" do
-            File.stub!(:directory?).with("/Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/tmp/resource.d").and_return false
+            File.stub!(:directory?).with("/Users/auser/Sites/work/citrusbyte/internal/gems/poolparty/pool/tmp/resource.d").and_return false
             File.should_receive(:directory?).at_least(1).with("#{user_dir}/config/resource.d").at_least(1).and_return true
             @master.copy_config_files_in_directory_to_tmp_dir("config/resource.d")
           end
