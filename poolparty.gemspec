@@ -215,6 +215,7 @@ files:
 - lib/poolparty.rb
 - lib/s3/s3_object_store_folders.rb
 - Manifest
+- poolparty.gemspec
 - Rakefile
 - README.txt
 - spec/application_spec.rb
@@ -244,7 +245,6 @@ files:
 - spec/scheduler_spec.rb
 - spec/spec_helper.rb
 - spec/string_spec.rb
-- poolparty.gemspec
 has_rdoc: true
 homepage: http://blog.citrusbyte.com
 post_install_message: "    \n    Thanks for installing PoolParty!\n    \n    Please check out the documentation for any questions or check out the google groups at\n      http://groups.google.com/group/poolpartyrb\n    \n    Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!\n    \n    For more information, check http://poolpartyrb.com\n    On IRC: \n      irc.freenode.net\n      #poolpartyrb\n    *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***\n    \n"

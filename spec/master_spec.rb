@@ -104,6 +104,9 @@ describe "Master" do
       @master.nodes.each {|node| node.stub!(:stack_installed?).and_return(true) unless node.master? }
       @master.number_of_unconfigured_nodes.should == 1
     end
+    it "should be able to return the size of the cloud" do
+      @master.nodes.size.should == 3
+    end
     it "should be able to restart the running instances' services" do
       @master.nodes.each {|a| a.should_receive(:restart_with_monit).and_return true }
       @master.restart_running_instances_services
