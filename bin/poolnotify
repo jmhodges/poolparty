@@ -1,21 +1,23 @@
+#!/usr/bin/ruby
 require 'rubygems'
 $:.unshift(File.join(File.dirname(__FILE__), "lib"))
 require 'poolparty'
 
-@options = PoolParty.options
-master = PoolParty::Master.new
+def notify(mess);`/usr/local/bin/growlnotify -m "Your #{PoolParty.options.keypair} cloud #{mess}"`;end
 
-def notify(mess);`/usr/local/bin/growlnotify -m "Your #{@options.keypair} cloud #{mess}"`;end
+master = PoolParty::Master.new
 
 @size = master.nodes.size
 
 notify("is #{@size} big")
-loop do
-  sz = master.nodes.size
-  
-  unless @size == sz
-    @size > sz ? notify("shrank") : notify("grew")
+blk = lambda {
+  loop do
+    sz = master.nodes.size
+    
+    @size > sz ? notify("shrank") : notify("grew") unless @size == sz
+
+    wait 2.minutes  
   end
-  
-  wait 2.minutes  
-end
+}
+
+PoolParty::Application.production? ? daemonize(&blk) : blk.call
