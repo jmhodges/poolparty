@@ -67,6 +67,8 @@ lib/poolparty/tmp.rb
 lib/poolparty.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
+pool-party.gemspec
+poolparty.gemspec
 Rakefile
 README.txt
 spec/application_spec.rb

@@ -4,7 +4,7 @@ require 'lib/poolparty'
 
 task :default => :test
 
-Echoe.new("poolparty") do |p|
+Echoe.new("pool-party") do |p|
   p.author = "Ari Lerner"
   p.email = "ari.lerner@citrusbyte.com"
   p.summary = "Run your entire application off EC2, managed and auto-scaling"
