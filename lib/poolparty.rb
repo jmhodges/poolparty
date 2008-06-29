@@ -43,8 +43,8 @@ end
 module PoolParty
   module Version #:nodoc:
     @major = 0
-    @minor = 0
-    @tiny  = 9
+    @minor = 1
+    @tiny  = 0
 
     STRING = [@major, @minor, @tiny].join('.')
   end
