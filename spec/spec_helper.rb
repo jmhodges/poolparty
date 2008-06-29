@@ -1,4 +1,6 @@
-require File.join(File.dirname(__FILE__), *%w[.. lib poolparty])
+lpwd = File.dirname(__FILE__)
+$:.unshift(lpwd)
+require File.join(lpwd, *%w[.. lib poolparty])
 
 %w(test/spec).each do |library|
   begin

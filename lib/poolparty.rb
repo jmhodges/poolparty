@@ -45,7 +45,7 @@ module PoolParty
     @minor = 1
     @tiny  = 0
 
-    STRING = [@major, @minor, @tiny].join('.')
+    @string = [@major, @minor, @tiny].join('.')
   end
   def timer
     @@timer
