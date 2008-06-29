@@ -153,7 +153,10 @@ module PoolParty
       wait_for_all_instances_to_terminate
       configure_cloud
     end
-    
+    def make_base_tmp_dir(c)
+      `mkdir #{base_tmp_dir}` unless File.directory?(base_tmp_dir)
+    end
+    before :build_and_send_config_files_in_temp_directory, :make_base_tmp_dir
     def build_and_send_config_files_in_temp_directory
       require 'ftools'
       File.copy(get_config_file_for("cloud_master_takeover"), "#{base_tmp_dir}/cloud_master_takeover")
@@ -270,7 +273,7 @@ chmod +x #{script_file}
     def get_config_file_for(name)
       if File.exists?("#{user_dir}/config/#{name}")
         "#{user_dir}/config/#{name}"
-      else 
+      else
         "#{root_dir}/config/#{name}"
       end
     end
