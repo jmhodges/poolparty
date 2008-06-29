@@ -61,22 +61,6 @@ describe "remote instance" do
         Kernel.stub!(:system).and_return true
         stub_option_load
       end
-      # it "should try to run the scp build file" do
-      #   Master.should_receive(:build_scp_instances_script_for).with(@instance).and_return @tempfile
-      #   @instance.configure
-      # end
-      # it "should try to run and build the reconfigure script for the node" do
-      #   Master.should_receive(:build_reconfigure_instances_script_for).with(@instance).and_return @tempfile
-      #   @instance.configure
-      # end
-      # it "should scp the reconfigure file to the remote instance" do
-      #   @instance.should_receive(:scp).once.and_return true
-      #   @instance.configure
-      # end
-      # it "should ssh and execute the reconfigure file on the remote instance" do
-      #   @instance.should_receive(:ssh).once.with("chmod +x /usr/local/src/reconfigure.sh && /bin/sh /usr/local/src/reconfigure.sh").and_return true
-      #   @instance.configure
-      # end
       describe "with a public ip" do
         before(:each) do
           Application.stub!(:public_ip).and_return "127.0.0.1"
@@ -96,7 +80,9 @@ describe "remote instance" do
           @instance.should_not_receive(:associate_address_with)
           @master.configure_cloud
         end
-
+        it "should untar and move plugin directories around" do
+          @instance.update_plugin_string.should == "mkdir -p #{Application.plugin_dir} && tar -zxf plugins.tar.gz -C #{Application.plugin_dir}"
+        end
     end
   end  
   describe "in failover" do

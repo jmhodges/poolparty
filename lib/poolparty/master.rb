@@ -159,6 +159,8 @@ module PoolParty
     before :build_and_send_config_files_in_temp_directory, :make_base_tmp_dir
     def build_and_send_config_files_in_temp_directory
       require 'ftools'
+      Kernel.system("tar -czf #{base_tmp_dir}/plugins.tar.gz #{File.basename(Application.plugin_dir)}")
+      
       File.copy(get_config_file_for("cloud_master_takeover"), "#{base_tmp_dir}/cloud_master_takeover")
       File.copy(get_config_file_for("heartbeat.conf"), "#{base_tmp_dir}/ha.cf")
       
@@ -183,7 +185,7 @@ module PoolParty
           build_heartbeat_config_file_for(node)
           build_heartbeat_resources_file_for(node)
         end
-      end      
+      end
     end
     def cleanup_tmp_directory(c)
       Dir["#{base_tmp_dir}/*"].each {|f| FileUtils.rm_rf f} if File.directory?("tmp/")

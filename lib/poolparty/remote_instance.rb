@@ -192,12 +192,7 @@ module PoolParty
     def configure      
     end
     def update_plugin_string
-      reset!
-      str = "mkdir -p #{Application.plugin_dir} && cd #{Application.plugin_dir}\n"
-      installed_plugins.each do |plugin_source|
-        str << "git clone #{plugin_source}\n"
-      end
-      str
+      "mkdir -p #{Application.plugin_dir} && tar -zxf plugins.tar.gz -C #{Application.plugin_dir}"
     end
     # Is this the master and if not, is the master running?
     def is_not_master_and_master_is_not_running?

@@ -10,7 +10,6 @@ require "sqs"
 require "EC2"
 require "aska"
 require 'sprinkle'
-
 require 'thread'
 require "pp"
 require "tempfile"
