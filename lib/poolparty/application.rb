@@ -41,7 +41,7 @@ module PoolParty
           op.banner = opts[:banner] if opts[:banner]
           op.on('-A key', '--access-key key', "Ec2 access key (ENV['ACCESS_KEY'])") { |key| default_options[:access_key] = key }
           op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['SECRET_ACCESS_KEY'])") { |key| default_options[:secret_access_key] = key }
-          op.on('-I ami', '--image-id id', "AMI instance (default: 'ami-4a46a323')") {|id| default_options[:ami] = id }
+          op.on('-I ami', '--image-id id', "AMI instance (default: 'ami-40bc5829')") {|id| default_options[:ami] = id }
           op.on('-k keypair', '--keypair name', "Keypair name (ENV['KEYPAIR_NAME'])") { |key| default_options[:keypair] = key }
           op.on('-b bucket', '--bucket bucket', "Application bucket") { |bucket| default_options[:shared_bucket] = bucket }          
           op.on('-D ec2 directory', '--ec2-dir dir', "Directory with ec2 data (default: '~/.ec2')") {|id| default_options[:ec2_dir] = id }
@@ -106,7 +106,7 @@ module PoolParty
           :username => "root",
           :ec2_dir => ENV["EC2_HOME"],
           :keypair => ENV["KEYPAIR_NAME"],
-          :ami => 'ami-4a46a323',
+          :ami => 'ami-40bc5829',
           :shared_bucket => "",
           :expand_when => "web_usage < 1.5\n memory > 0.85",
           :contract_when => "cpu < 0.20\n memory < 0.10",
