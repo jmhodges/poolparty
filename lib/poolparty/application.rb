@@ -106,7 +106,7 @@ module PoolParty
           :username => "root",
           :ec2_dir => ENV["EC2_HOME"],
           :keypair => ENV["KEYPAIR_NAME"],
-          :ami => 'ami-40bc5829',
+          :ami => 'ami-44bd592d',
           :shared_bucket => "",
           :expand_when => "web_usage < 1.5\n memory > 0.85",
           :contract_when => "cpu < 0.20\n memory < 0.10",

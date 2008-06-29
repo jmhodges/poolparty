@@ -22,16 +22,7 @@ package :rubygems do
   requires :ruby
 end
 
-package :poolparty_required_gems do
-  description "required gems"
-  gems %w( SQS aws-s3 amazon-ec2 aska rake rcov auser-poolparty )
-end
-
 package :required_gems do
   description "Pool party gem"
-  gem "poolparty" do
-    source 'http://gems.github.com -y'
-  end
-  
-  required :poolparty_required_gems
+  gems %w( SQS aws-s3 amazon-ec2 auser-aska rake rcov auser-poolparty vlad --no-ri --no-rdoc)
 end

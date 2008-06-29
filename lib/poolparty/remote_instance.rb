@@ -192,7 +192,8 @@ module PoolParty
     def configure      
     end
     def update_plugin_string
-      "mkdir -p #{Application.plugin_dir} && tar -zxf plugins.tar.gz -C #{Application.plugin_dir}"
+      dir = File.basename(Application.plugin_dir)
+      "mkdir -p #{dir} && tar -zxf plugins.tar.gz -C #{dir}"
     end
     # Is this the master and if not, is the master running?
     def is_not_master_and_master_is_not_running?

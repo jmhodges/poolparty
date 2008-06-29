@@ -2,5 +2,5 @@
 
 package :build_essential do
   description 'Build tools'
-  apt %w(build-essential)
+  apt %w( build-essential )
 end
