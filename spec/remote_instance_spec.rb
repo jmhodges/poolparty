@@ -72,7 +72,7 @@ describe "remote instance" do
           @master.configure_cloud
         end
         it "should run associate_address if there is a public_ip set in the Application.options" do
-          @instance.should_receive(:associate_address_with).with(Application.public_ip, @instance.instance_id).and_return true
+          @instance.should_receive(:associate_address_with).with(Application.public_ip, @instance.instance_id).at_least(1).and_return true
           @master.configure_cloud
         end
         it "should not run associate_address_with if the public_ip is empty" do
@@ -81,7 +81,8 @@ describe "remote instance" do
           @master.configure_cloud
         end
         it "should untar and move plugin directories around" do
-          @instance.update_plugin_string.should == "mkdir -p #{Application.plugin_dir} && tar -zxf plugins.tar.gz -C #{Application.plugin_dir}"
+          dir = File.basename Application.plugin_dir
+          @instance.update_plugin_string.should == "mkdir -p #{dir} && tar -zxf plugins.tar.gz -C #{dir}"
         end
     end
   end  

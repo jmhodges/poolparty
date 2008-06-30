@@ -149,7 +149,7 @@ describe "Master" do
         end
         describe "rsync'ing the files to the instances" do
           it "should receive send_config_files_to_nodes after it builds the config files in the temp directory" do
-            @master.should_receive(:send_config_files_to_nodes).once
+            @master.should_receive(:send_config_files_to_nodes)
             @master.build_and_send_config_files_in_temp_directory
           end
           it "should run_array_of_tasks(scp_tasks)" do
