@@ -159,18 +159,9 @@ module PoolParty
           mkdir -p /data && /usr/bin/s3fs #{Application.shared_bucket} -o accessKeyId=#{Application.access_key} -o secretAccessKey=#{Application.secret_access_key} -o nonempty /data
         EOC
       end
-    end
-        
+    end        
     # Installs with one commandline and an scp, rather than 10
     def install
-      # unless stack_installed?
-      #   execute_tasks do
-      #     # scp(base_install_script, "~/base_install.sh")          
-      #     ssh("chmod +x base_install.sh && /bin/sh base_install.sh && rm base_install.sh && echo 'installed!' ")
-      #   end
-      #   PoolParty.message "After install execute_tasks"
-      #   mark_installed
-      # end
     end
     # Login to store the authenticity
     def login_once

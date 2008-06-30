@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 class TestPlugin < PoolParty::Plugin
   after_define_tasks :takss
-  after_install :echo_hosts, :email_updates
+  after_install :email_updates, :echo_hosts
   before_configure_cloud :echo_hosts  
   after_start :echo_start
   
@@ -33,45 +33,43 @@ describe "Plugin" do
   describe "usage" do
     before(:each) do
       stub_option_load
-      @instance = RemoteInstance.new
-      @master = Master.new
-      
       @test = TestPlugin.new
-      @test.stub!(:echo_hosts).and_return("true")
-      @test.stub!(:email_updates).and_return("true")
-      @test.stub!(:echo_start).and_return("true")
-      TestPlugin.stub!(:new).and_return(@test)
-      Kernel.stub!(:wait).and_return true
-      
-      @master.stub!(:launch_minimum_instances).and_return true
-      @master.stub!(:number_of_pending_instances).and_return 0
-      @master.stub!(:get_node).with(0).and_return @instance
-      
-      @instance.stub!(:ssh).and_return "true"
-      @instance.stub!(:scp).and_return "true"
-      Kernel.stub!(:system).and_return "true"
+      TestPlugin.stub!(:new).and_return @test
+      @master, @instances = PluginSpecHelper.define_stubs(2)
+      @instance = @instances.first
     end
     it "should should call echo_hosts after calling configure" do      
       @test.should_receive(:echo_hosts).at_least(1)
-      # @instance.stub!(:)
       @instance.install
     end
-    it "should call email_updates after calling install" do
-      @test.should_receive(:email_updates).at_least(1)
-      @instance.install
-    end
-    it "should call echo_hosts before it calls configure" do
-      @test.should_receive(:echo_hosts).at_least(1).and_return "hi"
-      @master.configure_cloud
-    end
-    it "should not call echo_hosts after if configures" do
-      @test.should_not_receive(:email_updates)
-      @master.configure_cloud
+    describe "installation" do
+      before(:each) do
+        Application.stub!(:install_on_load?).and_return true        
+      end
+      it "should call install on each of the instances after calling install_cloud" do
+        @instance.should_receive(:install)
+        @master.install_cloud
+      end
+      it "should call email_updates after calling install" do
+        @test.should_receive(:email_updates).twice
+        @master.install_cloud
+      end
+      it "should call echo_hosts before it calls configure" do
+        @test.should_receive(:echo_hosts).at_least(1).and_return "hi"
+        @master.install_cloud
+      end
     end
     it "should say that it started on the master" do
+      @master.stub!(:launch_minimum_instances)
+      @master.stub!(:wait_for_all_instances_to_boot)
+      @master.stub!(:setup_cloud)
       @test.should_receive(:echo_start).at_least(1).and_return "hi"
-      @master.stub!(:install_cloud)
       @master.start
+    end
+    it "should not call echo_hosts after if configures" do
+      @test.stub!(:echo_hosts).and_return true
+      @test.should_not_receive(:email_updates)
+      @master.configure_cloud
     end
     describe "instance methods" do
       before(:each) do

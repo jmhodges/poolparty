@@ -87,6 +87,12 @@ module PoolParty
         end
         Provider.install_poolparty(cloud_ips)
         Provider.install_userpackages(cloud_ips)
+        
+        # For plugins
+        nodes.each do |node|
+          node.install
+        end
+        
       end
     end
     def cloud_ips

@@ -29,7 +29,7 @@ pwd = File.dirname(__FILE__)
 # Load the required files
 # If there is an init file, load that, otherwise
 # require all the files in each directory
-%w(core modules s3 poolparty).each do |dir|  
+%w(core modules s3 helpers poolparty).each do |dir|  
   Dir["#{pwd}/#{dir}"].each do |dir|
     begin
       require File.join(dir, "init")
