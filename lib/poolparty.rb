@@ -40,12 +40,14 @@ pwd = File.dirname(__FILE__)
 end
 
 module PoolParty
-  module Version #:nodoc:
+  class Version #:nodoc:
     @major = 0
     @minor = 1
     @tiny  = 0
 
-    @string = [@major, @minor, @tiny].join('.')
+    def self.string
+      [@major, @minor, @tiny].join('.')
+    end
   end
   def timer
     @@timer

@@ -168,7 +168,7 @@ module PoolParty
         end
       end
       def version
-        PoolParty::Version::STRING
+        PoolParty::Version.string
       end
       def install_on_load?(bool=false)
         options.install_on_load == true || bool
