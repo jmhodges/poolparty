@@ -35,7 +35,7 @@ describe "Plugin" do
       stub_option_load
       @test = TestPlugin.new
       TestPlugin.stub!(:new).and_return @test
-      @master, @instances = PluginSpecHelper.define_stubs(2)
+      @master, @instances = PoolParty::PluginSpecHelper.define_stubs(2)
       @instance = @instances.first
     end
     it "should should call echo_hosts after calling configure" do      
