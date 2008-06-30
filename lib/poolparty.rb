@@ -6,7 +6,7 @@ $:.unshift File.dirname(__FILE__)     # For use/testing when no gem is installed
 # rubygems
 require 'rubygems'
 require "aws/s3"
-require "SQS"
+require "sqs"
 require "EC2"
 require "aska"
 require 'sprinkle'
