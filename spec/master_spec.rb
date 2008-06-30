@@ -86,6 +86,9 @@ describe "Master" do
     it "should be able to get a specific node in the nodes from the master" do
       @master.get_node(2).instance_id.should == "i-5849bc"
     end
+    it "should be able to get the next node" do
+      @master.get_next_node(@instance).instance_id.should == "i-5849bb"
+    end
     it "should be able to build a hosts file" do
       open(@master.build_hosts_file_for(@instance).path).read.should == "127.0.0.1 node0\n127.0.0.1 localhost.localdomain localhost ubuntu\n127.0.0.2 node1\n127.0.0.3 node2"
     end
@@ -120,10 +123,10 @@ describe "Master" do
           Master.stub!(:new).and_return(@master)
         end
         it "should be able to build a heartbeat resources file for the specific node" do
-          open(Master.build_heartbeat_resources_file_for(@master.nodes.first).path).read.should =~ /node0 127/
+          open(@master.build_heartbeat_resources_file_for(@master.nodes.first).path).read.should == "node0 127.0.0.1\nnode1 127.0.0.2"
         end
         it "should be able to build a heartbeat config file" do
-          open(Master.build_heartbeat_config_file_for(@master.nodes.first).path).read.should =~ /\nnode node0\nnode node1/
+          open(@master.build_heartbeat_config_file_for(@master.nodes.first).path).read.should =~ /\nnode node0\nnode node1/
         end      
         it "should be able to say if heartbeat is necessary with more than 1 server or not" do      
           Master.requires_heartbeat?.should == true

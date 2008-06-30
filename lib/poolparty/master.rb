@@ -361,6 +361,7 @@ chmod +x #{script_file}
     
     class << self
       include PoolParty
+      include FileWriter
             
       def with_nodes(&block)
         new.nodes.each &block
@@ -382,18 +383,6 @@ chmod +x #{script_file}
       def get_next_node(node)
         new.get_next_node(node)
       end
-      # Build a heartbeat_config_file from the config file in the config directory and return a tempfile
-      def build_heartbeat_config_file_for(node)
-        return nil unless node
-        new.build_heartbeat_config_file_for(node)
-      end
-      # Build a heartbeat resources file from the config directory and return a tempfile
-      def build_heartbeat_resources_file_for(node)
-        return nil unless node && get_next_node(node)
-        new.write_to_file_for("haresources", node) do
-          "#{node.haproxy_resources_entry}\n#{get_next_node(node).haproxy_resources_entry}"
-        end        
-      end      
       def set_hosts(c, remotetask=nil)
         unless remotetask.nil?
           rt = remotetask
