@@ -1,6 +1,8 @@
 module PoolParty
   class PluginSpecHelper
     def self.define_stubs(num=1)
+      require File.dirname(__FILE__) + "/../../spec/helpers/ec2_mock"
+      
       define_master
       @nodes = define_instances(num)
 
