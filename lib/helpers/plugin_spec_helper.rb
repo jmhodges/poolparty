@@ -32,7 +32,8 @@ module PoolParty
             @instance#{i} = RemoteInstance.new
             @instance#{i}.stub!(:ssh).and_return "true"
             @instance#{i}.stub!(:scp).and_return "true"
-            @instance#{i}.stub!(:name).and_return "node#{i}"          
+            @instance#{i}.stub!(:name).and_return "node#{i}"
+            @instance#{i}.stub!(:ip).and_return "127.0.0.#{i}"
           EOE
           arr << eval("@instance#{i}")
         end

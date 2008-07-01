@@ -192,3 +192,22 @@ describe "Variables on the plugin callbacker class" do
     BindingClass.new.methods.include?("eviloutsideclass").should == true
   end
 end
+class DoubleClass
+  include Callbacks
+  before :print, :hello => "OutsideBindingClass"
+  after :print, :hello => "OutsideBindingClass"
+  
+  def print
+    puts string
+  end
+  def string
+    @string ||= ""
+  end
+end
+describe "Chaining" do
+  it "should be able to call both a before and an after spec" do
+    @d = DoubleClass.new
+    @d.print
+    @d.string.should == "hellohello"
+  end
+end
