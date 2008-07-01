@@ -69,7 +69,7 @@ module PoolParty
   end
   # User directory
   def user_dir
-    Dir.pwd
+    Application.working_directory
   end
   # Write string to a tempfile
   def write_to_temp_file(str="")
@@ -80,12 +80,20 @@ module PoolParty
   end
   def register_monitor(*names)
     names.each do |name|
-      PoolParty::Monitors.extend name
+      unless registered_monitor?(name)
+        PoolParty.message "Registering monitor: #{name}"
+        PoolParty::Monitors.extend name
       
-      PoolParty::Master.send :include, name::Master
-      PoolParty::RemoteInstance.send :include, name::Remote
+        PoolParty::Master.send :include, name::Master
+        PoolParty::RemoteInstance.send :include, name::Remote
+        
+        registered_monitors << name
+      end
     end
   end
+  def registered_monitor?(name);registered_monitors.include?(name);end
+  def registered_monitors;@registered_monitors ||= [];end
+  
   def load_plugins
     Dir["#{plugin_dir}/**/init.rb"].each {|a| require a} if File.directory?(plugin_dir)
   end
@@ -94,7 +102,7 @@ module PoolParty
     Application.options = nil
   end
   def plugin_dir
-    "#{user_dir}/plugins"
+    "#{user_dir}/vendor"
   end
   def read_config_file(filename)
     return {} unless filename

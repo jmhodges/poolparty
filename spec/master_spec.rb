@@ -149,11 +149,11 @@ describe "Master" do
         end
         describe "rsync'ing the files to the instances" do
           it "should receive send_config_files_to_nodes after it builds the config files in the temp directory" do
-            @master.should_receive(:send_config_files_to_nodes)
+            @master.should_receive(:send_config_files_to_nodes).at_least(1)
             @master.build_and_send_config_files_in_temp_directory
           end
           it "should run_array_of_tasks(scp_tasks)" do
-            @master.should_receive(:run_array_of_tasks).and_return true
+            @master.should_receive(:run_array_of_tasks).at_least(1).and_return true
             @master.build_and_send_config_files_in_temp_directory
           end
           it "should compile a list of files to rsync" do
@@ -264,13 +264,15 @@ describe "Master" do
       it "should be able to say that it should not expand if it shouldn't expand" do
         @master.stub!(:web).and_return(30.2)
         @master.stub!(:cpu).and_return(0.92)
-
+        
+        puts @master.expand_when.size
         @master.expand?.should == false
       end
       it "should be able to say that it should expand if it should expand" do
         @master.stub!(:web).and_return(1.2)
         @master.stub!(:cpu).and_return(0.92)
-
+        
+        puts @master.expand_when.size
         @master.expand?.should == true
       end      
       describe "scaling" do

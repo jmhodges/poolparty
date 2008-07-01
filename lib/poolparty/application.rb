@@ -29,7 +29,7 @@ module PoolParty
         
         default_options.merge!(opts)
         load_options!(loading_options) # Load command-line options        
-        default_options.merge!(local_user_data) unless local_user_data == {}
+        default_options.merge!(local_user_data) unless local_user_data.nil? 
         
         OpenStruct.new(default_options)
       end
@@ -111,11 +111,12 @@ module PoolParty
           :keypair => ENV["KEYPAIR_NAME"],
           :ami => 'ami-44bd592d',
           :shared_bucket => "",
-          :expand_when => "web_usage < 1.5\n memory > 0.85",
+          :expand_when => "web < 1.5\n memory > 0.85",
           :contract_when => "cpu < 0.20\n memory < 0.10",
           :os => "ubuntu",
           :plugin_dir => "vendor",
-          :install_on_load => false
+          :install_on_load => false,
+          :working_directory => Dir.pwd
         }
       end
       # Services monitored by Heartbeat
@@ -130,7 +131,7 @@ module PoolParty
           :user_data => user_data}.to_yaml
       end
       def local_user_data
-        @local_user_data ||= 
+        @local_user_data ||=
         begin
           @@timer.timeout(5.seconds) do
             YAML.load(open("http://169.254.169.254/latest/user-data").read)
@@ -138,6 +139,10 @@ module PoolParty
         rescue Exception => e
           {}
         end
+      end
+      # For testing purposes
+      def reset!
+        @local_user_data = nil
       end
       # Keypair path
       # Idiom:

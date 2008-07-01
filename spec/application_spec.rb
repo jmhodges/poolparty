@@ -39,19 +39,34 @@ describe "Application" do
   it "should show the version as a string" do
     Application.version.class.should == String
   end
-  it "should be able to start instances with the the key access information on the user-data" do
-    Application.launching_user_data.should =~ /:access_key/
-    Application.launching_user_data.should =~ /:secret_access_key/
-  end
-  it "should be able to pull out the access_key from the user data" do
-    Application.local_user_data[:access_key].should == 3.14159
-  end
-  it "should overwrite the default_options when passing in to the instance data" do
-    Application.stub!(:default_options).and_return({:access_key => 42})
-    Application.options.access_key.should == 3.14159
+  describe "User data" do
+    before(:each) do
+      @str = ":access_key: 3.14159\n:secret_access_key: pi"
+      Application.stub!(:open).with("http://169.254.169.254/latest/user-data").and_return(@str)
+      @str.stub!(:read).and_return ":access_key: 3.14159\n:secret_access_key: pi"
+      Application.reset!
+    end
+    it "should try to load the user data into a yaml hash" do
+      YAML.should_receive(:load).with(":access_key: 3.14159\n:secret_access_key: pi")
+      Application.local_user_data
+    end
+    it "should be able to start instances with the the key access information on the user-data" do
+      Application.launching_user_data.should =~ /:access_key/
+      Application.launching_user_data.should =~ /:secret_access_key/
+    end
+    it "should be able to pull out the access_key from the user data" do
+      Application.local_user_data[:access_key].should == 3.14159
+    end
+    it "should be able tp pull out the secret_access_key from the user-data" do
+      Application.local_user_data[:secret_access_key].should == "pi"
+    end
+    it "should overwrite the default_options when passing in to the instance data" do
+      Application.stub!(:default_options).and_return({:access_key => 42})
+      Application.options.access_key.should == 3.14159
+    end
   end
   it "should parse and use a config file if it is given for the options" do
-    YAML.should_receive(:load).and_return({:config_file => "config/sample-config.yml"})
+    YAML.should_receive(:load).at_least(1).and_return({:config_file => "config/sample-config.yml"})
     Application.make_options(:config_file => "config/sample-config.yml")
   end
   it "should not read the config file if it is not passed and doesn't exist" do

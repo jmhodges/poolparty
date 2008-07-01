@@ -68,6 +68,7 @@ lib/poolparty/tasks.rb
 lib/poolparty.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
+poolparty.gemspec
 Rakefile
 README.txt
 spec/application_spec.rb
@@ -102,5 +103,3 @@ tmp/cloud_master_takeover
 tmp/ha.cf
 tmp/haproxy
 tmp/monitrc
-tmp/node0-configuration
-tmp/node0-hosts

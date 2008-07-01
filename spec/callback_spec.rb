@@ -68,7 +68,7 @@ describe "Multiple callbacks" do
 end
 class OutsideClass
   def self.hello(caller)
-    puts "hello"
+    "hello"
   end
 end
 class TestOutsideClass

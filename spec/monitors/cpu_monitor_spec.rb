@@ -21,7 +21,7 @@ describe "monitors" do
         )
       end
       it "should try to collect the cpu for the entire set of remote instances when calling cpu" do
-        @master.nodes.should_receive(:inject).once.and_return 0.0
+        @master.nodes.should_receive(:inject).once.with(0).and_return 0.0
         @master.cpu
       end
     end

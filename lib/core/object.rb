@@ -4,7 +4,7 @@
 =end
 class Object
   def my_methods
-    self.methods.sort - self.class.methods
+    self.methods.sort - (self.class.methods + self.class.superclass.methods)
   end
   def alias_method(new_id, original_id)
     original = self.method(original_id).to_proc

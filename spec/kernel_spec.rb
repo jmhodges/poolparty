@@ -9,3 +9,16 @@ describe "Kernel extensions" do
     @host.wait "10.seconds"
   end
 end
+describe "Object extensions" do
+  before(:each) do
+    @klass = Object.new
+    @klass.instance_eval <<-EOE
+      def hello
+        puts "hello"
+      end
+    EOE
+  end
+  it "should be able to get a list of the defined methods on the object" do
+    @klass.my_methods.should == ["hello"]
+  end
+end
