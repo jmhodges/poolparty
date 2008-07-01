@@ -1,8 +1,15 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
+module TestMonitor
+  module Master      
+  end
+  module Remote
+  end    
+end
+
 describe "Application options" do
   before(:each) do
-    # stub_option_load
+    stub_option_load
   end
   it "should be able to say that the plugin directory is the current directory" do
     File.basename(PoolParty.plugin_dir).should == "vendor"
@@ -16,5 +23,23 @@ describe "Application options" do
     File.stub!(:directory?).with(plugin_dir).and_return true
     Dir.should_receive(:[]).and_return %w()
     PoolParty.load_plugins
+  end
+  describe "monitors" do
+    before(:each) do
+      PoolParty.reset!
+    end
+    it "should load a monitor and store it into the registered monitor's array" do
+      PoolParty.register_monitor TestMonitor
+      PoolParty.registered_monitors.include?(TestMonitor).should == true
+    end
+    it "should be able to ask if the monitor is a registered monitor" do
+      PoolParty.register_monitor TestMonitor
+      PoolParty.registered_monitor?(TestMonitor).should == true
+    end
+    it "should not register a monitor more than once" do
+      PoolParty::Monitors.should_receive(:extend).once
+      PoolParty.register_monitor TestMonitor
+      PoolParty.register_monitor TestMonitor
+    end
   end
 end

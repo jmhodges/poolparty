@@ -91,13 +91,14 @@ module PoolParty
       end
     end
   end
-  def registered_monitor?(name);registered_monitors.include?(name);end
-  def registered_monitors;@registered_monitors ||= [];end
+  def registered_monitor?(name); registered_monitors.include?(name); end
+  def registered_monitors; @@registered_monitors ||= [];end
   
   def load_plugins
     Dir["#{plugin_dir}/**/init.rb"].each {|a| require a} if File.directory?(plugin_dir)
   end
   def reset!
+    @@registered_monitors = nil
     @@installed_plugins = nil
     Application.options = nil
   end
