@@ -61,14 +61,12 @@ lib/poolparty/tasks/cloud.rake
 lib/poolparty/tasks/development.rake
 lib/poolparty/tasks/ec2.rake
 lib/poolparty/tasks/instance.rake
-lib/poolparty/tasks/package.rake
 lib/poolparty/tasks/plugins.rake
 lib/poolparty/tasks/server.rake
 lib/poolparty/tasks.rb
 lib/poolparty.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
-poolparty.gemspec
 Rakefile
 README.txt
 spec/application_spec.rb
@@ -80,6 +78,7 @@ spec/files/describe_response
 spec/files/multi_describe_response
 spec/files/remote_desc_response
 spec/helpers/ec2_mock.rb
+spec/helpers/should_extension.rb
 spec/kernel_spec.rb
 spec/master_spec.rb
 spec/monitors/cpu_monitor_spec.rb
