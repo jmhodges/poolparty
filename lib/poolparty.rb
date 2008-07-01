@@ -94,7 +94,7 @@ module PoolParty
     Application.options = nil
   end
   def plugin_dir
-    "#{user_dir}/vendor"
+    "#{user_dir}/plugins"
   end
   def read_config_file(filename)
     return {} unless filename

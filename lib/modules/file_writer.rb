@@ -27,7 +27,7 @@ module PoolParty
     end
     def remote_base_tmp_dir
       "~/tmp"
-    end    
+    end
     def make_base_directory
       `mkdir -p #{base_tmp_dir}` unless File.directory?(base_tmp_dir)
     end

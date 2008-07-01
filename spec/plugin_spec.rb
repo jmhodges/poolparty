@@ -33,9 +33,7 @@ describe "Plugin" do
   describe "usage" do
     before(:each) do
       stub_option_load
-      @test = TestPlugin.new
-      TestPlugin.stub!(:new).and_return @test
-      @master, @instances = PoolParty::PluginSpecHelper.define_stubs(2)
+      @test, @master, @instances = PoolParty::PluginSpecHelper.define_stubs(TestPlugin, 2)
       @instance = @instances.first
     end
     it "should should call echo_hosts after calling configure" do      
@@ -47,6 +45,7 @@ describe "Plugin" do
         Application.stub!(:install_on_load?).and_return true        
       end
       it "should call install on each of the instances after calling install_cloud" do
+        @test.testing :install
         @instance.should_receive(:install)
         @master.install_cloud
       end

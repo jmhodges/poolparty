@@ -1,7 +1,11 @@
 module PoolParty
   class PluginSpecHelper
-    def self.define_stubs(num=1)
+    def self.define_stubs(klass, num=1)
       require File.dirname(__FILE__) + "/../../spec/helpers/ec2_mock"
+      
+      @klass = klass.send :new
+      klass.stub!(:new).and_return @klass
+      extend_klass(@klass)
       
       define_master
       @nodes = define_instances(num)
@@ -18,9 +22,15 @@ module PoolParty
       Provider.stub!(:install_poolparty).and_return true
       Provider.stub!(:install_userpackages).and_return true
 
-      [@master, @nodes]
+      [@klass, @master, @nodes]
     end
-
+    def self.extend_klass(klass)
+      klass.class.send :define_method, :testing do |except|
+        (klass.my_methods).each do |meth|
+          klass.stub!(meth.to_sym).and_return true
+        end
+      end
+    end
     def self.define_master
       @master ||= Master.new
     end

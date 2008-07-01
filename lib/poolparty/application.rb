@@ -43,8 +43,11 @@ module PoolParty
           op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['SECRET_ACCESS_KEY'])") { |key| default_options[:secret_access_key] = key }
           op.on('-I ami', '--image-id id', "AMI instance (default: 'ami-40bc5829')") {|id| default_options[:ami] = id }
           op.on('-k keypair', '--keypair name', "Keypair name (ENV['KEYPAIR_NAME'])") { |key| default_options[:keypair] = key }
-          op.on('-b bucket', '--bucket bucket', "Application bucket") { |bucket| default_options[:shared_bucket] = bucket }          
-          op.on('-D ec2 directory', '--ec2-dir dir', "Directory with ec2 data (default: '~/.ec2')") {|id| default_options[:ec2_dir] = id }
+          op.on('-b bucket', '--bucket bucket', "Application bucket") { |bucket| default_options[:shared_bucket] = bucket }
+          # //THIS IS WHERE YOU LEFT OFF
+          op.on('-D working directory', '--dir dir', "Working directory") { |d| default_options[:working_directory] = d }
+          
+          op.on('--ec2-dir dir', "Directory with ec2 data (default: '~/.ec2')") {|id| default_options[:ec2_dir] = id }
           op.on('-r names', '--services names', "Monitored services (default: '')") {|id| default_options[:services] = id }
           op.on('-c file', '--config-file file', "Config file (default: '')") {|file| default_options[:config_file] = file }
           op.on('-l plugin_dir', '--plugin-dir dir', "Plugin directory (default: '')") {|file| default_options[:plugin_dir] = file }
