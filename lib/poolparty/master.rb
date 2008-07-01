@@ -12,10 +12,10 @@ module PoolParty
     include FileWriter
     
     def initialize
-      super
+      super            
       
-      self.class.send :rules, :contract_when, Application.options.contract_when
-      self.class.send :rules, :expand_when, Application.options.expand_when
+      self.class.send :rules, :contract_when, Application.options.contract_when unless are_rules?(:contract_when)
+      self.class.send :rules, :expand_when, Application.options.expand_when unless are_rules?(:expand_when)
     end
     # Start the cloud
     def start_cloud!

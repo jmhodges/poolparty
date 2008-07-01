@@ -198,7 +198,7 @@ class DoubleClass
   after :print, :hello => "OutsideBindingClass"
   
   def print
-    puts string
+    string
   end
   def string
     @string ||= ""

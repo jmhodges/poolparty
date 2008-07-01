@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 describe "Application" do
   before(:each) do
     stub_option_load
+    Application.reset!
   end
   it "should be able to send options in the Application.options" do
     options({:optparse => {:banner => "hi"}})
@@ -42,9 +43,11 @@ describe "Application" do
   describe "User data" do
     before(:each) do
       @str = ":access_key: 3.14159\n:secret_access_key: pi"
+      Application.options = nil      
       Application.stub!(:open).with("http://169.254.169.254/latest/user-data").and_return(@str)
       @str.stub!(:read).and_return ":access_key: 3.14159\n:secret_access_key: pi"
-      Application.reset!
+      Application.default_options.stub!(:merge!).with({})                                                                                                                                                                                   
+      Application.default_options.stub!(:merge!).with({:access_key => 3.14159, :secret_access_key => "pi"})          
     end
     it "should try to load the user data into a yaml hash" do
       YAML.should_receive(:load).with(":access_key: 3.14159\n:secret_access_key: pi")
@@ -60,8 +63,9 @@ describe "Application" do
     it "should be able tp pull out the secret_access_key from the user-data" do
       Application.local_user_data[:secret_access_key].should == "pi"
     end
-    it "should overwrite the default_options when passing in to the instance data" do
+    it "should overwrite the default_options when passing in to the instance data" do      
       Application.stub!(:default_options).and_return({:access_key => 42})
+      Application.local_user_data      
       Application.options.access_key.should == 3.14159
     end
   end
@@ -71,12 +75,12 @@ describe "Application" do
   end
   it "should not read the config file if it is not passed and doesn't exist" do
     File.stub!(:file?).and_return false
-    YAML.should_not_receive(:load)
+    YAML.should_not_receive(:load).with("config/config.yml")
     Application.make_options
   end
   it "should not read the config file if it is passed and doesn't exist" do
     File.stub!(:file?).and_return false
-    YAML.should_not_receive(:load)
+    YAML.should_not_receive(:load).with("config/config.yml")
     Application.make_options(:config_file => "ted")
   end
 end

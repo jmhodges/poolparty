@@ -10,12 +10,12 @@ module PoolParty
       # The application options
       def options(opts={})
         @options ||= make_options(opts)        
-      end      
+      end
       # Make the options with the config_file overrides included
       # Default config file assumed to be at config/config.yml
       def make_options(opts={})
         loading_options = opts.delete(:optsparse) || {}
-        loading_options.merge!( {:argv => opts.delete(:argv)} )
+        loading_options.merge!( opts.delete(:argv) || {} )
         
         config_file_location = (default_options[:config_file] || opts[:config_file])        
         # If the config_file options are specified and not empty
@@ -29,7 +29,7 @@ module PoolParty
         
         default_options.merge!(opts)
         load_options!(loading_options) # Load command-line options        
-        default_options.merge!(local_user_data) unless local_user_data.nil? 
+        default_options.merge!(local_user_data) unless local_user_data.nil?
         
         OpenStruct.new(default_options)
       end
@@ -130,14 +130,13 @@ module PoolParty
           :secret_access_key => secret_access_key,
           :user_data => user_data}.to_yaml
       end
-      def local_user_data
-        @local_user_data ||=
+      def local_user_data        
         begin
-          @@timer.timeout(5.seconds) do
-            YAML.load(open("http://169.254.169.254/latest/user-data").read)
+          @@timer.timeout(3.seconds) do
+            @local_user_data ||=YAML.load(open("http://169.254.169.254/latest/user-data").read)
           end
         rescue Exception => e
-          {}
+          @local_user_data = {}
         end
       end
       # For testing purposes

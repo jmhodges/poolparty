@@ -22,7 +22,7 @@ module PoolParty
       @number = obj[:number] || 0 # Defaults to the master
       @status = obj[:status] || "running"
       @launching_time = obj[:launching_time] || Time.now
-      @keypair = obj[:keypair] || Application.keypair
+      @keypair = obj[:keypair] || Application.keypair rescue ""
     end
     
     # Host entry for this instance
