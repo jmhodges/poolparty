@@ -27,7 +27,7 @@ module PoolParty
     def self.extend_klass(klass)
       klass.class.send :define_method, :testing do |except|
         (klass.my_methods).each do |meth|
-          klass.stub!(meth.to_sym).and_return true
+          klass.stub!(meth.to_sym).and_return true unless meth.to_s == except.to_s
         end
       end
     end
