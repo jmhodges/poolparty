@@ -37,8 +37,8 @@ describe "Plugin" do
       @test, @master, @instances = PoolParty::PluginSpecHelper.define_stubs(TestPlugin, @num)
       @instance = @instances.first
     end
-    it "should should call echo_hosts after calling configure" do      
-      @test.should_receive(:echo_hosts).at_least(1)
+    it "should should call echo_hosts after calling configure" do
+      @test.should_receive_callback(:echo_hosts).at_least(1)
       @instance.install
     end
     describe "installation" do
@@ -46,8 +46,7 @@ describe "Plugin" do
         Application.stub!(:install_on_load?).and_return true        
       end
       it "should call install on each of the instances after calling install_cloud" do
-        @test.testing :email_updates # stubs the rest of the instances and returns true        
-        @test.should_receive(:echo_hosts).exactly(@num)
+        @test.testing :email_updates # stubs the rest of the instances and returns true
         @test.should_receive(:email_updates).exactly(@num)
         @master.install_cloud
       end

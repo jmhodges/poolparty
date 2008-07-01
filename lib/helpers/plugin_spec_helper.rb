@@ -8,21 +8,21 @@ module PoolParty
       extend_klass(@klass)
       
       define_master
-      @nodes = define_instances(num)
+      @instances = define_instances(num)
 
       @master.stub!(:execute_tasks).and_return true
       @master.stub!(:launch_minimum_instances).and_return true
       @master.stub!(:number_of_pending_instances).and_return 0
       @master.stub!(:get_node).with(0).and_return @instance0
 
-      @master.stub!(:nodes).and_return @nodes
+      @master.stub!(:nodes).and_return @instances
 
       Kernel.stub!(:system).and_return "true"
 
       Provider.stub!(:install_poolparty).and_return true
       Provider.stub!(:install_userpackages).and_return true
 
-      [@klass, @master, @nodes]
+      [@klass, @master, @instances]
     end
     def self.extend_klass(klass)
       klass.class.send :define_method, :testing do |except|
