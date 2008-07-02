@@ -93,7 +93,6 @@ For more help, check http://poolpartyrb.com
 == REQUIREMENTS:
 
 * aws/s3
-* SQS
 * aska
 * EC2
 
@@ -106,13 +105,14 @@ For more help, check http://poolpartyrb.com
 * v0.0.5 - Released!
 * v0.0.6 - Speed the configuration on the instances
 * v0.0.7 - Callback support
-* v0.0.8 - Add SQS task support
 
 == THANKS
 
 Ron Evans, http://deadprogrammersociety.blogspot.com/ for his enthusiasm
 Tim Goh, http://citrusbyte.com for sanity checks and thoughts
-Daniel Fischer, http://citrusbyte.com for initial site design
+PJ Cabrera, http://pjtrix.com for excitement, thoughts and contribution
+Blake Mizerany, for his support and ideas
+Nicolás 'Foca' Sanguinetti, http://nicolassanguinetti.info/
 
 == LICENSE:
 
