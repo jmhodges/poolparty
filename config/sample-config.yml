@@ -15,9 +15,9 @@
 :shared_bucket: "poolparty-app-data"
 :services: nginx
 :environment: production
-:contract_when:
+:contract_when: |
   web > 10
   cpu < 0.2
-:expand_when:
+:expand_when: |
   cpu > 0.85
-  web < 10
+  web < 5
