@@ -1,3 +1,4 @@
+v0.1.1 * Updated Scheduler to include ThreadPool for threaded safety
 v0.1.0 * Added poolnotify
        * Updating gem on github
 v0.0.9 * Changed configuration style to rsync all files across every instance
