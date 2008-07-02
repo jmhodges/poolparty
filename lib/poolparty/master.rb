@@ -112,10 +112,10 @@ module PoolParty
         # Daemonize only if we are not in the test environment
         run_thread_loop(:daemonize => !Application.test?) do
           add_task {PoolParty.message "Checking cloud"}
-          # add_task {launch_minimum_instances}
-          # add_task {reconfigure_cloud_when_necessary}
-          # add_task {scale_cloud!}
-          # add_task {check_stats}
+          add_task {launch_minimum_instances}
+          add_task {reconfigure_cloud_when_necessary}
+          add_task {scale_cloud!}
+          add_task {check_stats}
         end
       rescue Exception => e
         Process.kill("HUP", Process.pid)

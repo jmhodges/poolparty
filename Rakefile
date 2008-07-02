@@ -72,6 +72,14 @@ namespace(:pkg) do
   end
   desc "Update gemspec with the time"
   task :gemspec_update => :gemspec do
+    data = open("poolparty.gemspec").read
+    str = "Updated at #{Time.now.strftime("%I:%M%p, %D")}"
+    
+    if data.scan(/Updated at/).empty?
+      data = data.gsub(/you just installed PoolParty\!/, '\0'+" (#{str})")
+    end
+    
+    File.open("poolparty.gemspec", "w+") {|f| f << data }
   end
   desc "Get ready to release the gem"
   task :prerelease => :gemspec_update do
