@@ -40,7 +40,6 @@ describe "Plugin" do
       @instance = @instances.first
     end
     it "should should call echo_hosts after calling configure" do
-      @test.should_receive(:email_updates).once
       @test.should_receive_at_least_once(:write_out).with("email_updates")
       @instance.install
     end
