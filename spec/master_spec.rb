@@ -322,6 +322,8 @@ describe "Master" do
           @master.build_and_send_config_files_in_temp_directory
         end
         it "should tar the plugin_dir into the tmp directory" do
+          FileUtils.mkdir_p Application.plugin_dir rescue ""
+          
           Kernel.should_receive(:system).with("tar -czf #{@master.base_tmp_dir}/plugins.tar.gz #{File.basename(Application.plugin_dir)}").and_return true
           @master.build_and_send_config_files_in_temp_directory
         end
