@@ -3,13 +3,14 @@
 =end
 $:.unshift File.dirname(__FILE__)     # For use/testing when no gem is installed
 
+$TRACE = true
+
 # rubygems
 require 'rubygems'
 require "aws/s3"
 require "EC2"
 require "aska"
 require 'sprinkle'
-require 'thread'
 require "pp"
 require "tempfile"
 
@@ -18,6 +19,7 @@ begin
   require 'system_timer'
   @@timer = SystemTimer
 rescue LoadError
+  require 'thread'
   require 'timeout'
   @@timer = Timeout
 end
@@ -81,7 +83,6 @@ module PoolParty
   def register_monitor(*names)
     names.each do |name|
       unless registered_monitor?(name)
-        PoolParty.message "Registering monitor: #{name}"
         PoolParty::Monitors.extend name
       
         PoolParty::Master.send :include, name::Master
@@ -93,6 +94,15 @@ module PoolParty
   end
   def registered_monitor?(name); registered_monitors.include?(name); end
   def registered_monitors; @@registered_monitors ||= [];end
+  
+  def load
+    load_monitors
+    load_plugins
+  end  
+  def load_monitors
+    loc = File.directory?("#{user_dir}/monitors") ? "#{user_dir}/monitors" : "#{root_dir}/lib/poolparty/monitors"
+    Dir["#{loc}/*"].each {|f| require f}
+  end
   
   def load_plugins
     Dir["#{plugin_dir}/**/init.rb"].each {|a| require a} if File.directory?(plugin_dir)

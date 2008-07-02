@@ -39,10 +39,6 @@ describe "Scheduler" do
         @test.add_task {@klass.pop}        
         @stasks.tasks.size.should == 1
       end
-      it "should add each task as a thread" do
-        Thread.should_receive(:new).once
-        @stasks.push proc{puts "hi"}
-      end
     end
     describe "when running" do
       before(:each) do
@@ -56,8 +52,13 @@ describe "Scheduler" do
         @klass.should_receive(:pop)
         @test.run_thread_list
       end
-      it "should be able to add tasks and have the run_thread_list run" do
-        @test._tasker.class.should_receive(:synchronize).once        
+      it "should use the ThreadPool" do
+        p = ThreadPool.new(10)
+        ThreadPool.should_receive(:new).with(10).and_return p
+        @test.run_thread_list
+      end
+      it "should process each of the tasks" do
+        @klass.should_receive(:pop)
         @test.run_thread_list
       end
       it "should empty all the tasks after running them in the loop" do

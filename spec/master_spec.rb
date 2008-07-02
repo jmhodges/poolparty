@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/spec_helper'
+require File.dirname(__FILE__) + '/helpers/ec2_mock'
 
 describe "Master" do
   before(:each) do
@@ -138,12 +139,12 @@ describe "Master" do
           Master.requires_heartbeat?.should == false
         end
         it "should only install the stack on nodes that don't have it marked locally as installed" do
-          @master.nodes.each {|i| i.should_receive(:stack_installed?).and_return(true)}
+          @master.nodes.each {|i| i.should_receive(:stack_installed?).at_least(1).and_return(true)}
           @master.should_not_receive(:reconfigure_running_instances)
           @master.reconfigure_cloud_when_necessary
         end
         it "should install the stack on all the nodes (because it needs reconfiguring) if there is any node that needs the stack" do
-          @master.nodes.first.should_receive(:stack_installed?).and_return(false)
+          @master.nodes.first.should_receive(:stack_installed?).at_least(1).and_return(false)
           @master.should_receive(:configure_cloud).once.and_return(true)
           @master.reconfigure_cloud_when_necessary
         end
@@ -191,14 +192,18 @@ describe "Master" do
         before(:each) do
           Application.stub!(:install_on_load?).and_return true
           Sprinkle::Script.stub!(:sprinkle).and_return true
-          @master.stub!(:execute_tasks).and_return true
+          @master.stub!(:ssh).and_return true
+          @master.nodes.each do |node|
+            node.stub!(:run_now).and_return true
+          end
         end
         it "should install on the instances if the application says it should" do        
+          Provider.stub!(:install_userpackages)
           Provider.should_receive(:install_poolparty)
           @master.install_cloud
         end
         it "should execute the remote tasks on all of the instances" do
-          @master.should_receive(:execute_tasks).and_return true
+          @master.should_receive(:ssh).and_return true
           @master.install_cloud
         end
         describe "stubbing installation" do

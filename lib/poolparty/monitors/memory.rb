@@ -1,6 +1,8 @@
 =begin rdoc
   Basic monitor on the cpu stats
 =end
+require "poolparty"
+
 module Memory
   module Master
     # Get the average memory usage over the cloud
@@ -11,14 +13,19 @@ module Memory
 
   module Remote
     def memory
-      str = ssh("free -m | grep -i mem")
-      total_memory = str.split[1].to_f
-      used_memory = str.split[2].to_f
+      out = begin
+        str = run("free -m | grep -i mem")
 
-      used_memory / total_memory        
-    rescue
-      0.0
-    end    
+        total_memory = str.split[1].to_f
+        used_memory = str.split[2].to_f
+
+        used_memory / total_memory
+      rescue Exception => e
+        0.0
+      end
+      PoolParty.message "Memory: #{out}"
+      out  
+    end
   end
   
 end

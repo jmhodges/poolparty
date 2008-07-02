@@ -13,6 +13,9 @@ Starting #{PoolParty::Application.app_name ? "#{PoolParty::Application.app_name}
   Keypair: #{PoolParty::Application.keypair}
   Access key: #{PoolParty::Application.access_key}
   size: #{PoolParty::Application.size}
+  Monitors available:
+  --------------
+  #{PoolParty.registered_monitors.collect {|a| "   #{a}"}}
   Plugins:
   --------------
 #{Dir["#{PoolParty::Application.plugin_dir}/*"].collect {|a| "   #{File.basename(a)}"}.join("\n")}
@@ -27,8 +30,8 @@ Usage: pool [OPTIONS] {start | stop | list | clouds_list | maintain | restart | 
 -----------------------------------------------------------------
     EOU
     })
-
-PoolParty.load_plugins
+    
+PoolParty.load
 master = PoolParty::Master.new
 list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
 

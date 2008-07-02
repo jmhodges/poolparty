@@ -1,6 +1,7 @@
 =begin rdoc
   Handle the remoting aspects of the remote_instances
 =end
+require 'open4'
 module PoolParty
   module Remoter        
     module ClassMethods
@@ -66,10 +67,8 @@ module PoolParty
         run_array_of_tasks arr
       end
       
-      def run_now command
-        unless command.empty?
-          Kernel.system "#{self.class.ssh_string} #{self.ip} #{command.runnable}"
-        end
+      def run_now command        
+        run command unless command.empty?
       end
             
       def ssh_tasks;@ssh_tasks ||= [];end
@@ -105,6 +104,58 @@ module PoolParty
       end
       
       def set_hosts(c=nil)
+      end
+      
+      # Nearly Directly from vlad
+      def run command, on=self
+        cmd = [self.class.ssh_string, on.ip].compact
+        result = []
+
+        commander = cmd.join(" ") << " \"#{command.runnable}\""        
+        
+        pid, inn, out, err = Open4::popen4(commander)
+
+        inn.sync   = true
+        streams    = [out, err]
+        out_stream = {
+          out => $stdout,
+          err => $stderr,
+        }
+
+        # Handle process termination ourselves
+        status = nil
+        Thread.start do
+          status = Process.waitpid2(pid).last
+        end
+
+        until streams.empty? do
+          # don't busy loop
+          selected, = select streams, nil, nil, 0.1
+
+          next if selected.nil? or selected.empty?
+
+          selected.each do |stream|
+            if stream.eof? then
+              streams.delete stream if status # we've quit, so no more writing
+              next
+            end
+
+            data = stream.readpartial(1024)
+            out_stream[stream].write data
+
+            if stream == err and data =~ /^Password:/ then
+              inn.puts sudo_password
+              data << "\n"
+              $stderr.write "\n"
+            end
+
+            result << data
+          end
+        end
+
+        PoolParty.message "execution failed with status #{status.exitstatus}: #{cmd.join ' '}" unless status.success?
+
+        result.join
       end
       
     end

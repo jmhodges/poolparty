@@ -41,5 +41,20 @@ describe "Application options" do
       PoolParty.register_monitor TestMonitor
       PoolParty.register_monitor TestMonitor
     end
+    it "should try to load from the user directory before the root lib directory" do
+      File.should_receive_at_least_once(:directory?).with("#{user_dir}/monitors").and_return true
+      Dir.should_receive(:[]).with("#{user_dir}/monitors/*").and_return([])
+      PoolParty.load
+    end
+    it "should try to load from the root directory if the user directory monitors don't exist" do
+      File.should_receive_at_least_once(:directory?).with("#{user_dir}/monitors").and_return false
+      Dir.should_receive(:[]).with("#{Application.root_dir}/lib/poolparty/monitors/*").and_return([])
+      PoolParty.load
+    end
+    it "should load the monitors and the plugins" do
+      PoolParty.should_receive(:load_plugins)
+      PoolParty.should_receive(:load_monitors)
+      PoolParty.load
+    end
   end
 end

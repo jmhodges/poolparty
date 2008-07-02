@@ -49,8 +49,9 @@ module Spec
     module Methods
       def should_receive_at_least_once(sym, opts={}, &block)
         begin
-          __mock_proxy.add_message_expectation(opts[:expected_from] || caller(1)[0], sym.to_sym, opts, &block).at_least(1)
+          e = __mock_proxy.add_message_expectation(opts[:expected_from] || caller(1)[0], sym.to_sym, opts, &block).at_least(1)
           __mock_proxy.add_message_expectation(opts[:expected_from] || caller(1)[0], sym.to_sym, opts, &block).any_number_of_times
+          e
         end
       end
     end

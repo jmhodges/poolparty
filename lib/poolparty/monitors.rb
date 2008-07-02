@@ -9,5 +9,3 @@ module PoolParty
     end    
   end
 end
-
-Dir["monitors/*"].each {|f| require f}

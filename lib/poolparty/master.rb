@@ -5,7 +5,6 @@ module PoolParty
   class Master < Remoting
     include Aska
     include Callbacks
-    include Monitors
     # ############################
     include Remoter
     # ############################
@@ -82,9 +81,7 @@ module PoolParty
           sudo apt-get update --fix-missing
         EOE
         
-        execute_tasks do
-          ssh(update_apt_string)
-        end
+        ssh(update_apt_string)
         
         Provider.install_poolparty(cloud_ips)
         Provider.install_userpackages(cloud_ips)
@@ -101,6 +98,7 @@ module PoolParty
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances
+      puts "Instances not running: #{Application.minimum_instances - number_of_pending_and_running_instances}"
       request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances)
       nodes
     end
@@ -113,13 +111,14 @@ module PoolParty
         end
         # Daemonize only if we are not in the test environment
         run_thread_loop(:daemonize => !Application.test?) do
-          add_task {launch_minimum_instances} # If the base instances go down...
-          add_task {reconfigure_cloud_when_necessary}
-          add_task {scale_cloud!}
-          add_task {check_stats}
+          add_task {PoolParty.message "Checking cloud"}
+          # add_task {launch_minimum_instances}
+          # add_task {reconfigure_cloud_when_necessary}
+          # add_task {scale_cloud!}
+          # add_task {check_stats}
         end
       rescue Exception => e
-        puts "There was an error: #{e.nice_message}"
+        Process.kill("HUP", Process.pid)
       end
     end
     alias_method :start_monitor, :start_monitor!
@@ -127,6 +126,8 @@ module PoolParty
     end
     # Sole purpose to check the stats, mainly in a plugin
     def check_stats
+      str = registered_monitors.collect {|m| "#{m}"}
+      PoolParty.message "Monitors: #{str.join(", ")}"
     end
     # Add an instance if the cloud needs one ore terminate one if necessary
     def scale_cloud!
@@ -139,6 +140,7 @@ module PoolParty
     # This is a basic check against the local store of the instances that have the 
     # stack installed.
     def reconfigure_cloud_when_necessary
+      PoolParty.message "#{number_of_unconfigured_nodes} unconfigured nodes"
       configure_cloud if number_of_unconfigured_nodes > 0
     end
     def number_of_unconfigured_nodes
@@ -219,12 +221,18 @@ chmod +x #{script_file}
     end
     # Add an instance if the load is high
     def add_instance_if_load_is_high
-      grow_by(1) if expand?
+      if expand?
+        PoolParty.message "Cloud needs expansion"
+        grow_by(1)
+      end
     end
     alias_method :add_instance, :add_instance_if_load_is_high
     # Teardown an instance if the load is pretty low
     def terminate_instance_if_load_is_low      
-      shrink_by(1) if contract?
+      if contract?
+        PoolParty.message "Cloud to shrink"
+        shrink_by(1)
+      end
     end
     alias_method :terminate_instance, :terminate_instance_if_load_is_low
     # FOR MONITORING

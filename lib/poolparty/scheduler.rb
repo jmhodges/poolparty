@@ -10,27 +10,17 @@ module PoolParty
     # Synchronize the running threaded tasks
     def run
       unless tasks.empty?
-        self.class.synchronize do
-          tasks.reject!{|a|            
-            begin
-              a.run
-              a.join
-            rescue Exception => e    
-              puts "There was an error in the task: #{e} #{e.backtrace.join("\n")}"
-            end
-            true
-          }
+        pool = ThreadPool.new(10)
+        tasks.each do |task|
+          puts "Running #{task}"
+          pool.process {task.call}
         end
+        pool.join()
       end
     end
     # Add a task in a new thread
     def <<(a, *args)
-      thread = Thread.new(a) do |task|
-        Thread.stop rescue ""
-        Thread.current[:callee] = task
-        a.call args
-      end
-      tasks << thread
+      tasks << a
     end
     alias_method :push, :<<
     # In the ThreadSafeInstance
@@ -45,7 +35,7 @@ module PoolParty
     end
     # Add a task to the new threaded block
     def add_task(&blk)
-      _tasker.push proc{blk.call}
+      _tasker.push blk
     end
     # Grab the polling_time
     def interval
@@ -74,16 +64,17 @@ module PoolParty
     end
     # Run the loop and wait the amount of time between running the tasks
     # You can send it daemonize => true and it will daemonize
-    def run_thread_loop(opts={}, &block)
+    def run_thread_loop(opts={}, &blk)
       block = lambda {        
         loop do
           begin
             yield if block_given?
+            add_task { Signal.trap("INT") { exit } }            
             run_thread_list
+            PoolParty.message "Waiting: #{interval}"
             wait interval
-            reset!
           rescue Exception => e
-            puts "There was an error in the run_thread_loop: #{e}"
+            Process.kill("INT", Process.pid)
           end
         end
       }
@@ -93,10 +84,6 @@ module PoolParty
     
     def run_thread_list      
       run_threads
-    end
-    # Reset
-    def reset!
-      cached_variables.each {|cached| cached = nil }
     end
         
   end

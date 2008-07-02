@@ -1,6 +1,8 @@
 =begin rdoc
   Basic monitor on the cpu stats
 =end
+require "poolparty"
+
 module Cpu
   module Master
     def cpu
@@ -9,8 +11,10 @@ module Cpu
   end
 
   module Remote
-    def cpu
-      ssh("uptime").split(/\s+/)[-3].to_f rescue 0.0
+    def cpu      
+      str = run("uptime").split(/\s+/)[-3].to_f rescue 0.0
+      PoolParty.message "Cpu usage: #{str}"
+      str
     end
   end
 

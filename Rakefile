@@ -66,25 +66,20 @@ namespace(:pkg) do
   desc "Build gemspec for github"
   task :gemspec => :manifest do
     require "yaml"
-    `rake gem`
+    `rake manifest gem`
     data = YAML.load(open("poolparty.gemspec").read).to_ruby
     File.open("poolparty.gemspec", "w+") {|f| f << data }
   end
   desc "Update gemspec with the time"
   task :gemspec_update => :gemspec do
-    data = open("poolparty.gemspec").read
-    str = "Updated at #{Time.now.strftime("%I:%M%p, %D")}"
-    
-    if data.scan(/Updated at/).empty?
-      data = data.gsub(/you just installed PoolParty\!/, '\0'+" (#{str})")
-    end
-    
-    File.open("poolparty.gemspec", "w+") {|f| f << data }
   end
-  desc "Release them gem to the gem server"
-  task :release => :gemspec_update do
+  desc "Get ready to release the gem"
+  task :prerelease => :gemspec_update do
     `git add .`
     `git ci -a -m "Updated gemspec for github"`
-    `git push gem`
+  end
+  desc "Release them gem to the gem server"
+  task :release => :prerelease do
+    `git push origin master`
   end
 end
