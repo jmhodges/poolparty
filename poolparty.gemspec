@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = %q{poolparty}
-  s.version = "0.1.0"
+  s.version = "0.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new("= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Ari Lerner"]
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://poolpartyrb.com}
   s.post_install_message = %q{
       
-      Get ready to jump in the pool, you just installed PoolParty! (Updated at 02:12PM, 07/02/08)
+      Get ready to jump in the pool, you just installed PoolParty! (Updated at 02:17PM, 07/02/08)
 
       Please check out the documentation for any questions or check out the google groups at
         http://groups.google.com/group/poolpartyrb
