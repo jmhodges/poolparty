@@ -184,7 +184,7 @@ module PoolParty
     end
     def update_plugin_string
       dir = File.basename(Application.plugin_dir)
-      "mkdir -p #{dir} && tar -zxf plugins.tar.gz -C #{dir}"
+      "if [[ -f plugins.tar.gz ]]; then mkdir -p #{dir} && tar -zxf plugins.tar.gz -C #{dir}; fi"
     end
     # Is this the master and if not, is the master running?
     def is_not_master_and_master_is_not_running?

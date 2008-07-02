@@ -93,10 +93,10 @@ describe "Master" do
       open(@master.build_hosts_file_for(@instance).path).read.should == "127.0.0.1 node0\n127.0.0.1 localhost.localdomain localhost ubuntu\n127.0.0.2 node1\n127.0.0.3 node2"
     end
     it "should be able to build a hosts file for a specific instance" do
-      open(@master.build_hosts_file_for(@instance).path).read.should =~ "127.0.0.1 node0"
+      open(@master.build_hosts_file_for(@instance).path).read.should =~ /127\.0\.0\.1 node0/
     end
     it "should be able to build a haproxy file" do
-      open(@master.build_haproxy_file.path).read.should =~ "server node0 127.0.0.1:#{Application.client_port}"
+      open(@master.build_haproxy_file.path).read.should =~ /server node0 127\.0\.0\.1:#{Application.client_port}/
     end
     it "should be able to reconfigure the instances (working on two files a piece)" do
       @master.should_receive(:remote_configure_instances).and_return true
@@ -148,6 +148,10 @@ describe "Master" do
           @master.reconfigure_cloud_when_necessary
         end
         describe "rsync'ing the files to the instances" do
+          it "should cleanup the tmp directory before sending configuration to the nodes" do
+            @master.should_receive(:cleanup_tmp_directory).once
+            @master.build_and_send_config_files_in_temp_directory
+          end
           it "should receive send_config_files_to_nodes after it builds the config files in the temp directory" do
             @master.should_receive(:send_config_files_to_nodes).at_least(1)
             @master.build_and_send_config_files_in_temp_directory

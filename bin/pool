@@ -69,6 +69,7 @@ list.each do |cmd|
     master.request_termination_of_all_instances
     master.start_cloud!
   when "switch"
+    list.shift
     context = list.shift
     context ? `source ~/.#{context}_pool_keys` : puts("You must supply a context to switch to")
   else

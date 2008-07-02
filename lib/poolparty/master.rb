@@ -196,7 +196,7 @@ module PoolParty
     def cleanup_tmp_directory(c)
       Dir["#{base_tmp_dir}/*"].each {|f| FileUtils.rm_rf f} if File.directory?("tmp/")
     end
-    before :build_and_send_config_files_in_temp_directory, :cleanup_tmp_directory    
+    before :build_and_send_config_files_in_temp_directory, :cleanup_tmp_directory
     # Send the files to the nodes
     def send_config_files_to_nodes(c)
       run_array_of_tasks(rsync_tasks("#{base_tmp_dir}/*", "#{remote_base_tmp_dir}"))
