@@ -111,7 +111,7 @@ For more help, check http://poolpartyrb.com
 Ron Evans, http://deadprogrammersociety.blogspot.com/ for his enthusiasm
 Tim Goh, http://citrusbyte.com for sanity checks and thoughts
 PJ Cabrera, http://pjtrix.com for excitement, thoughts and contribution
-Blake Mizerany, for his support and ideas
+Blake Mizerany, http://sinatrarb.com/, for his support and ideas
 Nicolás 'Foca' Sanguinetti, http://nicolassanguinetti.info/
 
 == LICENSE:
