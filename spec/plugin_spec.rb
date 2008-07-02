@@ -10,13 +10,15 @@ class TestPlugin < PoolParty::Plugin
     "start"
   end
   def echo_hosts(caller)
-    "hosts"
+    write_out "hosts"
   end
   def email_updates(caller)
-    "email"
+    write_out "email_updates"
   end
   def takss(tasks)
     "tasks"
+  end
+  def write_out(msg="")    
   end
 end
 
@@ -38,7 +40,8 @@ describe "Plugin" do
       @instance = @instances.first
     end
     it "should should call echo_hosts after calling configure" do
-      @test.should_receive_callback(:echo_hosts).at_least(1)
+      @test.should_receive(:email_updates).once
+      @test.should_receive_at_least_once(:write_out).with("email_updates")
       @instance.install
     end
     describe "installation" do
@@ -46,8 +49,8 @@ describe "Plugin" do
         Application.stub!(:install_on_load?).and_return true        
       end
       it "should call install on each of the instances after calling install_cloud" do
-        @test.testing :email_updates # stubs the rest of the instances and returns true
         @test.should_receive(:email_updates).exactly(@num)
+        @test.should_receive(:echo_hosts).exactly(@num)
         @master.install_cloud
       end
       it "should call email_updates after calling install" do

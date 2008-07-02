@@ -5,7 +5,6 @@ module PoolParty
       
       @klass = klass.send :new
       klass.stub!(:new).and_return @klass
-      extend_klass(@klass)
       
       define_master
       @instances = define_instances(num)
@@ -24,13 +23,6 @@ module PoolParty
 
       [@klass, @master, @instances]
     end
-    def self.extend_klass(klass)
-      klass.class.send :define_method, :testing do |except|
-        (klass.my_methods).each do |meth|
-          klass.stub!(meth.to_sym).and_return true unless meth.to_s == except.to_s
-        end
-      end
-    end
     def self.define_master
       @master ||= Master.new
     end
@@ -46,6 +38,19 @@ module PoolParty
             @instance#{i}.stub!(:ip).and_return "127.0.0.#{i}"
           EOE
           arr << eval("@instance#{i}")
+        end
+      end
+    end
+  end
+end
+
+module Spec
+  module Mocks
+    module Methods
+      def should_receive_at_least_once(sym, opts={}, &block)
+        begin
+          __mock_proxy.add_message_expectation(opts[:expected_from] || caller(1)[0], sym.to_sym, opts, &block).at_least(1)
+          __mock_proxy.add_message_expectation(opts[:expected_from] || caller(1)[0], sym.to_sym, opts, &block).any_number_of_times
         end
       end
     end
