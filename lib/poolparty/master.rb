@@ -98,7 +98,6 @@ module PoolParty
     end
     # Launch the minimum number of instances. 
     def launch_minimum_instances
-      puts "Instances not running: #{Application.minimum_instances - number_of_pending_and_running_instances}"
       request_launch_new_instances(Application.minimum_instances - number_of_pending_and_running_instances)
       nodes
     end
@@ -144,6 +143,7 @@ module PoolParty
       configure_cloud if number_of_unconfigured_nodes > 0
     end
     def number_of_unconfigured_nodes
+      # TODO: Find a better way to tell if the nodes are configured.
       nodes.reject {|a| a.stack_installed? }.size
     end
     def grow_by(num=1)
@@ -156,8 +156,10 @@ module PoolParty
     end
     def shrink_by(num=1)
       num.times do |i|
+        # Get the last node that is not the master
         node = nodes.reject {|a| a.master? }[-1]
-        request_termination_of_instance(node.instance_id) if node        
+        res = request_termination_of_instance(node.instance_id) if node
+        PoolParty.message "#{res ? "Could" : "Could not"} shutdown instance"
       end
       wait_for_all_instances_to_terminate
       configure_cloud

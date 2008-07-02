@@ -211,7 +211,7 @@ module PoolParty
       end
     end
     def stack_installed?
-      @stack_installed ||= false
+      @stack_installed ||= run("cat ~/.installed")
     end
     def mark_installed(caller=nil)
       run_now("echo 'installed' > ~/.installed")

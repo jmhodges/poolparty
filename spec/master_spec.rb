@@ -104,8 +104,8 @@ describe "Master" do
       @master.stub!(:number_of_unconfigured_nodes).and_return 1
       @master.reconfigure_cloud_when_necessary
     end
-    it "should return the number of unconfigured nodes when asked" do
-      @master.nodes.each {|node| node.stub!(:stack_installed?).and_return(true) unless node.master? }
+    it "should return the number of unconfigured nodes when asked" do      
+      @master.nodes.each {|node| node.stub!(:stack_installed?).and_return(node.master? ? false : true) }
       @master.number_of_unconfigured_nodes.should == 1
     end
     it "should be able to return the size of the cloud" do
@@ -122,6 +122,13 @@ describe "Master" do
       describe "sending configuration files" do
         before(:each) do
           Master.stub!(:new).and_return(@master)
+          @master.stub!(:ssh)
+          @master.stub!(:scp)
+          @master.nodes.each do |node|
+            node.stub!(:ssh)
+            node.stub!(:scp)
+            node.stub!(:stack_installed?).and_return true
+          end
         end
         it "should be able to build a heartbeat resources file for the specific node" do
           open(@master.build_heartbeat_resources_file_for(@master.nodes.first).path).read.should == "node0 127.0.0.1\nnode1 127.0.0.2"
@@ -133,7 +140,7 @@ describe "Master" do
           Master.requires_heartbeat?.should == true
         end
         it "should be able to say that heartbeat is not necessary if there is 1 server" do
-          @master.stub!(:list_of_nonterminated_instances).and_return([
+          @master.stub!(:nodes).and_return([
               {:instance_id => "i-5849ba", :ip => "127.0.0.1", :status => "running"}
             ])
           Master.requires_heartbeat?.should == false
@@ -256,6 +263,10 @@ describe "Master" do
         @master.should_receive(:request_termination_of_instance).and_return(true)
         @master.terminate_instance_if_load_is_low
       end
+      it "should launch the minimum_instances when the minimum aren't launched"
+      it "should reconfigure the cloud if it's necessary to do so" 
+      it "should try to scale the cloud when monitoring"
+      it "should check the stats of the cloud"
     end
     describe "expanding and contracting" do
       it "should be able to say that it should not contract" do            

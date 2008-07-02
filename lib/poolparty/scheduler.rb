@@ -9,15 +9,18 @@ module PoolParty
     end
     # Synchronize the running threaded tasks
     def run
-      unless tasks.empty?
+      unless tasks.empty? && !running?
+        running = true
         pool = ThreadPool.new(10)
-        tasks.each do |task|
-          puts "Running #{task}"
+        tasks.reject! do |task|
           pool.process {task.call}
         end
-        pool.join()
+        pool.join() # When all the tasks are done
+        running = false
       end
     end
+    def running?;@running == true;end
+    def running;@running ||= false;end
     # Add a task in a new thread
     def <<(a, *args)
       tasks << a
