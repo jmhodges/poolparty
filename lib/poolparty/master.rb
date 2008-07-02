@@ -85,6 +85,7 @@ module PoolParty
         execute_tasks do
           ssh(update_apt_string)
         end
+        
         Provider.install_poolparty(cloud_ips)
         Provider.install_userpackages(cloud_ips)
         
