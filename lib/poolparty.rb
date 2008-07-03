@@ -95,7 +95,7 @@ module PoolParty
   def registered_monitor?(name); registered_monitors.include?(name); end
   def registered_monitors; @@registered_monitors ||= [];end
   
-  def load
+  def load_app
     load_monitors
     load_plugins
   end  

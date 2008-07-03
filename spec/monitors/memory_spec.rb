@@ -26,12 +26,12 @@ describe "monitors" do
       end
     end
     describe "remote instance" do
-      it "should try to ssh into the remote instance" do
-        @instance.should_receive(:ssh).once.with("free -m | grep -i mem")
+      it "should try to run into the remote instance" do
+        @instance.should_receive(:run).once.with("free -m | grep -i mem")
         @instance.memory
       end
       it "should be able to find the exact amount of time the processor has been up" do
-        @instance.stub!(:ssh).once.with("free -m | grep -i mem").and_return("Mem:          1700         546       1644          0          2         18")
+        @instance.stub!(:run).once.with("free -m | grep -i mem").and_return("Mem:          1700         546       1644          0          2         18")
         @instance.memory.round_to(2).should == 0.32
       end
     end

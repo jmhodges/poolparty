@@ -27,12 +27,12 @@ describe "monitors" do
       end
     end
     describe "remote instance" do
-      it "should try to ssh into the remote instance" do
-        @instance.should_receive(:ssh).once.with("httperf --server localhost --port #{Application.client_port} --num-conn 3 --timeout 5 | grep 'Request rate'")
+      it "should try to run into the remote instance" do
+        @instance.should_receive(:run).once.with("httperf --server localhost --port #{Application.client_port} --num-conn 3 --timeout 5 | grep 'Request rate'")
         @instance.web
       end
       it "should be able to find the exact amount of time the processor has been up" do
-        @instance.stub!(:ssh).once.and_return("Request rate: 1.5 req/s (649.9 ms/req)")
+        @instance.stub!(:run).once.and_return("Request rate: 1.5 req/s (649.9 ms/req)")
         @instance.web.round_to(2).should == 1.5
       end
     end

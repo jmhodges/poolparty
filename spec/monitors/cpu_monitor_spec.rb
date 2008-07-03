@@ -27,11 +27,11 @@ describe "monitors" do
     end
     describe "remote instance" do
       it "should try to ssh into the remote instance" do
-        @instance.should_receive(:ssh).once.with("uptime")
+        @instance.should_receive(:run).once.with("uptime")
         @instance.cpu
       end
       it "should be able to find the exact amount of time the processor has been up" do
-        @instance.stub!(:ssh).once.with("uptime").and_return("18:55:31 up 5 min,  1 user,  load average: 0.32, 0.03, 0.00")
+        @instance.stub!(:run).once.with("uptime").and_return("18:55:31 up 5 min,  1 user,  load average: 0.32, 0.03, 0.00")
         @instance.cpu.should == 0.32
       end
     end

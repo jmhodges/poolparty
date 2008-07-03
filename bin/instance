@@ -13,7 +13,7 @@ Usage: instance [OPTIONS] { #{commandables.join(" | ")} }
     EOU
     })
     
-PoolParty.load
+PoolParty.load_app
 
 master = PoolParty::Master.new
 list = PoolParty::Optioner.parse(ARGV.dup, %w(-v --verbose))

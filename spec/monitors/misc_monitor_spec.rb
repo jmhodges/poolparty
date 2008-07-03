@@ -40,7 +40,7 @@ describe "monitors (random, to spec the inclusion)" do
       end
     end
     describe "remote instance" do
-      it "should try to ssh into the remote instance" do
+      it "should try to run into the remote instance" do
         @instance.db.should == 5.0
       end
       it "should be able to find the exact amount of time the processor has been up" do
