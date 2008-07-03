@@ -334,7 +334,7 @@ describe "Master" do
         end
         it "should copy the cloud_master_takeover script to the tmp directory" do
           @master.should_receive(:get_config_file_for).at_least(1).and_return "true"
-          File.should_receive(:copy).exactly(3).and_return true
+          File.should_receive(:copy).at_least(3).and_return true
           @master.build_and_send_config_files_in_temp_directory
         end
         it "should tar the plugin_dir into the tmp directory" do
