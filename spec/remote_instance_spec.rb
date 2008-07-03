@@ -82,7 +82,7 @@ describe "remote instance" do
         end
         it "should untar and move plugin directories around" do
           dir = File.basename Application.plugin_dir
-          @instance.update_plugin_string.should == "mkdir -p #{dir} && tar -zxf plugins.tar.gz -C #{dir}"
+          @instance.update_plugin_string.should == "if [[ -f plugins.tar.gz ]]; then mkdir -p #{dir} && tar -zxf plugins.tar.gz -C #{dir}; fi"
         end
     end
   end  
@@ -121,7 +121,7 @@ describe "remote instance" do
     
     describe "when installing the poolparty software" do
       before(:each) do
-        @instance.stub!(:run_now).and_return ""
+        @instance.stub!(:run).and_return false
       end
       it "should be able to detect if the stack_installed? == false" do
         @instance.stack_installed?.should == false

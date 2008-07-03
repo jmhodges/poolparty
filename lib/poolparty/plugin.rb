@@ -34,7 +34,7 @@ module PoolParty
     def self.install_package_string(str)
       PoolParty::Provider.define_user_package str
     end
-    
+        
     def self.define_package_string(str)
       PoolParty::Provider.define_user_install str
     end
