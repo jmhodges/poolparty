@@ -5,8 +5,12 @@ describe "Application" do
     stub_option_load
     Application.reset!
   end
-  it "should be able to send options in the Application.options" do
-    options({:optparse => {:banner => "hi"}})
+  describe "command line options" do
+    it "should destroy the default options with the commandline options" do
+      ARGV << ["-k", "testappkeypair"]
+      ARGV.should_receive(:dup).and_return ARGV
+      PoolParty.options.keypair.should == "testappkeypair"      
+    end
   end
   it "should have the root_dir defined" do
     PoolParty.root_dir.should_not be_nil
@@ -46,8 +50,8 @@ describe "Application" do
       Application.options = nil      
       Application.stub!(:open).with("http://169.254.169.254/latest/user-data").and_return(@str)
       @str.stub!(:read).and_return ":access_key: 3.14159\n:secret_access_key: pi"
-      Application.default_options.stub!(:merge!).with({})                                                                                                                                                                                   
-      Application.default_options.stub!(:merge!).with({:access_key => 3.14159, :secret_access_key => "pi"})          
+      # Application.default_options.stub!(:merge!).with({})                                                                                                                                                                                   
+      # Application.default_options.stub!(:merge!).with({:access_key => 3.14159, :secret_access_key => "pi"})
     end
     it "should try to load the user data into a yaml hash" do
       YAML.should_receive(:load).with(":access_key: 3.14159\n:secret_access_key: pi")

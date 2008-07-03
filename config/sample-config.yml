@@ -8,7 +8,7 @@
 :minimum_instances: 2
 :maximum_instances: 3
 :ec2_dir: "/Users/auser/.ec2"
-:keypair: auser
+:keypair: testappkeypair
 :os: ubuntu
 :host_port: 80
 :client_port: 8001

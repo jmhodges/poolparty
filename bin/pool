@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
-require 'rubygems'
-$:.unshift(File.join(File.dirname(__FILE__), "lib"))
-require 'poolparty'
+$:.unshift(File.join(File.dirname(__FILE__)))
+require 'lib/poolparty'
 
 def display_config_data
   PoolParty.message <<-EOM
@@ -16,6 +15,7 @@ Starting #{PoolParty::Application.app_name ? "#{PoolParty::Application.app_name}
   Monitors available:
   --------------
   #{PoolParty.registered_monitors.collect {|a| "   #{a}"}}
+  
   Plugins:
   --------------
 #{Dir["#{PoolParty::Application.plugin_dir}/*"].collect {|a| "   #{File.basename(a)}"}.join("\n")}
@@ -30,7 +30,7 @@ Usage: pool [OPTIONS] {start | stop | list | clouds_list | maintain | restart | 
 -----------------------------------------------------------------
     EOU
     })
-    
+
 PoolParty.load
 master = PoolParty::Master.new
 list = PoolParty::Optioner.parse(ARGV.dup, %w(-v))
