@@ -51,7 +51,7 @@ module PoolParty
     end
     
     def self.plugin_dirs
-      Dir["#{PoolParty.user_dir}/vendor/*"]
+      Dir["#{PoolParty.user_dir}/plugin/*"]
     end
         
     def self.plugin_directory(path)
@@ -61,7 +61,7 @@ module PoolParty
       FileUtils.mkdir_p base_plugin_dir rescue ""
     end
     def self.base_plugin_dir
-      File.join(PoolParty.root_dir, "vendor")
+      File.join(PoolParty.root_dir, "plugin")
     end
   end
 end

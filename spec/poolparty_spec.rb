@@ -12,7 +12,7 @@ describe "Application options" do
     stub_option_load
   end
   it "should be able to say that the plugin directory is the current directory" do
-    File.basename(PoolParty.plugin_dir).should == "vendor"
+    File.basename(PoolParty.plugin_dir).should == "plugin"
   end
   it "should not load plugins if the directory doesn't exist" do
     File.stub!(:directory?).with(plugin_dir).and_return false
