@@ -112,7 +112,7 @@ module PoolParty
           :expand_when => "web < 1.5\n memory > 0.85",
           :contract_when => "cpu < 0.20\n memory < 0.10",
           :os => "ubuntu",
-          :plugin_dir => "plugin",
+          :plugin_dir => "plugins",
           :install_on_load => false,
           :working_directory => Dir.pwd
         }

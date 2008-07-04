@@ -112,7 +112,7 @@ module PoolParty
     @@installed_plugins = nil
   end
   def plugin_dir
-    "#{user_dir}/plugin"
+    "#{user_dir}/plugins"
   end
   def read_config_file(filename)
     return {} unless filename
