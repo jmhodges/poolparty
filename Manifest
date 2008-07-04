@@ -98,3 +98,15 @@ spec/remoting_spec.rb
 spec/scheduler_spec.rb
 spec/spec_helper.rb
 spec/string_spec.rb
+spec/tmp/authkeys
+spec/tmp/cloud_master_takeover
+spec/tmp/ha.cf
+spec/tmp/haproxy
+spec/tmp/monitrc
+spec/tmp/node0-configuration
+spec/tmp/node0-hosts
+tmp/authkeys
+tmp/cloud_master_takeover
+tmp/ha.cf
+tmp/haproxy
+tmp/monitrc
