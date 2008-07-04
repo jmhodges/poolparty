@@ -25,7 +25,7 @@ module PoolParty
           require "yaml"
           # Try loading the file if it exists
           filedata = File.open("#{config_file_location}").read if File.file?("#{config_file_location}")
-          default_options.merge!( YAML.load(filedata) ) if filedata
+          default_options.merge!( YAML.load(filedata) ) if filedata rescue ""
         end
         # We want the command-line to overwrite the config file
         default_options.merge!(local_user_data) unless local_user_data.nil?        
