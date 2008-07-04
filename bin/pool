@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 $:.unshift(File.join(File.dirname(__FILE__)))
-require 'lib/poolparty'
+require 'poolparty'
 
 def display_config_data
   PoolParty.message <<-EOM
