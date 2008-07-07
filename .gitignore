@@ -8,3 +8,4 @@ config/config.yml
 vendor
 tmp
 tmp/*
+spec/tmp
