@@ -146,7 +146,10 @@ module PoolParty
       # Idiom:
       #  /Users/username/.ec2/id_rsa-name
       def keypair_path
-        "#{ec2_dir}/id_rsa#{keypair ? "-#{keypair}" : "" }"
+        "#{ec2_dir}/#{keypair_name}"
+      end
+      def keypair_name
+        "id_rsa#{keypair ? "-#{keypair}" : "" }"
       end
       # Are we in development or test mode
       %w(development production test).each do |env|

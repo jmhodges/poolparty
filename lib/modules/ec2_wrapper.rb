@@ -14,7 +14,7 @@ module PoolParty
           :user_data => "#{Application.launching_user_data}",
           :minCount => 1,
           :maxCount => 1,
-          :key_name => Application.keypair,
+          :key_name => Application.keypair_name,
           :size => "#{Application.size}")
         begin
           item = instance#.instancesSet.item

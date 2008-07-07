@@ -11,7 +11,7 @@ module PoolParty
     def define_tasks
       # Run the command on the local system
       def run(cmd)
-        system(cmd.runnable)
+        Kernel.system(cmd.runnable)
       end
       # Basic setup action
       def setup_application
@@ -19,7 +19,7 @@ module PoolParty
       end
       
       # Require the poolparty specific tasks
-      Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].each { |t| load t }
+      Dir["#{File.expand_path(File.dirname(__FILE__))}/tasks/*.rake"].each { |t| load t }
       
       Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| load "#{t}" }
       

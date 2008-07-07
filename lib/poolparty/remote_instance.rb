@@ -90,7 +90,7 @@ module PoolParty
       <<-EOC
         mv #{remote_base_tmp_dir}/config.yml ~/.config
         mkdir -p ~/.ec2
-        mv #{remote_base_tmp_dir}/keypair ~/.ec2/id_rsa-#{Application.keypair}
+        mv #{remote_base_tmp_dir}/keypair ~/.ec2/#{Application.keypair_name}
       EOC
     end
     def configure_heartbeat

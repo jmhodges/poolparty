@@ -36,6 +36,7 @@ describe "Application" do
   it "should be able to say it's keypair path is in the $HOME/ directory" do
     Application.stub!(:ec2_dir).and_return("~/.ec2")
     Application.stub!(:keypair).and_return("poolparty")
+    Application.keypair_name.should == "id_rsa-poolparty"
     Application.keypair_path.should == "~/.ec2/id_rsa-poolparty"
   end
   it "should be able to show the version of the gem" do
