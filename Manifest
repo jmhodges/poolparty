@@ -110,3 +110,5 @@ tmp/cloud_master_takeover
 tmp/ha.cf
 tmp/haproxy
 tmp/monitrc
+tmp/node0-configuration
+tmp/node0-hosts
