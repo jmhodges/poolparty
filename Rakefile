@@ -25,7 +25,6 @@ begin
       *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
     }
   end
-  
 rescue LoadError => boom
   puts "You are missing a dependency required for meta-operations on this gem."
 end
