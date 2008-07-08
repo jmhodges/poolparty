@@ -1,5 +1,5 @@
 require 'rubygems'
-require "lib/poolparty"
+require "./lib/poolparty"
 begin
   require 'echoe'
   
