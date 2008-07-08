@@ -3,7 +3,7 @@ require "lib/poolparty"
 begin
   require 'echoe'
   
-  Echoe.new("auser-poolparty") do |s|
+  Echoe.new("poolparty") do |s|
     s.author = "Ari Lerner"
     s.email = "ari.lerner@citrusbyte.com"
     s.summary = "Run your entire application off EC2, managed and auto-scaling"
