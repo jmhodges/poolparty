@@ -98,13 +98,7 @@ For more help, check http://poolpartyrb.com
 
 == INSTALL:
 
-  gem install poolparty
-
-== ROADMAP
-
-* v0.0.5 - Released!
-* v0.0.6 - Speed the configuration on the instances
-* v0.0.7 - Callback support
+  gem install auser-poolparty
 
 == THANKS
 
