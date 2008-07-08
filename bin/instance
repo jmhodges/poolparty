@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 require 'rubygems'
 require 'optparse'
+gem 'auser-poolparty'
 require 'poolparty'
 require "fileutils"
 
