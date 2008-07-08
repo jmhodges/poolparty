@@ -20,12 +20,12 @@ Gem::Specification.new do |s|
       Please check out the documentation for any questions or check out the google groups at
         http://groups.google.com/group/poolpartyrb
 
-      Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!      
+      Don't forget to check out the plugin tutorial @ http://poolpartyrb.com for extending PoolParty!
 
       For more information, check http://poolpartyrb.com
       On IRC: 
-        irc.freenode.net
-        #poolpartyrb
+        irc.freenode.net / #poolpartyrb
+        
       *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
     }
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Poolparty", "--main", "README.txt"]
