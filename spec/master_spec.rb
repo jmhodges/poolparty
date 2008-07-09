@@ -157,7 +157,7 @@ describe "Master" do
         end
         describe "rsync'ing the files to the instances" do
           it "should cleanup the tmp directory before sending configuration to the nodes" do
-            @master.should_receive(:cleanup_tmp_directory).once
+            @master.should_receive(:cleanup_tmp_directory).at_least(1)
             @master.build_and_send_config_files_in_temp_directory
           end
           it "should receive send_config_files_to_nodes after it builds the config files in the temp directory" do

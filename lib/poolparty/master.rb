@@ -67,9 +67,10 @@ module PoolParty
       build_and_send_config_files_in_temp_directory
       remote_configure_instances
       
-      Master.with_nodes do |node|
+      nodes.each do |node|
         node.configure
       end
+      
     end
     def install_cloud(bool=false)
       if Application.install_on_load? || bool

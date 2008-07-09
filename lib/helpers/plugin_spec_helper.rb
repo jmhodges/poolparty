@@ -6,8 +6,10 @@ module PoolParty
       @klass = klass.send :new
       klass.stub!(:new).and_return @klass
       
-      define_master
+      @master = Master.new      
       @instances = define_instances(num)
+      
+      Master.stub!(:new).and_return @master
 
       @master.stub!(:execute_tasks).and_return true
       @master.stub!(:launch_minimum_instances).and_return true
@@ -22,9 +24,6 @@ module PoolParty
       Provider.stub!(:install_userpackages).and_return true
 
       [@klass, @master, @instances]
-    end
-    def self.define_master
-      @master ||= Master.new
     end
     def self.define_instances(num)
       # Too many gross evals
