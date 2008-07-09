@@ -95,8 +95,8 @@ module PoolParty
           :minimum_instances => 2,
           :maximum_instances => 4,
           :public_ip => "",
-          :access_key => ENV["AWS_ACCESS_KEY_ID"],
-          :secret_access_key => ENV["AWS_SECRET_ACCESS_ID"],
+          :access_key => ENV["AWS_ACCESS_KEY"],
+          :secret_access_key => ENV["AWS_SECRET_ACCESS"],
           :config_file => if ENV["CONFIG_FILE"] && !ENV["CONFIG_FILE"].empty?
             ENV["CONFIG_FILE"]
           elsif File.file?("config/config.yml")

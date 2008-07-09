@@ -8,8 +8,8 @@ namespace(:dev) do
   task :setup => [:init] do
     keyfilename = ".#{Application.keypair}_pool_keys"
     run <<-EOR
-      echo 'export AWS_ACCESS_KEY_ID=\"#{Application.access_key}\"' > $HOME/#{keyfilename}
-      echo 'export AWS_SECRET_ACCESS_ID=\"#{Application.secret_access_key}\"' >> $HOME/#{keyfilename}
+      echo 'export AWS_ACCESS_KEY=\"#{Application.access_key}\"' > $HOME/#{keyfilename}
+      echo 'export AWS_SECRET_ACCESS=\"#{Application.secret_access_key}\"' >> $HOME/#{keyfilename}
       echo 'export EC2_HOME=\"#{Application.ec2_dir}\"' >> $HOME/#{keyfilename}
       echo 'export KEYPAIR_NAME=\"#{Application.keypair}\"' >> $HOME/#{keyfilename}
       echo 'export CONFIG_FILE=\"#{Application.config_file}\"' >> $HOME/#{keyfilename}
