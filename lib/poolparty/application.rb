@@ -149,7 +149,7 @@ module PoolParty
         "#{ec2_dir}/#{keypair_name}"
       end
       def keypair_name
-        "#{keypair}"
+        "id_rsa-#{keypair}"
       end
       # Are we in development or test mode
       %w(development production test).each do |env|
