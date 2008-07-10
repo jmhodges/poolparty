@@ -18,7 +18,7 @@ package :rubygems do
   #   custom_install 'ruby setup.rb'
   # end
   apt %w( rubygems )
-  post :install, "gem update --system", "gem sources -a http://gems.github.com"
+  post :install, "sed -i s/require\ 'rubygems'/require\ 'rubygems'\nrequire\ 'rubygems\/gem_runner'/g", "gem update --system", "gem sources -a http://gems.github.com"
   requires :ruby
 end
 

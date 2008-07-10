@@ -18,11 +18,15 @@ module Sprinkle
     end
     
     class Gem < Installer
+      def platform(platform=nil)
+        @platform ||= platform
+      end
       protected
         def install_sequence
           cmd = "gem install -y #{gem}"
           cmd << " --version '#{version}'" if version
           cmd << " --source #{source}" if source
+          cmd << " --platform #{platform}" if platform
           cmd
         end
     end
