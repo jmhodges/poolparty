@@ -71,13 +71,13 @@ module PoolParty
         node.configure
       end      
     end
-    before :configure_cloud, :add_ssh_key
+    before :install_cloud, :add_ssh_key
     after :configure_cloud, :remove_ssh_key
     def add_ssh_key(i)
       Kernel.system("ssh-add #{Application.keypair_path}")
     end
     def remove_ssh_key(i)
-      Kernel.system("ssh-add -d #{Application.keypair_path}")
+      Kernel.system("ssh-add -d #{Application.keypair_name}")
     end
     def install_cloud(bool=false)
       if Application.install_on_load? || bool

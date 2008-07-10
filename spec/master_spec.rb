@@ -213,6 +213,14 @@ describe "Master" do
           @master.should_receive(:ssh).and_return true
           @master.install_cloud
         end
+        it "should store the ssh keypair before install" do
+          Kernel.should_receive(:system).with("ssh-add #{Application.keypair_path}").and_return true
+          @master.install_cloud
+        end
+        it "should delete the ssh keypair after configure_cloud" do
+          Kernel.should_receive(:system).with("ssh-add -d #{Application.keypair_name}").and_return true
+          @master.configure_cloud
+        end
         describe "stubbing installation" do
           before(:each) do
             @master.stub!(:execute_tasks).and_return true          
