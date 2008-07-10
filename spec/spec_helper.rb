@@ -32,7 +32,6 @@ def stub_option_load
     PoolParty.stub!(:timer).and_return Timeout
     PoolParty.timer.stub!(:timeout).and_return lambda {YAML.load(open("http://169.254.169.254/latest/user-data").read)}
     Application.reset!
-    Application.stub!(:keypair).and_return("keypair")
 end
 
 def wait_launch(time=5)

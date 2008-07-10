@@ -12,7 +12,7 @@ describe "Master remoting: " do
     Application.stub!(:verbose).and_return(false) # Turn off messaging
     
     @master = Master.new
-    @master.launch_new_instance!    
+    @master.launch_new_instance!
   end
   describe "starting" do
     before(:each) do
