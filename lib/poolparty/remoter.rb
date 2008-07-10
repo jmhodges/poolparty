@@ -6,7 +6,10 @@ module PoolParty
   module Remoter        
     module ClassMethods
       def ssh_string
-        "ssh -i '#{Application.keypair_path}' -o 'StrictHostKeyChecking=no' -l '#{Application.username}'"
+        (["ssh"] << ssh_array).join(" ")
+      end
+      def ssh_array
+        ["-o StrictHostKeyChecking=no", "-l '#{Application.username}'", "-i '#{Application.keypair_path}'"]
       end
       def rsync_string
         "rsync --delete -azP -e '#{ssh_string}' "

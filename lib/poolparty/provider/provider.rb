@@ -67,9 +67,8 @@ end
     def self.install_from_sprinkle_string
       <<-EOS
 deployment do
-  delivery :vlad do 
-    
-    set :ssh_flags, "#{RemoteInstance.ssh_string.gsub(/ssh/, '')}"
+  delivery :vlad do
+    set :user, "#{Application.username}"
     
     #{string_roles_from_ips}
   end
@@ -86,7 +85,7 @@ end
         
     def self.string_roles_from_ips
       Master.cloud_ips.collect do |ip|
-        "role :app, '#{ip}'"
+        "role :app, '#{Application.username}@#{ip}'"
       end.join("\n")
     end
     

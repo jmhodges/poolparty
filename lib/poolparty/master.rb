@@ -69,8 +69,15 @@ module PoolParty
       
       nodes.each do |node|
         node.configure
-      end
-      
+      end      
+    end
+    before :configure_cloud, :add_ssh_key
+    after :configure_cloud, :remove_ssh_key
+    def add_ssh_key(i)
+      Kernel.system("ssh-add #{Application.keypair_path}")
+    end
+    def remove_ssh_key(i)
+      Kernel.system("ssh-add -d #{Application.keypair_path}")
     end
     def install_cloud(bool=false)
       if Application.install_on_load? || bool
@@ -84,8 +91,8 @@ module PoolParty
         
         ssh(update_apt_string)
         
-        Provider.install_poolparty(cloud_ips)
-        Provider.install_userpackages(cloud_ips)
+        Provider.install_poolparty
+        Provider.install_userpackages
         
         # For plugins
         nodes.each do |node|
