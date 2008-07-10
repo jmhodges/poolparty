@@ -4,43 +4,37 @@ module PoolParty
       attr_accessor :user_packages
     end
     
-    def self.install_poolparty(ips)
-      @ips = ips
-      
-      load_str = load_packages
-            
+    def self.install_poolparty
       script=<<-EOS
-        #{load_str.join("\n")}        
-        
-        policy :poolparty, :roles => :app do
-          requires :git
-          requires :ruby
-          requires :failover
-          requires :proxy
-          requires :monit
-          requires :s3fs
-          requires :rsync          
-          requires :required_gems          
-        end
-        
-        #{install_from_sprinkle_string}
+#{load_packages.join("\n")}        
+
+policy :poolparty, :roles => :app do
+  requires :git
+  requires :ruby
+  requires :failover
+  requires :proxy
+  requires :monit
+  requires :s3fs
+  requires :rsync          
+  requires :required_gems          
+end
+
+#{install_from_sprinkle_string}
       EOS
       
       PoolParty.message "Installing required poolparty paraphernalia"
       Sprinkle::Script.sprinkle script
     end
     
-    def self.install_userpackages(ips)
-      @ips = ips
-      
+    def self.install_userpackages      
       script=<<-EOS
-        #{load_strings.join("\n")}
-        
-        policy :userpackages, :roles => :app do
-          #{user_packages.join("\n")}
-        end        
+#{load_strings.join("\n")}
 
-        #{install_from_sprinkle_string} 
+policy :userpackages, :roles => :app do
+  #{user_packages.join("\n")}
+end        
+
+#{install_from_sprinkle_string}
       EOS
 
       PoolParty.message "Installing user defined packages"
@@ -72,26 +66,26 @@ module PoolParty
     
     def self.install_from_sprinkle_string
       <<-EOS
-        deployment do
-          delivery :vlad do 
-            
-            set :ssh_cmd, "#{RemoteInstance.ssh_string}"
-            
-            #{string_roles_from_ips(@ips)}
-          end
-          
-          source do
-            prefix   '/usr/local'
-            archives '/root/sources'
-            builds   '/root/builds'
-          end
-            
-        end
+deployment do
+  delivery :vlad do 
+    
+    set :ssh_flags, "#{RemoteInstance.ssh_string.gsub(/ssh/, '')}"
+    
+    #{string_roles_from_ips}
+  end
+  
+  source do
+    prefix   '/usr/local'
+    archives '/root/sources'
+    builds   '/root/builds'
+  end
+    
+end
       EOS
     end
         
-    def self.string_roles_from_ips(ips)
-      ips.collect do |ip|
+    def self.string_roles_from_ips
+      Master.cloud_ips.collect do |ip|
         "role :app, '#{ip}'"
       end.join("\n")
     end

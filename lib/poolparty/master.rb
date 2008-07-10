@@ -400,6 +400,9 @@ chmod +x #{script_file}
       def get_master
         new.nodes[0]
       end
+      def cloud_ips
+        new.cloud_ips
+      end
       def get_next_node(node)
         new.get_next_node(node)
       end
