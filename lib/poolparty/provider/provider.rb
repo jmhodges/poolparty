@@ -13,7 +13,7 @@ module PoolParty
         #{load_str.join("\n")}        
         
         policy :poolparty, :roles => :app do
-          # requires :git
+          requires :git
           requires :ruby
           requires :failover
           requires :proxy

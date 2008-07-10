@@ -19,11 +19,20 @@ module PoolParty
       end
       
       # Require the poolparty specific tasks
-      Dir["#{File.expand_path(File.dirname(__FILE__))}/tasks/*.rake"].each { |t| load t }
-      
-      Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| puts "loading: #{t}";load t }
+      compiled_rakefile
       
       true
-    end    
+    end
+    
+    def compiled_rakefile
+      return @compiled_rakefile if @compiled_rakefile
+      
+      rake_str = []
+      
+      Dir["#{File.expand_path(File.dirname(__FILE__))}/tasks/*.rake"].each { |t| rake_str << open(t).read }
+      Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| rake_str << open(t).read }
+      
+      @compiled_rakefile = eval(rake_str.join("\n")) # Not ideal
+    end
   end
 end
