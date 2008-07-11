@@ -100,6 +100,10 @@ For more help, check http://poolpartyrb.com
 
   gem install auser-poolparty
 
+== ROADMAP
+
+v0.1.5 - Add AMI bundling tasks
+
 == THANKS
 
 Ron Evans, http://deadprogrammersociety.blogspot.com/ for his enthusiasm
