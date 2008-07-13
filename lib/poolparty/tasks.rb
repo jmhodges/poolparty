@@ -33,14 +33,12 @@ module PoolParty
     end
     
     def compiled_rakefile
-      return @compiled_rakefile if @compiled_rakefile
-      
       rake_str = []
       
       Dir["#{File.expand_path(File.dirname(__FILE__))}/tasks/*.rake"].each { |t| rake_str << open(t).read }
       Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| rake_str << open(t).read }
       
-      @compiled_rakefile = eval(rake_str.join("\n")) # Not ideal
+      @compiled_rakefile ||= eval(rake_str.join("\n")) # Not ideal
     end
   end
 end
