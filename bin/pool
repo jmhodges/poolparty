@@ -75,7 +75,8 @@ list.each do |cmd|
     list.shift
     context = list.shift
     keyfilename = ".#{context}_pool_keys"
-    context ? Kernel.system("source $HOME/#{keyfilename}") : puts("You must supply a context to switch to")
+    PoolParty.message "switching cloud to #{context}"
+    context ? Kernel.system("/bin/sh $HOME/#{keyfilename}") : puts("You must supply a context to switch to")
   else
     puts master.list
   end
