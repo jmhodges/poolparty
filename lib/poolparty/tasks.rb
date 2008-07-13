@@ -21,7 +21,15 @@ module PoolParty
       # Require the poolparty specific tasks
       compiled_rakefile
       
+      desc "Reload the static variables"
+      task :reload do
+        reload!
+      end
       true
+    end
+    
+    def reload!
+      @compiled_rakefile = nil
     end
     
     def compiled_rakefile
