@@ -21,7 +21,7 @@ namespace(:dev) do
   desc "Generate a keypair"
   task :setup_keypair => :init do
     unless File.file?(Application.keypair_path)
-      Application.keypair = "cloud"
+      Application.keypair ||= "cloud"
       run <<-EOR
         ec2-add-keypair cloud > #{Application.keypair_path}
         chmod 600 #{Application.keypair_path}
