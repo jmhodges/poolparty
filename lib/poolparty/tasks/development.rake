@@ -28,6 +28,11 @@ namespace(:dev) do
       EOR
     end
   end
+  desc "Just an argv test"
+  task :test => :init do
+    puts "---- Testing ----"
+    puts PoolParty.options(ARGV.dup)
+  end
   desc "Authorize base ports for application"
   task :authorize_ports => :init do
     run <<-EOR
