@@ -18,7 +18,7 @@ namespace(:dev) do
       source $HOME/#{keyfilename}
     EOR
   end
-  desc "Generate a keypair"
+  desc "Generate a new keypair"
   task :setup_keypair => :init do
     unless File.file?(Application.keypair_path)
       Application.keypair ||= "cloud"
