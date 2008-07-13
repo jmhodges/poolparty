@@ -41,8 +41,8 @@ module PoolParty
       @compiled_rakefile ||= eval(rake_str.join("\n")) # Not ideal
     end
     def plugin_rakefiles
-      Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|f| puts open(File.join(File.expand_path(File.dirname(t)), File.basename(t))).read }
-      Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| rake_str << open(File.join(File.expand_path(File.dirname(t)), File.basename(t))).read }
+      Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| load t }
+      # Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| rake_str << open(File.join(File.expand_path(File.dirname(t)), File.basename(t))).read }
     end
   end
 end
