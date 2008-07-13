@@ -104,7 +104,7 @@ module PoolParty
     end
     # Request termination of all instances regardless of their state (includes pending instances)
     def request_termination_of_all_instances
-      get_instances_description.each {|a| terminate_instance!(a[:instance_id])}
+      list_of_instances.each {|a| terminate_instance!(a[:instance_id])}
     end
     # Terminate instance by id
     def request_termination_of_instance(id)
