@@ -36,7 +36,7 @@ module PoolParty
       rake_str = []
       
       Dir["#{File.expand_path(File.dirname(__FILE__))}/tasks/*.rake"].each { |t| rake_str << open(t).read }
-      # Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| rake_str << open(t).read }
+      Dir["#{PoolParty.plugin_dir}/*/Rakefile"].each {|t| rake_str << open(File.join(File.expand_path(File.dirname(t)), File.basename(t))).read }
       
       @compiled_rakefile ||= eval(rake_str.join("\n")) # Not ideal
     end
