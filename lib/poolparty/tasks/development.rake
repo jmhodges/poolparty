@@ -24,7 +24,7 @@ namespace(:dev) do
       Application.keypair ||= "cloud"
       puts "-- setting up keypair named #{Application.keypair}"
       run <<-EOR
-        ec2-add-keypair cloud > #{Application.keypair_path}
+        ec2-add-keypair #{Application.keypair} > #{Application.keypair_path}
         chmod 600 #{Application.keypair_path}
       EOR
     end
