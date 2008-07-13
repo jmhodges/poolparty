@@ -5,14 +5,13 @@ namespace(:dev) do
   end
   # Setup a basic development environment for the user 
   desc "Setup development environment specify the config_file"
-  task :setup => [:init] do
+  task :setup => [:setup_pemkeys] do
     keyfilename = ".#{Application.keypair}_pool_keys"
     run <<-EOR
       echo 'export AWS_ACCESS_KEY=\"#{Application.access_key}\"' > $HOME/#{keyfilename}
       echo 'export AWS_SECRET_ACCESS=\"#{Application.secret_access_key}\"' >> $HOME/#{keyfilename}
       echo 'export EC2_HOME=\"#{Application.ec2_dir}\"' >> $HOME/#{keyfilename}
       echo 'export KEYPAIR_NAME=\"#{Application.keypair}\"' >> $HOME/#{keyfilename}
-      echo 'export CONFIG_FILE=\"#{Application.config_file}\"' >> $HOME/#{keyfilename}
       echo 'export EC2_PRIVATE_KEY=`ls ~/.ec2/#{Application.keypair}/pk-*.pem`;' >> $HOME/#{keyfilename}
       echo 'export EC2_CERT=`ls ~/.ec2/#{Application.keypair}/cert-*.pem`;' >> $HOME/#{keyfilename}
       source $HOME/#{keyfilename}
@@ -26,8 +25,18 @@ namespace(:dev) do
       run <<-EOR
         ec2-add-keypair #{Application.keypair} > #{Application.keypair_path}
         chmod 600 #{Application.keypair_path}
+        mkdir ~/.ec2/#{Application.keypair}
       EOR
     end
+  end
+  desc "Setup pem keys"
+  task :setup_pemkeys => :setup_keypair do
+    puts "Make sure you replace your ~/.ec2/#{Application.keypair}/*.pem keys"
+    run <<-EOR
+      mkdir ~/.ec2/#{Application.keypair}
+      touch ~/.ec2/#{Application.keypair}/cert-UPDATEME.pem
+      touch ~/.ec2/#{Application.keypair}/pk-UPDATEME.pem
+    EOR
   end
   desc "Just an argv test"
   task :test => :init do
