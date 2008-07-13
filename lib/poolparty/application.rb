@@ -37,8 +37,8 @@ module PoolParty
         require 'optparse'
         OptionParser.new do |op|
           op.banner = opts[:banner] if opts[:banner]
-          op.on('-A key', '--access-key key', "Ec2 access key (ENV['ACCESS_KEY'])") { |key| default_options[:access_key] = key }
-          op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['SECRET_ACCESS_KEY'])") { |key| default_options[:secret_access_key] = key }
+          op.on('-A key', '--access-key key', "Ec2 access key (ENV['AWS_ACCESS_KEY'])") { |key| default_options[:access_key] = key }
+          op.on('-S key', '--secret-access-key key', "Ec2 secret access key (ENV['AWS_SECRET_ACCESS'])") { |key| default_options[:secret_access_key] = key }
           op.on('-I ami', '--image-id id', "AMI instance (default: 'ami-40bc5829')") {|id| default_options[:ami] = id }
           op.on('-k keypair', '--keypair name', "Keypair name (ENV['KEYPAIR_NAME'])") { |key| default_options[:keypair] = key }
           op.on('-b bucket', '--bucket bucket', "Application bucket") { |bucket| default_options[:shared_bucket] = bucket }
