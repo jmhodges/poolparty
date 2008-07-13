@@ -15,7 +15,7 @@ module PoolParty
       end
       # Basic setup action
       def setup_application
-        PoolParty.options(ARGV.dup)
+        @options ||= PoolParty.options(ARGV.dup)
       end
       
       # Require the poolparty specific tasks
