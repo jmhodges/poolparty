@@ -84,6 +84,10 @@ describe "remote instance" do
           dir = File.basename Application.plugin_dir
           @instance.update_plugin_string.should == "if [[ -f plugins.tar.gz ]]; then mkdir -p #{dir} && tar -zxf plugins.tar.gz -C #{dir}; fi"
         end
+        it "should be able to build the configuration tasks each, as runnable" do
+          @instance.configure_tasks.should == ["mv ~/tmp/config.yml ~/.config >/dev/null 2>/dev/null &&         mkdir -p ~/.ec2 >/dev/null 2>/dev/null &&         mv ~/tmp/keypair ~/.ec2/id_rsa- >/dev/null 2>/dev/null", "mkdir -p /etc/ha.d/resource.d >/dev/null 2>/dev/null &&         mv ~/tmp/cloud_master_takeover /etc/ha.d/resource.d >/dev/null 2>/dev/null &&         mv ~/tmp/resource.d/* /etc/ha.d/resource.d >/dev/null 2>/dev/null", "mv ~/tmp/node0-hosts /etc/hosts >/dev/null 2>/dev/null &&         hostname -v node0 >/dev/null 2>/dev/null", "mv ~/tmp/haproxy /etc/haproxy.cfg >/dev/null 2>/dev/null &&         sed -i \"s/ENABLED=0/ENABLED=1/g\" /etc/default/haproxy >/dev/null 2>/dev/null &&         sed -i 's/SYSLOGD=\"\"/SYSLOGD=\"-r\"/g' /etc/default/syslogd >/dev/null 2>/dev/null &&         echo \"local0.* /var/log/haproxy.log\" >> /etc/syslog.conf && /etc/init.d/sysklogd restart >/dev/null 2>/dev/null &&         /etc/init.d/haproxy restart >/dev/null 2>/dev/null", "mv ~/tmp/node0-hosts /etc/hosts >/dev/null 2>/dev/null &&         hostname -v node0 >/dev/null 2>/dev/null", "", "if [[ -f plugins.tar.gz ]]; then mkdir -p plugins && tar -zxf plugins.tar.gz -C plugins; fi >/dev/null 2>/dev/null", "", "pool maintain -c ~/.config -l ~/plugins >/dev/null 2>/dev/null", "mv ~/tmp/monitrc /etc/monit/monitrc >/dev/null 2>/dev/null &&         mkdir -p /etc/monit.d/ >/dev/null 2>/dev/null &&         mv ~/tmp/monit.d/* /etc/monit.d/ >/dev/null 2>/dev/null &&         chown root /etc/monit/monitrc >/dev/null 2>/dev/null &&         chmod 700 /etc/monit/monitrc >/dev/null 2>/dev/null", "", "mkdir -p /etc/ha.d >/dev/null 2>/dev/null &&         mv ~/tmp/authkeys /etc/ha.d/ >/dev/null 2>/dev/null"]
+          
+        end
     end
   end  
   describe "in failover" do

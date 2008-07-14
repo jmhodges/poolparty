@@ -14,11 +14,16 @@ describe "Hash" do
   end
 end
 describe "String" do
-  it "should be able to convert a big string with \n to a runnable string" do
-    str =<<-EOS
+  before(:each) do
+    @str =<<-EOS
       echo 'hi'
       puts 'hi'
     EOS
-    str.runnable.should == "echo 'hi' &&       puts 'hi'"
+  end
+  it "should be able to convert a big string with \n to a runnable string" do
+    @str.runnable(false).should == "echo 'hi' &&       puts 'hi'"
+  end
+  it "should be able to add debugging into the string, just in case" do
+    @str.runnable.should == "echo 'hi' >/dev/null 2>/dev/null &&       puts 'hi' >/dev/null 2>/dev/null"
   end
 end

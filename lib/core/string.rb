@@ -17,8 +17,8 @@ class String
   def arrayable
     self.strip.split(/\n/)
   end
-  def runnable
-    self.strip.gsub(/\n/, " && ")
+  def runnable(quite=true)
+    self.strip.split(/\n/).map {|l| l << "#{" >/dev/null 2>/dev/null" if quite}" }.join(" && ")
   end
   def classify
     self.capitalize

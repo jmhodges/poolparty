@@ -31,7 +31,7 @@ end
 #{load_strings.join("\n")}
 
 policy :userpackages, :roles => :app do
-  #{user_packages.join("\n")}
+  #{ user_packages.map {|blk| blk.call } }
 end        
 
 #{install_from_sprinkle_string}
@@ -41,12 +41,12 @@ end
       Sprinkle::Script.sprinkle script# unless load_strings.empty?
     end
     
-    def self.define_user_package string
-      user_packages << string
+    def self.define_user_package &block
+      user_packages << block
     end
     
-    def self.define_user_install string
-      load_strings << string
+    def self.define_user_install &block
+      load_strings << block
     end
     
     def self.user_packages

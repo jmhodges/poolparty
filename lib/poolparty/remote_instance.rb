@@ -81,7 +81,7 @@ module PoolParty
         :configure_haproxy => setup_haproxy,
         :configure_heartbeat => configure_heartbeat,
         :user_tasks => user_tasks
-      }
+      }.map {|h,k| k.runnable }
     end
     def user_tasks
       @@user_tasks ||= []
@@ -93,11 +93,12 @@ module PoolParty
         mv #{remote_base_tmp_dir}/keypair ~/.ec2/#{Application.keypair_name}
       EOC
     end
-    def configure_heartbeat
-      <<-EOC
+    def configure_heartbeat      
+      cmd=<<-EOC
         mv #{remote_base_tmp_dir}/ha.cf /etc/ha.d/ha.cf
         /etc/init.d/heartbeat start
       EOC
+      Master.requires_heartbeat? ? cmd : ""
     end    
     def configure_authkeys
       <<-EOC
