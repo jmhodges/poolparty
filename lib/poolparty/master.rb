@@ -182,8 +182,11 @@ module PoolParty
         Kernel.system("tar -czf #{base_tmp_dir}/plugins.tar.gz #{File.basename(Application.plugin_dir)}")
       end
       
-      File.copy(get_config_file_for("cloud_master_takeover"), "#{base_tmp_dir}/cloud_master_takeover")
-      File.copy(get_config_file_for("heartbeat.conf"), "#{base_tmp_dir}/ha.cf")
+      if Master.requires_heartbeat?
+        build_and_copy_heartbeat_authkeys_file
+        File.copy(get_config_file_for("cloud_master_takeover"), "#{base_tmp_dir}/cloud_master_takeover")
+        File.copy(get_config_file_for("heartbeat.conf"), "#{base_tmp_dir}/ha.cf")
+      end
       
       File.copy(Application.config_file, "#{base_tmp_dir}/config.yml") if Application.config_file && File.exists?(Application.config_file)
       File.copy(Application.keypair_path, "#{base_tmp_dir}/keypair") if File.exists?(Application.keypair_path)
@@ -192,8 +195,7 @@ module PoolParty
       
       copy_config_files_in_directory_to_tmp_dir("config/resource.d")
       copy_config_files_in_directory_to_tmp_dir("config/monit.d")
-      
-      build_and_copy_heartbeat_authkeys_file
+            
       build_haproxy_file
       Master.build_user_global_files
         
