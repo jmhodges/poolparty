@@ -342,7 +342,7 @@ describe "Master" do
         end
         it "should copy the cloud_master_takeover script to the tmp directory" do
           @master.should_receive(:get_config_file_for).at_least(1).and_return "true"
-          File.should_receive(:copy).at_least(3).and_return true
+          File.should_receive(:copy).at_least(1).and_return true
           @master.build_and_send_config_files_in_temp_directory
         end
         it "should tar the plugin_dir into the tmp directory" do
@@ -368,7 +368,7 @@ describe "Master" do
         it "should copy the config file if it exists" do
           Application.stub!(:config_file).and_return "config.yml"
           File.stub!(:exists?).and_return true        
-          File.should_receive(:copy).exactly(5).times.and_return true
+          File.should_receive(:copy).exactly(3).times.and_return true
           @master.build_and_send_config_files_in_temp_directory
         end
         describe "with copy_config_files_in_directory_to_tmp_dir method" do
