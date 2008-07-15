@@ -67,7 +67,7 @@ module PoolParty
         ssh("monit #{cmd} all")
       end
     end
-    def configure_tasks
+    def configure_tasks(quiet=true)
       {
         :move_hostfile => change_hostname,
         :config_master => configure_master,
@@ -81,7 +81,7 @@ module PoolParty
         :configure_haproxy => setup_haproxy,
         :configure_heartbeat => configure_heartbeat,
         :user_tasks => user_tasks
-      }.map {|h,k| k.runnable }
+      }.map {|k,v| {k.to_sym => v.nice_runnable(quiet)} }.inject({}) {|a,s| s.merge(a) }
     end
     def user_tasks
       @@user_tasks ||= []

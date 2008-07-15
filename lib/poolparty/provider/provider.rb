@@ -7,6 +7,7 @@ module PoolParty
     def self.install_poolparty
       script=<<-EOS
 #{load_packages.join("\n")}        
+#{user_install_packages.join("\n")}
 
 policy :poolparty, :roles => :app do
   requires :git
@@ -16,7 +17,9 @@ policy :poolparty, :roles => :app do
   requires :monit
   requires :s3fs
   requires :rsync          
-  requires :required_gems          
+  requires :required_gems
+  
+  #{ user_packages.map {|blk| blk.is_a?(String) ? blk : blk.bind(self).call } }
 end
 
 #{install_from_sprinkle_string}
@@ -28,32 +31,32 @@ end
     
     def self.install_userpackages      
       script=<<-EOS
-#{load_strings.join("\n")}
+#{user_install_packages.join("\n")}
 
 policy :userpackages, :roles => :app do
-  #{ user_packages.map {|blk| blk.call } }
+  #{ user_packages.map {|blk| blk.is_a?(String) ? blk : blk.bind(self).call } }
 end        
 
 #{install_from_sprinkle_string}
       EOS
-
+      
       PoolParty.message "Installing user defined packages"
       Sprinkle::Script.sprinkle script# unless load_strings.empty?
     end
     
-    def self.define_user_package &block
-      user_packages << block
+    def self.define_user_package str="", &block
+      user_packages << (block_given? ? block : str)
     end
     
-    def self.define_user_install &block
-      load_strings << block
+    def self.define_user_install str="", &block
+      user_install_packages << (block_given? ? block : str)
     end
     
     def self.user_packages
       @@user_packages ||= []
     end
     
-    def self.load_strings
+    def self.user_install_packages
       @@load_strings ||= []
     end
     

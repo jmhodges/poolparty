@@ -227,12 +227,12 @@ describe "Master" do
           end
           it "should install poolparty" do
             Provider.should_receive(:install_poolparty).and_return true
-            Provider.should_receive(:install_userpackages).and_return true
+            # Provider.should_receive(:install_userpackages).and_return true
             @master.install_cloud
           end
           it "should install the user packages" do
             Provider.should_receive(:install_poolparty).and_return true
-            Provider.should_receive(:install_userpackages).and_return true
+            # Provider.should_receive(:install_userpackages).and_return true
             @master.install_cloud
           end
         end

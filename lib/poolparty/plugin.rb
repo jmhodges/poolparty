@@ -31,12 +31,12 @@ module PoolParty
       PoolParty::RemoteInstance.user_tasks << str
     end
     
-    def self.install_package_string &block
-      PoolParty::Provider.define_user_package &block
+    def self.install_package str="", &block
+      PoolParty::Provider.define_user_package str, &block
     end
         
-    def self.define_package_string &block
-      PoolParty::Provider.define_user_install &block
+    def self.define_package str="", &block
+      PoolParty::Provider.define_user_install str, &block
     end
     
     def self.define_global_file(name, &block)

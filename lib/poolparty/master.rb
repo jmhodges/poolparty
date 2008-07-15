@@ -92,7 +92,7 @@ module PoolParty
         ssh(update_apt_string)
         
         Provider.install_poolparty
-        Provider.install_userpackages
+        # Provider.install_userpackages
         
         # For plugins
         nodes.each do |node|
@@ -296,7 +296,7 @@ chmod +x #{script_file}
     # Build basic configuration script for the node
     def build_reconfigure_instances_script_for(node)
       write_to_file_for("configuration", node) do
-        open(Application.sh_reconfigure_instances_script).read.strip ^ node.configure_tasks
+        open(Application.sh_reconfigure_instances_script).read.strip ^ node.configure_tasks( !PoolParty.verbose? )
       end        
     end
     

@@ -33,7 +33,7 @@ describe "Provider" do
     end
     describe "user packages" do
       it "should use the loaded packages to install" do
-        Provider.should_receive(:load_strings).and_return []
+        Provider.should_receive(:user_install_packages).and_return []
         Provider.install_userpackages
       end
       it "should set the user_packages to install" do
@@ -43,6 +43,19 @@ describe "Provider" do
       it "should install using sprinkle" do
         Provider.should_receive(:install_from_sprinkle_string).and_return true
         Provider.install_userpackages
+      end
+      describe "defining" do
+        before(:each) do
+          Provider.define_user_package <<-EOE
+            requires :sprinkle
+          EOE
+        end
+        it "should be able to define user packages with blocks and pass those into the user_packages" do
+          Provider.user_packages.size.should == 1
+        end
+        it "should define the user packages as strings" do
+          Provider.user_packages.first.class.should == String
+        end
       end
     end
     it "should use sprinkle to install" do

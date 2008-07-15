@@ -20,6 +20,9 @@ class String
   def runnable(quite=true)
     self.strip.split(/\n/).map {|l| l << "#{" >/dev/null 2>/dev/null" if quite}" }.join(" && ")
   end
+  def nice_runnable(quite=true)
+    self.split(/ && /).join("\n")
+  end
   def classify
     self.capitalize
   end
