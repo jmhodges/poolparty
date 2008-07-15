@@ -15,7 +15,7 @@ policy :poolparty, :roles => :app do
   requires :failover
   requires :proxy
   requires :s3fs
-  requires :rsync          
+  requires :rsync
   requires :required_gems
   #{user_install_packages.join("\n")}  
 end
