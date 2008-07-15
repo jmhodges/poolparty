@@ -47,7 +47,6 @@ lib/poolparty/provider/packages/essential.rb
 lib/poolparty/provider/packages/git.rb
 lib/poolparty/provider/packages/haproxy.rb
 lib/poolparty/provider/packages/heartbeat.rb
-lib/poolparty/provider/packages/monit.rb
 lib/poolparty/provider/packages/rsync.rb
 lib/poolparty/provider/packages/ruby.rb
 lib/poolparty/provider/packages/s3fuse.rb
@@ -97,3 +96,6 @@ spec/remoting_spec.rb
 spec/scheduler_spec.rb
 spec/spec_helper.rb
 spec/string_spec.rb
+tmp/haproxy
+tmp/node0-configuration
+tmp/node0-hosts

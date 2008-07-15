@@ -75,7 +75,7 @@ module PoolParty
         :set_hostname => change_hostname,
         :mount_s3_drive => mount_s3_drive,
         :update_plugins => update_plugin_string,
-        :configure_monit => configure_monit,
+        # :configure_monit => configure_monit,
         :configure_authkeys => configure_authkeys,
         :configure_resource_d => configure_resource_d,
         :configure_haproxy => setup_haproxy,
@@ -125,15 +125,15 @@ module PoolParty
       EOC
     end
     
-    def configure_monit
-      <<-EOC
-        mv #{remote_base_tmp_dir}/monitrc /etc/monit/monitrc
-        mkdir -p /etc/monit.d/
-        mv #{remote_base_tmp_dir}/monit.d/* /etc/monit.d/
-        chown #{Application.username} /etc/monit/monitrc
-        chmod 700 /etc/monit/monitrc
-      EOC
-    end
+    # def configure_monit
+    #   <<-EOC
+    #     mv #{remote_base_tmp_dir}/monitrc /etc/monit/monitrc
+    #     mkdir -p /etc/monit.d/
+    #     mv #{remote_base_tmp_dir}/monit.d/* /etc/monit.d/
+    #     chown #{Application.username} /etc/monit/monitrc
+    #     chmod 700 /etc/monit/monitrc
+    #   EOC
+    # end
     
     def change_hostname
       <<-EOC

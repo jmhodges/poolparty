@@ -6,20 +6,18 @@ module PoolParty
     
     def self.install_poolparty
       script=<<-EOS
-#{load_packages.join("\n")}        
-#{user_install_packages.join("\n")}
+#{load_packages.join("\n")}
+#{ user_packages.map {|blk| blk.call if blk } }
 
 policy :poolparty, :roles => :app do
   requires :git
   requires :ruby
   requires :failover
   requires :proxy
-  requires :monit
   requires :s3fs
   requires :rsync          
   requires :required_gems
-  
-  #{ user_packages.map {|str| str } }
+  #{user_install_packages.join("\n")}  
 end
 
 #{install_from_sprinkle_string}
@@ -45,7 +43,7 @@ end
     end
     
     def self.define_custom_package name=:userpackages, &block
-      (user_install_packages << name).uniq!
+      (user_install_packages << "requires :#{name}").uniq!
       user_packages << block
     end
     

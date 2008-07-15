@@ -72,7 +72,7 @@ describe "Provider" do
           Provider.user_packages.size.should == 1
         end
         it "should have the name of the custom package built in" do
-          Provider.user_install_packages.should == [:custom]
+          Provider.user_install_packages.should == [":custom"]
         end
       end
     end
