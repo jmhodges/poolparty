@@ -34,6 +34,9 @@ module PoolParty
     def self.install_package str="", &block
       PoolParty::Provider.define_user_package str, &block
     end
+    def self.define_custom_package name=:userpackage, &block
+      PoolParty::Provider.define_custom_package name, &block
+    end
         
     def self.define_package str="", &block
       PoolParty::Provider.define_user_install str, &block

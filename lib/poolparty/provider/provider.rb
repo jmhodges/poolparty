@@ -19,7 +19,7 @@ policy :poolparty, :roles => :app do
   requires :rsync          
   requires :required_gems
   
-  #{ user_packages.map {|blk| blk.is_a?(String) ? blk : blk.bind(self).call } }
+  #{ user_packages.map {|str| str } }
 end
 
 #{install_from_sprinkle_string}
@@ -44,6 +44,11 @@ end
       Sprinkle::Script.sprinkle script# unless load_strings.empty?
     end
     
+    def self.define_custom_package name=:userpackages, &block
+      (user_install_packages << name).uniq!
+      user_packages << block
+    end
+    
     def self.define_user_package str="", &block
       user_packages << (block_given? ? block : str)
     end
@@ -52,12 +57,20 @@ end
       user_install_packages << (block_given? ? block : str)
     end
     
+    def self.reset!
+      @@user_packages = @@load_strings == @user_package_names = nil
+    end
+    
     def self.user_packages
       @@user_packages ||= []
     end
     
     def self.user_install_packages
       @@load_strings ||= []
+    end
+    
+    def self.user_install_package_names
+      @@user_package_names ||= []
     end
     
     def self.load_packages

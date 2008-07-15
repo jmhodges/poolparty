@@ -57,6 +57,24 @@ describe "Provider" do
           Provider.user_packages.first.class.should == String
         end
       end
+      describe "defining custom packages" do
+        before(:each) do
+          Provider.reset!
+          Provider.define_custom_package(:custom) do
+            <<-EOE
+              package :custom do
+                description 'custom packages'
+              end
+            EOE
+          end
+        end
+        it "should be able to define a custom package with a name" do
+          Provider.user_packages.size.should == 1
+        end
+        it "should have the name of the custom package built in" do
+          Provider.user_install_packages.should == [:custom]
+        end
+      end
     end
     it "should use sprinkle to install" do
       Sprinkle::Script.should_receive(:sprinkle).and_return true
