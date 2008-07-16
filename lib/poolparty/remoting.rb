@@ -36,6 +36,7 @@ module PoolParty
     end
     # list of keypairs for the current AWS access key and secret key
     def cloud_keypairs
+      get_instances_description.each {|a| a[:keypair] = "no-keypair" unless a[:keypair] } # Get rid of the instances not launched with a keypair
       instances = get_instances_description.sort{|x,y| x[:keypair] <=> y[:keypair]}
       keypair = nil
       instances.map {|a| keypair != a[:keypair] ? (keypair = a[:keypair]; keypair) : nil }.compact

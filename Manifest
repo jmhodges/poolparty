@@ -95,3 +95,6 @@ spec/remoting_spec.rb
 spec/scheduler_spec.rb
 spec/spec_helper.rb
 spec/string_spec.rb
+tmp/haproxy
+tmp/node0-configuration
+tmp/node0-hosts
