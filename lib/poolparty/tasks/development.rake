@@ -36,9 +36,7 @@ namespace(:dev) do
       touch ~/.ec2/#{Application.keypair}/cert-UPDATEME.pem 2>/dev/null
       touch ~/.ec2/#{Application.keypair}/pk-UPDATEME.pem 2>/dev/null
     EOR
-    puts "Replace your ~/.ec2/#{Application.keypair}/*.pem keys with the real amazon keys now"
-    puts "Press enter when you have done so"
-    gets
+    puts "Don't forget to replace your ~/.ec2/#{Application.keypair}/*.pem keys with the real amazon keys"
   end
   desc "Just an argv test"
   task :test => :init do

@@ -14,6 +14,47 @@ describe "Master remoting: " do
     @master = Master.new
     @master.launch_new_instance!
   end
+  describe "listing" do
+    before(:each) do
+      Application.stub!(:keypair).and_return("alist")
+      @a1={:instance_id => "i-a1", :ip => "127.0.0.1", :status => "running", :launching_time => 10.minutes.ago, :keypair => "alist"}
+      @a2={:instance_id => "i-a2", :ip => "127.0.0.3", :status => "running", :launching_time => 2.hours.ago, :keypair => "alist"}
+      @a3={:instance_id => "i-a3", :ip => "127.0.0.3", :status => "terminated", :launching_time => 2.hours.ago, :keypair => "alist"}
+      @a4={:instance_id => "i-a4", :ip => "127.0.0.4", :status => "pending", :launching_time => 2.hours.ago, :keypair => "alist"}
+      
+      @b1={:instance_id => "i-b1", :ip => "127.0.0.2", :status => "terminated", :launching_time => 55.minutes.ago, :keypair => "blist"}
+      @c1={:instance_id => "i-c1", :ip => "127.0.0.4", :status => "pending", :launching_time => 2.days.ago, :keypair => "clist"}
+      @master.stub!(:get_instances_description).and_return [@a1, @a2, @a3, @a4, @b1, @c1]
+    end
+    it "should pull out the list those instances with the keypair requested" do      
+      @master.list_of_instances.collect {|a| a[:instance_id]}.should == ["i-a1", "i-a2", "i-a3", "i-a4"]
+    end
+    it "should pull out the list with the blist keypair" do
+      Application.stub!(:keypair).and_return("blist")
+      @master.list_of_instances.collect {|a| a[:instance_id]}.should == ["i-b1"]
+    end
+    it "should be able to pull out the list_of_nonterminated_instances" do
+      @master.list_of_nonterminated_instances.should == [@a1, @a2, @a4]
+    end
+    it "should be able to pull the list of list_of_pending_instances" do
+      @master.list_of_pending_instances.should == [@a4]
+    end
+    it "should be able to pull the list of list_of_running_instances" do
+      @master.list_of_running_instances.should == [@a1, @a2]
+    end
+    it "should be able to get the number_of_pending_instances" do
+      @master.number_of_pending_instances.should == 1
+    end
+    it "should be able to grab the number_of_running_instances" do
+      @master.number_of_running_instances.should == 2
+    end
+    it "should be able to grab the entire list of instances" do
+      @master.list_of_all_instances.should == [@a1, @a2, @a3, @a4, @b1, @c1]
+    end
+    it "should be able to grab the entire list sorted by keypair" do
+      @master.cloud_keypairs.should == ["alist", "blist", "clist"]
+    end
+  end
   describe "starting" do
     before(:each) do
       @master.start_cloud!

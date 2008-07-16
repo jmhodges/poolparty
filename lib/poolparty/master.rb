@@ -85,8 +85,8 @@ module PoolParty
         # update packages.
         update_apt_string =<<-EOE        
           touch /etc/apt/sources.list
-          echo 'deb http://mirrors.cs.wmich.edu/ubuntu hardy main universe' >> /etc/apt/sources.list
-          sudo apt-get update --fix-missing
+          echo 'deb http://mirrors.kernel.org/ubuntu hardy main universe' >> /etc/apt/sources.list
+          apt-get update --fix-missing
         EOE
         
         ssh(update_apt_string)

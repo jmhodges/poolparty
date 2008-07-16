@@ -7,10 +7,6 @@ describe "Provider" do
     @ips = ["127.0.0.1"]
     Master.stub!(:cloud_ips).and_return @ips
   end
-  it "should be able to make a roles from the ips" do
-    Master.should_receive(:cloud_ips).and_return @ips
-    Provider.string_roles_from_ips.should == "role :app, 'root@127.0.0.1'"
-  end
   it "should load the packages in the package directory" do
     Dir.should_receive(:[]).and_return []
     Provider.new.load_packages

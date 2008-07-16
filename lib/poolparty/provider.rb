@@ -56,7 +56,7 @@ module PoolParty
       deployment do
         delivery :vlad do
           set :user, "#{Application.username}"
-          # PoolParty::Provider.string_roles_from_ips
+          
           Master.cloud_ips.each do |ip|
             role :app, "#{Application.username}@#{ip}"
           end
@@ -70,13 +70,7 @@ module PoolParty
       end
       
     end
-        
-    def self.string_roles_from_ips
-      Master.cloud_ips.collect do |ip|
-        "role :app, '#{Application.username}@#{ip}'"
-      end.join("\n")
-    end
-    
+            
     class << self
       require "sprinkle"
             
