@@ -84,6 +84,20 @@ describe "Application" do
     YAML.should_receive(:load).at_least(1).and_return({:config_file => "config/sample-config.yml"})
     Application.make_options(:config_file => "config/sample-config.yml")
   end
+  describe "config file" do
+    before(:each) do
+      @str = ":access_key: 3.14159\n:secret_access_key: pi"
+      Application.options = nil
+      @str.stub!(:read).and_return ":access_key: 3.14159\n:secret_access_key: pi"
+      Application.make_options
+    end
+    it "should read the config file and use the options in the config file if it exists" do      
+      Application.access_key.should == 3.14159
+    end
+    it "should set the secret_access_key if the config file exists" do
+      Application.secret_access_key.should == "pi"
+    end
+  end
   it "should not read the config file if it is not passed and doesn't exist" do
     File.stub!(:file?).and_return false
     YAML.should_not_receive(:load).with("config/config.yml")

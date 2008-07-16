@@ -5,7 +5,7 @@ namespace(:dev) do
   end
   # Setup a basic development environment for the user 
   desc "Setup development environment specify the config_file"
-  task :setup => [:setup_pemkeys] do
+  task :setup => [:init, :setup_keypair, :setup_pemkeys] do
     keyfilename = ".#{Application.keypair}_pool_keys"
     run <<-EOR
       echo 'export AWS_ACCESS_KEY=\"#{Application.access_key}\"' > $HOME/#{keyfilename}
@@ -14,11 +14,11 @@ namespace(:dev) do
       echo 'export KEYPAIR_NAME=\"#{Application.keypair}\"' >> $HOME/#{keyfilename}
       echo 'export EC2_PRIVATE_KEY=`ls ~/.ec2/#{Application.keypair}/pk-*.pem`;' >> $HOME/#{keyfilename}
       echo 'export EC2_CERT=`ls ~/.ec2/#{Application.keypair}/cert-*.pem`;' >> $HOME/#{keyfilename}
-      source $HOME/#{keyfilename}
     EOR
+    puts "To work on this cloud, type source #{keyfilename}"
   end
   desc "Generate a new keypair"
-  task :setup_keypair => :init do
+  task :setup_keypair => [:init] do
     unless File.file?(Application.keypair_path)
       Application.keypair ||= "cloud"
       puts "-- setting up keypair named #{Application.keypair}"
@@ -30,13 +30,15 @@ namespace(:dev) do
     end
   end
   desc "Setup pem keys"
-  task :setup_pemkeys => :setup_keypair do
-    puts "Make sure you replace your ~/.ec2/#{Application.keypair}/*.pem keys"
+  task :setup_pemkeys => [:setup_keypair] do    
     run <<-EOR
-      mkdir ~/.ec2/#{Application.keypair}
-      touch ~/.ec2/#{Application.keypair}/cert-UPDATEME.pem
-      touch ~/.ec2/#{Application.keypair}/pk-UPDATEME.pem
+      mkdir ~/.ec2/#{Application.keypair} 2>/dev/null
+      touch ~/.ec2/#{Application.keypair}/cert-UPDATEME.pem 2>/dev/null
+      touch ~/.ec2/#{Application.keypair}/pk-UPDATEME.pem 2>/dev/null
     EOR
+    puts "Replace your ~/.ec2/#{Application.keypair}/*.pem keys with the real amazon keys now"
+    puts "Press enter when you have done so"
+    gets
   end
   desc "Just an argv test"
   task :test => :init do

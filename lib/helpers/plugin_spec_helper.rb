@@ -21,7 +21,6 @@ module PoolParty
       Kernel.stub!(:system).and_return "true"
 
       Provider.stub!(:install_poolparty).and_return true
-      Provider.stub!(:install_userpackages).and_return true
 
       [@klass, @master, @instances]
     end

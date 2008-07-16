@@ -27,34 +27,25 @@ describe "Provider" do
         Provider.install_poolparty
       end
       it "should load the install script when installing" do
-        Provider.should_receive(:install_from_sprinkle_string).and_return true
+        Provider.should_receive(:set_start_with_sprinkle).and_return true
         Provider.install_poolparty
       end
     end
     describe "user packages" do
-      it "should use the loaded packages to install" do
-        Provider.should_receive(:user_install_packages).and_return []
-        Provider.install_userpackages
-      end
-      it "should set the user_packages to install" do
-        Provider.should_receive(:user_packages).and_return []
-        Provider.install_userpackages
-      end
-      it "should install using sprinkle" do
-        Provider.should_receive(:install_from_sprinkle_string).and_return true
-        Provider.install_userpackages
-      end
       describe "defining" do
         before(:each) do
-          Provider.define_user_package <<-EOE
-            requires :sprinkle
-          EOE
+          Provider.define_custom_package(:sprinkle) do
+            package :sprinkle, :provides => :package do
+              description 'Sprinkle'
+              apt %w( sprinkle )
+            end
+          end
         end
         it "should be able to define user packages with blocks and pass those into the user_packages" do
           Provider.user_packages.size.should == 1
         end
         it "should define the user packages as strings" do
-          Provider.user_packages.first.class.should == String
+          Provider.user_packages.first.class.should == Proc
         end
       end
       describe "defining custom packages" do
@@ -69,16 +60,12 @@ describe "Provider" do
           end
         end
         it "should be able to define a custom package with a name" do
-          Provider.user_packages.size.should == 1
+          Provider.user_packages.size.should > 1
         end
         it "should have the name of the custom package built in" do
-          Provider.user_install_packages.should == [":custom"]
+          Provider.user_install_packages.sort {|a,b| a.to_s <=> b.to_s }.should == [:custom, :sprinkle]
         end
       end
-    end
-    it "should use sprinkle to install" do
-      Sprinkle::Script.should_receive(:sprinkle).and_return true
-      Provider.install_poolparty
     end
   end
 end

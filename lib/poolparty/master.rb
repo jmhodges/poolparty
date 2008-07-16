@@ -92,7 +92,6 @@ module PoolParty
         ssh(update_apt_string)
         
         Provider.install_poolparty
-        # Provider.install_userpackages
         
         # For plugins
         nodes.each do |node|

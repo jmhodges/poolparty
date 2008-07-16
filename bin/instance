@@ -19,7 +19,7 @@ master = PoolParty::Master.new
 list = PoolParty::Optioner.parse(ARGV.dup, %w(-v --verbose))
 num = list.reject {|a| commandables.include?(a) }.pop
 
-instance = master.get_node(num)
+instance = master.get_node( num || 0 )
 
 unless instance
   puts "Cloud is not running"

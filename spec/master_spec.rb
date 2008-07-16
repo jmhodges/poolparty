@@ -199,13 +199,13 @@ describe "Master" do
         before(:each) do
           Application.stub!(:install_on_load?).and_return true
           Sprinkle::Script.stub!(:sprinkle).and_return true
+          Provider.stub!(:install_poolparty).and_return true
           @master.stub!(:ssh).and_return true
           @master.nodes.each do |node|
             node.stub!(:run_now).and_return true
           end
         end
-        it "should install on the instances if the application says it should" do        
-          Provider.stub!(:install_userpackages)
+        it "should install on the instances if the application says it should" do
           Provider.should_receive(:install_poolparty)
           @master.install_cloud
         end
@@ -227,12 +227,10 @@ describe "Master" do
           end
           it "should install poolparty" do
             Provider.should_receive(:install_poolparty).and_return true
-            # Provider.should_receive(:install_userpackages).and_return true
             @master.install_cloud
           end
           it "should install the user packages" do
             Provider.should_receive(:install_poolparty).and_return true
-            # Provider.should_receive(:install_userpackages).and_return true
             @master.install_cloud
           end
         end

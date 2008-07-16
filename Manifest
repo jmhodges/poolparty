@@ -43,14 +43,13 @@ lib/poolparty/monitors.rb
 lib/poolparty/optioner.rb
 lib/poolparty/plugin.rb
 lib/poolparty/plugin_manager.rb
-lib/poolparty/provider/packages/essential.rb
-lib/poolparty/provider/packages/git.rb
-lib/poolparty/provider/packages/haproxy.rb
-lib/poolparty/provider/packages/heartbeat.rb
-lib/poolparty/provider/packages/rsync.rb
-lib/poolparty/provider/packages/ruby.rb
-lib/poolparty/provider/packages/s3fuse.rb
-lib/poolparty/provider/provider.rb
+lib/poolparty/provider/essential.rb
+lib/poolparty/provider/git.rb
+lib/poolparty/provider/haproxy.rb
+lib/poolparty/provider/heartbeat.rb
+lib/poolparty/provider/rsync.rb
+lib/poolparty/provider/ruby.rb
+lib/poolparty/provider/s3fuse.rb
 lib/poolparty/provider.rb
 lib/poolparty/remote_instance.rb
 lib/poolparty/remoter.rb
@@ -67,7 +66,6 @@ lib/poolparty/thread_pool.rb
 lib/poolparty.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
-poolparty.gemspec
 Rakefile
 README.txt
 spec/application_spec.rb
@@ -97,6 +95,3 @@ spec/remoting_spec.rb
 spec/scheduler_spec.rb
 spec/spec_helper.rb
 spec/string_spec.rb
-tmp/haproxy
-tmp/node0-configuration
-tmp/node0-hosts

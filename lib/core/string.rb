@@ -18,7 +18,8 @@ class String
     self.strip.split(/\n/)
   end
   def runnable(quite=true)
-    self.strip.split(/\n/).map {|l| l << "#{" >/dev/null 2>/dev/null" if quite}" }.join(" && ")
+    # map {|l| l << "#{" >/dev/null 2>/dev/null" if quite}" }.
+    self.strip.split(/\n/).join(" && ")
   end
   def nice_runnable(quite=true)
     self.split(/ && /).join("\n")
