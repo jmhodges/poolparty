@@ -13,22 +13,26 @@ describe "Provider" do
   end
   it "should load the packages in the package directory" do
     Dir.should_receive(:[]).and_return []
-    Provider.load_packages
+    Provider.new.load_packages
   end
   it "should load the packages defined in the user directory" 
   describe "running" do
     describe "server packages" do
-      it "should be able to run with the provided packages" do      
-        Provider.should_receive(:string_roles_from_ips).and_return "role :app, '127.0.0.1'"
-        Provider.install_poolparty
+      before(:each) do
+        @provider = Provider.new
+        @str = "new"
+        @str.stub!(:process).and_return true
+        @provider.stub!(:set_start_with_sprinkle).and_return @str
+        Provider.stub!(:new).and_return @provider
+        Master.stub!(:cloud_ips).and_return ["127.0.0.1"]
       end
       it "should use the loaded packages to install" do
-        Provider.should_receive(:load_packages).and_return []
-        Provider.install_poolparty
+        @provider.should_receive(:load_packages).and_return []
+        @provider.install_poolparty
       end
       it "should load the install script when installing" do
-        Provider.should_receive(:set_start_with_sprinkle).and_return true
-        Provider.install_poolparty
+        @provider.should_receive(:set_start_with_sprinkle).and_return true
+        @provider.install_poolparty
       end
     end
     describe "user packages" do
