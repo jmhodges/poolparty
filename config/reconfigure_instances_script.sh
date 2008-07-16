@@ -15,9 +15,6 @@ echo "If this is the master, I'm configuring it as the master now"
 # Configure haproxy
 echo "Configuring and starting haproxy"
 :configure_haproxy
-# Set this hostname as appropriate in the cloud
-echo "Setting new hostname"
-:set_hostname
 # Configure heartbeat
 echo "Moving all the resource.d files into place"
 :configure_resource_d
@@ -33,5 +30,6 @@ echo "Configuring monit"
 # Update the plugins
 echo "Updating plugins"
 :update_plugins
+# Run user tasks
 echo "Running user tasks"
 :user_tasks

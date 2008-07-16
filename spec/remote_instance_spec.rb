@@ -82,10 +82,8 @@ describe "remote instance" do
         end
         it "should untar and move plugin directories around" do
           dir = File.basename Application.plugin_dir
-          @instance.update_plugin_string.should == "if [[ -f plugins.tar.gz ]]; then mkdir -p #{dir} && tar -zxf plugins.tar.gz -C #{dir}; fi"
-        end
-        it "should be able to build the configuration tasks each, as runnable" do
-          @instance.configure_tasks(true).should == {:set_hostname=>"        mv ~/tmp/node0-hosts /etc/hosts\n        hostname -v node0\n", :configure_heartbeat=>"", :move_hostfile=>"        mv ~/tmp/node0-hosts /etc/hosts\n        hostname -v node0\n", :configure_haproxy=>"        mv ~/tmp/haproxy /etc/haproxy.cfg\n        sed -i \"s/ENABLED=0/ENABLED=1/g\" /etc/default/haproxy\n        sed -i 's/SYSLOGD=\"\"/SYSLOGD=\"-r\"/g' /etc/default/syslogd\n        echo \"local0.* /var/log/haproxy.log\" >> /etc/syslog.conf\n/etc/init.d/sysklogd restart\n        /etc/init.d/haproxy restart\n", :user_tasks=>"", :mount_s3_drive=>"", :move_config_file=>"        mv ~/tmp/config.yml ~/.config\n        mkdir -p ~/.ec2\n        mv ~/tmp/keypair ~/.ec2/id_rsa-\n", :configure_authkeys=>"        mkdir -p /etc/ha.d\n        mv ~/tmp/authkeys /etc/ha.d/\n", :update_plugins=>"if [[ -f plugins.tar.gz ]]; then mkdir -p plugins\ntar -zxf plugins.tar.gz -C plugins; fi", :configure_resource_d=>"        mkdir -p /etc/ha.d/resource.d\n        mv ~/tmp/cloud_master_takeover /etc/ha.d/resource.d\n        mv ~/tmp/resource.d/* /etc/ha.d/resource.d\n", :config_master=>"          pool maintain -c ~/.config -l ~/plugins\n"}
+          @instance.update_plugin_string.should == "if [[ -f ~/tmp/plugins.tar.gz ]]; then         mkdir -p plugins && tar -zxf plugins.tar.gz -C plugins\n; fi"
+          
         end
     end
   end  

@@ -72,7 +72,6 @@ module PoolParty
         :move_hostfile => change_hostname,
         :config_master => configure_master,
         :move_config_file => move_config_file,
-        :set_hostname => change_hostname,
         :mount_s3_drive => mount_s3_drive,
         :update_plugins => update_plugin_string,
         # :configure_monit => configure_monit,
@@ -88,9 +87,9 @@ module PoolParty
     end
     def move_config_file
       <<-EOC
-        mv #{remote_base_tmp_dir}/config.yml ~/.config
+        #{if_exists "config.yml", "mv #{remote_base_tmp_dir}/config.yml ~/.config"}
         mkdir -p ~/.ec2
-        mv #{remote_base_tmp_dir}/keypair ~/.ec2/#{Application.keypair_name}
+        #{if_exists "keypair", "mv #{remote_base_tmp_dir}/keypair ~/.ec2/#{Application.keypair_name}"}        
       EOC
     end
     def configure_heartbeat      
@@ -103,7 +102,7 @@ module PoolParty
     def configure_authkeys
       <<-EOC
         mkdir -p /etc/ha.d
-        mv #{remote_base_tmp_dir}/authkeys /etc/ha.d/
+        #{if_exists "authkeys", "mv #{remote_base_tmp_dir}/authkeys /etc/ha.d/"}
       EOC
     end
     
@@ -119,9 +118,9 @@ module PoolParty
     
     def configure_resource_d
       <<-EOC
-        mkdir -p /etc/ha.d/resource.d
-        mv #{remote_base_tmp_dir}/cloud_master_takeover /etc/ha.d/resource.d
-        mv #{remote_base_tmp_dir}/resource.d/* /etc/ha.d/resource.d
+        mkdir -p /etc/ha.d/resource.d/
+        #{if_exists "cloud_master_takeover", "mv #{remote_base_tmp_dir}/cloud_master_takeover /etc/ha.d/resource.d"}
+        #{if_dir_exists "resource.d/", "mv #{remote_base_tmp_dir}/resource.d/* /etc/ha.d/resource.d"}
       EOC
     end
     
@@ -137,7 +136,7 @@ module PoolParty
     
     def change_hostname
       <<-EOC
-        mv #{remote_base_tmp_dir}/#{name}-hosts /etc/hosts
+        #{if_exists "#{name}-hosts", "mv #{remote_base_tmp_dir}/#{name}-hosts /etc/hosts"}
         hostname -v #{name}
       EOC
     end
@@ -185,7 +184,14 @@ module PoolParty
     end
     def update_plugin_string
       dir = File.basename(Application.plugin_dir)
-      "if [[ -f plugins.tar.gz ]]; then mkdir -p #{dir} && tar -zxf plugins.tar.gz -C #{dir}; fi"
+      
+      if_exists "plugins.tar.gz", "mkdir -p #{dir} && tar -zxf #{remote_base_tmp_dir}/plugins.tar.gz -C #{dir}"
+    end
+    def if_exists(file, dothis)
+      "if [ -f #{remote_base_tmp_dir}/#{file} ]; then #{dothis}; fi"
+    end
+    def if_dir_exists(dir, dothis)
+      "if [ -d #{remote_base_tmp_dir}/#{dir} ]; then #{dothis}; fi"
     end
     # Is this the master and if not, is the master running?
     def is_not_master_and_master_is_not_running?
