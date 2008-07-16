@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new("= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Ari Lerner"]
   s.cert_chain = nil
-  s.date = %q{2008-07-15}
+  s.date = %q{2008-07-16}
   s.description = %q{Run your entire application off EC2, managed and auto-scaling}
   s.email = %q{ari.lerner@citrusbyte.com}
   s.executables = ["instance", "pool", "poolnotify"]
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://poolpartyrb.com}
   s.post_install_message = %q{
       
-      Get ready to jump in the pool, you just installed PoolParty! (Updated at 10:57PM, 07/15/08)
+      Get ready to jump in the pool, you just installed PoolParty! (Updated at 03:42PM, 07/16/08)
 
       Please check out the documentation for any questions or check out the google groups at
         http://groups.google.com/group/poolpartyrb
@@ -42,7 +42,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<amazon-ec2>, [">= 0"])
       s.add_runtime_dependency(%q<auser-aska>, [">= 0"])
       s.add_runtime_dependency(%q<git>, [">= 0"])
-      s.add_runtime_dependency(%q<crafterm-sprinkle>, [">= 0"])
+      s.add_runtime_dependency(%q<sprinkle>, [">= 0"])
       s.add_runtime_dependency(%q<SystemTimer>, [">= 0"])
       s.add_runtime_dependency(%q<open4>, [">= 0"])
       s.add_development_dependency(%q<echoe>, [">= 0"])
@@ -51,7 +51,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<amazon-ec2>, [">= 0"])
       s.add_dependency(%q<auser-aska>, [">= 0"])
       s.add_dependency(%q<git>, [">= 0"])
-      s.add_dependency(%q<crafterm-sprinkle>, [">= 0"])
+      s.add_dependency(%q<sprinkle>, [">= 0"])
       s.add_dependency(%q<SystemTimer>, [">= 0"])
       s.add_dependency(%q<open4>, [">= 0"])
       s.add_dependency(%q<echoe>, [">= 0"])
@@ -61,7 +61,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<amazon-ec2>, [">= 0"])
     s.add_dependency(%q<auser-aska>, [">= 0"])
     s.add_dependency(%q<git>, [">= 0"])
-    s.add_dependency(%q<crafterm-sprinkle>, [">= 0"])
+    s.add_dependency(%q<sprinkle>, [">= 0"])
     s.add_dependency(%q<SystemTimer>, [">= 0"])
     s.add_dependency(%q<open4>, [">= 0"])
     s.add_dependency(%q<echoe>, [">= 0"])
