@@ -66,7 +66,6 @@ lib/poolparty/thread_pool.rb
 lib/poolparty.rb
 lib/s3/s3_object_store_folders.rb
 Manifest
-poolparty.gemspec
 Rakefile
 README.txt
 spec/application_spec.rb
@@ -96,6 +95,3 @@ spec/remoting_spec.rb
 spec/scheduler_spec.rb
 spec/spec_helper.rb
 spec/string_spec.rb
-tmp/haproxy
-tmp/node0-configuration
-tmp/node0-hosts

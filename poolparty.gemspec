@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new("= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Ari Lerner"]
   s.cert_chain = nil
-  s.date = %q{2008-07-16}
+  s.date = %q{2008-07-17}
   s.description = %q{Run your entire application off EC2, managed and auto-scaling}
   s.email = %q{ari.lerner@citrusbyte.com}
   s.executables = ["instance", "pool", "poolnotify"]
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://poolpartyrb.com}
   s.post_install_message = %q{
       
-      Get ready to jump in the pool, you just installed PoolParty! (Updated at 06:39PM, 07/16/08)
+      Get ready to jump in the pool, you just installed PoolParty! (Updated at 02:18AM, 07/17/08)
 
       Please check out the documentation for any questions or check out the google groups at
         http://groups.google.com/group/poolpartyrb
