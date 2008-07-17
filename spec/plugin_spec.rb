@@ -73,6 +73,16 @@ describe "Plugin" do
       @test.should_not_receive(:email_updates)
       @master.configure_cloud
     end
+    describe "user-data" do
+      it "should be able to add to the user-data with a string" do
+        @test.add_user_data("hollow")
+        Application.launching_user_data.should == "--- \n:access_key: 3.14159\n:secret_access_key: pi\n:keypair_path: /mnt\n:polling_time: 30.seconds\n:user_data: hollow\n"
+      end
+      it "should be able to add a hash to the user-data with a hash" do
+        @test.add_user_hash(:box => "box")
+        Application.launching_user_data.should == "--- \n:access_key: 3.14159\n:secret_access_key: pi\n:keypair_path: /mnt\n:box: box\n:polling_time: 30.seconds\n:user_data: hollow\n"        
+      end
+    end
     describe "instance methods" do
       before(:each) do
         @str = "filename"

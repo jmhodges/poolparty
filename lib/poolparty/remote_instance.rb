@@ -69,18 +69,18 @@ module PoolParty
     end
     def configure_tasks(quiet=true)
       {
+        :setup_pems => setup_pems,
         :move_hostfile => change_hostname,
         :config_master => configure_master,
         :move_config_file => move_config_file,
         :mount_s3_drive => mount_s3_drive,
-        :update_plugins => update_plugin_string,
-        # :configure_monit => configure_monit,
+        :update_plugins => update_plugin_string,        
         :configure_authkeys => configure_authkeys,
         :configure_resource_d => configure_resource_d,
         :configure_haproxy => setup_haproxy,
         :configure_heartbeat => configure_heartbeat,
         :user_tasks => user_tasks
-      }.map {|k,v| {k.to_sym => v.nice_runnable(quiet)} }.inject({}) {|a,s| s.merge(a) }
+      }#.map {|k,v| {k.to_sym => v.nice_runnable(quiet)} }.inject({}) {|a,s| s.merge(a) }
     end
     def user_tasks
       @@user_tasks ||= []
@@ -133,6 +133,13 @@ module PoolParty
     #     chmod 700 /etc/monit/monitrc
     #   EOC
     # end
+    
+    def setup_pems
+      <<-EOC
+        #{if_exists "cert.pem", "mv #{remote_base_tmp_dir}/cert.pem #{Application.keypair_path}/cert-CLOUD.pem"}
+        #{if_exists "pk.pem", "mv #{remote_base_tmp_dir}/pk.pem #{Application.keypair_path}/pk-CLOUD.pem"}
+      EOC
+    end
     
     def change_hostname
       <<-EOC

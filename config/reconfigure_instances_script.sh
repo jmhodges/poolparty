@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "Setting up pem files"
+:setup_pems
 # Move the hosts file
 echo "Moving the hosts file into place"
 :move_hostfile

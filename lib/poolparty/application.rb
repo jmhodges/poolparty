@@ -58,7 +58,7 @@ module PoolParty
           op.on('-s size', '--size size', "Run specific sized instance") {|s| default_options[:size] = s}
           op.on('-a name', '--name name', "Application name") {|n| default_options[:app_name] = n}
           op.on('-u username', '--username name', "Login with the user (default: root)") {|s| default_options[:user] = s}
-          op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:user_data] = data }
+          op.on('-d user-data','--user-data data', "Extra data to send each of the instances (default: "")") { |data| default_options[:user_data] = data.to_str }
           op.on('-i', '--install-on-boot', 'Install the PoolParty and custom software on boot (default: false)') {|b| default_options[:install_on_load] = true}
           op.on('-t seconds', '--polling-time', "Time between polling in seconds (default 50)") {|t| default_options[:polling_time] = t }
           op.on('-v', '--[no-]verbose', 'Run verbosely (default: false)') {|v| default_options[:verbose] = true}
@@ -123,12 +123,17 @@ module PoolParty
       end
       alias_method :managed_services, :master_managed_services
       def launching_user_data
-        {:polling_time => polling_time, 
+        hash_to_launch_with.to_yaml
+      end
+      def hash_to_launch_with
+        @hash ||= { :polling_time => polling_time, 
           :access_key => access_key, 
           :secret_access_key => secret_access_key,
-          :user_data => user_data}.to_yaml
+          :user_data => user_data,
+          :keypair_path => "/mnt"
+        }
       end
-      def local_user_data        
+      def local_user_data 
         begin
           @@timer.timeout(3.seconds) do
             @local_user_data ||=YAML.load(open("http://169.254.169.254/latest/user-data").read)
@@ -146,7 +151,7 @@ module PoolParty
       # Idiom:
       #  /Users/username/.ec2/[name]
       def keypair_path
-        "#{ec2_dir}/#{keypair_name}"
+        options.keypair_path ? options.keypair_path : "#{ec2_dir}/#{keypair_name}"
       end
       def keypair_name
         "id_rsa-#{keypair}"

@@ -19,12 +19,7 @@ describe "remote instance" do
     
     @master = Master.new
   end
-  
-  describe "scping" do
-  end
-  describe "ssh'ing" do
-  end
-  
+    
   describe "in general" do
     it "should set the ip upon creation" do
       @instance.ip.should == "127.0.0.1"
@@ -61,6 +56,52 @@ describe "remote instance" do
         Kernel.stub!(:system).and_return true
         stub_option_load
       end
+      describe "configure tasks" do
+        it "should move_hostfile" do
+          @instance.should_receive(:change_hostname).once.and_return ""
+          @instance.configure_tasks
+        end
+        it "should configure_master" do
+          @instance.should_receive(:configure_master).once.and_return ""
+          @instance.configure_tasks
+        end
+        it "should move_config_file" do
+          @instance.should_receive(:move_config_file).once.and_return ""
+          @instance.configure_tasks
+        end
+        it "should mount_s3_drive" do
+          @instance.should_receive(:mount_s3_drive).once.and_return ""
+          @instance.configure_tasks
+        end
+        it "should update_plugin_string" do
+          @instance.should_receive(:update_plugin_string).once.and_return ""
+          @instance.configure_tasks
+        end
+        it "should setup_pems" do
+          @instance.should_receive(:setup_pems).once.and_return ""
+          @instance.configure_tasks
+        end
+        it "should configure_authkeys" do
+          @instance.should_receive(:configure_authkeys).once.and_return ""
+          @instance.configure_tasks
+        end
+        it "should configure_resource_d" do
+          @instance.should_receive(:configure_resource_d).once.and_return ""
+          @instance.configure_tasks
+        end
+        it "should setup_haproxy" do
+          @instance.should_receive(:setup_haproxy).once.and_return ""
+          @instance.configure_tasks
+        end
+        it "should configure_heartbeat" do
+          @instance.should_receive(:configure_heartbeat).once.and_return ""
+          @instance.configure_tasks
+        end
+        it "should run user_tasks" do
+          @instance.should_receive(:user_tasks).once.and_return ""
+          @instance.configure_tasks
+        end
+      end      
       describe "with a public ip" do
         before(:each) do
           Application.stub!(:public_ip).and_return "127.0.0.1"
@@ -82,8 +123,7 @@ describe "remote instance" do
         end
         it "should untar and move plugin directories around" do
           dir = File.basename Application.plugin_dir
-          @instance.update_plugin_string.should == "if [[ -f ~/tmp/plugins.tar.gz ]]; then         mkdir -p plugins && tar -zxf plugins.tar.gz -C plugins\n; fi"
-          
+          @instance.update_plugin_string.should == "if [ -f ~/tmp/plugins.tar.gz ]; then mkdir -p plugins && tar -zxf ~/tmp/plugins.tar.gz -C plugins; fi"          
         end
     end
   end  

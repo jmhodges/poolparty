@@ -60,6 +60,14 @@ describe "Application" do
       # Application.default_options.stub!(:merge!).with({})                                                                                                                                                                                   
       # Application.default_options.stub!(:merge!).with({:access_key => 3.14159, :secret_access_key => "pi"})
     end
+    describe "added data keypair_path" do
+      before(:each) do
+        @str.stub!(:read).and_return ":access_key: 3.14159\n:secret_access_key: pi\n:keypair_path: hopscotch"
+      end
+      it "should use the options keypair_path if it exists" do
+        Application.keypair_path.should == "hopscotch"
+      end
+    end
     it "should try to load the user data into a yaml hash" do
       YAML.should_receive(:load).with(":access_key: 3.14159\n:secret_access_key: pi")
       Application.local_user_data
