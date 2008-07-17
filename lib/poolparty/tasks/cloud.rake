@@ -28,7 +28,7 @@ namespace(:cloud) do
   # List the cloud
   desc "List cloud"
   task :list => :init do
-    PoolParty::Master.new.list
+    puts PoolParty::Master.new.list
   end
   # Shutdown the cloud
   desc "Shutdown the entire cloud"
