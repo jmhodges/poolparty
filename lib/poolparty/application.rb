@@ -106,7 +106,7 @@ module PoolParty
           end,
           :username => "root",
           :ec2_dir => ENV["EC2_HOME"],
-          :keypair => ENV["KEYPAIR_NAME"].empty? ? File.basename(`pwd`).strip : ENV["KEYPAIR_NAME"].empty?,
+          :keypair => (ENV["KEYPAIR_NAME"].nil? || ENV["KEYPAIR_NAME"].empty?) ? File.basename(`pwd`).strip : ENV["KEYPAIR_NAME"].empty?,
           :ami => 'ami-44bd592d',
           :shared_bucket => "",
           :expand_when => "web < 1.5\n memory > 0.85",
