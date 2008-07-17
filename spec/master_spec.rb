@@ -348,6 +348,18 @@ describe "Master" do
           Kernel.should_receive(:system).with("tar -czf #{@master.base_tmp_dir}/plugins.tar.gz #{File.basename(Application.plugin_dir)}").and_return true
           @master.build_and_send_config_files_in_temp_directory
         end
+        it "should try to copy the pem files" do
+          @master.should_receive(:copy_pem_files_to_tmp_dir).and_return true
+          @master.build_and_send_config_files_in_temp_directory
+        end
+        it "should try to copy the cert file" do
+          File.should_receive(:copy).with("/Users/auser/.ec2/current/cert-56EMRIBSJ56JJ5P6QEGXICFOO6DDVVDD.pem", "/Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/tmp/cert-56EMRIBSJ56JJ5P6QEGXICFOO6DDVVDD.pem")                     
+          @master.copy_pem_files_to_tmp_dir
+        end
+        it "should try the copy the pk file" do
+          File.should_receive(:copy).with("/Users/auser/.ec2/current/pk-56EMRIBSJ56JJ5P6QEGXICFOO6DDVVDD.pem", "/Users/auser/Sites/work/citrusbyte/internal/gems/pool-party/pool/tmp/pk-56EMRIBSJ56JJ5P6QEGXICFOO6DDVVDD.pem")
+          @master.copy_pem_files_to_tmp_dir
+        end
         describe "get configs" do
           before(:each) do
             @master.stub!(:user_dir).and_return("user")
@@ -365,7 +377,7 @@ describe "Master" do
         it "should copy the config file if it exists" do
           Application.stub!(:config_file).and_return "config.yml"
           File.stub!(:exists?).and_return true        
-          File.should_receive(:copy).exactly(2).times.and_return true
+          File.should_receive(:copy).at_least(2).times.and_return true
           @master.build_and_send_config_files_in_temp_directory
         end
         describe "with copy_config_files_in_directory_to_tmp_dir method" do

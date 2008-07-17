@@ -136,8 +136,8 @@ module PoolParty
     
     def setup_pems
       <<-EOC
-        #{if_exists "cert.pem", "mv #{remote_base_tmp_dir}/cert.pem #{Application.keypair_path}/cert-CLOUD.pem"}
-        #{if_exists "pk.pem", "mv #{remote_base_tmp_dir}/pk.pem #{Application.keypair_path}/pk-CLOUD.pem"}
+        #{if_exists "cert.pem", "mv #{remote_base_tmp_dir}/cert-*.pem #{Application.keypair_path}/cert-CLOUD.pem"}
+        #{if_exists "pk.pem", "mv #{remote_base_tmp_dir}/pk-*.pem #{Application.keypair_path}/pk-CLOUD.pem"}
       EOC
     end
     

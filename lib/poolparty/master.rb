@@ -189,6 +189,8 @@ module PoolParty
       
       File.copy(Application.config_file, "#{base_tmp_dir}/config.yml") if Application.config_file && File.exists?(Application.config_file)
       File.copy(Application.keypair_path, "#{base_tmp_dir}/keypair") if File.exists?(Application.keypair_path)
+      
+      copy_pem_files_to_tmp_dir
             
       copy_config_files_in_directory_to_tmp_dir("config/resource.d")
       # copy_config_files_in_directory_to_tmp_dir("config/monit.d")
@@ -204,6 +206,16 @@ module PoolParty
         if Master.requires_heartbeat?
           build_heartbeat_config_file_for(node)
           build_heartbeat_resources_file_for(node)
+        end
+      end
+    end
+    def copy_pem_files_to_tmp_dir
+      %w(EC2_CERT EC2_PRIVATE_KEY).each do |key|
+        begin
+          file = `echo $#{key}`.strip
+          File.copy(file, "#{base_tmp_dir}/#{File.basename(file)}")
+        rescue Exception => e
+          puts "Error copying #{key}"
         end
       end
     end
