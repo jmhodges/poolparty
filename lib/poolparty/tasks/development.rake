@@ -5,7 +5,18 @@ namespace(:dev) do
   end
   # Setup a basic development environment for the user 
   desc "Setup development environment specify the config_file"
-  task :setup => [:init, :setup_keypair, :setup_pemkeys] do
+  task :setup => [:init, :setup_keypair] do    
+    certloc = "#{Application.ec2_dir}/#{Application.keypair}/cert-*.pem 2>/dev/null"
+    pkloc = "#{Application.ec2_dir}/#{Application.keypair}/pk-*.pem 2>/dev/null"
+    unless `ls #{certloc}`.length > 1 && `ls #{pkloc}`.length > 1
+      puts <<-EOM
+Make sure you run rake dev:setup_pemkeys before you run this command
+
+I cannot continue until your keys are setup. 
+exiting...
+      EOM
+      exit
+    end
     keyfilename = ".#{Application.keypair}_pool_keys"
     run <<-EOR
       echo 'export AWS_ACCESS_KEY=\"#{Application.access_key}\"' > $HOME/#{keyfilename}
@@ -22,19 +33,20 @@ namespace(:dev) do
     unless File.file?(Application.keypair_path)
       Application.keypair ||= "cloud"
       puts "-- setting up keypair named #{Application.keypair}"
-      run <<-EOR
+      run <<-EOR        
+        chmod 600 #{Application.keypair_path} 2>/dev/null
+        mkdir ~/.ec2/#{Application.keypair} 2>/dev/null
         ec2-add-keypair #{Application.keypair} > #{Application.keypair_path}
-        chmod 600 #{Application.keypair_path}
-        mkdir ~/.ec2/#{Application.keypair}
       EOR
     end
   end
   desc "Setup pem keys"
-  task :setup_pemkeys => [:setup_keypair] do    
+  task :setup_pemkeys => [:init] do    
+    puts "Setting up stubbed pem keys in ~/.ec2/#{Application.keypair}"
     run <<-EOR
-      mkdir ~/.ec2/#{Application.keypair} 2>/dev/null
-      touch ~/.ec2/#{Application.keypair}/cert-UPDATEME.pem 2>/dev/null
-      touch ~/.ec2/#{Application.keypair}/pk-UPDATEME.pem 2>/dev/null
+      mkdir -p ~/.ec2/#{Application.keypair} 2>/dev/null
+      echo 'UPDATE ME' > #{Application.ec2_dir}/#{Application.keypair}/cert-UPDATEME.pem
+      echo 'UPDATE ME' > #{Application.ec2_dir}/#{Application.keypair}/pk-UPDATEME.pem
     EOR
     puts "Don't forget to replace your ~/.ec2/#{Application.keypair}/*.pem keys with the real amazon keys"
   end
