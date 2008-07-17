@@ -26,7 +26,12 @@ exiting...
       echo 'export EC2_PRIVATE_KEY=`ls ~/.ec2/#{Application.keypair}/pk-*.pem`;' >> $HOME/#{keyfilename}
       echo 'export EC2_CERT=`ls ~/.ec2/#{Application.keypair}/cert-*.pem`;' >> $HOME/#{keyfilename}
     EOR
-    puts "To work on this cloud, type source #{keyfilename}"
+    puts <<-EOM
+To work on this cloud, source the file like: 
+  
+  source #{Application.ec2_dir}/#{keyfilename}
+  
+    EOM
   end
   desc "Generate a new keypair"
   task :setup_keypair => [:init] do
