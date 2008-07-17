@@ -43,14 +43,15 @@ module PoolParty
       PoolParty::Master.define_node_user_file(name, &block)
     end
     
-    def add_user_hash(h={})
-      PoolParty::Application.hash_to_launch_with.merge!(h)
+    def add_user_data(h={})
+      case h.class.to_s
+      when "String"
+        PoolParty::Application.user_data << h
+      when "Hash"
+        PoolParty::Application.hash_to_launch_with.merge!(h)
+      end      
     end
-    
-    def add_user_data(str="")
-      PoolParty::Application.user_data << str
-    end
-    
+        
     def read_config_file(filename)
       return {} unless filename
       YAML.load(open(filename).read)
