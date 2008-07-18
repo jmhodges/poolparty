@@ -10,7 +10,7 @@ begin
     s.email = "ari.lerner@citrusbyte.com"
     s.summary = "Run your entire application off EC2, managed and auto-scaling"
     s.url = "http://poolpartyrb.com"
-    s.dependencies = ["aws-s3", "amazon-ec2", "auser-aska", "git", "sprinkle", "SystemTimer", "open4"]
+    s.dependencies = ["aws-s3", "amazon-ec2", "auser-aska", "git", "crafterm-sprinkle", "SystemTimer", "open4"]
     s.install_message = %q{
       
       Get ready to jump in the pool, you just installed PoolParty!
