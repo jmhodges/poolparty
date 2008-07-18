@@ -10,7 +10,11 @@ require 'rubygems'
 require "aws/s3"
 require "EC2"
 require "aska"
-require 'crafterm-sprinkle'
+begin
+  require 'crafterm-sprinkle'
+rescue LoadError
+  require "sprinkle"
+end
 require "pp"
 require "tempfile"
 
