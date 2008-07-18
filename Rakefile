@@ -1,10 +1,12 @@
 require 'rubygems'
-require "./lib/poolparty"
+require "poolparty"
+
 begin
   require 'echoe'
   
   Echoe.new("poolparty") do |s|
-    s.author = "Ari Lerner"
+    s.author = ["Ari Lerner"]
+    s.rubyforge_name = "poolparty"
     s.email = "ari.lerner@citrusbyte.com"
     s.summary = "Run your entire application off EC2, managed and auto-scaling"
     s.url = "http://poolpartyrb.com"
@@ -29,8 +31,24 @@ rescue LoadError => boom
 end
 
 task :default => :test
-
 PoolParty.include_tasks
+
+# add spec tasks, if you have rspec installed
+# begin
+#   require 'spec/rake/spectask'
+#  
+#   Spec::Rake::SpecTask.new("spec") do |t|
+#     t.spec_files = FileList['spec/**/*_spec.rb']
+#     t.spec_opts = ['--color']
+#   end
+#  
+#   Spec::Rake::SpecTask.new("rcov_spec") do |t|
+#     t.spec_files = FileList['spec/**/*_spec.rb']
+#     t.spec_opts = ['--color']
+#     t.rcov = true
+#     t.rcov_opts = ['--exclude', '^spec,/gems/']
+#   end
+# end
 
 namespace(:pkg) do
   ## Rake task to create/update a .manifest file in your project, as well as update *.gemspec
