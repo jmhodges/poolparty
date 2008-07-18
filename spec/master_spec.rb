@@ -8,8 +8,10 @@ describe "Master" do
     Kernel.stub!(:exec).and_return true
     Kernel.stub!(:sleep).and_return true # WHy wait?, just do it
     
+    Application.options
+    
     Application.options.stub!(:contract_when).and_return("web > 30.0\n cpu < 0.10")
-    Application.options.stub!(:expand_when).and_return("web < 3.0\n cpu > 0.80")
+    Application.options.stub!(:expand_when).and_return("web < 3.0\n cpu > 0.80")    
     @master = Master.new
   end  
   after(:all) do
@@ -205,6 +207,9 @@ describe "Master" do
             node.stub!(:run_now).and_return true
           end
         end
+        after(:all) do
+          Kernel.system("ssh-add -d #{Application.keypair_path} >/dev/null 2>/dev/null")
+        end
         it "should install on the instances if the application says it should" do
           Provider.should_receive(:install_poolparty)
           @master.install_cloud
@@ -214,11 +219,11 @@ describe "Master" do
           @master.install_cloud
         end
         it "should store the ssh keypair before install" do
-          Kernel.should_receive(:system).with("ssh-add #{Application.keypair_path}").and_return true
+          Kernel.should_receive(:system).with("ssh-add #{Application.keypair_path} >/dev/null 2>/dev/null").at_least(1).and_return true
           @master.install_cloud
         end
         it "should delete the ssh keypair after configure_cloud" do
-          Kernel.should_receive(:system).with("ssh-add -d #{Application.keypair_name}").and_return true
+          Kernel.should_receive_at_least_once(:system).with("ssh-add -d #{Application.keypair_name} >/dev/null 2>/dev/null").and_return true
           @master.configure_cloud
         end
         describe "stubbing installation" do

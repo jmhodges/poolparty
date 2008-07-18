@@ -4,6 +4,7 @@ require File.dirname(__FILE__) + "/helpers/ec2_mock"
 describe "Master remoting: " do
   before(:each) do
     stub_option_load
+    
     Kernel.stub!(:system).and_return true
     Application.stub!(:environment).and_return("test") # So it doesn't daemonize
     Application.stub!(:minimum_instances).and_return(2)
@@ -58,6 +59,17 @@ describe "Master remoting: " do
   describe "starting" do
     before(:each) do
       @master.start_cloud!
+      
+      @a1={:instance_id => "i-a1", :ip => "127.0.0.1", :status => "running", :launching_time => 10.minutes.ago, :keypair => "alist"}
+      @a2={:instance_id => "i-a2", :ip => "127.0.0.3", :status => "running", :launching_time => 2.hours.ago, :keypair => "alist"}
+      @a3={:instance_id => "i-a3", :ip => "127.0.0.3", :status => "terminated", :launching_time => 2.hours.ago, :keypair => "alist"}
+      @a4={:instance_id => "i-a4", :ip => "127.0.0.4", :status => "pending", :launching_time => 2.hours.ago, :keypair => "alist"}
+      
+      @b1={:instance_id => "i-b1", :ip => "127.0.0.2", :status => "terminated", :launching_time => 55.minutes.ago, :keypair => "blist"}
+      @c1={:instance_id => "i-c1", :ip => "127.0.0.4", :status => "pending", :launching_time => 2.days.ago, :keypair => "clist"}
+      @master.stub!(:get_instances_description).and_return [@a1, @a2, @a3, @a4, @b1, @c1]
+      
+      Application.stub!(:keypair).and_return "alist"
     end
     it "should start the cloud with instances" do
       @master.list_of_instances.should_not be_empty
@@ -71,6 +83,9 @@ describe "Master remoting: " do
     end
   end
   describe "maintaining" do
+    before(:each) do
+      Application.stub!(:keypair).and_return "alist"
+    end
     it "should maintain the minimum_instances if one goes down" do
       @master.start_cloud!
       wait 0.2 # Give the two instances time to boot up
@@ -87,7 +102,7 @@ describe "Master remoting: " do
     it "should launch a new instance when the load gets too heavy set in the configs" do
       @master.stub!(:expand?).and_return true
       @master.start_cloud!
-      wait 0.2 # Give the two instances time to boot up
+      wait 0.5 # Give the two instances time to boot up
       (Application.minimum_instances - @master.number_of_pending_and_running_instances).should == 0
       @master.scale_cloud!
       @master.nodes.size.should == Application.minimum_instances + 1

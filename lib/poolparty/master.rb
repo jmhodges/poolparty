@@ -74,10 +74,10 @@ module PoolParty
     before :install_cloud, :add_ssh_key
     after :configure_cloud, :remove_ssh_key
     def add_ssh_key(i)
-      Kernel.system("ssh-add #{Application.keypair_path}")
+      Kernel.system("ssh-add #{Application.keypair_path} >/dev/null 2>/dev/null")
     end
     def remove_ssh_key(i)
-      Kernel.system("ssh-add -d #{Application.keypair_name}")
+      Kernel.system("ssh-add -d #{Application.keypair_name} >/dev/null 2>/dev/null")
     end
     def install_cloud(bool=false)
       if Application.install_on_load? || bool
@@ -215,7 +215,6 @@ module PoolParty
           file = `echo $#{key}`.strip
           File.copy(file, "#{base_tmp_dir}/#{File.basename(file)}")
         rescue Exception => e
-          puts "Error copying #{key}"
         end
       end
     end

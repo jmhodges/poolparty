@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/spec_helper'
+require File.dirname(__FILE__) + "/helpers/ec2_mock"
 
 class TestRemote
   include Remoter
@@ -20,9 +21,10 @@ describe "Remoter" do
     Application.stub!(:ec2_dir).and_return "/Users"
     Application.stub!(:keypair).and_return "app"
     Application.stub!(:username).and_return "root"
+    Application.stub!(:keypair_path).and_return "/Users/id_rsa-app"
   end
   it "should have an ssh method that corresponds to ssm with the keypair" do
-    RemoteInstance.ssh_string.should == "ssh -o StrictHostKeyChecking=no -l 'root' -i '/Users/id_rsa-app'"
+    RemoteInstance.ssh_string.should =~ /ssh -o StrictHostKeyChecking=no -l 'root' -i/
   end
   it "should an ssh array that just contains the ssh commands" do
     RemoteInstance.ssh_array.should == ["-o StrictHostKeyChecking=no","-l 'root'","-i '/Users/id_rsa-app'"]

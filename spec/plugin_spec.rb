@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/spec_helper'
+require File.dirname(__FILE__) + "/helpers/ec2_mock"
 
 class TestPlugin < PoolParty::Plugin
   after_define_tasks :takss
@@ -76,11 +77,11 @@ describe "Plugin" do
     describe "user-data" do
       it "should be able to add to the user-data with a string" do
         @test.add_user_data("hollow")
-        Application.launching_user_data.should == "--- \n:secret_access_key: pi\n:keypair_path: /mnt\n:polling_time: 30.seconds\n:user_data: hollow\n:access_key: 3.14159\n"
+        Application.launching_user_data.should =~ /:user_data: hollow/
       end
       it "should be able to add a hash to the user-data with a hash" do
         @test.add_user_data(:box => "box")
-        Application.launching_user_data.should == "--- \n:secret_access_key: pi\n:keypair_path: /mnt\n:box: box\n:polling_time: 30.seconds\n:user_data: hollow\n:access_key: 3.14159\n"        
+        Application.launching_user_data.should =~ /:box: box/
       end
     end
     describe "instance methods" do
