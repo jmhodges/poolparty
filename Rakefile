@@ -23,6 +23,7 @@ begin
       For more information, check http://poolpartyrb.com
       On IRC: 
         irc.freenode.net / #poolpartyrb
+        
       *** Ari Lerner @ <ari.lerner@citrusbyte.com> ***
     }
   end
@@ -82,6 +83,7 @@ namespace(:pkg) do
   desc "Build gemspec for github"
   task :gemspec => :manifest do
     require "yaml"
+    `rm poolparty.gemspec`
     `rake manifest gem`
     data = YAML.load(open("poolparty.gemspec").read).to_ruby
     File.open("poolparty.gemspec", "w+") {|f| f << data }
