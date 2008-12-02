@@ -1,0 +1,5 @@
+grammar PPallowedtypes
+  rule range
+    space integer ".." integer
+  end
+end

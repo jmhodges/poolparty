@@ -1,0 +1,33 @@
+grammar PPstrings
+
+  rule name_def
+    [a-zA-Z]+ {def value;chars.elements.map {|a| a.value }.join;end}
+  end
+  
+  rule string
+    '"' [chars:char]* '"' {
+      def value
+        chars.elements.map {|e| e.value }.join
+      end
+    }
+  end
+
+ rule char
+   !'"' ('\\\\' ( ( [nbfrt"] / '\\\\' / '/' ) / 'u' hex hex hex hex ) / !'\\\\' .) {
+     def value
+       if text_value[0..0] == '\\\\'
+         case c = text_value[1..1]
+         when /[nbfrt]/
+           {'n' => "\n", 'b' => "\b", 'f' => "\f", 'r' => "\r", 't' => "\t"}[c]
+         when 'u'
+           [text_value[2,4].to_i(16)].pack("L").gsub(/\0*$/,'')
+         else
+           c
+         end
+       else
+         text_value
+       end
+     end
+   }
+ end
+end

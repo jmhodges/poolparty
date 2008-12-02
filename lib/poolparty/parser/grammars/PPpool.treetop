@@ -1,0 +1,17 @@
+grammar PPpool
+  include PPbase
+  # Pool grammars
+  rule pool_block
+    space pool_def space compute_block {
+      def value
+        compute_block
+      end
+    }
+  end
+  rule pool_def
+    "pool" pool_name
+  end
+  rule pool_name
+    space name_def space {def value;name_def.value;end}
+  end
+end

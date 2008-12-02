@@ -1,0 +1,25 @@
+grammar PPbase
+  # Base grammars
+  rule compute_block
+    block_do block_contents block_end
+  end
+  rule block_contents
+    [declarations:declaration]* {
+      def value
+        declarations.map {|d| d.value }.join
+      end
+    }
+  end
+  rule declaration
+    string
+  end
+  rule block_do
+    space "do" space
+  end
+  rule block_end
+    space "end" space
+  end
+  rule space  
+    [ \t\r\n]*
+  end
+end

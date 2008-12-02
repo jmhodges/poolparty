@@ -1,0 +1,25 @@
+grammar PPnumbers
+  rule hex  
+    [0-9a-fA-F]
+  end  
+
+  rule numeric 
+    exp / float / integer  
+  end  
+
+  rule exp  
+    (float / integer) [eE] [+-]? unsigned_integer  { def value; text_value.to_f; end }  
+  end  
+
+  rule float  
+    integer '.' [0-9]+  { def value; text_value.to_f; end }  
+  end  
+
+  rule integer  
+    '-'? unsigned_integer  { def value; text_value.to_i; end }  
+  end  
+
+  rule unsigned_integer  
+    ('0' / [1-9] [0-9]*)  
+  end
+end
