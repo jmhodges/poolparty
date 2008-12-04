@@ -1,7 +1,7 @@
 --- !ruby/object:Gem::Specification 
 name: poolparty
 version: !ruby/object:Gem::Version 
-  version: 0.2.72
+  version: 0.2.74
 platform: ruby
 authors: 
 - Ari Lerner
@@ -9,7 +9,7 @@ autorequire:
 bindir: bin
 cert_chain: []
 
-date: 2008-11-28 00:00:00 -08:00
+date: 2008-12-03 00:00:00 -08:00
 default_executable: 
 dependencies: 
 - !ruby/object:Gem::Dependency 
@@ -248,7 +248,6 @@ files:
 - lib/erlang/messenger/lib/eunit/src/file_monitor.erl
 - lib/erlang/messenger/lib/eunit/sys.config
 - lib/erlang/messenger/lib/eunit/vsn.mk
-- lib/erlang/messenger/log/pool.logs
 - lib/erlang/messenger/pm_client_rel-0.1.boot
 - lib/erlang/messenger/pm_client_rel-0.1.script
 - lib/erlang/messenger/pm_master_rel-0.1.boot
@@ -413,7 +412,6 @@ files:
 - lib/poolpartyspec.rb
 - log/pool.log
 - log/pool.logs
-- poolparty.gemspec
 - script/destroy
 - script/generate
 - script/txt2html
@@ -509,7 +507,7 @@ files:
 has_rdoc: true
 homepage: http://poolparty.rubyforge.org
 post_install_message: |-
-  Get ready to jump in the pool, you just installed PoolParty! (Updated at 19:03 11/28/08)
+  Get ready to jump in the pool, you just installed PoolParty! (Updated at 18:16 12/03/08)
   
   To get started, run the generator:
   
