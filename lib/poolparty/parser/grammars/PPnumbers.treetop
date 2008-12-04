@@ -17,7 +17,7 @@ grammar PPnumbers
 
   rule integer  
     '-'? unsigned_integer  { def value; text_value.to_i; end }  
-  end  
+  end 
 
   rule unsigned_integer  
     ('0' / [1-9] [0-9]*)  

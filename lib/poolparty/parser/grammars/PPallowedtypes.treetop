@@ -1,5 +1,15 @@
 grammar PPallowedtypes
+  include PPnumbers
   rule range
-    space integer ".." integer
+    s integer ".." integer
+  end
+  rule array
+    s '[' s allowed_types s (comma s allowed_types) s ']'
+  end
+  rule allowed_types
+    range / numeric / string
+  end
+  rule s  
+    [ \t\r\n]*
   end
 end
