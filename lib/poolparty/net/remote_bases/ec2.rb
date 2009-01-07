@@ -203,7 +203,6 @@ end
 
       def reset_base!
         @describe_instances = @cached_descriptions = nil
-      end
-    end
-    register_remote_base :Ec2
+      end      
+    end    
   end

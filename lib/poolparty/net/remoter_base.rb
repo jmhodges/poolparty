@@ -18,17 +18,6 @@
 =end
 module PoolParty
 
-  def register_remote_base(*args)
-    args.each do |arg|
-      base_name = "#{arg}".downcase.to_sym
-      (remote_bases << base_name) unless remote_bases.include?(base_name)
-    end
-  end
-  
-  def remote_bases
-    $remote_bases ||= []
-  end
-
   module Remote    
     # This class is the base class for all remote types
     # Everything remoting-wise is derived from this class
@@ -172,4 +161,8 @@ module PoolParty
   end
 end
 
-Dir["#{File.dirname(__FILE__)}/remote_bases/*.rb"].each {|base| require base }
+Dir["#{File.dirname(__FILE__)}/remote_bases/*.rb"].each do |base| 
+  name = ::File.basename(base, ::File.extname(base))
+  require base
+  PoolParty::Remote.register_remote_base name
+end
