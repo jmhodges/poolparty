@@ -33,9 +33,7 @@ end
     end
   end
   module PoolParty
-    module Ec2
-      include PoolParty::Remote::RemoterBase
-      
+    class Ec2 < PoolParty::Remote::RemoterBase
       def launch_new_instance!(num=1)
         instance = ec2.run_instances(
           :image_id => (ami || Base.ami),

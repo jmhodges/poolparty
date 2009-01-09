@@ -1,15 +1,16 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 require "ftools"
 
-module Hype
+class Hype < PoolParty::Remote::RemoterBase
   def hyper
     "beatnick"
   end
   def instances_list
     []
-  end
-  register_remote_base :Hype
+  end  
 end
+
+PoolParty::Remote.register_remote_base :Hype
 
 describe "Remote" do
   before(:each) do
@@ -26,8 +27,8 @@ describe "Remote" do
     @tc.instance_eval do
       @remote_base = nil
     end
-    @tc.should_receive(:extend).with("Hype".preserved_module_constant).once
     @tc.using :hype
+    @tc.remote_base.class =="Hype".class_constant
   end
   it "should keep a list of the remote_bases" do
     @tc.stub!(:remote_bases).and_return [:ec2, :hype]
@@ -52,24 +53,21 @@ describe "Remote" do
       @tc.should_receive(:using_remoter?).once
       @tc.using :hype
     end
-    it "should only include the remote class once" do
-      @tc.instance_eval do
-        @remote_base = nil
-      end
-      @tc.should_receive(:extend).with(Hype).once
-      @tc.using :hype
-      @tc.using :hype
-      @tc.using :hype
-    end
   end
   describe "after using" do
     before(:each) do
-      @tc = TestClass.new
+      @tc = TestClass.new do
+        using :hype
+      end
       stub_list_from_remote_for(@tc, false)
-      @tc.using :hype
+    end
+    it "should set the remote_base as an instance of the remoter base" do
+      @tc.remote_base.class.should == Hype
     end
     it "should now have the methods available from the module" do
-      @tc.respond_to?(:hyper).should == true
+      lambda {
+        @tc.hyper
+      }.should_not raise_error
     end
     it "should raise an exception because the launch_new_instance! is not defined" do
       lambda {

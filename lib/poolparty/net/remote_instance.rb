@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + "/remoter"
 module PoolParty  
   module Remote
     
-    class RemoteInstance < RemoteBases
+    class RemoteInstance < RemoterBase
       include Configurable
       include CloudResourcer
       

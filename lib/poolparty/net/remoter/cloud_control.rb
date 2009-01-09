@@ -192,9 +192,11 @@ module PoolParty
     def list_of_nodes_exceeding_minimum_runtime
       list_of_running_instances.reject{|i| i.elapsed_runtime < minimum_runtime}
     end
+    
     def are_any_nodes_exceeding_minimum_runtime?
       !list_of_nodes_exceeding_minimum_runtime.blank?
     end
+    # Is there a node that is running with the name master
     def is_master_running?
       !list_of_running_instances.select {|a| a.name == "master"}.first.nil?
     end    

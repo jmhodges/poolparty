@@ -3,8 +3,6 @@
   that the clouds can use to rsync or run remote commands
 =end
 
-Dir["#{File.dirname(__FILE__)}/remoter/*.rb"].each {|base| require base}
-
 module PoolParty
   module Remote
     module Remoter      
@@ -23,4 +21,9 @@ module PoolParty
       end
     end
   end
+end
+
+Dir["#{File.dirname(__FILE__)}/remoter/*.rb"].each do |base| 
+  require base
+  PoolParty::Remote::Remoter
 end
