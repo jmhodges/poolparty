@@ -37,7 +37,7 @@ module PoolParty
       end
       
       def using_remoter?
-        @remote_base ||= nil
+        @remote_base
       end
       
       def method_missing_with_remoter(m, *args, &block) #:nodoc:

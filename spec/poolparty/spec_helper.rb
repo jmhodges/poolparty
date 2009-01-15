@@ -34,11 +34,20 @@ class TestClass < PoolParty::Cloud::Cloud
   end
   def keypair
     "fake_keypair"
-  end
+  end  
 end
 
 def setup
   PoolParty::Messenger.stub!(:messenger_send!).and_return false
+end
+
+def new_test_cloud(force_new=false)
+  unless @test_cloud || force_new
+    @test_cloud = Cloud.new("test_cloud_#{rand(10000)}")
+    stub_list_from_remote_for @test_cloud
+    @test_cloud.stub!(:describe_instances).and_return response_list_of_instances
+  end
+  @test_cloud
 end
 
 def setup_cl
