@@ -22,16 +22,18 @@ module PoolParty
     def list_of_nonterminated_instances(list = remote_instances_list)
       list.reject {|i| i.terminating? || i.terminated? }
     end
-    # We'll stub the ip to be the master ip for ease and accessibility
-    def ip
-      master.ip
-    end
-    # get the master instance
-    def master
-      get_instance_by_number(0)
-    end
+    #DEPRECATE We'll stub the ip to be the master ip for ease and accessibility
+    # def ip
+    # puts "DEPRECATED:  ip will only be callable against a RemoteInstance in the next release."
+    #     master.ip
+    #   end
+    # #DEPRECATE: get the master instance
+    # def master
+    #   puts "DEPRECATED:  'master' is deprecated and will be removed in the next major release."
+    #   get_instance_by_number(0)
+    # end
     # Get instance by number
-    def get_instance_by_number(i=0, list = remote_instances_list)
+    def get_instance_by_number(i=0, list = remote_instances_list)      
       name = ((i.nil? || i.zero?) ? "master" : "node#{i}")
       list.select {|i| i.name == name }.first
     end
@@ -40,7 +42,6 @@ module PoolParty
     end
     def remote_instances_list        
       @containing_cloud = self
-      # puts "> #{@containing_cloud} #{@describe_instances.nil?}"
       list_of_instances(keypair).collect {|h| PoolParty::Remote::RemoteInstance.new(h, @containing_cloud) }
     end
     # List the instances for the current key pair, regardless of their states

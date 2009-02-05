@@ -133,7 +133,8 @@ module PoolParty
         Base.remote_storage_path        
       ]
     end
-    
+
+    #NOTE MF This tells us what cloud we are in
     def context_stack
       @@context_stack ||= []
     end

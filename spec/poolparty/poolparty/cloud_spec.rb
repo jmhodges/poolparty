@@ -409,6 +409,7 @@ describe "Cloud" do
           stub_list_from_remote_for(@cloud3)
         end
         it "should respond to the method master" do
+          @cloud3.master.should_not be_nil
           @cloud3.respond_to?(:master).should == true
         end
         it "should return a master that is not nil" do

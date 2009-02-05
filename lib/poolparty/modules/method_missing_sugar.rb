@@ -42,7 +42,12 @@ module PoolParty
         if options.has_key?(m)
           options[m]
         else
-          (parent.nil? || parent.class == self.class || !parent.respond_to?(:options) || parent.options.has_key?(m) || !parent.respond_to?(m)) ? nil : parent.send(m, *args, &block)
+          if(parent.nil? || parent.class == self.class || !parent.respond_to?(:options) || parent.options.has_key?(m) || !parent.respond_to?(m))
+            # puts "Method Missing: #{m}" #MF
+            nil
+          else
+            parent.send(m, *args, &block)
+          end
         end        
       else
         options[m] = 

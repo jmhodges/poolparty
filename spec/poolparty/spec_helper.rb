@@ -12,6 +12,8 @@ end
 # Dir["#{File.dirname(__FILE__)}/helpers/**"].each {|a| require a}
 
 ENV["POOL_SPEC"] = nil
+ENV["AWS_ACCESS_KEY"] = 'fake_access_key'
+ENV["AWS_SECRET_ACCESS_KEY"] = 'fake_aws_secret_access_key'
 
 include PoolParty
 extend PoolParty
@@ -38,7 +40,7 @@ class TestClass < PoolParty::Cloud::Cloud
 end
 
 def setup
-  PoolParty::Messenger.stub!(:messenger_send!).and_return false
+  PoolParty::Messenger.stub!(:messenger_send!).and_return false  
 end
 
 def new_test_cloud(force_new=false)
@@ -143,11 +145,14 @@ def response_list_of_instances(arr=[])
   unless @response_list_of_instances
     @a1 = stub_instance(1); 
     @a1[:name] = "master"
-    @a2 = stub_instance(1); @a3 = stub_instance(2, "terminated"); @a4 = stub_instance(3, "pending")
-    @b1 = stub_instance(4, "shutting down", "blist"); @c1 = stub_instance(5, "pending", "clist")
+    @a2 = stub_instance(1); 
+    @a3 = stub_instance(2, "terminated"); 
+    @a4 = stub_instance(3, "pending")
+    @b1 = stub_instance(4, "shutting down", "blist"); 
+    @c1 = stub_instance(5, "pending", "clist")
     @response_list_of_instances = [@a1, @a2, @a3, @a4, @b1, @c1]
   end
-  @response_list_of_instances
+  @response_list_of_instances+arr
 end
 
 def running_remote_instances

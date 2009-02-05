@@ -63,3 +63,5 @@ module PoolParty
     end
   end
 end
+
+require File.dirname(__FILE__) + "/remoter_base"

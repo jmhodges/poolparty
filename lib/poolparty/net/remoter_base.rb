@@ -19,7 +19,7 @@
 module PoolParty
 
   module Remote    
-    # This class is the base class for all remote types
+    # This class is the base class for all remote types, such as ec2
     # Everything remoting-wise is derived from this class
     class RemoterBase < Remote
       # Required methods

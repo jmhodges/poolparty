@@ -31,7 +31,7 @@ class Object
       v
     else
       vs = v.to_s.to_sym
-      respond_to?(vs) ? self.send(vs, *args) : v rescue v
+      respond_to?(vs) ? self.send(vs, *args) : v rescue v  #NOTE MF: maybe we should not rescue all errors?
     end
   end
   def to_option_string

@@ -7,12 +7,15 @@ module PoolParty
       include Configurable
       include CloudResourcer
       
-      def initialize(opts, parent=self)        
+      
+      def initialize(opts, parent=self)
+        @uniquely_identifiable_by = [:instance_id, :ip, :name ] if !@uniquely_identifiable_by
+        if !opts.keys.detect{|k| @uniquely_identifiable_by.include?(k) }
+          raise "You must pass at least on key=>value pair that will uniquely identify an instance. Possible keys are #{@uniquely_identifiable_by.inspect}." 
+        end
         run_setup(parent)
-
         set_vars_from_options(parent.options) if parent && parent.respond_to?(:options)
         set_vars_from_options(opts) unless opts.nil? || opts.empty?
-        
         on_init
       end
       
@@ -25,25 +28,27 @@ module PoolParty
       end
       
       # Is this remote instance the master?
+      # DEPRECATE
       def master?
         name == "master"
       end
       
       # The remote instances is only valid if there is an ip and a name
       def valid?
-        !(ip.nil? || name.nil?)
+        (ip.nil? || name.nil?) ? false : true
       end
       
       # Determine if the RemoteInstance is responding
       def responding?
-        !responding.nil?
+        running?
+        # !responding.nil? #TODO MF this needs to actually ping the node or something similar.  stubbed to running? for now
       end
       
       # This is how we get the current load of the instance
       # The approach of this may change entirely, but the usage of
       # it will always be the same
       def load
-        current_load ||= 0.0
+        current_load ||= 0.0  #NOTE MF: returning 0.0 seems like a bad idea here.  should return nil if we dont have a real value
       end
             
       # Is this instance running?
