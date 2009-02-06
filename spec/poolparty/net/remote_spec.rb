@@ -15,10 +15,9 @@ PoolParty::Remote.register_remote_base :Hype
 describe "Remote" do
   before(:each) do
     @cloud = cloud :test_cloud do;end
-    
     @tc = TestClass.new
     @tc.stub!(:verbose).and_return false
-    setup
+    setup 
   end
   it "should have the method 'using'" do
     @tc.respond_to?(:using).should == true

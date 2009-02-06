@@ -47,9 +47,9 @@ module PoolParty
       def initialize(name, pare=self, &block)
         @cloud_name = name
         @cloud_name.freeze
-                
+        
         plugin_directory
-                
+        
         p = pare.is_a?(PoolParty::Pool::Pool) ? pare : nil
         store_block(&block)
         run_setup(p, &block)        
@@ -57,9 +57,25 @@ module PoolParty
         # set_parent(parent) if parent && !@parent
         # self.run_in_context parent, &block if block
         setup_defaults
+        
         # realize_plugins!
         # reset! # reset the clouds
         # reset_remoter_base!
+        # define_methods_from_remoter_base(remote_base)
+      end
+      
+      #NOTE MF this is unused so far, but would be nice to reduce the use of method_missing
+      # Define methods from the specific verion of this cloud on this cloud.  For instance,
+      # inherit methods such as terminate_instance from the Ec2 class if this cloud is using ec2
+      def define_methods_from_remoter_base(this_clouds_remoter_base_class, *args, &block)
+        this_clouds_remoter_base_class.public_methods(false).each do |meth|
+          (class << self; self; end).class_eval do
+            define_method meth do |*args|
+              specific_cloud_class.send meth, *args
+              puts "Defining a new method on the cloud specific_cloud_class.send #{meth}, *#{args}"
+            end
+          end
+        end
       end
       
       def setup_defaults
@@ -223,8 +239,12 @@ module PoolParty
       def minimum_runnable_options
         ([
           :keypair, :minimum_instances, :maximum_instances,
-          :expand_when, :contract_when, :set_master_ip_to
+          :expand_when, :contract_when, :set_master_ip_to  #DEPRECATE set_master_ip_to
         ]<< custom_minimum_runnable_options).flatten
+      end
+      
+      def custom_minimum_runnable_options
+        using_remoter? ? @remote_base.custom_minimum_runnable_options : []
       end
       
       # Add all the poolparty requirements here
@@ -264,5 +284,5 @@ module PoolParty
       end
             
     end
-  end  
+  end 
 end

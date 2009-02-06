@@ -40,6 +40,7 @@ module PoolParty
         @remote_base
       end
       
+      # Add methods from the remote_base, ec2 for example, if the remote base has those methods, otherwise, pass up to the regular method_missing
       def method_missing_with_remoter(m, *args, &block) #:nodoc:
         if @remote_base && @remote_base.respond_to?(m)
           @remote_base.send m, *args, &block
@@ -58,6 +59,9 @@ module PoolParty
       receiver.send :alias_method, :method_missing, :method_missing_with_remoter
     end
 
+    # The Remote class is a wrapps the core methods of
+    # launch_new_instance! terminate_instance describe_instance instances_list
+    #  with convenience methods.
     class Remote
       include PoolParty::Remote::Remoter
     end

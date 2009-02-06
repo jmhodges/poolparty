@@ -59,9 +59,13 @@ describe "ec2 remote base" do
     end
   end
   describe "describe_instance" do
-    it "should call get_instances_description on itself" do      
-      @tr.should_receive(:get_instances_description).and_return {}
-      @tr.describe_instance
+    it "should return a default instance if called with no paramters" do      
+      @tr.describe_instance.should_not be_nil
+      @tr.describe_instance[:name].should_not be_nil
+    end
+    it "should return nil if the cloud has no instances" do
+      @tr.stub!(:describe_instances).and_return []
+      @tr.describe_instance.should be_nil
     end
   end
   describe "get_instances_description" do  #NOTE MF: this test is sorta bogus since it is just checking what we stubbed 

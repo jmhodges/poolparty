@@ -3,7 +3,8 @@ require File.dirname(__FILE__) + "/remoter"
 module PoolParty  
   module Remote
     
-    class RemoteInstance < RemoterBase
+    # RemoteInstance contains methods and properties appropriate for a single instance of a remoter base cloud.  Remote instances of supported rmoterbases should inherit from this class, and override as necessary.
+    class RemoteInstance #< RemoterBase
       include Configurable
       include CloudResourcer
       

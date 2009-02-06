@@ -18,21 +18,40 @@ ENV["AWS_SECRET_ACCESS_KEY"] = 'fake_aws_secret_access_key'
 include PoolParty
 extend PoolParty
 
-def debugging
-  false
-end
-def are_too_many_instances_running?  
-end
-def are_any_nodes_exceeding_minimum_runtime?  
-end
-def are_too_few_instances_running?
+def debugging;  false; end
+def are_too_many_instances_running?; end
+def are_any_nodes_exceeding_minimum_runtime?; end
+def are_too_few_instances_running?; end
+
+require File.dirname(__FILE__)+'/net/remote_bases/ec2_mocks_and_stubs.rb'
+
+class TestRemoterClass < Ec2
+  include CloudResourcer
+  include CloudDsl
+  
+  def keypair;"fake_keypair";  end
+  def ami;"ami-abc123";end
+  def size; "small";end
+  def security_group; "default";end
+  def ebs_volume_id; "ebs_volume_id";end
+  def availabilty_zone; "us-east-1a";end
+  def verbose; false; end
+  def ec2
+    @ec2 ||= EC2::Base.new( :access_key_id => "not_an_access_key", :secret_access_key => "not_a_secret_access_key")
+  end
+  def describe_instances
+    response_list_of_instances
+  end
 end
 
 class TestClass < PoolParty::Cloud::Cloud
   include CloudResourcer
   attr_accessor :parent
   def initialize(&block)
-    super :test_cloud, nil, &block
+    super :test_cloud, Ec2.new, &block
+  end
+  def verbose
+    false
   end
   def keypair
     "fake_keypair"

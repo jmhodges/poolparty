@@ -46,7 +46,7 @@ describe "Script" do
           reset_resources!
           pool :appdotcomcool do
             keypair "snoodle"
-            ami "ami-123456"
+            ami "ami-123456"            
             
             cloud :app do
               expand_when "cpu > 90", "memory > 80"

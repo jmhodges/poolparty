@@ -47,6 +47,15 @@ module PoolParty
             nil
           else
             parent.send(m, *args, &block)
+            # WHY IS THIS NOT WORKING? MF  
+            #perhaps it needs to be passed a block, only supported in ruby 1.9
+            # (class << self; self; end).class_eval do
+            #   define_method m do |*args, &block|
+            #     puts "Defining a new method #{parent}.send(#{m}, *#{args})"
+            #     parent.send m, *args
+            #   end
+            # end
+            
           end
         end        
       else

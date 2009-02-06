@@ -38,7 +38,7 @@ describe "Cloud" do
         @cloud1.using_remoter?.should_not == nil
       end
       it "should say the remoter_base is ec2 (by default)" do
-        @cloud1.remote_base.should == PoolParty::Ec2
+        @cloud1.remote_base.class.should == PoolParty::Ec2
       end
     end
     it "should return the cloud if the cloud key is already in the clouds list" do
@@ -403,19 +403,19 @@ describe "Cloud" do
         end
       end
 
-      describe "instances" do
-        before(:each) do
-          @cloud3 = cloud :pop do;keypair "fake_keypair";end
-          stub_list_from_remote_for(@cloud3)
-        end
-        it "should respond to the method master" do
-          @cloud3.master.should_not be_nil
-          @cloud3.respond_to?(:master).should == true
-        end
-        it "should return a master that is not nil" do
-          @cloud3.master.should_not be_nil
-        end
-      end
+      # describe "instances" do
+      #   before(:each) do
+      #     @cloud3 = cloud :pop do;keypair "fake_keypair";end
+      #     stub_list_from_remote_for(@cloud3)
+      #   end
+      #   it "should respond to the method master" do
+      #     @cloud3.master.should_not be_nil
+      #     @cloud3.respond_to?(:master).should == true
+      #   end
+      #   it "should return a master that is not nil" do
+      #     @cloud3.master.should_not be_nil
+      #   end
+      # end
     end
   end
 end
