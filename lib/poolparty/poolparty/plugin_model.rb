@@ -16,7 +16,7 @@ module PoolParty
       attr_accessor :name, :klass
       include MethodMissingSugar
       include Configurable
-      include PrettyPrinter      
+      include PrettyPrinter
       
       def initialize(name,&block)
         @name = name

@@ -201,6 +201,9 @@ module PoolParty
       def duplicatable?
         false
       end
+      def resource?
+        true
+      end
       # This way we can subclass resources without worry
       def class_type_name
         self.class.to_s.top_level_class.underscore.downcase
