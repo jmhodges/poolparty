@@ -27,17 +27,23 @@ end
 class DependencyResolverSpecTestCloud < DependencyResolverCloudExtensionsSpecBase
 end
 
-# cloud :dog do
-#   keypair "bob"
-#   has_file :name => "/etc/motd", :content => "Welcome to the cloud"
-#   has_file :name => "/etc/profile", :content => "profile info"
-#   has_directory :name => "/var/www"
-# 
-#   apache do
-#     listen "8080"
-#     has_file :name => "/etc/apache2/apache2.conf", :template => "/absolute/path/to/template"
-#   end
-# end
+class JunkClassForDefiningPlugin
+  plugin :apache do  
+  end  
+end
+
+cloud :dog do
+  keypair "bob"
+  has_file :name => "/etc/motd", :content => "Welcome to the cloud"
+  has_file :name => "/etc/profile", :content => "profile info"
+  has_directory :name => "/var/www"
+  # parent = cloud
+  apache do
+    # parent = apache
+    listen "8080"
+    has_file :name => "/etc/apache2/apache2.conf", :template => "/absolute/path/to/template"
+  end
+end
 
 @cloud_reference_hash = {
   :options => {:name => "dog", :keypair => "bob"},
@@ -48,7 +54,7 @@ end
               ],
     :directory => [
                     {:name => "/var/www"}
-                  ]
+                  ]    
   },
   :services => {
     :apache => {
@@ -106,6 +112,24 @@ describe "Resolution spec" do
     it "should output a hash" do
       @cloud.to_properties_hash.class.should == Hash
       # puts "<pre>#{@cloud.to_properties_hash.to_yaml}</pre>"
+    end
+    it "should have resources on the cloud as an array of hashes" do
+      @cloud.to_properties_hash[:resources].first.class.should == Hash      
+    end
+    it "should have services on the cloud as an array of hashes" do
+      @cloud.to_properties_hash[:services].first.class.should == Hash      
+    end
+    it "have options set on the cloud as a hash" do
+      @cloud.to_properties_hash[:options].class.should == Hash
+    end
+  end
+  describe "defined cloud" do
+    it "should have the method to_properties_hash on the cloud" do
+      cloud(:dog).respond_to?(:to_properties_hash).should == true
+    end
+    it "should have resources on the cloud as an array of hashes" do
+      puts cloud(:dog).to_properties_hash
+      cloud(:dog).to_properties_hash[:resources].first.class.should == Hash
     end
   end
 end

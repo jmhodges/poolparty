@@ -29,69 +29,33 @@ module PoolParty
     # A word about stores, the global store stores the entire list of stored
     # resources. The local resource store is available on all clouds and plugins
     # which stores the instance variable's local resources. 
-    def add_resource(type, opts={}, parent=self, &block)
+    def add_resource(type, opts={}, &block)
       temp_name = (opts[:name] || "#{type}_#{type.to_s.keyerize}")
-      if in_a_resource_store?(type, temp_name)
-        @res = get_from_local_resource_store(type, temp_name, parent)
-        @res ||= get_from_global_resource_store(type, temp_name)
+      if in_local_resources?(type, temp_name)
+        get_resource(type, temp_name)
       else
-        @res = returning "PoolParty::Resources::#{type.to_s.camelize}".camelize.constantize.new(opts, parent, &block) do |o|                    
-          store_into_global_resource_store(o)
-          resource(type) << o          
-        end        
+        res = "PoolParty::Resources::#{type.to_s.camelize}".camelize.constantize.new(opts, &block)
+        store_in_local_resources(type, res)
       end
-      @res
     end
-    def should_duplicate_resource?(type, res, pare, opts)
-      pare != @res.parent && 
-        pare.cloud != @res.cloud && 
-        in_global_resource_store?(type, opts[:name]) && 
-        !in_resources?(type, res, pare)
+    def store_in_local_resources(type, obj)
+      resource(type) << obj
     end
-    def get_resource(ty, key, parent=self)
-      get_from_local_resource_store(ty, key, parent) || get_from_global_resource_store(ty, key)
+    def in_local_resources?(type, key)
+      !resource(type).select {|r| r.key == key }.empty?
     end
-    def get_from_local_resource_store(type, key, parent)
+    def get_resource(type, key)
       resource(type).select {|r| r.key == key }.first
     end
-    def in_a_resource_store?(type, key, parent=self)
-      !(get_resource(type, key) && in_global_resource_store?(type, key)).nil?
-    end
-    def in_resources?(type, key, parent=self)
-      !get_resource(type, key).nil?
-    end
-    def global_resources_store
-      $global_resources ||= []
-    end
-    def store_into_global_resource_store(r)
-      global_resources_store << r unless in_global_resource_store?(r.class_name_sym, r.key)
-    end
-    def get_from_global_resource_store(ty, key)
-      global_resources_store.select {|r| r if r.same_resources_of(ty, key) }.first
-    end
-    def in_global_resource_store?(ty, key)
-      !get_from_global_resource_store(ty, key).nil?
-    end
-    #:nodoc:
-    def reset_resources!
-      $global_resources = $global_classpackage_store = @resources = nil
-    end
-        
-    # def resources_string(pre="")
-    #   returning Array.new do |output|        
-    #     output << resources_string_from_resources(resources)
-    #   end.join("\n")
-    # end
+
     
     def custom_file(path, str)
       write_to_file_in_storage_directory(path, str)
     end
         
-    class Resource
+    class Resource < PoolParty::PoolPartyBaseClass
       attr_accessor :prestring, :poststring
       
-      include CloudResourcer
-      include Configurable
       # For the time being, we'll make puppet the only available dependency resolution
       # base, but in the future, we can rip this out and make it an option
       include PoolParty::DependencyResolutions::Puppet
@@ -120,11 +84,11 @@ module PoolParty
         # Add add resource method to the Resources module
         unless PoolParty::Resources.respond_to?(lowercase_class_name.to_sym)          
           method =<<-EOE
-            def #{lowercase_class_name}(opts={}, parent=self, &blk)
-              add_resource(:#{lowercase_class_name}, opts, parent, &blk)
+            def #{lowercase_class_name}(opts={}, &blk)
+              add_resource(:#{lowercase_class_name}, opts, &blk)
             end
-            def get_#{lowercase_class_name}(n, opts={}, parent=self, &block)
-              in_a_resource_store?(:#{lowercase_class_name}, n) ?
+            def get_#{lowercase_class_name}(n, opts={}, &block)
+              in_local_resources?(:#{lowercase_class_name}, n) ?
                 get_resource(:#{lowercase_class_name}, n) : nil
             end
           EOE
@@ -147,7 +111,7 @@ module PoolParty
       # Then it takes the value of the block and sets whatever is sent there as 
       # the options
       # Finally, it uses the parent's options as the lowest priority
-      def initialize(opts={}, parent=self, &block)                        
+      def initialize(opts={}, &block)                        
         run_setup(parent, &block)
         # Take the options of the parents
         set_vars_from_options(opts) unless opts.empty?
@@ -290,11 +254,11 @@ module PoolParty
     # TODO: Refactor nicely to include other types that don't accept ensure
     def self.add_has_and_does_not_have_methods_for(type=:file)
       module_eval <<-EOE
-        def has_#{type}(opts={}, parent=self, &block)
-          #{type}(handle_option_values(opts).merge(:ensures => "present"), parent, &block)
+        def has_#{type}(opts={}, &block)
+          #{type}(handle_option_values(opts).merge(:ensures => "present"), &block)
         end
-        def does_not_have_#{type}(opts={}, parent=self, &block)
-          #{type}(handle_option_values(opts).merge(:ensures => "absent"), parent, &block)
+        def does_not_have_#{type}(opts={}, &block)
+          #{type}(handle_option_values(opts).merge(:ensures => "absent"), &block)
         end
       EOE
     end

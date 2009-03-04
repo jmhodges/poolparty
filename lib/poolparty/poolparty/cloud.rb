@@ -3,8 +3,8 @@ require File.dirname(__FILE__) + "/resource"
 
 module PoolParty    
   module Cloud
-    def cloud(name=:app, parent=self, &block)
-      clouds.has_key?(name) ? clouds[name] : (clouds[name] = Cloud.new(name, parent, &block))
+    def cloud(name=:app, &block)
+      clouds.has_key?(name) ? clouds[name] : (clouds[name] = Cloud.new(name, context_stack.last, &block))
     end
 
     def clouds
@@ -17,20 +17,19 @@ module PoolParty
       cl.run_in_context &block if block
     end
     
-    class Cloud
+    class Cloud < PoolParty::PoolPartyBaseClass
       attr_reader :templates
       include PoolParty::PluginModel
       include PoolParty::Resources      
       include PoolParty::DependencyResolverCloudExtensions
       
       include PrettyPrinter
-      include Configurable
-      include CloudResourcer
       include Provisioner
-      # extend CloudResourcer
+
       # Net methods      
       include Remote
       include PoolParty::CloudDsl
+      include PoolParty::Monitors
       
       default_options({
         :minimum_instances => 2,
@@ -46,22 +45,15 @@ module PoolParty
         :ami => 'ami-44bd592d'
       })
       
-      def initialize(name, pare=self, &block)
+      def initialize(name, parent=nil, &block)
         @cloud_name = name
         @cloud_name.freeze
                 
         plugin_directory
-                
-        p = pare.is_a?(PoolParty::Pool::Pool) ? pare : nil
-        store_block(&block)
-        run_setup(p, &block)        
         
-        # set_parent(parent) if parent && !@parent
-        # self.run_in_context parent, &block if block
+        super(parent, &block)
+        
         setup_defaults
-        # realize_plugins!
-        # reset! # reset the clouds
-        # reset_remoter_base!
       end
       
       def setup_defaults

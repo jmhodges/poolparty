@@ -1,11 +1,11 @@
 module PoolParty
-  module Resources
-    class Resource
-      def self.resource_string_name(n, key)
-        "#{n.to_s.sanitize.capitalize}['#{key}']"
-      end
-    end
-  end
+  # module Resources
+  #   class Resource
+  #     def self.resource_string_name(n, key)
+  #       "#{n.to_s.sanitize.capitalize}['#{key}']"
+  #     end
+  #   end
+  # end
   
   module DependencyResolutions
     module Puppet

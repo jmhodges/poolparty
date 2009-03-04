@@ -2,7 +2,7 @@ module PoolParty
       
   module Plugin
         
-    class Plugin
+    class Plugin < PoolPartyBaseClass
       include Configurable
       include CloudResourcer
       include Resources
@@ -12,19 +12,9 @@ module PoolParty
       
       default_options({})
       
-      def initialize(p=self, opts={}, &block)
+      def initialize(opts={}, &block)
         store_block &block
-        run_setup(p)
-        realize! unless block
-      end
-            
-      def realize!(force=false)
-        force ? force_realize! : (@realized ? nil : force_realize!)
-      end
-      
-      def force_realize!
-        run_setup(parent, false, &stored_block)
-        enable unless stored_block
+        super(context_stack.last, &block)
       end
       
       # Overwrite this method

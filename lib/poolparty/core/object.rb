@@ -76,7 +76,6 @@ class Object
     name="temp_#{self.class}_#{respond_to?(:parent) ? parent.to_s : Time.now.to_i}".to_sym
     meta_def name, &block
     self.send name, context
-    # self.instance_eval &block if block
     meta_undef name rescue ""
   end
   def vputs(m="", o=self)

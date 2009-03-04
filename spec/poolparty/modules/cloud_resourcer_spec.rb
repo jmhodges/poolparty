@@ -1,16 +1,9 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-class ResourcerTestClass
-  include CloudResourcer
-  include Configurable
-  
+class ResourcerTestClass < PoolParty::Cloud::Cloud  
   default_options({
     :minimum_runtime => 50.minutes
   })
-  
-  def initialize(&block)
-    store_block(&block) if block
-  end
   
   # Stub keypair
   def keypair
@@ -18,9 +11,6 @@ class ResourcerTestClass
   end
 end
 class TestParentClass
-  def options
-    {}
-  end
   def services
     @services ||= []
   end
@@ -30,7 +20,10 @@ class TestParentClass
 end
 describe "CloudResourcer" do
   before(:each) do
-    @tc = ResourcerTestClass.new
+    @tc = ResourcerTestClass.new :bank do
+      puts parent.class
+    end
+    puts "outside: #{@tc.parent.class}"
   end
   it "should have the method instances" do
     @tc.respond_to?(:instances).should == true
@@ -106,13 +99,17 @@ describe "CloudResourcer" do
   describe "parents" do
     before(:each) do
       @testparent = TestParentClass.new
+      @testparent.options[:test_option] = "blankity blank blank"
     end
     describe "setting" do
       it "should add the child to its services" do
         @testparent.should_receive(:add_service)
       end
-      it "should call configure with options" do
+      it "should call merge onto parent.options with @tc options" do
         @tc.should_receive(:configure).with(@testparent.options)      
+      end
+      it "should have the parent's test_option on the object itself" do
+        @tc.options[:test_option].should_equal "blankity blank blank"
       end
       after do
         @tc.run_setup(@testparent)

@@ -115,13 +115,13 @@ describe "Resource" do
       end
       describe "add_resource" do
         it "should call add_resource when creating using the command: file" do
-          @cloud.should_receive(:add_resource).with(:file, {:name => "frank"}, @cloud)
+          @cloud.should_receive(:add_resource).with(:file, {:name => "frank"})
           @cloud.instance_eval do
             file(:name => "frank")
           end
         end
         it "should return a resource when the resource does not exist" do
-          file(:name => "/etc/frank.txt").class.should == PoolParty::Resources::File
+          file(:name => "/etc/frank.txt").first.class.should == PoolParty::Resources::File
         end
         it "should return a resource when the resource does exist" do
           file(:name => "frank")
@@ -187,7 +187,6 @@ describe "Resource" do
       end
       describe "get_resource" do
         before(:each) do
-          reset_resources!
           @cloud_get_resource = cloud :get_resource do
             file(:name => "red")
             file(:name => "hot")
@@ -216,7 +215,7 @@ describe "Resource" do
           @file = @cloud.resources[:file].first
         end
         it "should take the options of the parent" do        
-          @file.parent.tangerine.should_not == nil
+          @file.parent.should == @cloud
         end
         it "should set the option as the same from the parent" do
           @file.parent.tangerine.should == "orange"

@@ -30,9 +30,6 @@ unless @required_software.empty?
   exit(0)
 end
 
-# Use active supports auto load mechanism
-ActiveSupport::Dependencies.load_paths << File.dirname(__FILE__)
-
 ## Load PoolParty
 %w(version).each do |f|
   require "#{File.dirname(__FILE__)}/poolparty/#{f}"
@@ -43,6 +40,8 @@ end
     require file
   end
 end
+
+require "poolparty_base_class.rb"
 
 Kernel.load_p File.dirname(__FILE__) + "/poolparty/poolparty"
 Logging.init :debug, :info, :warn, :error, :fatal

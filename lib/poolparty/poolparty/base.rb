@@ -9,7 +9,8 @@ module PoolParty
     include Configurable
     extend MethodMissingSugar
     
-    default_options({
+    def self.options
+      {
       :user => "root", # This should change here
       :base_keypair_path => "#{ENV["HOME"]}/.ec2",
       :tmp_path => "/tmp/poolparty",
@@ -35,13 +36,11 @@ module PoolParty
       :security_group => ["default"],
       # Options that should not be touched pretty much ever
       :manifest_path => "/etc/puppet/manifests"
-    })
+      }
+    end
         
     # Class methods
     class << self
-      def options(h={})
-        @options ||= default_options.merge(h)
-      end
       # Get the access_key
       def access_key
         @access_key ||= load_access_keys_from_environment_var || load_keys_from_file[:access_key]
