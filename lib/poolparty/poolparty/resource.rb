@@ -7,16 +7,7 @@
   Most of the Resources will not need to create their own
 =end
 module PoolParty    
-  module Resources
-    
-    def resources
-      @resources ||= {}
-    end
-    
-    def resource(type=:file)
-      resources[type] ||= []
-    end
-    
+  module Resources    
     # Add resource
     # When we are looking to add a resource, we want to make sure the
     # resources isn't already added. This way we prevent duplicates 
@@ -53,9 +44,12 @@ module PoolParty
       write_to_file_in_storage_directory(path, str)
     end
         
-    class Resource < PoolParty::PoolPartyBaseClass
+    class Resource
       attr_accessor :prestring, :poststring
       
+      include Configurable
+      include CloudResourcer
+            
       # For the time being, we'll make puppet the only available dependency resolution
       # base, but in the future, we can rip this out and make it an option
       include PoolParty::DependencyResolutions::Puppet
@@ -149,6 +143,10 @@ module PoolParty
           @pa = @pa.respond_to?(:parent) ? @pa.parent : nil
         end
         @pa
+      end
+      
+      def parent
+        context_stack.last
       end
       
       def parent_tree

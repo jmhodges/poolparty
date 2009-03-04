@@ -32,19 +32,6 @@ class JunkClassForDefiningPlugin
   end  
 end
 
-cloud :dog do
-  keypair "bob"
-  has_file :name => "/etc/motd", :content => "Welcome to the cloud"
-  has_file :name => "/etc/profile", :content => "profile info"
-  has_directory :name => "/var/www"
-  # parent = cloud
-  apache do
-    # parent = apache
-    listen "8080"
-    has_file :name => "/etc/apache2/apache2.conf", :template => "/absolute/path/to/template"
-  end
-end
-
 @cloud_reference_hash = {
   :options => {:name => "dog", :keypair => "bob"},
   :resources => {
@@ -123,7 +110,27 @@ describe "Resolution spec" do
       @cloud.to_properties_hash[:options].class.should == Hash
     end
   end
+
   describe "defined cloud" do
+    before(:each) do
+      @file = "Hello <%= name %>"
+      @file.stub!(:read).and_return @file
+      Template.stub!(:open).and_return @file
+      
+      @cloud = cloud :dog do
+        keypair "bob"
+        has_file :name => "/etc/motd", :content => "Welcome to the cloud"
+        has_file :name => "/etc/profile", :content => "profile info"
+        has_directory :name => "/var/www"
+        # parent = cloud
+        apache do
+          # parent = apache
+          listen "8080"
+          has_file :name => "/etc/apache2/apache2.conf", :template => "/absolute/path/to/template"
+        end
+      end      
+    end
+    
     it "should have the method to_properties_hash on the cloud" do
       cloud(:dog).respond_to?(:to_properties_hash).should == true
     end

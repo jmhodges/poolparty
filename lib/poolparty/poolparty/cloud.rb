@@ -266,17 +266,7 @@ module PoolParty
       def reset!
         reset_remoter_base!
         @build_manifest = @describe_instances = nil
-      end
-            
-      # Add to the services pool for the manifest listing
-      def add_service(serv)
-        services << serv
-      end
-      # Container for the services
-      def services
-        @services ||= []
-      end
-            
+      end            
     end
   end  
 end
