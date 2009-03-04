@@ -180,3 +180,25 @@ class Object
     true
   end
 end
+
+class Object
+  def to_html_list
+    str = ''
+    str << "<ul>"
+    str << self.collect {|k,v| 
+      "<li>#{k} => #{(v.instance_of?(Hash) || v.instance_of?(Array)) ? v.to_html_list : v.inspect}</li> "
+      }.join(" ")
+    str << "</ul>"
+  end
+end
+
+class Array 
+    def to_html_list
+         str =''
+        str<< "<ul class='array'>"
+        str<< self.collect {|v| 
+          "<li>#{(v.is_a?(Array) || v.is_a?(Hash)) ? v.to_html_list : v.inspect}</li>"
+          }.join(' ')
+        str<<"</ul>"
+    end
+end

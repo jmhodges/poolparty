@@ -95,6 +95,8 @@ module PoolParty
       # For the time being, we'll make puppet the only available dependency resolution
       # base, but in the future, we can rip this out and make it an option
       include PoolParty::DependencyResolutions::Puppet
+      include PoolParty::DependencyResolverResourceExtensions
+      
       # DSL Overriders
       include PoolParty::ResourcingDsl
       

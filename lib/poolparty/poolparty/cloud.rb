@@ -21,6 +21,8 @@ module PoolParty
       attr_reader :templates
       include PoolParty::PluginModel
       include PoolParty::Resources      
+      include PoolParty::DependencyResolverCloudExtensions
+      
       include PrettyPrinter
       include Configurable
       include CloudResourcer
