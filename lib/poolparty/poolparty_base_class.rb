@@ -7,6 +7,7 @@ module PoolParty
   class PoolPartyBaseClass
     include Configurable
     include CloudResourcer
+    include PoolParty::DependencyResolverCloudExtensions
         
     def initialize(caller_parent, &block)          
       set_parent_and_eval(&block)

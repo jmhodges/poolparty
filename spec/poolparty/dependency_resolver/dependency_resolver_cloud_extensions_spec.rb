@@ -1,8 +1,7 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
 class DependencyResolverCloudExtensionsSpecBase < PoolParty::PoolPartyBaseClass
-  include PoolParty::Configurable
-  include PoolParty::DependencyResolverCloudExtensions
+  include PoolParty::Configurable  
 end
 
 # files, directories, etc...
@@ -94,10 +93,10 @@ describe "Resolution spec" do
       # puts "<pre>#{@cloud.to_properties_hash.to_yaml}</pre>"
     end
     it "should have resources on the cloud as an array of hashes" do
-      @cloud.to_properties_hash[:resources].first.class.should == Hash      
+      @cloud.to_properties_hash[:resources].class.should == Hash      
     end
     it "should have services on the cloud as an array of hashes" do
-      @cloud.to_properties_hash[:services].first.class.should == Hash      
+      @cloud.to_properties_hash[:services].class.should == Hash      
     end
     it "have options set on the cloud as a hash" do
       @cloud.to_properties_hash[:options].class.should == Hash
@@ -129,12 +128,11 @@ describe "Resolution spec" do
     end
     it "should have resources on the cloud as an array of hashes" do
       puts "<pre>#{cloud(:dog).to_properties_hash.inspect}</pre>"
-      cloud(:dog).to_properties_hash[:resources].first.class.should == Hash
+      cloud(:dog).to_properties_hash[:resources].class.should == Hash
     end
     it "contain content in the template's hash" do
-      apache_key = cloud(:dog).to_properties_hash[:services].first.keys.first.to_sym
-      puts cloud(:dog).to_properties_hash[:services].first[apache_key][:resources].first[:file].content
-      cloud(:dog).to_properties_hash[:services].first[apache_key].resources[:file].first.content.should == "Hello bob on port 8080"
+      apache_key = cloud(:dog).to_properties_hash[:services].keys.first.to_sym
+      cloud(:dog).to_properties_hash[:services][apache_key].resources[:file].first.options.content.should == "Hello bob on port 8080"
     end
   end
 end

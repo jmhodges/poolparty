@@ -8,8 +8,8 @@ module PoolParty
     def to_properties_hash
       {
         :options => options,
-        :services => services.keys.map {|k| {k => services[k].to_properties_hash } },
-        :resources => resources.keys.map {|k| {k => resources[k].map {|r| r.to_properties_hash } } }
+        :services => services.keys.map {|k| {k => services[k].to_properties_hash } }.first,
+        :resources => resources.keys.map {|k| {k => resources[k].map {|r| r.to_properties_hash } } }.first
       }
     end
     
