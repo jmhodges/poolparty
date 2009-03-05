@@ -5,27 +5,38 @@ module PoolParty
   
   class PuppetResolver< DependencyResolver
     
-    def compile(hash=@properties_hash)
+    def compile(hash=@properties_hash, tabs=0)
       [ 
-        options_to_string(hash[:options]),
-        resources_to_string(hash[:resources])
+        options_to_string(hash[:options],tabs),
+        resources_to_string(hash[:resources],tabs),
+        services_to_string(hash[:services],tabs)
       ].join("\n")
     end
     
-    def options_to_string(opts)
-      opts.map {|k,v| "$#{k} = #{to_option_string(v)}"}.join("\n") if opts
+    def options_to_string(opts,tabs=0)
+      opts.map {|k,v| "#{tf(tabs)}$#{k} = #{to_option_string(v)}"}.join("\n") if opts
     end
     
-    def resources_to_string(opts)
+    def resources_to_string(opts,tabs=0)
       if opts
         opts.map do |type, arr|
           arr.map do |hash|
-            "#{type} { \"#{hash.delete(:name)}\":
-              #{hash_flush_out(hash)}
-            }"
+            "#{tf(tabs)}#{type} { \"#{hash.delete(:name)}\": #{hash.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(hash).join("\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
           end
         end
       end
+    end
+    
+    def services_to_string(opts,tabs=0)
+      if opts
+        opts.map do |klassname, klasshash|
+          "\n#{tf(tabs)}class #{klassname.to_s.gsub(/pool_party_/, '').gsub(/_class/, '')} {#{tf(tabs)}#{compile(klasshash,tabs+1)}#{tf(tabs)}}"
+        end
+      end
+    end
+    
+    def tf(count)
+      "\t" * count
     end
     
     def hash_flush_out(hash, pre="", post="")

@@ -25,9 +25,9 @@ module PoolParty
       if in_local_resources?(type, temp_name)
         get_resource(type, temp_name)
       else
-        res = "PoolParty::Resources::#{type.to_s.camelize}".camelize.constantize.new(opts, &block)
-        store_in_local_resources(type, res)
+        res = "PoolParty::Resources::#{type.to_s.camelize}".camelize.constantize.new(opts, &block)        
         res.after_create
+        store_in_local_resources(type, res)
         res
       end
     end

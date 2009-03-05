@@ -113,6 +113,7 @@ describe "Resolution spec" do
       @properties[:services][apache_key].resources[:file].first.options.content.should == "Hello bob on port 8080"
     end
     it "contain the files in a hash" do
+      # puts "<pre>#{@properties.to_yaml}</pre>"
       @properties[:resources][:file].map {|a| a.options[:name] }.include?("/etc/motd").should == true
     end
     it "contain the directory named /var/www" do

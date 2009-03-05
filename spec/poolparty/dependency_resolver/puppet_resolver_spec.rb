@@ -35,18 +35,63 @@ describe "PuppetResolver" do
   end
   
   describe "when passed a valid cloud hash" do
+    
     before(:all) do
       @dr = PuppetResolver.new(@cloud_reference_hash)
       @compiled = @dr.compile
     end
-    it "output options as puppet variables" do
-      @compiled.should match(/bob/)
-      @compiled.instance_of?(String).should == true
-      @compiled.should match(/\$users = \[ \".* \]/)
+    
+    describe "variables" do
+      it "output options as puppet variables" do
+        @compiled.should match(/bob/)
+        @compiled.instance_of?(String).should == true
+        @compiled.should match(/\$users = \[ \".* \]/)
+      end
     end
-    it "should print resources in the proper layout" do
-      puts @compiled
-      @compiled.should match(/file \{ "\/etc\/motd"/)
+    
+    describe "resources" do
+      it "should print resources in the proper layout" do        
+        @compiled.should match(/file \{ "\/etc\/motd"/)
+      end
+    end
+    
+    describe "services" do
+      it "should print apache into a class definition" do
+        # puts "<pre>#{@compiled.to_yaml}</pre>"
+        @compiled.should match(/class apache \{/)
+      end
+    end
+    
+  end
+  
+  describe "with a cloud" do
+    before(:each) do
+      class PuppetResolverSpec
+        plugin :apache do
+        end
+      end
+      @cloud = cloud :dog do
+        keypair "bob"
+        has_file :name => "/etc/motd", :content => "Welcome to the cloud"        
+        has_file :name => "/etc/profile", :content => "profile info"
+        has_directory :name => "/var/www"
+        # has_package :name => "bash"        
+        # parent == cloud
+        apache do
+          # parent == apache
+          listen "8080"
+          has_file :name => "/etc/apache2/apache2.conf", :template => "#{::File.dirname(__FILE__)}/../fixtures/test_template.erb", :friends => "bob"
+        end
+      end
+      @properties = cloud(:dog).to_properties_hash
+      
+      @dr = PuppetResolver.new(@properties)
+      @compiled = @dr.compile
+    end
+    it "should compile to a string" do
+      puts "<pre>#{@compiled.to_yaml}</pre>"
+      @compiled.class.should == String
     end
   end
+  
 end
