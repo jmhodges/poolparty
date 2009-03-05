@@ -87,9 +87,10 @@ describe "Resolution spec" do
       
       @cloud = cloud :dog do
         keypair "bob"
-        has_file :name => "/etc/motd", :content => "Welcome to the cloud"
+        has_file :name => "/etc/motd", :content => "Welcome to the cloud"        
         has_file :name => "/etc/profile", :content => "profile info"
         has_directory :name => "/var/www"
+        # has_package :name => "bash"        
         # parent == cloud
         apache do
           # parent == apache
@@ -97,18 +98,25 @@ describe "Resolution spec" do
           has_file :name => "/etc/apache2/apache2.conf", :template => "/absolute/path/to/template", :friends => "bob"
         end
       end
+      @properties = cloud(:dog).to_properties_hash
     end
     
     it "should have the method to_properties_hash on the cloud" do
       cloud(:dog).respond_to?(:to_properties_hash).should == true
     end
     it "should have resources on the cloud as an array of hashes" do
-      puts "<pre>#{cloud(:dog).to_properties_hash.to_yaml}</pre>"
-      cloud(:dog).to_properties_hash[:resources].class.should == Hash
+      # puts "<pre>#{cloud(:dog).to_properties_hash.to_yaml}</pre>"
+      @properties[:resources].class.should == Hash
     end
     it "contain content in the template's hash" do
       apache_key = cloud(:dog).to_properties_hash[:services].keys.first.to_sym
-      cloud(:dog).to_properties_hash[:services][apache_key].resources[:file].first.options.content.should == "Hello bob on port 8080"
+      @properties[:services][apache_key].resources[:file].first.options.content.should == "Hello bob on port 8080"
+    end
+    it "contain the files in a hash" do
+      @properties[:resources][:file].map {|a| a.options[:name] }.include?("/etc/motd").should == true
+    end
+    it "contain the directory named /var/www" do
+      @properties[:resources][:directory].map {|a| a.options[:name] }.include?("/var/www").should == true
     end
   end
 end

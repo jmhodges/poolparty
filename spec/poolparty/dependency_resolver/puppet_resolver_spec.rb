@@ -44,5 +44,9 @@ describe "PuppetResolver" do
       @compiled.instance_of?(String).should == true
       @compiled.should match(/\$users = \[ \".* \]/)
     end
+    it "should print resources in the proper layout" do
+      puts @compiled
+      @compiled.should match(/file \{ "\/etc\/motd"/)
+    end
   end
 end

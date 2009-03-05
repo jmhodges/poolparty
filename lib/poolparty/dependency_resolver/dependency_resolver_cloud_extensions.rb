@@ -9,7 +9,9 @@ module PoolParty
       {
         :options => options,
         :services => services.keys.map {|k| {k => services[k].to_properties_hash } }.first,
-        :resources => resources.keys.map {|k| {k => resources[k].map {|r| r.to_properties_hash } } }.first
+        :resources => resources.keys.inject({}) do |sum,k| 
+          sum.merge(Hash[k.to_sym, resources[k].map {|a| a.to_properties_hash } ])
+        end
       }
     end
     

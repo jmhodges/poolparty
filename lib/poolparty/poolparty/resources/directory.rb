@@ -8,21 +8,6 @@ module PoolParty
         # :owner => "#{Base.user}"
       })
       
-      def class_type_name
-        "file"
-      end
-      
-      def ensure
-        "directory"
-      end
-      
-      def present
-        'directory'
-      end
-      
-      def resource?
-        true
-      end
     end
     
   end

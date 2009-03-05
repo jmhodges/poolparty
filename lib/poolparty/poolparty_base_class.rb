@@ -45,7 +45,7 @@ module PoolParty
     end
     
     def resource(type=:file)
-      resources[type] ||= []
+      resources[type.to_sym] ||= []
     end
     
     

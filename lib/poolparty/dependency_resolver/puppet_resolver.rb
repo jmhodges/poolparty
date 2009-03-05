@@ -5,14 +5,28 @@ module PoolParty
   
   class PuppetResolver< DependencyResolver
     
-    def compile
-      [options_to_string].join("\n")
+    def compile(hash=@properties_hash)
+      [ 
+        options_to_string(hash[:options]),
+        resources_to_string(hash[:resources])
+      ].join("\n")
     end
     
-    def options_to_string      
-      @properties_hash[:options].map {|k,v| "$#{k} = #{to_option_string(v)}"}.join("\n") if @properties_hash[:options]
+    def options_to_string(opts)
+      opts.map {|k,v| "$#{k} = #{to_option_string(v)}"}.join("\n") if opts
     end
     
+    def resources_to_string(opts)
+      if opts
+        opts.map do |type, arr|
+          arr.map do |hash|
+            "#{type} { \"#{hash.delete(:name)}\":
+              #{hash_flush_out(hash)}
+            }"
+          end
+        end
+      end
+    end
     
     def hash_flush_out(hash, pre="", post="")
       hash.map {|k,v| "#{pre}#{k} => #{to_option_string(v)}#{post}"}
