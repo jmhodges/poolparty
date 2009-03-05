@@ -8,16 +8,20 @@
 module PoolParty
   class DependencyResolver
     
-    attr_reader :tree_hash
+    attr_reader :properties_hash
     
-    def initialize(hash={})
-      @tree_hash = hash
+    def initialize(hash)      
+      raise DependencyResolverException.new('must pass a hash') if hash.nil? || !hash.instance_of?(Hash)
+      @properties_hash = hash
     end
     
-    def compile  
+    # Compile the clouds properties_hash into the format required by the dependency resolver
+    # This methods should be overwritten by the supclassed methods
+    def compile()
+      raise "Not Implemented"
     end
     
-    def self.compile(hash={})
+    def self.compile(hash)
       new(hash).compile
     end
     

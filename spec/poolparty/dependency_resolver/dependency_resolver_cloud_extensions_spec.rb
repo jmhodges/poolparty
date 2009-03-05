@@ -24,30 +24,6 @@ class JunkClassForDefiningPlugin
   end  
 end
 
-@cloud_reference_hash = {
-  :options => {:name => "dog", :keypair => "bob"},
-  :resources => {
-    :file =>  [
-                {:name => "/etc/motd", :content => "Welcome to the cloud"},
-                {:name => "/etc/profile", :content => "profile info"}
-              ],
-    :directory => [
-                    {:name => "/var/www"}
-                  ]    
-  },
-  :services => {
-    :apache => {
-      :options => {:listen => "8080"},
-      :resources => {
-                      :file => [
-                          {:name => "/etc/apache2/apache2.conf", :template => "/absolute/path/to/template", :content => "rendered template string"}
-                        ]
-                    },
-      :services => {}
-    }
-  }
-}
-
 describe "Resolution spec" do
   before(:each) do
     @apache_file = DependencyResolverSpecTestResource.new
@@ -114,20 +90,20 @@ describe "Resolution spec" do
         has_file :name => "/etc/motd", :content => "Welcome to the cloud"
         has_file :name => "/etc/profile", :content => "profile info"
         has_directory :name => "/var/www"
-        # parent = cloud
+        # parent == cloud
         apache do
-          # parent = apache
+          # parent == apache
           listen "8080"
           has_file :name => "/etc/apache2/apache2.conf", :template => "/absolute/path/to/template", :friends => "bob"
         end
-      end      
+      end
     end
     
     it "should have the method to_properties_hash on the cloud" do
       cloud(:dog).respond_to?(:to_properties_hash).should == true
     end
     it "should have resources on the cloud as an array of hashes" do
-      # puts "<pre>#{cloud(:dog).to_properties_hash.to_yaml}</pre>"
+      puts "<pre>#{cloud(:dog).to_properties_hash.to_yaml}</pre>"
       cloud(:dog).to_properties_hash[:resources].class.should == Hash
     end
     it "contain content in the template's hash" do

@@ -34,16 +34,6 @@ class Object
       respond_to?(vs) ? self.send(vs, *args) : v rescue v
     end
   end
-  def to_option_string
-    case self.class
-    when String
-      self.to_option_string
-    when Array
-      self.each {|a| a.to_option_string }.join(" ")
-    else
-      "#{self}"
-    end
-  end
   def respec_string
     case self.class
     when String
