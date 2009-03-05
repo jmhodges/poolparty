@@ -7,9 +7,7 @@ module PoolParty
       include CloudResourcer
       include Resources
       include PoolParty::DependencyResolverCloudExtensions
-      
-      class_inheritable_accessor :name
-      
+            
       default_options({})
       
       def initialize(opts={}, &block)

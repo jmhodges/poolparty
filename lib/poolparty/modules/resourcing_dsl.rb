@@ -57,7 +57,8 @@ module PoolParty
       file = ::File.basename(filename)
       raise TemplateNotFound.new("no template given") unless file
       
-      options.merge!(:content => Template.compile_file(filename))
+      template_opts = (parent ? options.merge(parent.options) : options).merge(opts)
+      options.merge!(:content => Template.compile_file(filename, template_opts))
       # 
       # unless opts[:just_copy]
       #   options.merge!({:content => "template(\"#{::File.basename(file)}\")"})

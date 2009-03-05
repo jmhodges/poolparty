@@ -30,7 +30,7 @@ module PoolParty
         klass.send :include, mod
         
         # Store the name of the class for pretty printing later
-        klass.name = name
+        # klass.name = name
         # Add the plugin definition to the cloud as an instance method
         PoolParty::Cloud::Cloud.class_eval <<-EOE
           def #{name}(parent=self, &block)

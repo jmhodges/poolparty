@@ -61,11 +61,7 @@ module PoolParty
         self.using :ec2
         generate_keypair unless has_keypair?
       end
-      
-      def name
-        @cloud_name
-      end
-      
+            
       # provide a public ips to get into the cloud
       def ips
         list_of_running_instances.map {|ri| ri.ip }

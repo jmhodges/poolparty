@@ -1,15 +1,8 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-class DependencyResolverCloudExtensionsSpecBase
+class DependencyResolverCloudExtensionsSpecBase < PoolParty::PoolPartyBaseClass
   include PoolParty::Configurable
   include PoolParty::DependencyResolverCloudExtensions
-  
-  def services
-    @services ||= {}
-  end
-  def resources
-    @resources ||= {}
-  end
 end
 
 # files, directories, etc...
@@ -63,12 +56,12 @@ describe "Resolution spec" do
     @apache_file.template "/absolute/path/to/template"
     @apache_file.content "rendered template string"
     
-    @apache = DependencyResolverSpecTestService.new
+    @apache = DependencyResolverSpecTestService.new :apache_file
     @apache.listen "8080"
     @apache.resources[:file] = []
     @apache.resources[:file] << @apache_file
         
-    @cloud = DependencyResolverSpecTestCloud.new
+    @cloud = DependencyResolverSpecTestCloud.new :cloud
     @cloud.keypair "bob"
     @cloud.name "dog"
     
@@ -113,7 +106,7 @@ describe "Resolution spec" do
 
   describe "defined cloud" do
     before(:each) do
-      @file = "Hello <%= name %>"
+      @file = "Hello <%= friends %> on port <%= listen %>"
       @file.stub!(:read).and_return @file
       Template.stub!(:open).and_return @file
       
@@ -126,7 +119,7 @@ describe "Resolution spec" do
         apache do
           # parent = apache
           listen "8080"
-          has_file :name => "/etc/apache2/apache2.conf", :template => "/absolute/path/to/template"
+          has_file :name => "/etc/apache2/apache2.conf", :template => "/absolute/path/to/template", :friends => "bob"
         end
       end      
     end
@@ -135,8 +128,13 @@ describe "Resolution spec" do
       cloud(:dog).respond_to?(:to_properties_hash).should == true
     end
     it "should have resources on the cloud as an array of hashes" do
-      puts cloud(:dog).to_properties_hash
+      puts "<pre>#{cloud(:dog).to_properties_hash.inspect}</pre>"
       cloud(:dog).to_properties_hash[:resources].first.class.should == Hash
+    end
+    it "contain content in the template's hash" do
+      apache_key = cloud(:dog).to_properties_hash[:services].first.keys.first.to_sym
+      puts cloud(:dog).to_properties_hash[:services].first[apache_key][:resources].first[:file].content
+      cloud(:dog).to_properties_hash[:services].first[apache_key].resources[:file].first.content.should == "Hello bob on port 8080"
     end
   end
 end

@@ -41,7 +41,7 @@ end
   end
 end
 
-require "poolparty_base_class.rb"
+require "#{File.dirname(__FILE__)}/poolparty/poolparty_base_class.rb"
 
 Kernel.load_p File.dirname(__FILE__) + "/poolparty/poolparty"
 Logging.init :debug, :info, :warn, :error, :fatal

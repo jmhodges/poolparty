@@ -45,11 +45,7 @@ module PoolParty
         # run_in_context &block if block
         run_setup(self, &block)        
       end
-      
-      def name
-        @pool_name
-      end
-      
+            
       def setup_defaults
         plugin_directory "#{pool_specfile ? ::File.dirname(pool_specfile) : Dir.pwd}/plugins"
         PoolParty::Extra::Deployments.include_deployments "#{Dir.pwd}/deployments"

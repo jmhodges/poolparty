@@ -66,9 +66,9 @@ module PoolParty
         end.join("\n")
       end
       
-      def to_s
-        self.class.resource_string_name(class_type_name.capitalize, key)
-      end
+      # def to_s
+      #   self.class.resource_string_name(class_type_name.capitalize, key)
+      # end
     end
   end
 end

@@ -27,6 +27,7 @@ module PoolParty
       else
         res = "PoolParty::Resources::#{type.to_s.camelize}".camelize.constantize.new(opts, &block)
         store_in_local_resources(type, res)
+        res
       end
     end
     def store_in_local_resources(type, obj)
@@ -106,30 +107,28 @@ module PoolParty
       # the options
       # Finally, it uses the parent's options as the lowest priority
       def initialize(opts={}, &block)                        
-        run_setup(parent, &block)
         # Take the options of the parents
         set_vars_from_options(opts) unless opts.empty?
-        
-        set_resource_parent
+        # @options = parent.options.merge(options) if parent
         
         loaded(opts, @parent, &block)
       end
       
-      # Helper to set the containing parent on the resource
-      def set_resource_parent
-        if @parent && @parent != self
-          if can_set_requires_for_parent
-            # requires @parent.to_s
-          end
-        end
-      end
-      
-      def can_set_requires_for_parent
-        @parent.is_a?(PoolParty::Resources::Resource) && 
-          @parent.printable? && 
-          @parent.name != name &&
-          !@parent.is_a?(PoolParty::Resources::Classpackage)
-      end
+      # # Helper to set the containing parent on the resource
+      # def set_resource_parent
+      #   if @parent && @parent != self
+      #     if can_set_requires_for_parent
+      #       # requires @parent.to_s
+      #     end
+      #   end
+      # end
+      # 
+      # def can_set_requires_for_parent
+      #   @parent.is_a?(PoolParty::Resources::Resource) && 
+      #     @parent.printable? && 
+      #     @parent.name != name &&
+      #     !@parent.is_a?(PoolParty::Resources::Classpackage)
+      # end
             
       # Stub, so you can create virtual resources
       # This is called after the resource is initialized

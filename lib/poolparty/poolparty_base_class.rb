@@ -13,7 +13,7 @@ module PoolParty
     end
     
     def set_parent_and_eval(&block)
-      @options = parent.options.merge(options) if parent
+      @options = parent.options.merge(options) if parent && parent.is_a?(PoolParty::Pool::Pool)
       
       parent.add_service(self) if parent
       
@@ -28,11 +28,15 @@ module PoolParty
     
     # Add to the services pool for the manifest listing
     def add_service(serv)
-      services.merge!(serv.class.downcase.to_sym => serv)
+      subclass = serv.class
+      subclass = subclass.to_s.split("::")[-1] if subclass.to_s.index("::")
+      lowercase_class_name = subclass.to_s.underscore.downcase || subclass.downcase
+      
+      services.merge!(lowercase_class_name.to_sym => serv)
     end
     # Container for the services
     def services
-      @services ||= []
+      @services ||= {}
     end
     
     def resources
