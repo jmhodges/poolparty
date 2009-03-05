@@ -5,11 +5,11 @@ module PoolParty
   
   class PuppetResolver< DependencyResolver
     
-    def compile(hash=@properties_hash, tabs=0)
+    def compile(props=@properties_hash, tabs=0)
       [ 
-        options_to_string(hash[:options],tabs),
-        resources_to_string(hash[:resources],tabs),
-        services_to_string(hash[:services],tabs)
+        options_to_string(props[:options],tabs),
+        resources_to_string(props[:resources],tabs),
+        services_to_string(props[:services],tabs)
       ].join("\n")
     end
     
@@ -19,9 +19,9 @@ module PoolParty
     
     def resources_to_string(opts,tabs=0)
       if opts
-        opts.map do |type, arr|
-          arr.map do |hash|
-            "#{tf(tabs)}#{type} { \"#{hash.delete(:name)}\": #{hash.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(hash).join("\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
+        opts.map do |type, arr|          
+          arr.map do |res|
+            "#{tf(tabs)}#{type} { \"#{res.has_key?(:name) ? res.delete(:name) : "Error" }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(res).join("\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
           end
         end
       end

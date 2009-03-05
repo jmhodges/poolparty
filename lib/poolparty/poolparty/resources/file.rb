@@ -16,6 +16,7 @@ module PoolParty
       def after_create
         if options.include?(:template)
           filename = self.template
+          options.delete(:template)
           file = ::File.basename(filename)
           raise TemplateNotFound.new("no template given") unless file
 

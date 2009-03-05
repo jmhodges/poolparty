@@ -85,6 +85,8 @@ describe "PuppetResolver" do
       end
       @properties = cloud(:dog).to_properties_hash
       
+      # puts "<pre>#{cloud(:dog).resources.to_yaml}</pre>"
+      # puts "<pre>#{@cloud_refer/ence_hash.to_yaml}\n\n#{@properties.to_yaml}</pre>"
       @dr = PuppetResolver.new(@properties)
       @compiled = @dr.compile
     end

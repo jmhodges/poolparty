@@ -10,9 +10,9 @@ module PoolParty
     
     attr_reader :properties_hash
     
-    def initialize(hash)      
-      raise DependencyResolverException.new('must pass a hash') if hash.nil? || !hash.instance_of?(Hash)
-      @properties_hash = hash
+    def initialize(hsh)      
+      raise DependencyResolverException.new('must pass a hash') if hsh.nil? || !hsh.instance_of?(Hash)
+      @properties_hash = hsh
     end
     
     # Compile the clouds properties_hash into the format required by the dependency resolver
@@ -21,8 +21,8 @@ module PoolParty
       raise "Not Implemented"
     end
     
-    def self.compile(hash)
-      new(hash).compile
+    def self.compile(hsh)
+      new(hsh).compile
     end
     
   end
