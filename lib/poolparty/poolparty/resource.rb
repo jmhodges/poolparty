@@ -27,6 +27,7 @@ module PoolParty
       else
         res = "PoolParty::Resources::#{type.to_s.camelize}".camelize.constantize.new(opts, &block)
         store_in_local_resources(type, res)
+        res.after_create
         res
       end
     end
@@ -134,6 +135,9 @@ module PoolParty
       # This is called after the resource is initialized
       # with the options given to it in the init-block
       def loaded(opts={}, parent=self)
+      end
+      
+      def after_create
       end
       
       def cloud
@@ -251,11 +255,11 @@ module PoolParty
     # TODO: Refactor nicely to include other types that don't accept ensure
     def self.add_has_and_does_not_have_methods_for(type=:file)
       module_eval <<-EOE
-        def has_#{type}(opts={}, &block)
-          #{type}(handle_option_values(opts).merge(:ensures => "present"), &block)
+        def has_#{type}(opts={}, extra={}, &block)
+          #{type}(handle_option_values(opts).merge(extra.merge(:ensures => "present")), &block)
         end
         def does_not_have_#{type}(opts={}, &block)
-          #{type}(handle_option_values(opts).merge(:ensures => "absent"), &block)
+          #{type}(handle_option_values(opts).merge(extra.merge(:ensures => "absent")), &block)
         end
       EOE
     end

@@ -127,7 +127,7 @@ describe "Resolution spec" do
       cloud(:dog).respond_to?(:to_properties_hash).should == true
     end
     it "should have resources on the cloud as an array of hashes" do
-      puts "<pre>#{cloud(:dog).to_properties_hash.inspect}</pre>"
+      # puts "<pre>#{cloud(:dog).to_properties_hash.to_yaml}</pre>"
       cloud(:dog).to_properties_hash[:resources].class.should == Hash
     end
     it "contain content in the template's hash" do

@@ -53,20 +53,17 @@ module PoolParty
     # TODO: Change this method to store the template files for later
     # copying to prevent unnecessary copying and tons of directories
     # everywhere
-    def template(filename, opts={})
-      file = ::File.basename(filename)
-      raise TemplateNotFound.new("no template given") unless file
-      
-      template_opts = (parent ? options.merge(parent.options) : options).merge(opts)
-      options.merge!(:content => Template.compile_file(filename, template_opts))
-      # 
-      # unless opts[:just_copy]
-      #   options.merge!({:content => "template(\"#{::File.basename(file)}\")"})
-      #   options.delete(:source) if options.has_key?(:source)
-      #   copy_template_to_storage_directory get_client_or_gem_template(file)
-      # else
-      #   copy_file_to_storage_directory get_client_or_gem_template(file)
-      # end
+    # def template(filename)
+    #   file = ::File.basename(filename)
+    #   raise TemplateNotFound.new("no template given") unless file
+    #   
+    #   template_opts = (parent ? options.merge(parent.options) : options)
+    #   puts (template_opts.keys + options.keys).join(" ")
+    #   options.merge!(:content => Template.compile_file(filename, template_opts))
+    # end
+    
+    def render_template
+      # @templates.
     end
     
     def get_client_or_gem_template(file)      

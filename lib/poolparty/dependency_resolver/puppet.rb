@@ -26,7 +26,7 @@ module PoolParty
       # Most Resources won't need to extend this
       def to_string(pre="")
         return "" if printed?
-        opts = get_modified_options
+        opts = options #get_modified_options
         
         returning Array.new do |output|
           unless cancelled?

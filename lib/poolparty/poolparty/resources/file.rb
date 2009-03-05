@@ -13,8 +13,15 @@ module PoolParty
         [:name, :template, :cwd]
       end
       
-      def source(arg=nil)
-        arg ? options[:source] = arg : "#{Base.fileserver_base}/#{::File.basename(name)}"
+      def after_create
+        if options.include?(:template)
+          filename = self.template
+          file = ::File.basename(filename)
+          raise TemplateNotFound.new("no template given") unless file
+
+          template_opts = (parent ? options.merge(parent.options) : options)
+          options.merge!(:content => Template.compile_file(filename, template_opts))
+        end
       end
       
     end
