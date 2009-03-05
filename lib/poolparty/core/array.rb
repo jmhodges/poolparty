@@ -21,9 +21,6 @@ class Array
   def get_named(str="")
     map {|a| a.name == str ? a : nil }.reject {|a| a.nil? }
   end
-  def to_option_string(ns=[])
-    "[ #{map {|e| e.to_option_string }.reject {|a| a.nil? || a.empty? }.join(", ")} ]"
-  end
   def respec_string(ns=[])
     "'#{map {|e| e.to_option_string }.join("', '")}'"
   end

@@ -1,11 +1,11 @@
 module PoolParty
-  module Resources
-    class Resource
-      def self.resource_string_name(n, key)
-        "#{n.to_s.sanitize.capitalize}['#{key}']"
-      end
-    end
-  end
+  # module Resources
+  #   class Resource
+  #     def self.resource_string_name(n, key)
+  #       "#{n.to_s.sanitize.capitalize}['#{key}']"
+  #     end
+  #   end
+  # end
   
   module DependencyResolutions
     module Puppet
@@ -26,7 +26,7 @@ module PoolParty
       # Most Resources won't need to extend this
       def to_string(pre="")
         return "" if printed?
-        opts = get_modified_options
+        opts = options #get_modified_options
         
         returning Array.new do |output|
           unless cancelled?
@@ -66,9 +66,9 @@ module PoolParty
         end.join("\n")
       end
       
-      def to_s
-        self.class.resource_string_name(class_type_name.capitalize, key)
-      end
+      # def to_s
+      #   self.class.resource_string_name(class_type_name.capitalize, key)
+      # end
     end
   end
 end

@@ -34,16 +34,6 @@ class Object
       respond_to?(vs) ? self.send(vs, *args) : v rescue v
     end
   end
-  def to_option_string
-    case self.class
-    when String
-      self.to_option_string
-    when Array
-      self.each {|a| a.to_option_string }.join(" ")
-    else
-      "#{self}"
-    end
-  end
   def respec_string
     case self.class
     when String
@@ -76,7 +66,6 @@ class Object
     name="temp_#{self.class}_#{respond_to?(:parent) ? parent.to_s : Time.now.to_i}".to_sym
     meta_def name, &block
     self.send name, context
-    # self.instance_eval &block if block
     meta_undef name rescue ""
   end
   def vputs(m="", o=self)

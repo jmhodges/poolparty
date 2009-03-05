@@ -79,7 +79,7 @@ module PoolParty
     
     def full_keypair_path
       unless keypair_path
-        raise RuntimeException.new("Keypair cannot be found")        
+        raise RuntimeException.new("Keypair cannot be found")
       else
         ::File.expand_path(keypair_path)
       end
@@ -134,40 +134,12 @@ module PoolParty
         Dir.pwd
       ]
     end
-    
-    def context_stack
-      @@context_stack ||= []
-    end
-    
-    def run_setup(parent, should_set_parent=true, &block)
-      context_stack.push parent
-      
-      set_parent if should_set_parent
-      run_in_context self, &block if block
-      
-      context_stack.pop
-    end
-    
-    # Set the parent on the resource
-    def set_parent(sink_options=true)
-      unless context_stack.last.nil?
-        @parent = context_stack.last
-        # Add self as a service on the parent
-        parent.add_service(self) if parent.respond_to?(:add_service) && !self.resource?
-        # Take the options of the parents
-        configure(parent.options) if parent && parent.respond_to?(:options) && sink_options
-      end
-    end
-            
+                
     def number_of_resources
       arr = resources.map do |n, r|
         r.size
       end
       resources.map {|n,r| r.size}.inject(0){|sum,i| sum+=i}
-    end
-    
-    def parent
-      @parent ||= nil
     end
     
     def plugin_store

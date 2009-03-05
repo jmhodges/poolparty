@@ -3,8 +3,8 @@ require File.dirname(__FILE__) + "/resource"
 
 module PoolParty    
   module Cloud
-    def cloud(name=:app, parent=self, &block)
-      clouds.has_key?(name) ? clouds[name] : (clouds[name] = Cloud.new(name, parent, &block))
+    def cloud(name=:app, &block)
+      clouds.has_key?(name) ? clouds[name] : (clouds[name] = Cloud.new(name, context_stack.last, &block))
     end
 
     def clouds
@@ -17,18 +17,19 @@ module PoolParty
       cl.run_in_context &block if block
     end
     
-    class Cloud
+    class Cloud < PoolParty::PoolPartyBaseClass
       attr_reader :templates
       include PoolParty::PluginModel
       include PoolParty::Resources      
+      include PoolParty::DependencyResolverCloudExtensions
+      
       include PrettyPrinter
-      include Configurable
-      include CloudResourcer
       include Provisioner
-      # extend CloudResourcer
+
       # Net methods      
       include Remote
       include PoolParty::CloudDsl
+      include PoolParty::Monitors
       
       default_options({
         :minimum_instances => 2,
@@ -44,22 +45,15 @@ module PoolParty
         :ami => 'ami-44bd592d'
       })
       
-      def initialize(name, pare=self, &block)
+      def initialize(name, parent=nil, &block)
         @cloud_name = name
         @cloud_name.freeze
                 
         plugin_directory
-                
-        p = pare.is_a?(PoolParty::Pool::Pool) ? pare : nil
-        store_block(&block)
-        run_setup(p, &block)        
         
-        # set_parent(parent) if parent && !@parent
-        # self.run_in_context parent, &block if block
+        super(parent, &block)
+        
         setup_defaults
-        # realize_plugins!
-        # reset! # reset the clouds
-        # reset_remoter_base!
       end
       
       def setup_defaults
@@ -67,11 +61,7 @@ module PoolParty
         self.using :ec2
         generate_keypair unless has_keypair?
       end
-      
-      def name
-        @cloud_name
-      end
-      
+            
       # provide a public ips to get into the cloud
       def ips
         list_of_running_instances.map {|ri| ri.ip }
@@ -188,54 +178,56 @@ module PoolParty
           end
         end
       end
-            
-      # Configuration files
-      def build_manifest
-        vputs "Building manifest"
-        @build_manifest ||= build_from_existing_file
-        unless @build_manifest
-          
-          add_poolparty_base_requirements
-          
-          @build_manifest = "class poolparty {\n #{build_short_manifest}\n}"
-        end
-        @build_manifest
-      end
+
+      #FIXME MOVE TO DEPENDECY RESOL
+      # # Configuration files
+      # def build_manifest
+      #   vputs "Building manifest"
+      #   @build_manifest ||= build_from_existing_file
+      #   unless @build_manifest
+      #     
+      #     add_poolparty_base_requirements
+      #     
+      #     @build_manifest = "class poolparty {\n #{build_short_manifest}\n}"
+      #   end
+      #   @build_manifest
+      # end
       
       def rebuild_manifest
         @build_manifest = nil
         build_manifest
       end
       
-      def build_short_manifest
-        returning Array.new do |str|            
-
-          # Refactor this into the resources method
-          # TODO
-          services.each do |service|
-            service.options.merge!(:name => service.name)
-            classpackage_with_self(service)
-          end
-          
-          options.merge!(:name => "user")
-          classpackage_with_self
-          # resources.each do |type, res|
-          #   str << "# #{type.to_s.pluralize}"
-          #   str << res.to_string
-          # end
-          
-          global_classpackages.each do |cls|
-            str << cls.to_string
-          end
-
-          str << "# Custom functions"
-          str << Resources::CustomResource.custom_functions_to_string
-        end.join("\n")
-      end
+      #FIXME DEPRECATE
+      # def build_short_manifest
+      #               returning Array.new do |str|            
+      #         
+      #                 # Refactor this into the resources method
+      #                 # TODO
+      #                 services.each do |service|
+      #                   service.options.merge!(:name => service.name)
+      #                   classpackage_with_self(service)
+      #                 end
+      #                 
+      #                 options.merge!(:name => "user")
+      #                 classpackage_with_self
+      #                 # resources.each do |type, res|
+      #                 #   str << "# #{type.to_s.pluralize}"
+      #                 #   str << res.to_string
+      #                 # end
+      #                 
+      #                 global_classpackages.each do |cls|
+      #                   str << cls.to_string
+      #                 end
+      #         
+      #                 str << "# Custom functions"
+      #                 str << Resources::CustomResource.custom_functions_to_string
+      #               end.join("\n")
+      #             end
       
-      def build_from_existing_file
-        ::FileTest.file?("#{Base.manifest_path}/classes/poolparty.pp") ? open("#{Base.manifest_path}/classes/poolparty.pp").read : nil
-      end
+      # def build_from_existing_file
+      #       ::FileTest.file?("#{Base.manifest_path}/classes/poolparty.pp") ? open("#{Base.manifest_path}/classes/poolparty.pp").read : nil
+      #     end
       
       # To allow the remote instances to do their job,
       # they need a few options to run, these are the required options
@@ -272,17 +264,7 @@ module PoolParty
       def reset!
         reset_remoter_base!
         @build_manifest = @describe_instances = nil
-      end
-            
-      # Add to the services pool for the manifest listing
-      def add_service(serv)
-        services << serv
-      end
-      # Container for the services
-      def services
-        @services ||= []
-      end
-            
+      end            
     end
   end  
 end

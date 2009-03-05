@@ -14,7 +14,7 @@ end
 describe "Cloud" do
   before(:each) do
     setup
-    reset_resources!
+    # reset_resources!
   end
   describe "wrapped" do
     before(:each) do
@@ -71,10 +71,13 @@ describe "Cloud" do
     describe "block" do
       before(:each) do
         reset!
-        @cloud = Cloud.new(:test, @pool) do
-          # Inside cloud block
-          keypair "fake_keypair"
+        pool :test do
+          Cloud.new(:test) do
+            # Inside cloud block
+            keypair "fake_keypair"
+          end
         end
+        @cloud = cloud :test
         @cloud.stub!(:plugin_store).and_return []
       end
 
@@ -100,7 +103,7 @@ describe "Cloud" do
       describe "configuration" do
         before(:each) do
           reset!
-          @cloud2 = Cloud.new(:test, @pool) do
+          @cloud2 = Cloud.new(:test) do
             minimum_instances 1
             maximum_instances 2
           end

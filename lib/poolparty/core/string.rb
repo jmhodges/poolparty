@@ -48,18 +48,7 @@ class String
   def nice_runnable(quite=true)
     self.split(/ && /).join("\n")
   end
-  # This is the method we use to turn the options into a string to build the main 
-  # manifests
-  def to_option_string(ns=[])
-    a_template = (self =~ /template/) == 0
-    a_service = self =~ /^[A-Z][a-zA-Z]*\[[a-zA-Z0-9\-\.\"\'_\$\{\}\/]*\]/
-    a_function = self =~/(.)*\((.)*\)(.)*/
-    if is_a?(PoolParty::Resources::Resource)
-      self.to_s
-    else
-      (a_service || a_template || a_function) ? self : "'#{self}'"
-    end    
-  end
+
   # Refactor this guy to get the class if the class is defined, and not always create a new one
   # although, it doesn't really matter as ruby will just reopen the class
   def class_constant(superclass=nil, opts={}, &block)

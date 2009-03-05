@@ -1,26 +1,16 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-class ResourcerTestClass
-  include CloudResourcer
-  include Configurable
-  
+class ResourcerTestClass < PoolParty::Cloud::Cloud  
   default_options({
     :minimum_runtime => 50.minutes
   })
-  
-  def initialize(&block)
-    store_block(&block) if block
-  end
   
   # Stub keypair
   def keypair
     "rangerbob"
   end
 end
-class TestParentClass
-  def options
-    {}
-  end
+class TestParentClass < PoolParty::Cloud::Cloud  
   def services
     @services ||= []
   end
@@ -30,7 +20,8 @@ class TestParentClass
 end
 describe "CloudResourcer" do
   before(:each) do
-    @tc = ResourcerTestClass.new
+    @tc = ResourcerTestClass.new :bank do
+    end
   end
   it "should have the method instances" do
     @tc.respond_to?(:instances).should == true
@@ -100,52 +91,24 @@ describe "CloudResourcer" do
       end
     end
   end
-  it "should provide set_parent" do
-    @tc.respond_to?(:set_parent).should == true
-  end
   describe "parents" do
     before(:each) do
-      @testparent = TestParentClass.new
-    end
-    describe "setting" do
-      it "should add the child to its services" do
-        @testparent.should_receive(:add_service)
-      end
-      it "should call configure with options" do
-        @tc.should_receive(:configure).with(@testparent.options)      
-      end
-      after do
-        @tc.run_setup(@testparent)
+      @testparent = TestParentClass.new :parent_of_bob do
+        test_option "blankity blank blank"
+        
+        ResourcerTestClass.new :bob do
+        end
       end      
     end
-    describe "parent's services" do
-      before(:each) do        
-        @tc.run_setup(@testparent)        
-      end
-      it "should set the parent" do
-        @tc.parent.should == @testparent
-      end
-      it "should have one service set" do
+    describe "setting" do
+      it "set 1 service on the parent class" do
         @testparent.services.size.should == 1
       end
-      it "should have the child in the parent's services" do
-        @testparent.services.first.should == @tc
+      it "set the service as a ResourcerTestClass named bob" do
+        @testparent.services.first.name.should == :bob
       end
-    end
-    describe "storing block" do
-      before(:each) do
-        @new_tc = ResourcerTestClass.new do
-          "hi"
-        end
-      end
-      it "should store the block when creating a new one" do
-        @new_tc.store_block.should_not == nil
-      end
-      it "should have a reference to the stored block" do
-        @new_tc.store_block.class.should == Proc
-      end
-      it "should store the containing block" do
-        @new_tc.store_block.call.should == "hi"
+      it "set the parent's options on the child" do
+        @testparent.services.first.test_option.should == "blankity blank blank"
       end
     end
   end

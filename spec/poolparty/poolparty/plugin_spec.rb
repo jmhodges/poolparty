@@ -4,9 +4,6 @@ include PoolParty::Resources
 require File.dirname(__FILE__) + '/test_plugins/webserver'
 
 describe "Plugin" do
-  before(:each) do
-    reset_resources!
-  end
   describe "wrapped" do
     before(:each) do
       reset!

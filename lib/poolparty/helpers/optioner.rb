@@ -63,9 +63,9 @@ module PoolParty
       args
     end
     
-    def parent
-      self
-    end
+    # def parent
+    #   self
+    # end
     
     def set_default_options
       self.verbose false

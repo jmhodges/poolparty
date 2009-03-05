@@ -79,11 +79,3 @@ end
 Dir["#{File.dirname(__FILE__)}/monitors/*.rb"].each {|f| require f}
 # Require custom monitors
 Dir["#{PoolParty::Base.custom_monitor_directories}/*.rb"].each {|f| require f}
-
-module PoolParty
-  module Cloud
-    class Cloud
-      include PoolParty::Monitors
-    end
-  end
-end

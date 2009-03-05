@@ -53,20 +53,3 @@ module PoolParty
     
   end
 end
-
-module PoolParty
-  module Cloud
-    class Cloud
-      include PoolParty::Messenger
-      
-      def get_current_nodes
-        nodes = messenger_send!("get_current_nodes")
-        nodes.split(" ").map {|a| a.split(/@/)[-1] }
-      end
-      
-      def reconfigure_cloud!(msg="force_reconfig")
-        messenger_cast!(msg)
-      end
-    end
-  end
-end

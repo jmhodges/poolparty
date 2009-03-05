@@ -4,10 +4,6 @@ include PoolParty::Resources
 
 class TestGitClass
   include PoolParty::Resources
-  
-  def options(h={})
-    {}
-  end
 end
 describe "Remote Instance" do
   before(:each) do
