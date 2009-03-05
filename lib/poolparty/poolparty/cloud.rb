@@ -178,54 +178,56 @@ module PoolParty
           end
         end
       end
-            
-      # Configuration files
-      def build_manifest
-        vputs "Building manifest"
-        @build_manifest ||= build_from_existing_file
-        unless @build_manifest
-          
-          add_poolparty_base_requirements
-          
-          @build_manifest = "class poolparty {\n #{build_short_manifest}\n}"
-        end
-        @build_manifest
-      end
+
+      #FIXME MOVE TO DEPENDECY RESOL
+      # # Configuration files
+      # def build_manifest
+      #   vputs "Building manifest"
+      #   @build_manifest ||= build_from_existing_file
+      #   unless @build_manifest
+      #     
+      #     add_poolparty_base_requirements
+      #     
+      #     @build_manifest = "class poolparty {\n #{build_short_manifest}\n}"
+      #   end
+      #   @build_manifest
+      # end
       
       def rebuild_manifest
         @build_manifest = nil
         build_manifest
       end
       
-      def build_short_manifest
-        returning Array.new do |str|            
-
-          # Refactor this into the resources method
-          # TODO
-          services.each do |service|
-            service.options.merge!(:name => service.name)
-            classpackage_with_self(service)
-          end
-          
-          options.merge!(:name => "user")
-          classpackage_with_self
-          # resources.each do |type, res|
-          #   str << "# #{type.to_s.pluralize}"
-          #   str << res.to_string
-          # end
-          
-          global_classpackages.each do |cls|
-            str << cls.to_string
-          end
-
-          str << "# Custom functions"
-          str << Resources::CustomResource.custom_functions_to_string
-        end.join("\n")
-      end
+      #FIXME DEPRECATE
+      # def build_short_manifest
+      #               returning Array.new do |str|            
+      #         
+      #                 # Refactor this into the resources method
+      #                 # TODO
+      #                 services.each do |service|
+      #                   service.options.merge!(:name => service.name)
+      #                   classpackage_with_self(service)
+      #                 end
+      #                 
+      #                 options.merge!(:name => "user")
+      #                 classpackage_with_self
+      #                 # resources.each do |type, res|
+      #                 #   str << "# #{type.to_s.pluralize}"
+      #                 #   str << res.to_string
+      #                 # end
+      #                 
+      #                 global_classpackages.each do |cls|
+      #                   str << cls.to_string
+      #                 end
+      #         
+      #                 str << "# Custom functions"
+      #                 str << Resources::CustomResource.custom_functions_to_string
+      #               end.join("\n")
+      #             end
       
-      def build_from_existing_file
-        ::FileTest.file?("#{Base.manifest_path}/classes/poolparty.pp") ? open("#{Base.manifest_path}/classes/poolparty.pp").read : nil
-      end
+      # def build_from_existing_file
+      #       ::FileTest.file?("#{Base.manifest_path}/classes/poolparty.pp") ? open("#{Base.manifest_path}/classes/poolparty.pp").read : nil
+      #     end
       
       # To allow the remote instances to do their job,
       # they need a few options to run, these are the required options
