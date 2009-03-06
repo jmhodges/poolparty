@@ -110,14 +110,14 @@ describe "Resolution spec" do
     end
     it "contain content in the template's hash" do
       apache_key = cloud(:dog).to_properties_hash[:services].keys.first.to_sym
-      @properties[:services][apache_key].resources[:file].first.options.content.should == "Hello bob on port 8080"
+      @properties[:services][apache_key].resources[:file].first[:content].should == "Hello bob on port 8080"
     end
     it "contain the files in a hash" do
       # puts "<pre>#{@properties.to_yaml}</pre>"
-      @properties[:resources][:file].map {|a| a.options[:name] }.include?("/etc/motd").should == true
+      @properties[:resources][:file].map {|a| a[:name] }.include?("/etc/motd").should == true
     end
     it "contain the directory named /var/www" do
-      @properties[:resources][:directory].map {|a| a.options[:name] }.include?("/var/www").should == true
+      @properties[:resources][:directory].map {|a| a[:name] }.include?("/var/www").should == true
     end
   end
 end
