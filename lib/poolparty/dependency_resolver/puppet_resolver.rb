@@ -6,7 +6,9 @@ module PoolParty
   class PuppetResolver< DependencyResolver
     
     permitted_resource_options({
-      :file => [:content, :mode, :user]
+      :global => [:requires, :name],
+      :file => [:content, :mode, :user],
+      :exec => [:command, :path, :refreshonly]
     })
     
     def compile(props=@properties_hash, tabs=0)
@@ -34,7 +36,7 @@ module PoolParty
     
     def permitted_option?(ty, key)
       if permitted_resource_options.has_key?(ty)
-        permitted_resource_options[ty].include?(key) || key == :name
+        permitted_resource_options[ty].include?(key) || permitted_resource_options[:global].include?(key)
       else
         true
       end
@@ -61,6 +63,9 @@ module PoolParty
     
     def to_option_string(obj)
       case obj
+      when PoolParty::Resources::Resource
+        puts obj.options.keys.join(", ")
+        "#{obj.class.to_s.top_level_class.capitalize}['#{obj.name}']"
       when Fixnum
         "#{obj}"
       when String

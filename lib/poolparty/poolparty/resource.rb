@@ -22,8 +22,8 @@ module PoolParty
     # which stores the instance variable's local resources. 
     def add_resource(ty, opts={}, &block)
       temp_name = (opts[:name] || "#{ty}_#{ty.to_s.keyerize}")
-      if get_resource(ty, temp_name)
-        get_resource(ty, temp_name)
+      if res = get_resource(ty, temp_name, opts)
+        res
       else
         res = if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
           "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
@@ -48,8 +48,7 @@ module PoolParty
     def get_resource(ty, n, opts={}, &block)
       if in_local_resources?(ty, n)
         get_local_resource(ty, n)
-      elsif parent
-        puts "(#{ty}[#{n}] not in #{self}'s local resources, checking: #{parent}"
+      elsif parent && parent != self
         parent.get_local_resource(ty, n)
       else
         nil
@@ -61,7 +60,7 @@ module PoolParty
       write_to_file_in_storage_directory(path, str)
     end
         
-    class Resource
+    class Resource            
       attr_accessor :prestring, :poststring
       
       include Configurable
@@ -77,6 +76,8 @@ module PoolParty
       
       extend PoolParty::Resources
       include PoolParty::Resources
+      
+      dsl_accessors [:name]
             
       # When we subclass Resource, we want to add a few methods to the Resources class
       # This will anable us to call out to these resources in our DSLified manner
