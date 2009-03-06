@@ -9,7 +9,7 @@ module PoolParty
     include CloudResourcer
     include PoolParty::DependencyResolverCloudExtensions
         
-    def initialize(caller_parent, &block)          
+    def initialize(caller_parent, &block)
       set_parent_and_eval(&block)
     end
     

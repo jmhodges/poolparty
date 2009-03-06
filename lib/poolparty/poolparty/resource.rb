@@ -22,8 +22,8 @@ module PoolParty
     # which stores the instance variable's local resources. 
     def add_resource(ty, opts={}, &block)
       temp_name = (opts[:name] || "#{ty}_#{ty.to_s.keyerize}")
-      if in_local_resources?(ty, temp_name)
-        get_resource(ty, temp_name)
+      if res = get_resource?(ty, temp_name)
+        res
       else
         res = if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
           "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
@@ -41,8 +41,18 @@ module PoolParty
     def in_local_resources?(ty, key)
       !resource(ty).select {|r| r.key == key }.empty?
     end
-    def get_resource(ty, key)
+    def get_local_resource(ty, key)
       resource(ty).select {|r| r.key == key }.first
+    end
+    
+    def get_resource(ty, n, opts={}, &block)
+      if in_local_resources?(ty, n)
+        get_local_resource(ty, n)
+      elsif parent
+        parent.get_local_resource(ty, n)
+      else
+        nil
+      end
     end
 
     
@@ -88,8 +98,14 @@ module PoolParty
               add_resource(:#{lowercase_class_name}, opts, &blk)
             end
             def get_#{lowercase_class_name}(n, opts={}, &block)
-              in_local_resources?(:#{lowercase_class_name}, n) ?
-                get_resource(:#{lowercase_class_name}, n) : nil
+              if in_local_resources?(:#{lowercase_class_name}, n)
+                get_resource(:#{lowercase_class_name}, n)
+              elsif parent
+                puts "calling parent " + parent.to_s
+                parent.get_#{lowercase_class_name}(n, opts, &block)
+              else
+                nil
+              end
             end
           EOE
           PoolParty::Resources.module_eval method
@@ -115,6 +131,11 @@ module PoolParty
         # Take the options of the parents
         set_vars_from_options(opts) unless opts.empty?
         # @options = parent.options.merge(options) if parent
+        
+        context_stack.push self
+        # instance_eval &block if block
+        self.run_in_context(&block) if block
+        context_stack.pop
         
         loaded(opts, parent, &block)
       end

@@ -49,7 +49,7 @@ module PoolParty
       
       PoolParty::Service.add_has_and_does_not_have_methods_for(symc)
       
-      klass.module_eval &block if block
+      klass.class_eval &block if block
       klass
     end
     

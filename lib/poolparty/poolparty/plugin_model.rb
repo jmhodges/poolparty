@@ -19,27 +19,22 @@ module PoolParty
       include PrettyPrinter
       
       def initialize(name,&block)
-        @name = name
-        # @parent = cld
-        class_string_name = "#{name}"
+        symc = "#{name}".top_level_class.camelcase        
+        klass = symc.class_constant(PoolParty::Plugin::Plugin, {:preserve => true}, &block)
         
-        # Create the class to evaluate the plugin on the implemented call
-        @klass = klass = class_string_name.class_constant(PoolParty::Plugin::Plugin)
-        mod = class_string_name.module_constant(&block)
-        
-        klass.send :include, mod
-        
+        lowercase_class_name = symc.downcase
         # Store the name of the class for pretty printing later
         # klass.name = name
         # Add the plugin definition to the cloud as an instance method
-        PoolParty::Cloud::Cloud.class_eval <<-EOE
-          def #{name}(parent=self, &block)
-            @pa = parent
-            @#{class_string_name.downcase} ||= returning #{class_string_name.class_constant}.new(parent, &block) do |pl|
-              @pa.plugin_store << pl
-            end
+        meth = <<-EOM
+          def #{lowercase_class_name}(opts={}, &block)
+            inst = PoolParty::#{lowercase_class_name.camelcase}Class.new(opts, &block)
+            parent.plugin_store << inst if parent
+            inst
           end
-        EOE
+        EOM
+
+        PoolParty::Cloud::Cloud.class_eval meth
       end
       
     end
