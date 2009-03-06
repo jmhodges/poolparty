@@ -25,7 +25,11 @@ module PoolParty
       if in_local_resources?(ty, temp_name)
         get_resource(ty, temp_name)
       else
-        res = "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)        
+        res = if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
+          "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
+        else
+          "#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
+        end
         res.after_create
         store_in_local_resources(ty, res)
         res
@@ -35,7 +39,6 @@ module PoolParty
       resource(ty) << obj
     end
     def in_local_resources?(ty, key)
-      puts "type = #{ty} k=#{key} #{resources[ty]} #{parent}"
       !resource(ty).select {|r| r.key == key }.empty?
     end
     def get_resource(ty, key)

@@ -44,12 +44,11 @@ module PoolParty
     # 
     # An example is included in the poolparty-apache-plugin
     def virtual_resource(name=:virtual_resource, opts={}, &block)
-      symc = "#{name}".camelcase
-      eval <<-EOE
-        class PoolParty::#{symc} < PoolParty::Plugin::Plugin
-        end
-      EOE
-      klass = "PoolParty::#{symc}".constantize
+      symc = "#{name}".top_level_class.camelcase
+      klass = symc.class_constant(PoolParty::Plugin::Plugin, {:preserve => true}, &block)
+      
+      PoolParty::Service.add_has_and_does_not_have_methods_for(symc)
+      
       klass.module_eval &block if block
       klass
     end
