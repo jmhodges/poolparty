@@ -91,8 +91,11 @@ describe "PuppetResolver" do
       @compiled = @dr.compile
     end
     it "should compile to a string" do
-      puts "<pre>#{@compiled.to_yaml}</pre>"
+      # puts "<pre>#{@compiled.to_yaml}</pre>"
       @compiled.class.should == String
+    end
+    it "should include apache class" do
+      @compiled.should match(/class apache \{/)
     end
   end
   
