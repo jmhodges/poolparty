@@ -15,12 +15,12 @@ module PoolParty
       options = (parent.respond_to?(:options) && parent && parent != self) ? parent.options.merge!(opts) : opts
       # @c = PoolParty::Resources::Conditional.new(options, parent, &block)
       # conditional(options, parent, &block)
-      add_resource(:conditional, options, parent, &block)
+      add_resource(:conditional, options, &block)
     end
     
     class Conditional < Resource
       
-      def initialize(opts={}, parent=self, &block)
+      def initialize(opts={}, &block)
         name "#{opts[:name] ? opts[:name] : opts[:attribute]} #{opts[:equal]}"
         attribute opts[:attribute]
         equal opts[:equal]

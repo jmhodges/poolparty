@@ -23,7 +23,7 @@ module PoolParty
       $pools = $clouds = $plugins = @describe_instances = nil
     end
 
-    class Pool
+    class Pool < PoolParty::PoolPartyBaseClass
       # include PoolParty::Cloud
       include MethodMissingSugar
       # include PluginModel
@@ -43,9 +43,14 @@ module PoolParty
         @pool_name = name
         @pool_name.freeze
         # run_in_context &block if block
-        run_setup(self, &block)        
+        # run_setup(self, &block)
+        super(self, &block)
       end
-            
+      
+      def parent
+        nil
+      end
+      
       def setup_defaults
         plugin_directory "#{pool_specfile ? ::File.dirname(pool_specfile) : Dir.pwd}/plugins"
         PoolParty::Extra::Deployments.include_deployments "#{Dir.pwd}/deployments"

@@ -37,7 +37,7 @@ module PoolParty
         permitted_resource_options[ty].include?(key) || key == :name
       else
         true
-      end      
+      end
     end
     
     def services_to_string(opts,tabs=0)

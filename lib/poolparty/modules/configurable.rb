@@ -22,7 +22,7 @@ module PoolParty
       
       def set_dsl_accessors
         self.class.dsl_accessors.each do |acc|
-          module_eval "def #{acc};options[:#{acc}];end;def #{acc}=(v);options[:#{acc}]=v;end"
+          instance_eval "def #{acc};options[:#{acc}];end;def #{acc}=(v);options[:#{acc}]=v;end"
         end
         self.class.dsl_accessors
       end

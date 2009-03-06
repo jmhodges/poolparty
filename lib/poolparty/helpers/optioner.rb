@@ -8,7 +8,7 @@ require 'date'
 module PoolParty
   class Optioner
     include Configurable
-    include MethodMissingSugar
+    # include MethodMissingSugar
     
     def initialize(args=[], opts={}, &block)      
       boolean_args << opts[:boolean_args] if opts.has_key?(:boolean_args)
@@ -70,6 +70,10 @@ module PoolParty
     def set_default_options
       self.verbose false
       self.quiet false
+    end
+    
+    def parent
+      self
     end
     
     def parse_options(&blk)

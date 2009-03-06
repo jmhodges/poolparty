@@ -31,6 +31,12 @@ module PoolParty
       include PoolParty::CloudDsl
       include PoolParty::Monitors
       
+      dsl_accessors [:verbose]  #FIXME: not setting method appropriatley
+
+      def verbose
+        true
+      end
+      
       default_options({
         :minimum_instances => 2,
         :maximum_instances => 5,
@@ -60,6 +66,7 @@ module PoolParty
         # this can be overridden in the spec, but ec2 is the default
         self.using :ec2
         generate_keypair unless has_keypair?
+        dependency_resolver 'puppet'
       end
             
       # provide a public ips to get into the cloud
@@ -139,12 +146,12 @@ module PoolParty
       # references in the include
       def build_and_store_new_config_file(force=false)
         vputs "Building new manifest configuration file (forced: #{force})"
-        manifest = force ? rebuild_manifest : build_manifest
-        config_file = ::File.join(Base.storage_directory, "poolparty.pp")
-        ::File.open(config_file, "w") do |file|
-          file << manifest
-        end
-      end      
+              manifest = force ? rebuild_manifest : build_manifest
+              config_file = ::File.join(Base.storage_directory, "poolparty.pp")
+              ::File.open(config_file, "w") do |file|
+                file << manifest
+              end
+      end
       
       def copy_misc_templates
         ["namespaceauth.conf", "puppet.conf", "gem"].each do |f|
@@ -164,7 +171,7 @@ module PoolParty
           Base.custom_monitor_directories.each do |dir|
             Dir["#{dir}/*.rb"].each {|f| copy_file_to_storage_directory(f, "monitors")}
           end
-        end        
+        end
       end
       
       def copy_custom_modules
@@ -180,18 +187,18 @@ module PoolParty
       end
 
       #FIXME MOVE TO DEPENDECY RESOL
-      # # Configuration files
-      # def build_manifest
-      #   vputs "Building manifest"
-      #   @build_manifest ||= build_from_existing_file
-      #   unless @build_manifest
-      #     
-      #     add_poolparty_base_requirements
-      #     
-      #     @build_manifest = "class poolparty {\n #{build_short_manifest}\n}"
-      #   end
-      #   @build_manifest
-      # end
+      # Configuration files
+      def build_manifest
+        vputs "Building manifest"
+        @build_manifest ||= build_from_existing_file
+        unless @build_manifest
+          add_poolparty_base_requirements
+          props = to_properties_hash
+         
+          @build_manifest =  options[:dependency_resolver].send(:compile, props)
+        end
+        @build_manifest
+      end
       
       def rebuild_manifest
         @build_manifest = nil
@@ -225,9 +232,9 @@ module PoolParty
       #               end.join("\n")
       #             end
       
-      # def build_from_existing_file
-      #       ::FileTest.file?("#{Base.manifest_path}/classes/poolparty.pp") ? open("#{Base.manifest_path}/classes/poolparty.pp").read : nil
-      #     end
+      def build_from_existing_file
+        ::FileTest.file?("#{Base.manifest_path}/classes/poolparty.pp") ? open("#{Base.manifest_path}/classes/poolparty.pp").read : nil
+      end
       
       # To allow the remote instances to do their job,
       # they need a few options to run, these are the required options

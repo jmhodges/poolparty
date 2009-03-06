@@ -20,25 +20,26 @@ module PoolParty
     # A word about stores, the global store stores the entire list of stored
     # resources. The local resource store is available on all clouds and plugins
     # which stores the instance variable's local resources. 
-    def add_resource(type, opts={}, &block)
-      temp_name = (opts[:name] || "#{type}_#{type.to_s.keyerize}")
-      if in_local_resources?(type, temp_name)
-        get_resource(type, temp_name)
+    def add_resource(ty, opts={}, &block)
+      temp_name = (opts[:name] || "#{ty}_#{ty.to_s.keyerize}")
+      if in_local_resources?(ty, temp_name)
+        get_resource(ty, temp_name)
       else
-        res = "PoolParty::Resources::#{type.to_s.camelize}".camelize.constantize.new(opts, &block)        
+        res = "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)        
         res.after_create
-        store_in_local_resources(type, res)
+        store_in_local_resources(ty, res)
         res
       end
     end
-    def store_in_local_resources(type, obj)
-      resource(type) << obj
+    def store_in_local_resources(ty, obj)
+      resource(ty) << obj
     end
-    def in_local_resources?(type, key)
-      !resource(type).select {|r| r.key == key }.empty?
+    def in_local_resources?(ty, key)
+      puts "type = #{ty} k=#{key} #{resources[ty]} #{parent}"
+      !resource(ty).select {|r| r.key == key }.empty?
     end
-    def get_resource(type, key)
-      resource(type).select {|r| r.key == key }.first
+    def get_resource(ty, key)
+      resource(ty).select {|r| r.key == key }.first
     end
 
     
@@ -112,7 +113,7 @@ module PoolParty
         set_vars_from_options(opts) unless opts.empty?
         # @options = parent.options.merge(options) if parent
         
-        loaded(opts, @parent, &block)
+        loaded(opts, parent, &block)
       end
       
       # # Helper to set the containing parent on the resource
@@ -258,7 +259,7 @@ module PoolParty
         def has_#{type}(opts={}, extra={}, &block)
           #{type}(handle_option_values(opts).merge(extra.merge(:ensures => "present")), &block)
         end
-        def does_not_have_#{type}(opts={}, &block)
+        def does_not_have_#{type}(opts={}, extra={}, &block)
           #{type}(handle_option_values(opts).merge(extra.merge(:ensures => "absent")), &block)
         end
       EOE

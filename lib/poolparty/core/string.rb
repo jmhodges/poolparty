@@ -66,6 +66,30 @@ class String
     klass
   end
   
+  # Constantize tries to find a declared constant with the name specified
+  # in the string. It raises a NameError when the name is not in CamelCase
+  # or is not initialized.
+  #
+  # Examples
+  #   "Module".constantize #=> Module
+  #   "Class".constantize #=> Class
+  def constantize
+    unless /\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/ =~ self
+      raise NameError, "#{camel_cased_word.inspect} is not a valid constant name!"
+    end
+    Object.module_eval("::#{$1}", __FILE__, __LINE__)
+  end
+  
+  #TODO: define here to remove dependency on activesupport
+  # def classify
+  #   self.camelize(self.sub(/.*\./, ''))
+  # end
+  
+  def preserved_class_constant(append="")
+    klass = "#{self}#{append}".classify
+    Object.const_defined?(klass.to_sym) ? klass.to_s.constantize : nil
+  end
+  
   def module_constant(append="", &block)
     symc = "#{self}_Module#{append}".camelcase
     mod = Object.const_defined?(symc) ? Object.const_get(symc.to_sym) : Module.new(&block)
