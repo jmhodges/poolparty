@@ -4,7 +4,6 @@ module PoolParty
     
     def initialize(&block)
       # FIXME -> make pretty
-      puts "parent for #{self}: #{parent}"
       super(parent, &block)
     end
     
