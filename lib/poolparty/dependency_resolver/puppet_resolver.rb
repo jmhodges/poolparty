@@ -25,11 +25,19 @@ module PoolParty
       if opts
         opts.map do |type, arr|          
           arr.map do |res|
-            permitted_resource_res = res.reject {|k,v| !permitted_resource_options[type].include?(k) && k != :name rescue false }
+            permitted_resource_res = res.reject {|k,v| !permitted_option?(type, k) }
             "#{tf(tabs)}#{type} { \"#{res.has_key?(:name) ? res.delete(:name) : "Error" }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(permitted_resource_res).join("\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
           end
         end
       end
+    end
+    
+    def permitted_option?(ty, key)
+      if permitted_resource_options.has_key?(ty)
+        permitted_resource_options[ty].include?(key) || key == :name
+      else
+        true
+      end      
     end
     
     def services_to_string(opts,tabs=0)
