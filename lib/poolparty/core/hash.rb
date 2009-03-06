@@ -2,10 +2,8 @@
   Hash extentions
 =end
 class Hash
-  alias :old_select :select
-
-  def select(&block)
-    Hash[*self.old_select(&block).inject([]){|res,(k,v)| res << k << v}]    
+  def choose(&block)
+    Hash[*self.select(&block).inject([]){|res,(k,v)| res << k << v}]    
   end
   def extract!(&block)
     o = select(&block)

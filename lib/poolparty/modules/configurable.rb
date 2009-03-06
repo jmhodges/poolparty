@@ -6,11 +6,25 @@ module PoolParty
       def default_options(h={})
         @default_options ||= h
       end
+      def dsl_accessors(arr=[])
+        @dsl_accessors ||= arr
+      end
     end
     
     module InstanceMethods
       def options(h={})
         @options ||= self.class.default_options.merge(h)
+      end
+      
+      def dsl_accessors
+        @dsl_accessors ||= set_dsl_accessors
+      end
+      
+      def set_dsl_accessors
+        self.class.dsl_accessors.each do |acc|
+          module_eval "def #{acc};options[:#{acc}];end;def #{acc}=(v);options[:#{acc}]=v;end"
+        end
+        self.class.dsl_accessors
       end
       
       def configure(h={})

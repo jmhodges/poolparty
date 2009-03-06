@@ -25,5 +25,13 @@ module PoolParty
       new(hsh).compile
     end
     
+    def self.permitted_resource_options(rules={})
+      @permitted_resource_options ||= rules
+    end
+    
+    def permitted_resource_options
+      self.class.permitted_resource_options
+    end
+    
   end
 end

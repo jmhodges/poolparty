@@ -3,15 +3,11 @@ module PoolParty
         
     class File < Resource      
       
-      default_options({
-        :ensure => "file",
-        :mode => 644
-        # :owner => "#{Base.user}"
-      })
+      dsl_accessors [:name, :content, :mode, :owner]
       
-      def disallowed_options
-        [:name, :template, :cwd]
-      end
+      default_options({
+        :mode => 644
+      })      
       
       def after_create
         if options.include?(:template)

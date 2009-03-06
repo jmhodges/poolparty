@@ -5,6 +5,10 @@ module PoolParty
   
   class PuppetResolver< DependencyResolver
     
+    permitted_resource_options({
+      :file => [:content, :mode, :user]
+    })
+    
     def compile(props=@properties_hash, tabs=0)
       [ 
         options_to_string(props[:options],tabs),
@@ -21,7 +25,8 @@ module PoolParty
       if opts
         opts.map do |type, arr|          
           arr.map do |res|
-            "#{tf(tabs)}#{type} { \"#{res.has_key?(:name) ? res.delete(:name) : "Error" }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(res).join("\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
+            permitted_resource_res = res.reject {|k,v| !permitted_resource_options[type].include?(k) && k != :name rescue false }
+            "#{tf(tabs)}#{type} { \"#{res.has_key?(:name) ? res.delete(:name) : "Error" }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(permitted_resource_res).join("\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
           end
         end
       end
