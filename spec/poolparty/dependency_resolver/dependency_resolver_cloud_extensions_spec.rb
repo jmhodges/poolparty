@@ -87,10 +87,10 @@ describe "Resolution spec" do
       
       @cloud = cloud :dog do
         keypair "bob"
-        has_file :name => "/etc/motd", :content => "Welcome to the cloud"        
+        has_file :name => "/etc/motd", :content => "Welcome to the cloud"
         has_file :name => "/etc/profile", :content => "profile info"
         has_directory :name => "/var/www"
-        # has_package :name => "bash"        
+        has_package :name => "bash"
         # parent == cloud
         apache do
           # parent == apache

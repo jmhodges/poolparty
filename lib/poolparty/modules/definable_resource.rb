@@ -36,7 +36,7 @@ module PoolParty
     # Note that you can define any resources within the virtual resource
     # within the definition or the call.
     # Call example:
-    # has_virtualhost do        
+    # has_virtualhost do
     #  name "xnot.org"
     # end
     # 
@@ -46,15 +46,13 @@ module PoolParty
     def virtual_resource(name=:virtual_resource, opts={}, &block)
       symc = "#{name}".camelcase
       eval <<-EOE
-        class PoolParty::Resources::#{symc} < PoolParty::Resources::Resource
+        class PoolParty::#{symc} < PoolParty::Plugin::Plugin
         end
       EOE
-      klass = "PoolParty::Resources::#{symc}".constantize
+      klass = "PoolParty::#{symc}".constantize
       klass.module_eval &block if block
-      klass.send :define_method, :virtual_resource?, Proc.new{true}
-      klass.send :define_method, :printable?, Proc.new{false}
       klass
     end
     
-  end  
+  end
 end
