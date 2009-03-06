@@ -3,7 +3,7 @@ module PoolParty
         
     virtual_resource(:rsyncmirror) do
       
-      def loaded(opts={}, parent=self)
+      def loaded(opts={})
         @parent = parent        
         execute_on_node do
           @dir = dir || name

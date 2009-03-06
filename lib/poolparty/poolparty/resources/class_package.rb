@@ -32,7 +32,7 @@ module PoolParty
     # Note that it only removes resources that are not class packages, so this method will
     # not remove other classes that have been attached to the same resource.
     # TODO CLEAN THIS UP
-    def classpackage_with_self(parent=self, &block)
+    def classpackage_with_self(&block)
       name = (parent && parent.options.name || Classpackage.name(parent).to_s).sanitize
       
       if in_global_classpackages?(name)
@@ -66,7 +66,7 @@ module PoolParty
         :name => "custom"
       })
       
-      def initialize(opts={}, parent=self, &block)
+      def initialize(opts={}, &block)
         set_vars_from_options(opts) unless opts.empty?
         run_setup(parent, &block) if block
         loaded
@@ -102,7 +102,7 @@ module PoolParty
         false
       end
       
-      def self.name(parent=self)
+      def self.name
         "custom_#{parent ? parent.object_id.to_s : "parent"}"
       end
       

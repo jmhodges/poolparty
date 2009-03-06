@@ -14,7 +14,7 @@ module PoolParty
       def initialize(opts={}, &block)
         # store_block &block
         super(&block)
-        # puts "parent: #{parent} for #{self.class.to_s} (parent's parent: #{parent.parent})"
+
         loaded(opts)
       end
       

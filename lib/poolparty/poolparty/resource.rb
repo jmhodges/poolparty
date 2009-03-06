@@ -39,7 +39,7 @@ module PoolParty
       resource(ty) << obj
     end
     def in_local_resources?(ty, key)
-      !resource(ty).select {|r| r.key == key }.empty?
+      !resource(ty).select {|r| r.key == key }.empty? rescue nil
     end
     def get_local_resource(ty, key)
       resource(ty).select {|r| r.key == key }.first
@@ -131,7 +131,7 @@ module PoolParty
         # self.run_in_context(&block) if block
         context_stack.pop
         
-        loaded(opts, parent, &block)
+        loaded(opts, &block)
       end
       
       # # Helper to set the containing parent on the resource
@@ -153,7 +153,7 @@ module PoolParty
       # Stub, so you can create virtual resources
       # This is called after the resource is initialized
       # with the options given to it in the init-block
-      def loaded(opts={}, parent=self)
+      def loaded(opts={})
       end
       
       def after_create

@@ -1,15 +1,15 @@
 module PoolParty    
   module Resources
     
-    def execute_on_master(parent=self, &block)
+    def execute_on_master(&block)
       execute_if("$hostname", "master", {}, parent, &block)
     end
     
-    def execute_on_node(parent=self, &block)
+    def execute_on_node(&block)
       execute_if("$hostname", "master", {:notequal => true}, parent, &block)
     end
     
-    def execute_if(attr_s="$hostname", str="", cust_opts={}, parent=self, &block)
+    def execute_if(attr_s="$hostname", str="", cust_opts={}, &block)
       # parent = parent.is_a?(PoolParty::Cloud::Cloud) ? parent : parent.parent
       opts = {:attribute => attr_s, :equal => str}.merge(cust_opts)
       options = (parent.respond_to?(:options) && parent && parent != self) ? parent.options.merge!(opts) : opts

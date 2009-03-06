@@ -8,7 +8,7 @@ module PoolParty
       # the package details (version and name)
       # 
       # TODO: Add it so that it tries to pull the gem off the master fileserver first...
-      def loaded(opts={}, parent=self)
+      def loaded(opts={})
         if download_url
                     
           execute_on_master do

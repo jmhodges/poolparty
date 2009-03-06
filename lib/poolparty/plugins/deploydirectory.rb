@@ -10,7 +10,7 @@ module PoolParty
         
     virtual_resource(:deploydirectory) do
       
-      def loaded(opts={}, parent=self)
+      def loaded(opts={})
         package_directory        
         unpack_directory
         sync_directories

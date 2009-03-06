@@ -9,7 +9,7 @@ module PoolParty
     
     virtual_resource(:git_repos) do
       
-      def loaded(opts={}, parent=self, &block)
+      def loaded(opts={}, &block)
         has_git
         has_git_repos
       end

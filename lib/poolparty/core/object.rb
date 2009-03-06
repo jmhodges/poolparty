@@ -13,7 +13,7 @@ class Object
     original = self.method(original_id).to_proc
     define_method(new_id){|*args| original.call(*args)}
   end
-  def with_options(opts={}, parent=self, &block)
+  def with_options(opts={}, &block)
     @p = parent.clone
     @p.options.merge!(opts)
     @p.instance_eval &block if block
@@ -27,10 +27,11 @@ class Object
     self
   end
   def send_if_method(v, *args)
+    puts "calling #{v} with (#{args}) on #{self}"
     if (v.nil? || v.to_s.empty? || v.is_a?(Array) || v.is_a?(Integer))# && !v.is_a?(Symbol))#)v.is_a?(String)
       v
     else
-      vs = v.to_s.to_sym
+      vs = v.to_s.to_sym      
       respond_to?(vs) ? self.send(vs, *args) : v rescue v
     end
   end

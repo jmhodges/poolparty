@@ -53,11 +53,16 @@ module PoolParty
     end
     
     def hash_flush_out(hash, pre="", post="")
-      hash.map {|k,v| "#{pre}#{k} => #{to_option_string(v)}#{post}"}
+      hash.map do |k,v|
+        res = to_option_string(v)
+        res ? "#{pre}#{k} => #{res}#{post}" : ""
+      end
     end
     
     def to_option_string(obj)
       case obj
+      when Fixnum
+        "#{obj}"
       when String
         "\"#{obj}\""
       when Array

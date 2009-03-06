@@ -2,13 +2,11 @@ module PoolParty
   module ResourcingDsl
     # Overrides for syntax
     # Allows us to send require to require a resource
-    def require(str="")
-      str ? options.merge!(:require => str) : options[:require]
-    end
     def requires(str=nil)
       # str ? options.append!(:require => str) : options[:require]
-      str ? options.append!(:require => send_if_method(str)) : options[:require]
-    end 
+      puts "requires: #{str}"
+      str ? options.merge!(:require => send_if_method(str)) : options[:require]
+    end
     def ensures(str="running")
       # if %w(absent running).map {|a| self.send a.to_sym}.include?(str)
         str == "absent" ? is_absent : is_present
