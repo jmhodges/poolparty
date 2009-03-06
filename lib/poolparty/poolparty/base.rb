@@ -14,6 +14,7 @@ module PoolParty
       :user => "root", # This should change here
       :base_keypair_path => "#{ENV["HOME"]}/.ec2",
       :tmp_path => "/tmp/poolparty",
+      :poolparty_home_path => "#{ENV["HOME"]}/.poolparty",
       :remote_storage_path => "/var/poolparty",
       :remote_gem_path => "/var/poolparty/gems",
       :fileserver_base => "puppet://master/files",
