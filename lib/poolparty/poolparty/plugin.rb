@@ -14,6 +14,8 @@ module PoolParty
       def initialize(opts={}, &block)
         # store_block &block
         super(&block)
+        
+        loaded(opts, self)
       end
       
       def realize!(force=false)
