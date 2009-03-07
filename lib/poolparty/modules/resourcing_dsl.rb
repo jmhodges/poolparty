@@ -4,8 +4,10 @@ module PoolParty
     # Allows us to send require to require a resource
     def requires(str=nil)
       # str ? options.append!(:require => str) : options[:require]
-      puts "requires: #{str}"
       str ? options.merge!(:require => send_if_method(str)) : options[:require]
+    end
+    def on_change(str=nil)
+      str ? options.merge!(:notify => send_if_method(str)) : options[:notify]
     end
     def ensures(str="running")
       # if %w(absent running).map {|a| self.send a.to_sym}.include?(str)

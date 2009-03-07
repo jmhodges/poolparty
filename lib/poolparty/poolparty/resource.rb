@@ -64,11 +64,11 @@ module PoolParty
       attr_accessor :prestring, :poststring
       
       include Configurable
-      include CloudResourcer
+      # include CloudResourcer
             
       # For the time being, we'll make puppet the only available dependency resolution
       # base, but in the future, we can rip this out and make it an option
-      include PoolParty::DependencyResolutions::Puppet
+      # include PoolParty::DependencyResolutions::Puppet
       include PoolParty::DependencyResolverResourceExtensions
       
       # DSL Overriders
@@ -77,7 +77,7 @@ module PoolParty
       extend PoolParty::Resources
       include PoolParty::Resources
       
-      dsl_accessors [:name]
+      dsl_accessors [:name, :on_change]
             
       # When we subclass Resource, we want to add a few methods to the Resources class
       # This will anable us to call out to these resources in our DSLified manner
@@ -127,10 +127,8 @@ module PoolParty
         set_vars_from_options(opts) unless opts.empty?
         # @options = parent.options.merge(options) if parent
         
-        context_stack.push self
         instance_eval &block if block
         # self.run_in_context(&block) if block
-        context_stack.pop
         
         loaded(opts, &block)
       end

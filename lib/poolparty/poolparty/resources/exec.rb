@@ -6,10 +6,6 @@ module PoolParty
       default_options({
         :path => "/usr/bin:/bin:/usr/local/bin:$PATH"
       })
-            
-      def key
-        name || command
-      end
       
       def present
         "running"
