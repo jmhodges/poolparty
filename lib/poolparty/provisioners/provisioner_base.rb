@@ -9,8 +9,8 @@ require 'capistrano/cli'
 module PoolParty
   module Provisioner
     
-    def provisioner_for(inst)
-      PoolParty::Provisioner::Capistrano.new(inst, self, :ubuntu)
+    def provisioner_for(inst, caller=self)
+      PoolParty::Provisioner::Capistrano.new(inst, caller, :ubuntu)
     end
     
     class ProvisionerBase
@@ -26,6 +26,8 @@ module PoolParty
         options(cloud.options) if cloud && cloud.respond_to?(:options)
         # set_vars_from_options(instance.options) unless instance.nil? || !instance.options || !instance.options.empty?
         # options(instance.options) if instance.respond_to?(:options)
+        
+        puts "middle of initialize"
         
         @os = os.to_s.downcase.to_sym
         self.instance_eval &block if block

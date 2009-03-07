@@ -65,6 +65,7 @@ module PoolParty
             
       def set_poolparty_roles
         return "" if testing
+        puts "@cloud: #{@cloud}"
         returning Array.new do |arr|
           arr << "role 'master.#{@cloud.name}'.to_sym, '#{@cloud.ip}'"
           arr << "role :master, '#{@cloud.ip}'"
@@ -73,9 +74,13 @@ module PoolParty
         end.join("\n")
       end
       
+      def parent
+        @cloud
+      end
+      
       # Create the config for capistrano
       # This is a dynamic capistrano configuration file
-      def create_config        
+      def create_config
         @config = ::Capistrano::Configuration.new
         if @cloud.debug || @cloud.verbose 
           @config.logger.level = @cloud.debug ? ::Capistrano::Logger::MAX_LEVEL : ::Capistrano::Logger::INFO
