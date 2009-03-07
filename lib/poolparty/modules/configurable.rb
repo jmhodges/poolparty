@@ -7,7 +7,10 @@ module PoolParty
         @default_options ||= h
       end
       def dsl_accessors(arr=[])
-        @dsl_accessors ||= arr
+        @dsl_accessors ||= arr.map do |acc|
+          class_eval "def #{acc}(i=nil); i ? options[:#{acc}] = i : options[:#{acc}]; end;def #{acc}=(v);options[:#{acc}]=v;end"
+          acc
+        end
       end
     end
     
@@ -21,9 +24,6 @@ module PoolParty
       end
       
       def set_dsl_accessors
-        self.class.dsl_accessors.each do |acc|
-          instance_eval "def #{acc};options[:#{acc}];end;def #{acc}=(v);options[:#{acc}]=v;end"
-        end
         self.class.dsl_accessors
       end
       

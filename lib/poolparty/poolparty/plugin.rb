@@ -13,8 +13,9 @@ module PoolParty
       
       def initialize(opts={}, &block)
         # store_block &block
+        set_vars_from_options(opts) unless opts.empty?
         super(&block)
-
+        
         loaded(opts)
       end
       

@@ -25,11 +25,11 @@ module PoolParty
       if res = get_resource(ty, temp_name, opts)
         res
       else
-        res = if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
+        res = #if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
           "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
-        else
-          "#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
-        end
+        # else
+        #   "#{ty.to_s.camelize}".camelize.constantize.new(opts.merge(:name), &block)
+        # end
         res.after_create
         store_in_local_resources(ty, res)
         res
@@ -48,7 +48,7 @@ module PoolParty
     def get_resource(ty, n, opts={}, &block)
       if in_local_resources?(ty, n)
         get_local_resource(ty, n)
-      elsif parent && parent != self
+      elsif parent
         parent.get_local_resource(ty, n)
       else
         nil
@@ -78,7 +78,7 @@ module PoolParty
       include PoolParty::Resources
       
       dsl_accessors [:name, :on_change]
-            
+      
       # When we subclass Resource, we want to add a few methods to the Resources class
       # This will anable us to call out to these resources in our DSLified manner
       # When we call a method from the subclass, say it's the File class
@@ -100,7 +100,9 @@ module PoolParty
               add_resource(:#{lowercase_class_name}, opts, &blk)
             end
             def get_#{lowercase_class_name}(n, opts={}, &block)
-              get_resource(:#{lowercase_class_name}, n, opts, &block)
+              res = get_resource(:#{lowercase_class_name}, n, opts, &block)
+              raise PackageException.new("A required #{lowercase_class_name.capitalize} \#\{n\} was not found.") unless res
+              res
             end
           EOE
           PoolParty::Resources.module_eval method
