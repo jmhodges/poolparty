@@ -87,7 +87,7 @@ module PoolParty
     end
     
     def realize_plugins!(force=false)
-      plugin_store.each {|plugin| plugin.realize!(force) if plugin }
+      plugin_store.each {|plugin| puts "plugin: #{plugin}";plugin.realize!(force) if plugin }
     end
     
     def plugin_store

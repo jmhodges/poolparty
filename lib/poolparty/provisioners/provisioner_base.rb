@@ -24,8 +24,6 @@ module PoolParty
         @instance = instance
         @cloud = cld
         options(cloud.options) if cloud && cloud.respond_to?(:options)
-        # set_vars_from_options(instance.options) unless instance.nil? || !instance.options || !instance.options.empty?
-        # options(instance.options) if instance.respond_to?(:options)
         
         dputs "Using key at: #{cld.keypair.full_filepath}"
         
