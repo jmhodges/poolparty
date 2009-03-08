@@ -20,10 +20,10 @@ o.loaded_clouds.each do |cloud|
     else
       if provision_slave
         vputs "Provisioning slaves"
-        verbose ? provisioner_for(nil).install(testing) : hide_output { provisioner_for(nil).install(testing) }
+        verbose ? provisioner_for(nil, self).install(testing) : hide_output { provisioner_for(nil).install(testing) }
       else
         vputs "Provisioning master"
-        verbose ? provisioner_for(master).install(testing) : hide_output { provisioner_for(master).install(testing) }
+        verbose ? provisioner_for(master, self).install(testing) : hide_output { provisioner_for(master).install(testing) }
       end
     end
     

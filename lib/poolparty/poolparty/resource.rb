@@ -25,11 +25,11 @@ module PoolParty
       if res = get_resource(ty, temp_name, opts)
         res
       else
-        res = #if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
+        res = if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
           "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
-        # else
-        #   "#{ty.to_s.camelize}".camelize.constantize.new(opts.merge(:name), &block)
-        # end
+        else
+          "#{ty.to_s.camelize}".camelize.constantize.new(opts.merge(:name), &block)
+        end
         res.after_create
         store_in_local_resources(ty, res)
         res
