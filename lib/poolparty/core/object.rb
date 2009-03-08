@@ -75,7 +75,7 @@ class Object
     print m if o.verbose rescue ""
   end
   def dputs(m="", o=self)
-    puts m if o.debugging rescue ""
+    puts "-- #{m}" if o.debugging rescue ""
   end
   def unix_hide_string
     "2>&1 > /dev/null"

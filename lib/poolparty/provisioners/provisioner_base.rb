@@ -27,7 +27,7 @@ module PoolParty
         # set_vars_from_options(instance.options) unless instance.nil? || !instance.options || !instance.options.empty?
         # options(instance.options) if instance.respond_to?(:options)
         
-        puts "middle of initialize"
+        dputs "Using key at: #{cld.keypair.full_filepath}"
         
         @os = os.to_s.downcase.to_sym
         self.instance_eval &block if block

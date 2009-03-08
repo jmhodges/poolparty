@@ -6,7 +6,7 @@ module PoolParty
     attr_accessor :filepath
     
     def initialize(filepath=nil)
-      @filepath = filepath ? filepath : "id_rsa"
+      @filepath = (filepath.nil? || filepath.empty?) ? "id_rsa" : filepath
     end
     
     def exists?

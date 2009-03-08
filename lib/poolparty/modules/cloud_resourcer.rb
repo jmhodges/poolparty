@@ -53,29 +53,26 @@ module PoolParty
     
     def setup_dev
       return true if ::File.exists?("#{remote_keypair_path}") || master.nil?
-      # unless ::File.exists?("#{full_keypair_basename_path}.pub")
-      #   cmd = "scp #{scp_array.join(" ")} #{Base.user}@#{master.ip}:.ssh/authorized_keys #{full_keypair_basename_path}.pub"
-      #   vputs "Running #{cmd}"
-      #   if %x[hostname].chomp == "master"
-      #     Kernel.system("cat ~/.ssh/authorized_keys > #{full_keypair_basename_path}.pub")
-      #   else
-      #     Kernel.system(cmd)
-      #   end
-      # end
     end
     
     # Keypairs
     # Use the keypair path
-    def keypair(*args)
+    def keypair(args=nil)
       if args && !args.empty?
-        args.each {|arg| (options[:keypairs] ||= [Key.new]).unshift Key.new(arg) }
+        args.each {|arg| _keypairs.unshift Key.new(arg) }
       else
-        options[:keypairs].select {|key| key.exists? }.first
+        _keypairs.select {|key| key.exists? }.first
       end
     end
     
-    def full_keypair_path
-      keypair.full_filepath
+    alias :set_keypairs :keypair
+    
+    def _keypairs
+      options[:keypairs] ||= [Key.new]
+    end
+    
+    def full_keypair_path      
+      @full_keypair_path ||= keypair.full_filepath
     end
                 
     def number_of_resources
