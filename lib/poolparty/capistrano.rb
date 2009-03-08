@@ -17,7 +17,7 @@ module PoolParty
         $cap_clouds[name] = cld
         @cloud = cld
         instance_eval <<-EOE
-  ssh_options[:keys] = [ '#{cld.full_keypair_basename_path}' ]
+  ssh_options[:keys] = [ '#{cld.full_keypair_path}' ]
   set :user, '#{cld.user}'
   set :username, "#{cld.user}"
   ssh_options[:forward_agent] = true
