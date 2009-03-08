@@ -65,80 +65,17 @@ module PoolParty
     end
     
     # Keypairs
+    # Use the keypair path
     def keypair(*args)
-      if args && !args.empty? && !has_keypair?
-        options[:keypair] = args.first
+      if args && !args.empty?
+        args.each {|arg| (options[:keypairs] ||= [Key.new]).unshift Key.new(arg) }
       else
-        options[:keypair] ||= generate_keypair
+        options[:keypairs].select {|key| key.exists? }.first
       end
-    end
-        
-    # Let's just make sure that the keypair exists on the options
-    def has_keypair?
-      options.has_key?(:keypair) && options[:keypair] && !options[:keypair].empty?
-    end
-    # Generate a keypair based on the parent's name (if there is a parent)
-    # and the cloud's name
-    def generate_keypair(*args)
-      options[:keypair] = "#{parent && parent.is_a?(PoolParty::Pool::Pool) ? parent.name : "poolparty"}_#{name}" unless has_keypair?
     end
     
     def full_keypair_path
-      unless keypair_path
-        raise RuntimeException.new("Keypair cannot be found")
-      else
-        ::File.expand_path(keypair_path)
-      end
-    end
-    def full_keypair_basename_path
-      dir = ::File.dirname(full_keypair_path)
-      basename = ::File.basename(full_keypair_path, ::File.extname(full_keypair_path))
-      ::File.join(dir, basename)
-    end
-    
-    def keypair_path
-      keypair_paths.each do |path|
-        possible_keypair_basenames.each do |base|
-          full_path = ::File.join( File.expand_path(path), "#{base}#{keypair}")
-          return full_path if ::File.exists?(full_path)
-        end
-      end
-      return nil
-    end
-    
-    # The keypair name can be one name or another including id_rsa or not
-    # So let's get the name that exists as a keypair
-    def full_keypair_name
-      keypair_paths.each do |path|
-        possible_keypair_basenames.each do |base|
-          full_path = ::File.join( File.expand_path(path), "#{base}#{keypair}")
-          return "#{base}#{keypair}" if ::File.exists?(full_path)
-        end
-      end
-      return nil
-    end
-    
-    def remote_keypair_path
-      ::File.join( keypair_paths.last, "#{possible_keypair_basenames.first}#{keypair}" )
-    end
-    def new_keypair_path
-      ::File.join( keypair_paths.first, "#{possible_keypair_basenames.first}#{keypair}" )
-    end
-    
-    def possible_keypair_basenames
-      [
-        "id_rsa-",
-        ""
-      ]
-    end
-    
-    def keypair_paths
-      [
-        Base.base_keypair_path,
-        Base.base_config_directory,
-        Base.remote_storage_path,
-        Dir.pwd
-      ]
+      keypair.full_filepath
     end
                 
     def number_of_resources
