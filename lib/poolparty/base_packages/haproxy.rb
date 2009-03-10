@@ -38,6 +38,9 @@ module PoolParty
           #   template "haproxy.conf"
           # end
         end
+        when_is "node1" do
+          has_package :name => "slaves"
+        end
         end_of
       end
     end  

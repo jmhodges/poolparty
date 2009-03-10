@@ -10,7 +10,7 @@ module PoolParty
     include PoolParty::DependencyResolverCloudExtensions
         
     def initialize(opts={}, &block)
-      set_vars_from_options(opts) unless opts.empty?
+      set_vars_from_options(opts) unless !opts.is_a?(Hash) || opts.empty?
       set_parent_and_eval(&block)
     end
     

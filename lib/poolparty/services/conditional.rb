@@ -26,7 +26,7 @@ module PoolParty
     def add(o, &block)
       proc = Proc.new do
         service = PoolParty::Service.new(&block)
-        obj = (o ? o : :otherwise).to_sym
+        obj = (o ? o : :default).to_sym
         when_statements.merge!({o => service})
       end
       set_parent_and_eval(&proc)      

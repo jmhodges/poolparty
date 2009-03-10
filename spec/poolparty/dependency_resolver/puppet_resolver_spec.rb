@@ -88,7 +88,7 @@ describe "PuppetResolver" do
           has_package :name=>'haproxy'
         end
         otherwise
-          has_exec :name=>'slave stuff'
+          has_package :name=>'slave stuff'
         end_of
       end
       @properties = cloud(:dog).to_properties_hash
@@ -104,6 +104,11 @@ describe "PuppetResolver" do
     end
     it "should include apache class" do
       @compiled.should match(/class apache \{/)
+    end
+    it "should include the case statement" do
+      @compiled.should match(/case \$hostname \{/)
+      @compiled.should match(/master : \{/)
+      @compiled.should match(/default : \{/)
     end
   end
   
