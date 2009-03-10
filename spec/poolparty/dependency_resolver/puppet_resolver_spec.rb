@@ -82,10 +82,18 @@ describe "PuppetResolver" do
           listen "8080"
           has_file :name => "/etc/apache2/apache2.conf", :template => "#{::File.dirname(__FILE__)}/../fixtures/test_template.erb", :friends => "bob"
         end
+        
+        case_of "hostname"
+        when_is 'master' do
+          has_package :name=>'haproxy'
+        end
+        otherwise
+          has_exec :name=>'slave stuff'
+        end_of
       end
       @properties = cloud(:dog).to_properties_hash
       
-      # puts "<pre>#{cloud(:dog).resources.to_yaml}</pre>"
+      puts "<pre>#{cloud(:dog).to_properties_hash.inspect}</pre>"
       # puts "<pre>#{@cloud_refer/ence_hash.to_yaml}\n\n#{@properties.to_yaml}</pre>"
       @dr = PuppetResolver.new(@properties)
       @compiled = @dr.compile

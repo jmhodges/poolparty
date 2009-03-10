@@ -2,9 +2,8 @@ module PoolParty
   
   class Service < PoolPartyBaseClass
     
-    def initialize(&block)
-      # FIXME -> make pretty
-      super(parent, &block)
+    def initialize(o={}, &block)
+      super(o, &block)
     end
     
     
@@ -17,10 +16,12 @@ module PoolParty
         end
       EOM
       
-      PoolParty::Resources.module_eval meth
-      PoolParty::Resources.add_has_and_does_not_have_methods_for(lowercase_class_name.to_sym)
+      PoolParty::PoolPartyBaseClass.module_eval meth
+      PoolParty::PoolPartyBaseClass.add_has_and_does_not_have_methods_for(lowercase_class_name.to_sym)
     end
     
   end
   
 end
+
+Dir["#{::File.dirname(__FILE__)}/../services/*.rb"].each {|lib| require "#{lib}"}

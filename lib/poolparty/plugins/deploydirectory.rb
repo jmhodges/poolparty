@@ -24,7 +24,8 @@ module PoolParty
       end
       
       def unpack_directory
-        execute_on_master do
+        case_of "hostname"
+        when_is "master" do
           has_exec({:name => "deploy-directory-#{name}", :requires => get_directory("#{cwd}"), :cwd => cwd}) do
             #  && rm #{Base.tmp_path}/#{parent.name.dir_safe}.tar.gz
             archive_name = "#{::File.basename(name).dir_safe}.tar.gz"
@@ -32,6 +33,7 @@ module PoolParty
             onlyif "test -f #{Base.remote_storage_path}/#{archive_name}"
           end
         end
+        end_of
       end
       
       def sync_directories

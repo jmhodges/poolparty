@@ -1,7 +1,7 @@
 module PoolParty    
-  module Resources
+  # module Resources
         
-    class Gempackage < Resource
+    class Gempackage < Service
       
       # When we call gempackage, we want the exec to run on the directory we suggest
       # we also only want it to run if there is NOT a local gem already installed with
@@ -11,9 +11,11 @@ module PoolParty
       def loaded(opts={})
         if download_url
                     
-          execute_on_master do
+          case_of "hostname"
+          when_is "master" do
             has_exec(:name => "download-#{name}", :cwd => Base.remote_storage_path, :command => "wget #{download_url} -O #{name}.gem", :ifnot => "test -f #{Base.remote_storage_path}/#{name}.gem")
           end
+          end_of
           
           has_file({
             :name => "#{Base.remote_storage_path}/#{name}.gem", 
@@ -46,5 +48,5 @@ module PoolParty
       
     end
     
-  end
+  # end
 end

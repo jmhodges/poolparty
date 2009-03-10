@@ -8,59 +8,12 @@
 =end
 module PoolParty    
   module Resources    
-    # Add resource
-    # When we are looking to add a resource, we want to make sure the
-    # resources isn't already added. This way we prevent duplicates 
-    # as puppet can be finicky about duplicate resource definitions. 
-    # We'll look for the resource in either a local or global store
-    # If the resource appears in either, return that resource, we'll just append
-    # to the resource config, otherwise instantiate a new resource of the type
-    # and store it into the global and local resource stores
-    # 
-    # A word about stores, the global store stores the entire list of stored
-    # resources. The local resource store is available on all clouds and plugins
-    # which stores the instance variable's local resources. 
-    def add_resource(ty, opts={}, &block)
-      temp_name = (opts[:name] || "#{ty}_#{ty.to_s.keyerize}")
-      if res = get_resource(ty, temp_name, opts)
-        res
-      else
-        res = if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
-          "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
-        else
-          "#{ty.to_s.camelize}".camelize.constantize.new(opts.merge(:name), &block)
-        end
-        res.after_create
-        store_in_local_resources(ty, res)
-        res
-      end
-    end
-    def store_in_local_resources(ty, obj)
-      resource(ty) << obj
-    end
-    def in_local_resources?(ty, key)
-      !resource(ty).select {|r| r.key == key }.empty? rescue nil
-    end
-    def get_local_resource(ty, key)
-      resource(ty).select {|r| r.key == key }.first
-    end
-    
-    def get_resource(ty, n, opts={}, &block)
-      if in_local_resources?(ty, n)
-        get_local_resource(ty, n)
-      elsif parent
-        parent.get_local_resource(ty, n)
-      else
-        nil
-      end
-    end
-
     
     def custom_file(path, str)
       write_to_file_in_storage_directory(path, str)
     end
         
-    class Resource            
+    class Resource < PoolParty::PoolPartyBaseClass
       attr_accessor :prestring, :poststring
       
       include Configurable
@@ -73,9 +26,6 @@ module PoolParty
       
       # DSL Overriders
       include PoolParty::ResourcingDsl
-      
-      extend PoolParty::Resources
-      include PoolParty::Resources
       
       dsl_accessors [:name, :on_change]
       
@@ -94,19 +44,19 @@ module PoolParty
         lowercase_class_name = subclass.to_s.underscore.downcase || subclass.downcase
         
         # Add add resource method to the Resources module
-        unless PoolParty::Resources.respond_to?(lowercase_class_name.to_sym)          
+        unless PoolParty::PoolPartyBaseClass.respond_to?(lowercase_class_name.to_sym)          
           method =<<-EOE
             def #{lowercase_class_name}(opts={}, &blk)
               add_resource(:#{lowercase_class_name}, opts, &blk)
             end
             def get_#{lowercase_class_name}(n, opts={}, &block)
               res = get_resource(:#{lowercase_class_name}, n, opts, &block)
-              raise PackageException.new("A required #{lowercase_class_name.capitalize} \#\{n\} was not found.") unless res
+              # raise PackageException.new("A required #{lowercase_class_name.capitalize} \#\{n\} was not found.") unless res
               res
             end
           EOE
-          PoolParty::Resources.module_eval method
-          PoolParty::Resources.add_has_and_does_not_have_methods_for(lowercase_class_name.to_sym)
+          PoolParty::PoolPartyBaseClass.module_eval method
+          PoolParty::PoolPartyBaseClass.add_has_and_does_not_have_methods_for(lowercase_class_name.to_sym)
           
           available_resources << subclass
         end
@@ -125,31 +75,18 @@ module PoolParty
       # the options
       # Finally, it uses the parent's options as the lowest priority
       def initialize(opts={}, &block)                        
-        # Take the options of the parents
+        # Take the options of the parents                
+        @options = parent.options.merge(options) if parent && parent.is_a?(PoolParty::Pool::Pool)
         set_vars_from_options(opts) unless opts.empty?
-        # @options = parent.options.merge(options) if parent
-        
+
+        context_stack.push self
         instance_eval &block if block
+        context_stack.pop
+        
         # self.run_in_context(&block) if block
         
         loaded(opts, &block)
       end
-      
-      # # Helper to set the containing parent on the resource
-      # def set_resource_parent
-      #   if @parent && @parent != self
-      #     if can_set_requires_for_parent
-      #       # requires @parent.to_s
-      #     end
-      #   end
-      # end
-      # 
-      # def can_set_requires_for_parent
-      #   @parent.is_a?(PoolParty::Resources::Resource) && 
-      #     @parent.printable? && 
-      #     @parent.name != name &&
-      #     !@parent.is_a?(PoolParty::Resources::Classpackage)
-      # end
             
       # Stub, so you can create virtual resources
       # This is called after the resource is initialized
@@ -157,34 +94,21 @@ module PoolParty
       def loaded(opts={})
       end
       
+      # After create callback
       def after_create
       end
       
+      # We don't want to inherit the services on a resource, as resources
+      # are a base and should never have services.
+      def services
+      end
+      
       def cloud
-        @pa = parent
-        while !(@pa.is_a?(PoolParty::Cloud::Cloud) || @pa.nil? || @pa == self)
-          @pa = @pa.respond_to?(:parent) ? @pa.parent : nil
-        end
-        @pa
-      end
-      
-      def parent
-        context_stack.last
-      end
-      
-      def parent_tree
-        @pa = self
-        returning Array.new do |arr|
-          while !(@pa.is_a?(PoolParty::Cloud::Cloud) || @pa.nil? || @pa == self)
-            @pa = @pa.respond_to?(:parent) ? @pa.parent : nil
-            arr << @pa
-          end
+        context_stack.each do |stk|
+          return stk if stk.is_a?(PoolParty::Cloud::Cloud)
         end
       end
       
-      def same_resources_of(t, k)
-        key == k && class_name_sym == t
-      end
       def duplicatable?
         false
       end
@@ -261,37 +185,10 @@ module PoolParty
         end
         @modified_options
       end
-    end
-    
-    # Adds two methods to the module
-    # Adds the method type:
-    #   has_
-    # and 
-    #   does_not_have_
-    # for the type passed
-    # for instance
-    # add_has_and_does_not_have_methods_for(:file)
-    # gives you the methods has_file and does_not_have_file
-    # TODO: Refactor nicely to include other types that don't accept ensure
-    def self.add_has_and_does_not_have_methods_for(type=:file)
-      module_eval <<-EOE
-        def has_#{type}(opts={}, extra={}, &block)
-          #{type}(handle_option_values(opts).merge(extra.merge(:ensures => "present")), &block)
-        end
-        def does_not_have_#{type}(opts={}, extra={}, &block)
-          #{type}(handle_option_values(opts).merge(extra.merge(:ensures => "absent")), &block)
-        end
-      EOE
-    end
-    
-    def handle_option_values(o)
-      case o.class.to_s
-      when "String"
-        {:name => o}
-      else
-        o
-      end
+      
     end
     
   end
 end
+
+Dir["#{::File.dirname(__FILE__)}/../resources/*.rb"].each {|lib| require "#{lib}"}

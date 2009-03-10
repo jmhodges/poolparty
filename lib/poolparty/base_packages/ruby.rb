@@ -1,8 +1,8 @@
 module PoolParty
   class Base
-    plugin :ruby do
+    plugin :poolparty_base_ruby do
       
-      def enable                
+      def enable
         install_base_packages
       end
       

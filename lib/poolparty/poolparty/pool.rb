@@ -44,9 +44,9 @@ module PoolParty
         @pool_name.freeze
         # run_in_context &block if block
         # run_setup(self, &block)
-        super(self, &block)
+        super(&block)
       end
-      
+            
       def parent
         nil
       end

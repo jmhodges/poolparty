@@ -14,9 +14,6 @@ module PoolParty
     
     class PluginModel      
       attr_accessor :name, :klass
-      include MethodMissingSugar
-      include Configurable
-      include PrettyPrinter
       
       def initialize(name,&block)
         symc = "#{name}".top_level_class.camelcase        

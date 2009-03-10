@@ -57,7 +57,10 @@ module PoolParty
                 
         plugin_directory
         
-        super(parent, &block)
+        proc = Proc.new {add_poolparty_base_requirements}
+        set_parent_and_eval(&proc)        
+        
+        super(&block)
         
         setup_defaults
       end
@@ -192,7 +195,6 @@ module PoolParty
         vputs "Building manifest"
         @build_manifest ||= build_from_existing_file
         unless @build_manifest
-          add_poolparty_base_requirements
           props = to_properties_hash
          
           @build_manifest =  options[:dependency_resolver].send(:compile, props)
@@ -252,12 +254,11 @@ module PoolParty
       # Also note that there is no block associated. This is because we have written
       # all that is necessary in a method called enable
       # which is called when there is no block
-      def add_poolparty_base_requirements
-        heartbeat
-        haproxy
-        ruby
+      def add_poolparty_base_requirements        
+        poolparty_base_haproxy
+        poolparty_base_heartbeat
+        poolparty_base_ruby
         poolparty_base_packages
-        realize_plugins!(true) # Force realizing of the plugins
       end
       
       def other_clouds
