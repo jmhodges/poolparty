@@ -109,8 +109,7 @@ describe "Resolution spec" do
       @properties[:resources].class.should == Hash
     end
     it "contain content in the template's hash" do
-      apache_key = cloud(:dog).to_properties_hash[:services].keys.first.to_sym
-      puts @properties[:services][apache_key].resources
+      apache_key = cloud(:dog).to_properties_hash[:services].keys.select{|k| k.to_s =~ /apache/ }.first
       @properties[:services][apache_key].resources[:file].first[:content].should == "Hello bob on port 8080"
     end
     it "contain the files in a hash" do

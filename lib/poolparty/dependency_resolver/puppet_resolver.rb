@@ -47,9 +47,7 @@ module PoolParty
         opts.map do |klassname, klasshash|
           case klassname.to_s
           when "conditional"
-            "#{tf(tabs)}case $#{klasshash[:options][:variable]} {\n#{tf(tabs)}#{klasshash[:services][:control_statements].map do |k,v|
-            "#{tf(tabs+1)}#{k} : {#{compile(v.to_properties_hash, tabs+2)}#{tf(tabs+1)}}" end}
-            #{tf(tabs)}}"
+            "#{tf(tabs)}case $#{klasshash[:options][:variable]} {#{klasshash[:services][:control_statements].map do |k,v|"\n#{tf(tabs+1)}#{k} : {#{compile(v.to_properties_hash, tabs+2)}#{tf(tabs+1)}\n#{tf(tabs)}}" end}"
           else
             kname = klassname.to_s.gsub(/pool_party_/, '').gsub(/_class/, '')
             "\n#{tf(tabs)}class #{kname} {#{tf(tabs)}#{compile(klasshash,tabs+1)}#{tf(tabs)}} include #{kname}"
