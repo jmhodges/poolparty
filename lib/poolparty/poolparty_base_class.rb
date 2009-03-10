@@ -25,7 +25,6 @@ module PoolParty
       context_stack.push self
       @depth = context_stack.size - 1
       
-      puts "self: #{self.class}"
       instance_eval &block if block 
       
       o = context_stack.pop
