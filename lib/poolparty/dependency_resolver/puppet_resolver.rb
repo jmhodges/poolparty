@@ -44,15 +44,12 @@ module PoolParty
     
     def services_to_string(opts,tabs=0)
       if opts
-        opts.map do |klassname, klasshash|          
-          puts klassname
+        opts.map do |klassname, klasshash|
           case klassname.to_s
           when "conditional"
-            puts klasshash.to_yaml
-            "case #{klasshash[:variable]} {
-              
-            }"
-            # "case $#{klassname.attribute} {#{obj.when_statements.map {|w| w[0] ? "#{w[0]} : #{w[1]}" : "default: #{w[1]}"}}}"
+            "#{tf(tabs)}case $#{klasshash[:options][:variable]} {\n#{tf(tabs)}#{klasshash[:services][:control_statements].map do |k,v|
+            "#{tf(tabs+1)}#{k} : {#{compile(v.to_properties_hash, tabs+2)}#{tf(tabs+1)}}" end}
+            #{tf(tabs)}}"
           else
             kname = klassname.to_s.gsub(/pool_party_/, '').gsub(/_class/, '')
             "\n#{tf(tabs)}class #{kname} {#{tf(tabs)}#{compile(klasshash,tabs+1)}#{tf(tabs)}} include #{kname}"

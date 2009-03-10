@@ -26,13 +26,14 @@ module PoolParty
     def add(o, &block)
       proc = Proc.new do
         service = PoolParty::Service.new(&block)
-        when_statements << {(o ? o : :otherwise).to_sym, service}
+        obj = (o ? o : :otherwise).to_sym
+        when_statements.merge!({o => service})
       end
       set_parent_and_eval(&proc)      
     end
     
     def when_statements
-      @when_statement ||= []
+      @when_statement ||= {}
     end
     def to_properties_hash
       {
