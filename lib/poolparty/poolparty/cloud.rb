@@ -18,7 +18,8 @@ module PoolParty
     end
     
     class Cloud < PoolParty::PoolPartyBaseClass
-      attr_reader :templates
+      attr_reader :templates, :cloud_name
+      
       include PoolParty::PluginModel
       include PoolParty::Resources      
       include PoolParty::DependencyResolverCloudExtensions
@@ -37,6 +38,16 @@ module PoolParty
         true
       end
       
+      def self.immutable_methods
+        [:name]
+      end
+      
+      def self.method_added sym        
+        raise "Exception: #{sym.to_s.capitalize} method has been redefined" if immutable_methods.include?(sym) && !respond_to?(sym)
+      end
+      
+      alias :name :cloud_name
+      
       default_options({
         :minimum_instances => 2,
         :maximum_instances => 5,
@@ -53,8 +64,8 @@ module PoolParty
       
       def initialize(name, parent=nil, &block)
         @cloud_name = name
-        @cloud_name.freeze
-                
+        @cloud_name.freeze                
+        
         plugin_directory
         
         proc = Proc.new {add_poolparty_base_requirements}
@@ -67,6 +78,7 @@ module PoolParty
       
       def setup_defaults
         # this can be overridden in the spec, but ec2 is the default
+        @options[:name] = @cloud_name
         self.using :ec2
         generate_keypair unless has_keypair?
         dependency_resolver 'puppet'

@@ -13,7 +13,7 @@ module PoolParty
     end
     
     class PluginModel      
-      attr_accessor :name, :klass
+      attr_accessor :klass
       
       def initialize(name,&block)
         symc = "#{name}".top_level_class.camelcase        

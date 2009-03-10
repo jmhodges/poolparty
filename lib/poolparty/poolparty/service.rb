@@ -6,6 +6,12 @@ module PoolParty
       super(o, &block)
     end
     
+    def cloud
+      @pa = get_parent
+      2.upto(context_stack.size) do |i|
+        return context_stack[-i] if context_stack[-i].is_a?(PoolParty::Cloud::Cloud)
+      end
+    end
     
     def self.add_has_and_does_not_have_methods_for(type=:file)
       lowercase_class_name = type.to_s.top_level_class.downcase
