@@ -19,10 +19,12 @@ module PoolParty
         super(&block)
         # context_stack.pop
         
-        loaded(opts)
+        loaded(opts, &block)
       end
                 
       # Overwrite this method
+      def loaded(o={}, &block)        
+      end
       def enable
       end
       
