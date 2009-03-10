@@ -24,13 +24,22 @@ module PoolParty
     end
     
     def resources_to_string(opts,tabs=0)
+      out = []
       if opts
-        opts.map do |type, arr|          
+        if opts.has_key?(:variable)
+          vars = opts.delete(:variable)
+          out << vars.map do |res, arr|
+            handle_print_resource(res, :variable, arr, tabs)
+          end
+        end
+
+        out << opts.map do |type, arr|
           arr.map do |res|
             handle_print_resource(res, type, arr, tabs)
           end
         end
       end
+      out.join("\n")
     end
     
     def permitted_option?(ty, key)
