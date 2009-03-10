@@ -90,7 +90,7 @@ module PoolParty
       case type.to_s
       when "variable"
       else
-        "#{tf(tabs)}#{type} { \"#{res.has_key?(:name) ? res.delete(:name) : res.key }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(permitted_resource_res).join("\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
+        "#{tf(tabs)}#{type} { \"#{res.has_key?(:name) ? res.delete(:name) : "res.key" }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(permitted_resource_res).join("\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
       end
     end
     
