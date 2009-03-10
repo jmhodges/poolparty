@@ -27,8 +27,7 @@ module PoolParty
       if opts
         opts.map do |type, arr|          
           arr.map do |res|
-            permitted_resource_res = res.reject {|k,v| !permitted_option?(type, k) }
-            "#{tf(tabs)}#{type} { \"#{res.has_key?(:name) ? res.delete(:name) : "Error" }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(permitted_resource_res).join("\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
+            handle_print_resource(res, type, arr, tabs)
           end
         end
       end
@@ -45,14 +44,7 @@ module PoolParty
     def services_to_string(opts,tabs=0)
       if opts
         opts.map do |klassname, klasshash|
-          case klassname.to_s
-          when "conditional"
-            "#{tf(tabs)}case $#{klasshash[:options][:variable]} {#{klasshash[:services][:control_statements].map do |k,v|"\n#{tf(tabs+1)}#{k} : {#{compile(v.to_properties_hash, tabs+2)}#{tf(tabs+1)}\n#{tf(tabs)}}" end}"
-          else
-            kname = klassname.to_s.gsub(/pool_party_/, '').gsub(/_class/, '')
-            "\n#{tf(tabs)}class #{kname} {#{tf(tabs)}#{compile(klasshash,tabs+1)}#{tf(tabs)}} include #{kname}"
-          end          
-          
+          handle_print_service(klassname, klasshash, tabs)
         end
       end
     end
@@ -80,6 +72,25 @@ module PoolParty
         "[ #{obj.map {|e| to_option_string(e) }.reject {|a| a.nil? || a.empty? }.join(", ")} ]"
       else
         "#{obj}"
+      end
+    end
+    
+    def handle_print_service(klassname, klasshash, tabs)
+      case klassname.to_s
+      when "conditional"
+        "#{tf(tabs)}case $#{klasshash[:options][:variable]} {#{klasshash[:services][:control_statements].map do |k,v|"\n#{tf(tabs+1)}#{k} : {#{compile(v.to_properties_hash, tabs+2)}#{tf(tabs+1)}\n#{tf(tabs)}}" end}"
+      else
+        kname = klassname.to_s.gsub(/pool_party_/, '').gsub(/_class/, '')
+        "\n#{tf(tabs)}class #{kname} {#{tf(tabs)}#{compile(klasshash,tabs+1)}#{tf(tabs)}} include #{kname}"
+      end
+    end
+    
+    def handle_print_resource(res, type, arr, tabs)
+      permitted_resource_res = res.reject {|k,v| !permitted_option?(type, k) }
+      case type.to_s
+      when "variable"
+      else
+        "#{tf(tabs)}#{type} { \"#{res.has_key?(:name) ? res.delete(:name) : res.key }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(permitted_resource_res).join("\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
       end
     end
     

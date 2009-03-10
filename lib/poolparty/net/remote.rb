@@ -19,7 +19,7 @@ module PoolParty
           self.extend mod
           
           @remote_base = "#{t}".preserved_module_constant
-          @parent_cloud = @cloud
+          # @parent_cloud = @cloud
         end
       else
         puts "Unknown remote base" 

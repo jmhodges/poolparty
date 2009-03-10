@@ -11,24 +11,17 @@ module PoolParty
             
       default_options({})
       
-      def initialize(opts={}, &block)
+      def initialize(opts={}, parent=nil &block)
         set_vars_from_options(opts) unless opts.empty?
-                
+        
+        # context_stack.push parent        
         block = Proc.new {enable} unless block        
         super(&block)
+        # context_stack.pop
         
         loaded(opts)
       end
-      
-      def realize!(force=false)
-        # force ? force_realize! : (@realized ? nil : force_realize!)
-      end
-      
-      def force_realize!
-        # run_setup(parent, false, &stored_block)
-        true
-      end
-            
+                
       # Overwrite this method
       def enable
       end

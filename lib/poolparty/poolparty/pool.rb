@@ -47,9 +47,7 @@ module PoolParty
         super(&block)
       end
             
-      def parent
-        nil
-      end
+      def parent;nil;end
       
       def setup_defaults
         plugin_directory "#{pool_specfile ? ::File.dirname(pool_specfile) : Dir.pwd}/plugins"

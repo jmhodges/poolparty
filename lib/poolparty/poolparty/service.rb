@@ -7,7 +7,7 @@ module PoolParty
     end
     
     def cloud
-      @pa = get_parent
+      @pa = parent
       2.upto(context_stack.size) do |i|
         return context_stack[-i] if context_stack[-i].is_a?(PoolParty::Cloud::Cloud)
       end

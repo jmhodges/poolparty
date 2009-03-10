@@ -8,7 +8,7 @@ module PoolParty
       include Configurable
       include CloudResourcer
       
-      def initialize(opts, containing_cloud=nil)        
+      def initialize(opts, containing_cloud=nil)
         @parent = containing_cloud
 
         set_vars_from_options(containing_cloud.options) if containing_cloud && containing_cloud.respond_to?(:options)

@@ -62,23 +62,25 @@ module PoolParty
         :ami => 'ami-44bd592d'
       })
       
-      def initialize(name, parent=nil, &block)
+      def initialize(name, prent=nil, &block)
         @cloud_name = name
         @cloud_name.freeze                
         
         plugin_directory
         
-        proc = Proc.new {add_poolparty_base_requirements}
-        set_parent_and_eval(&proc)        
+        proc = Proc.new {
+          add_poolparty_base_requirements
+          block.call if block
+        }
+        # set_parent_and_eval(&proc)        
         
-        super(&block)
+        super(&proc)
         
         setup_defaults
       end
       
       def setup_defaults
         # this can be overridden in the spec, but ec2 is the default
-        @options[:name] = @cloud_name
         self.using :ec2
         generate_keypair unless has_keypair?
         dependency_resolver 'puppet'

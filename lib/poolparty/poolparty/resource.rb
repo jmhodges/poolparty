@@ -27,7 +27,7 @@ module PoolParty
       # DSL Overriders
       include PoolParty::ResourcingDsl
       
-      dsl_accessors [:name, :on_change]
+      dsl_accessors [:on_change]
       
       # When we subclass Resource, we want to add a few methods to the Resources class
       # This will anable us to call out to these resources in our DSLified manner
@@ -51,7 +51,7 @@ module PoolParty
             end
             def get_#{lowercase_class_name}(n, opts={}, &block)
               res = get_resource(:#{lowercase_class_name}, n, opts, &block)
-              # raise PackageException.new("A required #{lowercase_class_name.capitalize} \#\{n\} was not found.") unless res
+              raise PackageException.new("A required #{lowercase_class_name.capitalize} \#\{n\} was not found.") unless res
               res
             end
           EOE
@@ -76,7 +76,9 @@ module PoolParty
       # Finally, it uses the parent's options as the lowest priority
       def initialize(opts={}, &block)                        
         # Take the options of the parents                
-        @options = parent.options.merge(options) if parent && parent.is_a?(PoolParty::Pool::Pool)
+        @resource_name = opts.has_key?(:name) ? opts.delete(:name) : nil
+        # @options = parent.options.merge(options) if parent && parent.is_a?(PoolParty::Pool::Pool)
+                
         set_vars_from_options(opts) unless opts.empty?
 
         context_stack.push self
@@ -85,6 +87,8 @@ module PoolParty
         
         # self.run_in_context(&block) if block
         
+        options[:name] = resource_name unless options.has_key?(:name)
+        
         loaded(opts, &block)
       end
             
@@ -92,6 +96,14 @@ module PoolParty
       # This is called after the resource is initialized
       # with the options given to it in the init-block
       def loaded(opts={})
+      end
+      
+      def resource_name
+        @resource_name
+      end
+      
+      def name        
+        resource_name
       end
       
       # After create callback

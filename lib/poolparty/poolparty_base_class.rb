@@ -8,25 +8,43 @@ module PoolParty
     include Configurable
     include CloudResourcer
     include PoolParty::DependencyResolverCloudExtensions
+    attr_accessor :depth
         
-    def initialize(opts={}, &block)
+    def initialize(opts={}, &block)      
       set_vars_from_options(opts) unless !opts.is_a?(Hash) || opts.empty?
       set_parent_and_eval(&block)
     end
     
     def set_parent_and_eval(&block)
-      @options = parent.options.merge(options) if parent && parent.is_a?(PoolParty::Pool::Pool)
+      if parent
+        @options = parent.options.merge(options) if parent.is_a?(PoolParty::Pool::Pool)      
+        parent.add_service(self)
+      end
       
-      parent.add_service(self) if parent
-      
+      dputs "Pushing #{self} onto the context stack"
       context_stack.push self
-      instance_eval &block if block
-      context_stack.pop
+      @depth = context_stack.size - 1
+      
+      puts "self: #{self.class}"
+      instance_eval &block if block 
+      
+      o = context_stack.pop
+      dputs "Popped #{o} off the context_stack"
     end
     
+    # Because we may or may not be inside the plugin when calling
+    # we want to ensure we are never calling self it parent to 
+    # avoid causing an infinite loop and disappearing forever
     def parent
-      context_stack.last
-      # context_stack.size > 1 ? context_stack[context_stack.size - 2] : nil
+      current_context[-1] == self ? current_context[-2] : current_context[-1]
+    end
+    
+    def current_context
+      context_stack[0..depth]
+    end
+    
+    def depth
+      @depth ||= context_stack.size - 1
     end
     
     # Add to the services pool for the manifest listing
@@ -60,9 +78,10 @@ module PoolParty
     def add_resource(ty, opts={}, &block)
       temp_name = (opts[:name] || "#{ty}_#{ty.to_s.keyerize}")
       
-      if res = get_resource(ty, temp_name, opts)
+      if res = get_resource(ty, temp_name, opts)        
         res
       else
+        opts.merge!(:name => temp_name) unless opts.has_key?(:name)
         res = if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
           "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
         else
@@ -77,17 +96,17 @@ module PoolParty
       resource(ty) << obj
     end
     def in_local_resources?(ty, key)
-      !resource(ty).select {|r| r.key == key }.empty? rescue false
+      !resource(ty).select {|r| r.name == key }.empty? rescue false
     end
     def get_local_resource(ty, key)
-      resource(ty).select {|r| r.key == key }.first
+      resource(ty).select {|r| r.name == key }.first
     end
     
     def get_resource(ty, n, opts={}, &block)
       if in_local_resources?(ty, n)
         get_local_resource(ty, n)
-      elsif parent
-        parent.get_local_resource(ty, n)
+      elsif parent        
+        parent.get_resource(ty, n)
       else
         nil
       end

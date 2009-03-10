@@ -84,8 +84,8 @@ describe "Resolution spec" do
       @file = "Hello <%= friends %> on port <%= listen %>"
       @file.stub!(:read).and_return @file
       Template.stub!(:open).and_return @file
-      
-      @cloud = cloud :dog do
+
+      cloud :dog do
         keypair "bob"
         has_file :name => "/etc/motd", :content => "Welcome to the cloud"
         has_file :name => "/etc/profile", :content => "profile info"
@@ -110,6 +110,7 @@ describe "Resolution spec" do
     end
     it "contain content in the template's hash" do
       apache_key = cloud(:dog).to_properties_hash[:services].keys.select{|k| k.to_s =~ /apache/ }.first
+      puts @properties[:services][apache_key].resources
       @properties[:services][apache_key].resources[:file].first[:content].should == "Hello bob on port 8080"
     end
     it "contain the files in a hash" do
