@@ -1,15 +1,11 @@
 module PoolParty    
   module Resources
         
-    class RemoteUser < Resource      
+    class User < Resource      
       
       default_options({
         :shell => "/bin/sh"
       })
-      
-      def class_type_name
-        "user"
-      end
       
     end
     

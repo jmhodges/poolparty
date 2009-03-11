@@ -1,38 +1,46 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-include PoolParty::Resources
-
 describe "User" do
   describe "instances" do
     before(:each) do
-      @user = remote_user({:name => "fred"})
-    end
-    it "should turn the one hash instance into a string" do
-      @user.to_string.should =~ /"fred":/
-    end
-    it "should turn the two hash instance into a string" do
-      @user = remote_user do
-        name "bob"
-        home "/home/bob"
-      end
-      @string = @user.to_string
-      @string.should =~ /"bob":/
-      @string.should =~ /home => '\/home\/bob'/
-    end
-    describe "as included" do            
-      before(:each) do
-        @user = remote_user({:rent => "low"}) do
-          name "/www/conf/httpd.conf"
+      @tc = TestBaseClass.new do
+        has_user("bob", {:comment => "Bob is outstanding"}) do
+          password "b0b"
+          home "/home/bob"
         end
       end
-      it "should use default values" do
-        @user.name.should == "/www/conf/httpd.conf"
+      @dir = @tc.resource(:user).first
+    end
+    it "have the name in the options" do
+      @dir.name.should == "bob"
+    end
+    it "should store the owner's name" do
+      @dir.comment.should == "Bob is outstanding"
+    end
+    it "should store the password (from within the block)" do
+      @dir.password.should == "b0b"
+    end
+    it "should store the home" do
+      @dir.home.should == "/home/bob"
+    end
+    describe "into PuppetResolver" do
+      before(:each) do
+        @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
       end
-      it "should keep the default values for the user" do
-        @user.shell.should == "/bin/sh"
+      it "should set the filename to the name of the file" do
+        @compiled.should match(/user \{ "bob"/)
       end
-      it "should also set options through a hash" do
-        @user.rent.should == "low"
+      it "set the owner as the owner" do
+        @compiled.should match(/comment => "Bob is outstanding"/)
+      end
+      it "should say it's a user in the ensure method" do
+        @compiled.should match(/ensure => "present"/)
+      end
+      it "have the mode set in the puppet output" do
+        @compiled.should match(/home => "\/home\/bob"/)
+      end
+      it "set the password" do
+        @compiled.should match(/password => "b0b"/)
       end
     end
   end
