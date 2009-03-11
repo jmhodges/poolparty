@@ -1,39 +1,36 @@
-require File.dirname(__FILE__) + '/../../spec_helper'
-
-include PoolParty::Resources
+require File.dirname(__FILE__) + '/../spec_helper'
 
 describe "File" do
   describe "instances" do
     before(:each) do
-      @file = file({:name => "/etc/apache2/puppetmaster.conf"})
-    end
-    it "should turn the one hash instance into a string" do
-      @file.to_string.should =~ /"\/etc\/apache2\/puppetmaster\.conf":/
-    end
-    it "should turn the two hash instance into a string" do
-      @file = file do
-        name "/etc/init.d/puppetmaster"
-        owner "redsmith"
-      end
-      @file.to_string.should =~ /"\/etc\/init\.d\/puppetmaster":/
-    end
-    describe "as included" do            
-      before(:each) do
-        @file = file({:rent => "low"}) do
-          name "/www/conf/httpd.conf"
+      @tc = TestBaseClass.new do
+        file({:name => "/etc/apache2/puppetmaster.conf", :owner => "herman"}) do
+          mode 755
         end
       end
-      it "should use default values" do
-        @file.name.should == "/www/conf/httpd.conf"
+      @file = @tc.resource(:file).first
+    end
+    it "have the name in the options" do
+      @file.name.should == "/etc/apache2/puppetmaster.conf"
+    end
+    it "should store the owner's name as well" do
+      @file.owner.should == "herman"
+    end
+    it "should store the mode (from within the block)" do
+      @file.mode.should == 755
+    end
+    describe "into PuppetResolver" do
+      before(:each) do
+        @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
       end
-      it "should keep the default values for the file" do
-        @file.mode.should == 644
+      it "should set the filename to the name of the file" do
+        @compiled.should match(/file \{ "\/etc\/apache2\/puppetmaster\.conf"/)
       end
-      it "should also set options through a hash" do
-        @file.rent.should == "low"
+      it "set the owner as the owner" do
+        @compiled.should match(/owner => "herman"/)
       end
-      it "should have ensure set to file" do
-        @file.ensure.should == "file"
+      it "have the mode set in the puppet output" do
+        @compiled.should match(/mode => 755/)
       end
     end
   end

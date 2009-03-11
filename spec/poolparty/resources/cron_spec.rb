@@ -1,6 +1,6 @@
-require File.dirname(__FILE__) + '/../../spec_helper'
+require File.dirname(__FILE__) + '/../spec_helper'
 
-include PoolParty::Resources
+
 
 describe "Cron" do
   describe "instances" do
@@ -17,7 +17,7 @@ describe "Cron" do
       @cron = cron({:name => "mail", :command => "/bin/mail -s \"letters\""})
       @cron.to_string.should =~ /"mail":/
     end
-    describe "as included" do            
+    describe "as included" do
       before(:each) do
         
         @cron = cron({:rent => "low"}) do
