@@ -43,7 +43,8 @@ class String
     self.downcase.gsub(/[ ]/, '_')
   end
   def safe_quote
-    self.gsub(/[']/, '\\\\\'')
+    self.gsub(/['"]/, '\\\"')
+    # self.gsub(/["']/, "\\\"")
   end
   def nice_runnable(quite=true)
     self.split(/ && /).join("\n")
