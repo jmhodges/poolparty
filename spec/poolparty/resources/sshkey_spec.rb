@@ -1,47 +1,39 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-include PoolParty::Resources
-
-describe "SshKey" do
+describe "Sshkey" do
   describe "instances" do
     before(:each) do
-            
-    end
-    it "should turn the one hash instance into a string" do
-      @key = sshkey({:name => "rock"})
-      @key.to_string.should =~ /"rock":\n/
-    end
-    it "should turn the two hash instance into a string" do
-      @key = sshkey do
-        name "poolparty_key"
+      @key = Key.new
+      Key.stub!(:new).and_return @key
+      @key.stub!(:content).and_return "DIGITSOFTHEKEY"
+      @tc = TestBaseClass.new do
+        has_sshkey({:name => "~/.ssh/id_rsa"}) do
+          enctype "rsa"
+        end
       end
-      @key.to_string.should =~ /"poolparty_key":/
+      @dir = @tc.resource(:sshkey).first
     end
-    describe "sizes" do
+    it "have the name in the options" do
+      @dir.name.should == "~/.ssh/id_rsa"
+    end
+    it "should store the owner's name" do
+      @dir.enctype.should == "rsa"
+    end
+    describe "into PuppetResolver" do
       before(:each) do
-        sshkey({:name => "rock"})
-        sshkey({:name => "dos"})
-        sshkey({:name => "equis"})
+        @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
       end
-      it "should contain two keyfiles if two are specified" do      
-        resource(:sshkey).size.should == 3
+      it "should set the filename to the name of the file" do
+        @compiled.should match(/sshkey \{ "~\/\.ssh\/id_rsa"/)
       end
-    end
-    describe "file" do
-      before(:each) do
-        
-        @sshkey = PoolParty::Resources::Sshkey.new
-        @string = "ALONGSTRINGOFDIGITS"
-        @file = File.join(File.dirname(__FILE__), "..", "test_plugins", "sshkey_test")
-        @string.stub!(:read).and_return @string
+      it "should say it's a sshkey in the ensure method" do
+        @compiled.should match(/ensure => "present"/)
       end
-      it "should read the file when sent keyfile=" do
-        @sshkey.should_receive(:open).and_return @string
-        @sshkey.keyfile = @file
+      it "have the mode set in the puppet output" do
+        @compiled.should match(/type => "rsa"/)
       end
-      it "should set the keyfile as the contents of the file" do
-        @sshkey.keyfile = @file
-        @sshkey.keyfile.should =~ /THIS IS A TEST/
+      it "have the long string of digits key" do
+        @compiled.should match(/key => "DIGITSOFTHEKEY"/)
       end
     end
   end
