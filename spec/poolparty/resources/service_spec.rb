@@ -4,7 +4,7 @@ include PoolParty::Resources
 
 describe "Service" do
   before(:each) do
-    reset_resources!
+    
     @service = PoolParty::Resources::Service.new
   end
   describe "instances" do
@@ -20,7 +20,7 @@ describe "Service" do
     end
     describe "as included" do            
       before(:each) do
-        reset_resources!
+        
         @service = service({:rent => "low", :ensure => "stopped"}) do
           name "mdmdp"
         end

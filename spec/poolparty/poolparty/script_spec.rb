@@ -4,7 +4,7 @@ include PoolParty::Resources
 
 describe "Script" do
   before(:each) do
-    reset_resources!
+    
     setup
   end
   describe "wrapped" do
@@ -43,7 +43,7 @@ describe "Script" do
       describe "save!" do
         before(:each) do
           reset!
-          reset_resources!
+          
           pool :appdotcomcool do
             keypair "snoodle"
             ami "ami-123456"

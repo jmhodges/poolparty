@@ -14,13 +14,13 @@ describe "Template" do
   end
   describe "of file" do
     before(:each) do
-      @template_file = ::File.dirname(__FILE__) + "/test_plugins/test_template.erb"
+      @template_file = ::File.dirname(__FILE__) + "/../fixtures/test_template.erb"
     end
     it "have the method compile_file on the Template class" do
       Template.respond_to?(:compile_file).should == true
     end
     it "return the rendered content into a string" do
-      Template.compile_file(@template_file, {:name => "bob"}).should == "Hello bob"
+      Template.compile_file(@template_file, {:friends => "bob"}).should == "Hello bob"
     end
   end
 end

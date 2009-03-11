@@ -4,7 +4,7 @@ include PoolParty::Resources
 
 describe "File" do
   before(:each) do
-    reset_resources!  
+      
   end
   describe "wrapped" do
       before(:each) do
@@ -70,7 +70,7 @@ describe "File" do
     end
     describe "from a collection of resources to another" do
       before(:each) do 
-        reset_resources!       
+               
         cloud :bunkers do
           file(:name => "franksfile")
           exec(:name => "get file", :command => "kill frank for file")
@@ -108,7 +108,7 @@ describe "File" do
         end
         describe "from within the cloud" do
           before(:each) do
-            reset_resources!
+            
             @output = @cloud.build_short_manifest
           end
           it "should have one class" #do

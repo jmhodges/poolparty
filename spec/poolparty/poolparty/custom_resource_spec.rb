@@ -46,7 +46,7 @@ describe "Custom Resource" do
     end
     describe "printing" do
       before do
-        reset_resources!
+        
         define_resource(:rockstar) do
           def has_a_line_in_file(line="line_in_file", file="file")
             call_custom_function "line(#{file}, #{line})"

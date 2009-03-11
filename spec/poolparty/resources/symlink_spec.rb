@@ -4,7 +4,7 @@ include PoolParty::Resources
 
 describe "Symlink" do
   before(:each) do
-    reset_resources!
+    
     @cloud = cloud :symlink_test do
       has_symlink(:name => "/etc/apache2/puppetmaster.conf")
     end

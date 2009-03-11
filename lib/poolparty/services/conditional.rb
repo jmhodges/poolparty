@@ -6,11 +6,13 @@ module PoolParty
   def case_of o, &block
     c = Conditional.new({:name => "case_of_#{o}", :attribute => o}, &block)
     add_service c
+    c
   end
   
   class Conditional < Service
     def initialize(opts={}, &block)      
       super(opts, &block)
+      options.freeze
     end
     
     def when_is o, &block
@@ -24,7 +26,7 @@ module PoolParty
       # proc = Proc.new do
         service = PoolParty::Service.new(&block)
         obj = (o ? o : :default).to_sym
-        when_statements.merge!({o => service})
+        when_statements.merge!({obj => service})
       # end
       # set_parent_and_eval(&proc)      
     end

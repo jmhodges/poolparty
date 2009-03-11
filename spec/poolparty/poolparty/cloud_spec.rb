@@ -14,7 +14,7 @@ end
 describe "Cloud" do
   before(:each) do
     setup
-    # reset_resources!
+    # 
   end
   describe "wrapped" do
     before(:each) do

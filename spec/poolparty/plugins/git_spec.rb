@@ -6,9 +6,6 @@ class TestGitClass
   include PoolParty::Resources
 end
 describe "Remote Instance" do
-  before(:each) do
-    reset_resources!
-  end
   describe "wrapped" do
     before(:each) do
       @tc = TestGitClass.new

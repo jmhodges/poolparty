@@ -3,10 +3,7 @@
 end
 
 class TestCloudClass < PoolParty::Cloud::Cloud  
-  def build_test_manifest
-    reset_resources!
-    realize_plugins!
-    
+  def build_test_manifest    
     returning Array.new do |arr|
       
       services.each do |service|

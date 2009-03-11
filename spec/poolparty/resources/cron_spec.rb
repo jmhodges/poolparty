@@ -19,7 +19,7 @@ describe "Cron" do
     end
     describe "as included" do            
       before(:each) do
-        reset_resources!
+        
         @cron = cron({:rent => "low"}) do
           name "/www/conf/httpd.conf"
           hour 23

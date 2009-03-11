@@ -23,7 +23,7 @@ describe "Gem" do
   end
   describe "with parent options" do
     before(:each) do
-      reset_resources!
+      
     end
     describe "reset" do
       before(:each) do      

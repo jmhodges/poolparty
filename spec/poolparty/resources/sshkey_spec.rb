@@ -5,7 +5,7 @@ include PoolParty::Resources
 describe "SshKey" do
   describe "instances" do
     before(:each) do
-      reset_resources!      
+            
     end
     it "should turn the one hash instance into a string" do
       @key = sshkey({:name => "rock"})
@@ -29,7 +29,7 @@ describe "SshKey" do
     end
     describe "file" do
       before(:each) do
-        reset_resources!
+        
         @sshkey = PoolParty::Resources::Sshkey.new
         @string = "ALONGSTRINGOFDIGITS"
         @file = File.join(File.dirname(__FILE__), "..", "test_plugins", "sshkey_test")

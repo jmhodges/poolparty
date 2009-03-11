@@ -4,7 +4,7 @@ include PoolParty::Resources
 
 describe "Conditional" do
   before(:each) do
-    reset_resources!
+    
   end
   describe "wrapped" do
     before(:each) do

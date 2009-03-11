@@ -109,7 +109,8 @@ def stub_list_from_remote_for(o, launch_stub=true)
   stub_remoting_methods_for(o)
 end
 def stub_remoting_methods_for(o)
-  o.stub!(:keypair).and_return "fake_keypair"
+  @key = Key.new
+  o.stub!(:keypair).and_return @key
   o.stub!(:keypair_path).and_return "~/.ec2/fake_keypair"
   o.stub!(:other_clouds).and_return []
   o.stub!(:expand_when).and_return "cpu > 10"
