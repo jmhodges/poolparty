@@ -109,10 +109,14 @@ module PoolParty
       case type.to_s
       when "variable"
         "$#{res[:name]} = #{to_option_string(res[:value])}"
-      when "directory"
-        "#{tf(tabs)}file { \"#{res.has_key?(:name) ? res.delete(:name) : res.key }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(res.reject {|k,v| !permitted_option?(type, k) }).join(",\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
       else
-        "#{tf(tabs)}#{type} { \"#{res.has_key?(:name) ? res.delete(:name) : res.key }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(res.reject {|k,v| !permitted_option?(type, k) }).join(",\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
+        klasstype = case type.to_s
+        when "directory"
+          "file"
+        else
+          type
+        end
+        "#{tf(tabs)}#{klasstype} { \"#{res.has_key?(:name) ? res.delete(:name) : res.key }\": #{res.empty? ? "" : "\n#{tf(tabs+1)}#{hash_flush_out(res.reject {|k,v| !permitted_option?(type, k) }).join(",\n#{tf(tabs+1)}")}"}\n#{tf(tabs)}}"
       end
     end
     

@@ -1,43 +1,28 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-include PoolParty::Resources
-
-describe "Package" do
-  before(:each) do
-    @cloud = cloud :app do;end
-    @package = PoolParty::Resources::Package.new({}, @cloud)
-  end
+describe "File" do
   describe "instances" do
     before(:each) do
-      @package = package({:name => "/etc/apache2/puppetmaster.conf"})
+      @tc = TestBaseClass.new do
+        has_package(:name => "apache2")
+      end
+      @package = @tc.resource(:package).first
     end
-    it "should turn the one hash instance into a string" do
-      @package.to_string.should =~ /"\/etc\/apache2\/puppetmaster\.conf":/      
+    it "have the name in the options" do
+      @package.name.should == "apache2"
     end
-    it "should turn the two hash instance into a string" do
-      @package = package({:name => "/etc/init.d/puppetmaster"})
-      @package.to_string.should =~ /"\/etc\/init\.d\/puppetmaster":/
+    it "should ensure it's present" do
+      @package.ensure.should == "present"
     end
-    describe "as included" do            
+    describe "into PuppetResolver" do
       before(:each) do
-        @cloud = cloud :included_package do
-          package({:rent => "low"}) do
-            name "/www/conf/httpd.conf"
-          end
-        end
-        @package = @cloud.resource(:package).first
+        @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
       end
-      it "should use default values" do
-        @package.name.should == "/www/conf/httpd.conf"
+      it "should set the filename to the name of the file" do
+        @compiled.should match(/package \{ "apache2"/)
       end
-      it "should have the cloud as the parent" do
-        @package.parent.should == @cloud
-      end
-      it "should keep the default values for the Package" do
-        @package.alias.should == nil
-      end
-      it "should also set options through a hash" do
-        @package.rent.should == "low"
+      it "have the mode set in the puppet output" do
+        @compiled.should match(/ensure => "present"/)
       end
     end
   end

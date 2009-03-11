@@ -1,27 +1,34 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-include PoolParty::Resources
-
 describe "Host" do
   describe "instances" do
     before(:each) do
-      @host = host({:name => "node1"})
-    end
-    it "should turn the one hash instance into a string" do
-      @host.to_string.should =~ /node1/
-    end
-    describe "as included" do            
-      before(:each) do
-        @host = host do
-          name "master"
-          ip "192.168.0.1"
+      @tc = TestBaseClass.new do
+        has_host({:name => "node10"}) do
+          aka "backup_mysql_master"
+          ip "10.0.0.1"
         end
       end
-      it "should use default values" do
-        @host.name.should == "master"
+      @host = @tc.resource(:host).first
+    end
+    it "have the name in the options" do
+      @host.name.should == "node10"
+    end
+    it "should store the mode (from within the block)" do
+      @host.ip.should == "10.0.0.1"
+    end
+    describe "into PuppetResolver" do
+      before(:each) do
+        @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
       end
-      it "should also set options through a hash" do
-        @host.ip.should == "192.168.0.1"
+      it "should set the name to the name of the host" do
+        @compiled.should match(/host \{ "node10"/)
+      end
+      it "set the ip to the ip" do
+        @compiled.should match(/ip => "10.0.0.1"/)
+      end
+      it "should say it's alias is set" do
+        @compiled.should match(/alias => "backup_mysql_master"/)
       end
     end
   end

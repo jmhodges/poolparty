@@ -1,44 +1,28 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-include PoolParty::Resources
-
 describe "Service" do
-  before(:each) do
-    
-    @service = PoolParty::Resources::Service.new
-  end
   describe "instances" do
     before(:each) do
-      @service = service({:name => "/etc/apache2/puppetmaster.conf"})
+      @tc = TestBaseClass.new do
+        has_service("apache2", {:hasrestart => true})
+      end
+      @service = @tc.resource(:service).first
     end
-    it "should turn the one hash instance into a string" do
-      @service.to_string.should =~ /"\/etc\/apache2\/puppetmaster\.conf":/
+    it "have the name in the options" do
+      @service.name.should == "apache2"
     end
-    it "should turn the two hash instance into a string" do
-      @service = service({:name => "/etc/init.d/puppetmaster"})
-      @service.to_string.should =~ /"\/etc\/init\.d\/puppetmaster":/
+    it "should store the hasrestart option" do
+      @service.hasrestart.should == true
     end
-    describe "as included" do            
+    describe "into PuppetResolver" do
       before(:each) do
-        
-        @service = service({:rent => "low", :ensure => "stopped"}) do
-          name "mdmdp"
-        end
+        @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
       end
-      it "should use default values" do
-        @service.name.should == "mdmdp"
+      it "should set the filename to the name of the file" do
+        @compiled.should match(/service \{ "apache2"/)
       end
-      it "should keep the default values for the Service" do
-        @service.enable.should == true
-      end
-      it "should also set options through a hash" do
-        @service.rent.should == "low"
-      end
-      it "should also set options through a hash" do
-        @service.ensure.should == "stopped"
-      end
-      it "should set ensure as a default if it's not passed" do
-        service(:name => "romp").ensure.should == "running"
+      it "have the mode set in the puppet output" do
+        @compiled.should match(/hasrestart => true/)
       end
     end
   end
