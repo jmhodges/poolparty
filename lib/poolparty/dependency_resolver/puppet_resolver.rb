@@ -113,6 +113,8 @@ module PoolParty
         klasstype = case type.to_s
         when "directory"
           "file"
+        when "symlink"
+          "file"
         else
           type
         end

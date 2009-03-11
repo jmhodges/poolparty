@@ -158,13 +158,11 @@ module PoolParty
       def disallowed_options
         []
       end
-      def allowed_options
-        [
-          :subscribe, :owner, :group, :path, :mode, :source, :notify, :subscribe, :check, :creates, :cwd, :command, :ensure,
-          :require, :schedule, :range, :alias, :hour, :minute, :user, :month, :monthday, :name, :onlyif, :unless, :refreshonly,
-          :refresh, :content, :template, :ip, :repeat, :provider, :key, :device, :fstype, :remounts, :options, :atboot, :before,
-          :binary, :status, :start, :stop, :restart, :pattern, :recurse, :home
-        ]
+      def present
+        "present"
+      end
+      def absent
+        "absent"
       end
       def key
         name
