@@ -1,36 +1,30 @@
-require File.dirname(__FILE__) + '/../../spec_helper'
+require ::File.dirname(__FILE__) + '/../spec_helper'
 
-include PoolParty::Resources
-
-describe "Exec" do
-  before(:each) do
-    @exec = exec({:name => "/usr/bin/ifconfig"})
-  end
+describe "exec" do
   describe "instances" do
-    it "should turn the one hash instance into a string" do
-      @exec.to_string.should =~ /exec \{ "\/usr\/bin\/ifconfig"/
-    end
-    it "should turn the two hash instance into a string" do
-      @exec = exec({:name => "/usr/bin/ping 127.0.0.1"})
-      @exec.to_string.should =~ /"\/usr\/bin\/ping 127\.0\.0\.1":/      
-    end
-    describe "as included" do            
-      before(:each) do
-        @exec = exec({:rent => "low", :ensures => "running"}) do
-          name "/www/conf/httpd.conf"
+    before(:each) do
+      @tc = TestBaseClass.new do
+        has_exec("list /var/www directory") do
+          command "/usr/bin/ls -l /var/www"
         end
       end
-      it "should use default values" do
-        @exec.name.should == "/www/conf/httpd.conf"
+      @exec = @tc.resource(:exec).first
+    end
+    it "have the name in the options" do
+      @exec.name.should == "list /var/www directory"
+    end
+    it "should store the owner's name as well" do
+      @exec.command.should == "/usr/bin/ls -l /var/www"
+    end
+    describe "into PuppetResolver" do
+      before(:each) do
+        @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
       end
-      it "should keep the default values for the exec" do
-        @exec.path.should =~ /\/usr\/bin:\/bin:\/usr\/local\/bin/
+      it "should set the execname to the name of the exec" do
+        @compiled.should match(/exec \{ "list \/var\/www directory"/)
       end
-      it "should also set options through a hash" do
-        @exec.rent.should == "low"
-      end
-      it "should ensure running, not the default 'present'" do
-        @exec.ensure.should == "running"
+      it "have the mode set in the puppet output" do
+        @compiled.should match(/command => "\/usr\/bin\/ls -l \/var\/www"/)
       end
     end
   end

@@ -11,15 +11,6 @@ module PoolParty
         "running"
       end
       
-      def command(*args)
-        if args.empty?
-          options[:command] || options[:name]
-        else
-          options[:command] = args
-          options[:name] = options[:command] unless options[:name]
-        end        
-      end
-      
       def key
         options[:name] || options[:command]
       end

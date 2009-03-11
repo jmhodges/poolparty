@@ -8,6 +8,10 @@ module PoolParty
         # :owner => "#{Base.user}"
       })
       
+      def present
+        "directory"
+      end
+      
     end
     
   end

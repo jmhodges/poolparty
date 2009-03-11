@@ -74,8 +74,13 @@ module PoolParty
     # A word about stores, the global store stores the entire list of stored
     # resources. The local resource store is available on all clouds and plugins
     # which stores the instance variable's local resources. 
-    def add_resource(ty, opts={}, &block)
-      temp_name = (opts[:name] || "#{ty}_#{ty.to_s.keyerize}")
+    def add_resource(ty, opts={}, extra={}, &block)
+      if opts.is_a?(String)
+        temp_name = opts
+        opts = extra_opts.merge(:name => @name)
+      else
+        temp_name = opts.has_key?(:name) ? opts.delete(:name) : "#{ty}_#{ty.to_s.keyerize}"
+      end
       
       if res = get_resource(ty, temp_name, opts)        
         res

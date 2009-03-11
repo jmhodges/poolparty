@@ -1,39 +1,39 @@
-require File.dirname(__FILE__) + '/../../spec_helper'
+require File.dirname(__FILE__) + '/../spec_helper'
 
-include PoolParty::Resources
-
-describe "directory" do
+describe "Directory" do
   describe "instances" do
     before(:each) do
-      @directory = directory({:name => "/etc/apache2/puppetmaster.conf"})
-    end
-    it "should turn the one hash instance into a string" do
-      @directory.to_string.should =~ /"\/etc\/apache2\/puppetmaster\.conf":/
-    end
-    it "should turn the two hash instance into a string" do
-      @directory = directory do
-        name "/etc/init.d/puppetmaster"
-        owner "redsmith"
-      end
-      @directory.to_string.should =~ /"\/etc\/init\.d\/puppetmaster":/
-    end
-    describe "as included" do            
-      before(:each) do
-        @directory = directory({:rent => "low"}) do
-          name "/www/conf/httpd.conf"
+      @tc = TestBaseClass.new do
+        has_directory({:name => "/etc/apache2", :owner => "herman"}) do
+          mode 755
         end
       end
-      it "should use default values" do
-        @directory.name.should == "/www/conf/httpd.conf"
+      @dir = @tc.resource(:directory).first
+    end
+    it "have the name in the options" do
+      @dir.name.should == "/etc/apache2"
+    end
+    it "should store the owner's name" do
+      @dir.owner.should == "herman"
+    end
+    it "should store the mode (from within the block)" do
+      @dir.mode.should == 755
+    end
+    describe "into PuppetResolver" do
+      before(:each) do
+        @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
       end
-      it "should keep the default values for the directory" do
-        @directory.mode.should == 644
+      it "should set the filename to the name of the file" do
+        @compiled.should match(/file \{ "\/etc\/apache2"/)
       end
-      it "should also set options through a hash" do
-        @directory.rent.should == "low"
+      it "set the owner as the owner" do
+        @compiled.should match(/owner => "herman"/)
       end
-      it "should have ensure set to directory" do
-        @directory.ensure.should == "directory"
+      it "should say it's a directory in the ensure method" do
+        @compiled.should match(/ensure => "directory"/)
+      end
+      it "have the mode set in the puppet output" do
+        @compiled.should match(/mode => 755/)
       end
     end
   end

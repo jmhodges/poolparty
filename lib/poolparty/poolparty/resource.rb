@@ -74,9 +74,13 @@ module PoolParty
       # Then it takes the value of the block and sets whatever is sent there as 
       # the options
       # Finally, it uses the parent's options as the lowest priority
-      def initialize(opts={}, &block)                        
-        # Take the options of the parents                
-        @resource_name = opts.has_key?(:name) ? opts.delete(:name) : nil
+      def initialize(opts={}, extra_opts={}, &block)                        
+        if opts.is_a?(String)
+          @resource_name = opts
+          opts = extra_opts.merge(:name => @name)
+        else
+          @resource_name = opts.has_key?(:name) ? opts.delete(:name) : nil
+        end
         # @options = parent.options.merge(options) if parent && parent.is_a?(PoolParty::Pool::Pool)
                 
         set_vars_from_options(opts) unless opts.empty?
