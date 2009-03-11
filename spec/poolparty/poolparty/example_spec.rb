@@ -24,10 +24,10 @@ describe "basic" do
     pools[:application].cloud(:app).maximum_instances.should == 5
   end
   it "should set the minimum_instances on the db cloud to 3" do
-    pools[:application].clouds[:db].minimum_instances.should == 3
+    pools[:application].clouds[:db].minimum_instances.should == pools[:application].minimum_instances
   end
   it "should have the keypair matching /auser/on the db cloud " do
-    pools[:application].clouds[:db].keypairs.select{|a| a.filepath.match (/auser/)}
+    pools[:application].clouds[:db].keypairs.select{|a| a.filepath.match(/auser/)}
   end
   it "should have the keypair set for the specific cloud on top of the keypair stack" do
     pending
