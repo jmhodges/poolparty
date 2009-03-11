@@ -1,49 +1,43 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-
-
-describe "Cron" do
+describe "cron" do
   describe "instances" do
     before(:each) do
-      @cloud = cloud :cron_resources do
-        cron({:command => "/bin/logrotate"})
-      end
-      @cron = @cloud.resource(:cron).first
-    end
-    it "should turn the one hash instance into a string" do
-      @cron.to_string.should =~ /'\/bin\/logrotate'/
-    end
-    it "should turn the two hash instance into a string" do
-      @cron = cron({:name => "mail", :command => "/bin/mail -s \"letters\""})
-      @cron.to_string.should =~ /"mail":/
-    end
-    describe "as included" do
-      before(:each) do
-        
-        @cron = cron({:rent => "low"}) do
-          name "/www/conf/httpd.conf"
+      @tc = TestBaseClass.new do
+        has_cron("mail stats") do
+          command "mail -s httpd.conf ari@poolpartyrb.com"
           hour 23
           minute 5
-          weekday 1          
+          weekday 1
         end
       end
-      it "should use default values" do
-        @cron.name.should == "/www/conf/httpd.conf"
+      @cron = @tc.resource(:cron).first
+    end
+    it "have the name in the options" do
+      @cron.name.should == "mail stats"
+    end
+    it "should store the owner's name as well" do
+      @cron.command.should == "mail -s httpd.conf ari@poolpartyrb.com"
+    end
+    it "should store the time (from within the block)" do
+      @cron.hour.should == 23
+      @cron.minute.should == 5
+      @cron.weekday.should == 1
+    end
+    describe "into PuppetResolver" do
+      before(:each) do
+        @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
       end
-      it "should keep the default values for the cron" do
-        @cron.user.should == "root"
+      it "should set the cronname to the name of the cron" do
+        @compiled.should match(/cron \{ "mail stats"/)
       end
-      it "should also set options through a hash" do
-        @cron.rent.should == "low"
+      it "set the command" do
+        @compiled.should match(/command => "mail -s httpd\.conf ari@poolpartyrb\.com"/)
       end
-      it "should set the hour to 23" do
-        @cron.hour.should == 23
-      end
-      it "should set the minute to 5" do
-        @cron.minute.should == 5
-      end
-      it "should set the weekday to 1" do
-        @cron.weekday.should == 1
+      it "have the time set in the puppet output" do
+        @compiled.should match(/hour => 23/)
+        @compiled.should match(/minute => 5/)
+        @compiled.should match(/weekday => 1/)
       end
     end
   end
