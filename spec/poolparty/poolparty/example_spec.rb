@@ -8,23 +8,31 @@ describe "basic" do
     PoolParty::Script.inflate File.read(@example_dir + "/basic.rb")
   end
   it "should have one pool called :app" do
-    pool(:application).should_not be_nil
+
+    pools[:application].should_not be_nil
   end
   it "should have a cloud called :app" do
-    pool(:application).cloud(:app).should_not be_nil
+    pools[:application].cloud(:app).should_not be_nil
   end
   it "should have a cloud called :db" do
-    pool(:application).cloud(:db).should_not be_nil
+    pools[:application].cloud(:db).should_not be_nil
   end
   it "should set the minimum_instances on the cloud to 2 (overriding the pool options)" do
-    pool(:application).cloud(:app).minimum_instances.should == 2
+    pools[:application].cloud(:app).minimum_instances.should == 2
   end
   it "should set the maximum_instances on the cloud to 5" do
-    pool(:application).cloud(:app).maximum_instances.should == 5
+    pools[:application].cloud(:app).maximum_instances.should == 5
   end
   it "should set the minimum_instances on the db cloud to 3" do
-    require 'rubygems'; require 'ruby-debug'; debugger
-    puts "<pre>#{cloud(:db).to_properties_hash.to_yaml}</pre>"
-    pool(:application).cloud(:db).minimum_instances.should == 3
+    pools[:application].clouds[:db].minimum_instances.should == 3
   end
+  it "should have the keypair matching /auser/on the db cloud " do
+    pools[:application].clouds[:db].keypairs.select{|a| a.filepath.match (/auser/)}
+  end
+  it "should have the keypair set for the specific cloud on top of the keypair stack" do
+    pending
+    #I think this should be the behavior. mf
+    # pools[:application].clouds[:db].keypairs.last.filepath.should_match(/auser/)
+  end
+  
 end
