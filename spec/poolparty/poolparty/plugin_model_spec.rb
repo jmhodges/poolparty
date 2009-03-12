@@ -1,41 +1,35 @@
 require File.dirname(__FILE__) + '/../spec_helper'
-include PoolParty::Resources
 require File.dirname(__FILE__) + '/test_plugins/webserver'
 
 describe "Plugin" do
-  before(:each) do
-    @p = pool :poolpartyrb do
-      cloud :app do
-        apache do                
-          enable_php
-          site("heady", {
-            :document_root => "/root"
-          })
-        end
+  before(:each) do    
+    @c = TestBaseClass.new do
+      apache do                
+        enable_php
+        site("heady", {
+          :document_root => "/root"
+        })
       end
     end
-    @c = @p.cloud(:app)
   end
   describe "methods should include" do
     it "register_plugin(plugin)" do;WebServers.respond_to?(:register_plugin).should == true;end
   end
   describe "registered" do
     before(:each) do
-      @plugin = "apache".class_constant.new(@c)
+      PoolParty::PluginModel::PluginModel.new(:apache)
+      @plugin = @c.apache
     end
     describe "storage" do
-      it "should store the plugin in a Hash on the pool" do
-        @c.plugins.class.should == Hash
-      end
       it "should be able to retrieve the plugin as a name" do
         @c.plugin("apache").should_not be_nil
       end
     end
+    it "be of the class ApacheClass on the Kernel" do
+      @plugin.class.should == Kernel::ApacheClass
+    end
     it "should store the regsitered plugins in an array" do
       @plugin.should_not be_nil
-    end
-    it "should set the pool on the plugin" do
-      @plugin.parent.should == @c
     end
     it "should have the plugin name as a method on the cloud " do
       @c.respond_to?(:apache).should == true

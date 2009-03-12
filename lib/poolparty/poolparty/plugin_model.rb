@@ -12,7 +12,7 @@ module PoolParty
       $plugins ||= {}
     end
     
-    class PluginModel      
+    class PluginModel
       attr_accessor :klass
       
       def initialize(name,&block)

@@ -1,7 +1,5 @@
 class WebServers
-  plugin :apache do
-    include PoolParty::Resources
-    
+  plugin :apache do    
     attr_accessor :php
     
     def enable      
@@ -24,24 +22,6 @@ class WebServers
       opts = {
         :document_root => opts[:document_root] || "/www/#{name}/"
       }
-      call_function "virtual_host()"
-    end
-        
-    custom_function <<-EOE
-define virtual_host($docroot, $ip, $order = 500, $ensure = "enabled") { 
-    $file = "/etc/sites-available/$name.conf" 
-    file { $file: 
-        content => template("virtual_host.erb"), 
-        notify => Service[apache] 
-    } 
-    file { "/etc/sites-enabled/$order-$name.conf": 
-        ensure => $ensure ? { 
-            enabled => $file, 
-            disabled => absent 
-        } 
-    } 
-}
-    EOE
-        
+    end        
   end
 end
