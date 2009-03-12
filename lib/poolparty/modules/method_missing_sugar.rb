@@ -26,6 +26,8 @@ module PoolParty
     # First, we check to see if any options are being sent to the method
     # of the form:
     # name "Fred"
+    # or
+    # name = "Fred"
     # If there are args sent to it, check to see if it is an array
     # If it is, we want to send it an array only if the array is contains more than one element.
     # This becomes important when we are building the manifest
@@ -39,18 +41,10 @@ module PoolParty
     # to the parent to handle. Otherwise, we'll say it's nil instead
     def get_from_options(m, *args, &block)
       if args.empty?
-        if options.has_key?(m)
-          options[m]
-        else
-          (!respond_to?(:parent) || parent.nil? || parent == self || !parent.respond_to?(:options) || parent.options.has_key?(m) || !parent.respond_to?(m)) ? nil : parent.send(m, *args, &block)
-        end        
+        options.has_key?(m)?options[m]:((!respond_to?(:parent) || parent.nil? || parent == self || !parent.respond_to?(:options) || parent.options.has_key?(m) || !parent.respond_to?(m)) ? nil : parent.send(m, *args, &block))
       else
-        options[m] = 
-        if (args.is_a?(Array) && args.size > 1)
-          args
-        else
-          args[0]
-        end
+        m = m.to_s.gsub(/\=/, "").to_sym
+        options[m] = args.size>1?args:args[0]
       end
     end
     

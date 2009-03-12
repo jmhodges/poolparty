@@ -27,7 +27,7 @@ module PoolParty
       context_stack.push self
       @depth = context_stack.size - 1
       
-      instance_eval &block if block 
+      run_in_context &block if block 
       
       o = context_stack.pop
       dputs "Popped #{o} off the context_stack"
@@ -37,7 +37,7 @@ module PoolParty
     # we want to ensure we are never calling self it parent to 
     # avoid causing an infinite loop and disappearing forever
     def parent
-      current_context[-1] == self ? current_context[-2] : current_context[-1]
+      @parent || current_context[-1] == self ? current_context[-2] : current_context[-1]
     end
     
     def current_context

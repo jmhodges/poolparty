@@ -85,7 +85,7 @@ describe "Resolution spec" do
       @file.stub!(:read).and_return @file
       Template.stub!(:open).and_return @file
 
-      cloud :dog do
+      TestClass.new :dog do
         keypair "bob"
         has_file :name => "/etc/motd", :content => "Welcome to the cloud"
         has_file :name => "/etc/profile", :content => "profile info"

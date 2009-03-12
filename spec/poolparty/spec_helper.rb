@@ -29,7 +29,7 @@ end
 class TestClass < PoolParty::Cloud::Cloud
   include CloudResourcer
   attr_accessor :parent
-  def initialize(&block)
+  def initialize(name=:name, &block)
     super :test_cloud, nil, &block
   end
   def keypair

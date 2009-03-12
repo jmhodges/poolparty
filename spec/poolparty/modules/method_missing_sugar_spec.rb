@@ -19,6 +19,10 @@ describe "MethodMissingSugar" do
     @obj.hello "party"
     @obj.hello.should == "party"
   end
+  it "should be able to set with an = sign" do
+    @obj.dojo = "in the houwse"
+    @obj.dojo.should == "in the houwse"
+  end
   it "should return nil if the value has not been set yet" do
     @obj.bank.should == nil
   end
