@@ -18,12 +18,13 @@ describe "Console" do
       pool :app do
         maximum_instances 2
         cloud :rawr do
-          maximum_instances 2
+          maximum_instances 200
         end
       end
       EOS
       self.stub!(:open).and_return @string
       @string.stub!(:read).and_return @string
+      ::File.stub!(:readable?).with(@string).and_return true
     end
     it "should give you the load_pool method" do
       self.respond_to?(:load_pool).should == true
@@ -31,24 +32,6 @@ describe "Console" do
     it "should call script inflate on the filename" do      
       PoolParty::Script.should_receive(:inflate).once
       load_pool("pop")
-    end
-    describe "calling" do
-      before(:each) do
-        reset!
-        load_pool("pop")
-      end
-      it "should instance_eval the string" do
-        pool(:app).should_not be_nil
-      end
-      it "should store the cloud inside the pool after inflating" do
-        pool(:app).cloud(:rawr).should_not be_nil
-      end
-      it "should say that the cloud inside the pool's parent is the containing parent" do      
-        pool(:app).cloud(:rawr).parent.should == pool(:app)
-      end
-      it "should say that the maximum_instances on the cloud is the containing pool's option" do
-        pool(:app).cloud(:rawr).maximum_instances.should == 2
-      end
     end
   end  
   describe "reload!" do

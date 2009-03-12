@@ -9,6 +9,7 @@ module PoolParty
     include CloudResourcer
     include PoolParty::DependencyResolverCloudExtensions
     attr_accessor :depth
+    attr_reader :parent
         
     def initialize(opts={}, &block)      
       set_vars_from_options(opts) unless !opts.is_a?(Hash) || opts.empty?
@@ -19,6 +20,7 @@ module PoolParty
       if parent
         @options = parent.options.merge(options) if parent.respond_to?(:options) && parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self)
+        @parent = parent
       end
       
       dputs "Pushing #{self} onto the context stack"
