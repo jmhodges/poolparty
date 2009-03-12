@@ -109,6 +109,8 @@ module PoolParty
       case type.to_s
       when "variable"
         "$#{res[:name]} = #{to_option_string(res[:value])}"
+      when "line_in_file"
+        "#{PoolParty::Resources::LineInFile.command(res[:line], res[:file])}"
       else
         klasstype = case type.to_s
         when "directory"

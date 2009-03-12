@@ -77,7 +77,7 @@ module PoolParty
     def add_resource(ty, opts={}, extra={}, &block)
       if opts.is_a?(String)
         temp_name = opts
-        opts = extra_opts.merge(:name => @name)
+        opts = (extra_opts || {}).merge(:name => @name)
       else
         temp_name = opts.has_key?(:name) ? opts.delete(:name) : "#{ty}_#{ty.to_s.keyerize}"
       end

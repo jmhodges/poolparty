@@ -20,9 +20,9 @@ module PoolParty
             has_variable("proxy_mode", :value => (respond_to?(:proxy_mode) ? proxy_mode : Base.proxy_mode))
           
             # Startup haproxy and enable it
-            has_line_in_file("ENABLED=1", "/etc/default/haproxy")
-            has_line_in_file("SYSLOGD=\"-r\"", "/etc/default/syslogd")
-            has_line_in_file("local0.* /var/log/haproxy.log", "/etc/syslog.conf", {:notify => get_service("sysklogd")})
+            has_line_in_file(:line => "ENABLED=1", :file => "/etc/default/haproxy")
+            has_line_in_file({:line => "SYSLOGD=\"-r\"", :file => "/etc/default/syslogd"})
+            has_line_in_file({:line => "local0.* /var/log/haproxy.log", :file => "/etc/syslog.conf"}, {:notify => get_service("sysklogd")})
                     
             has_exec(:name => "reloadhaproxy", 
               :command => "/etc/init.d/haproxy reload", 

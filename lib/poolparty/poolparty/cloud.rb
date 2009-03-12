@@ -72,7 +72,6 @@ module PoolParty
           add_poolparty_base_requirements
           block.call if block
         }
-        # set_parent_and_eval(&proc)        
         
         super(&proc)
         

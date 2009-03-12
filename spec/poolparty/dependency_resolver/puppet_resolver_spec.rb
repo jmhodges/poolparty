@@ -41,13 +41,13 @@ describe "PuppetResolver" do
       @compiled = @dr.compile
     end
     
-    describe "variables" do
-      it "output options as puppet variables" do
-        @compiled.should match(/bob/)
-        @compiled.instance_of?(String).should == true
-        @compiled.should match(/\$users = \[ \".* \]/)
-      end
-    end
+    # describe "variables" do
+    #   it "output options as puppet variables" do
+    #     @compiled.should match(/bob/)
+    #     @compiled.instance_of?(String).should == true
+    #     @compiled.should match(/\$users = \[ \".* \]/)
+    #   end
+    # end
     
     describe "resources" do
       it "should print resources in the proper layout" do        
@@ -70,7 +70,7 @@ describe "PuppetResolver" do
         plugin :apache do
         end
       end
-      @cloud = cloud :dog do
+      @cloud = TestBaseClass.new do
         keypair "bob"
         has_file :name => "/etc/motd", :content => "Welcome to the cloud"        
         has_file :name => "/etc/profile", :content => "profile info"
@@ -83,9 +83,10 @@ describe "PuppetResolver" do
           has_file :name => "/etc/apache2/apache2.conf", :template => "#{::File.dirname(__FILE__)}/../fixtures/test_template.erb", :friends => "bob"
         end
         
-        case_of "hostname"
-        when_is 'master' do
-          has_package :name=>'haproxy'
+        case_of "hostname" do
+          when_is 'master' do
+            has_package :name=>'haproxy'
+          end
         end
         end_of
       end
@@ -97,7 +98,7 @@ describe "PuppetResolver" do
       @compiled = @dr.compile
     end
     it "should compile to a string" do
-      # puts "<pre>#{@compiled.to_yaml}</pre>"
+      puts "<pre>#{@compiled.to_yaml}</pre>"
       @compiled.class.should == String
     end
     it "should include apache class" do
