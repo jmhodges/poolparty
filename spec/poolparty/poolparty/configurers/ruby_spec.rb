@@ -40,13 +40,13 @@ describe "Configurer" do
         @cloud.should_not be_nil
       end
       it "should set the minimum instances on the :app cloud" do
-        @cloud.minimum_instances.should == 1
+        @cloud.minimum_instances.should == 2
       end
       it "should set the maximum instances on the :app cloud" do
-        @cloud.maximum_instances.should == 1
+        @cloud.maximum_instances.should == 5
       end
       it "should set the keypair name on the :app cloud too" do
-        @cloud.keypair.should == "name"
+        @cloud.keypair.to_s.should =~ /id_rsa/
       end
     end
     

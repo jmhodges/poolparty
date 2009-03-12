@@ -17,7 +17,7 @@ module PoolParty
     
     def set_parent_and_eval(&block)
       if parent
-        @options = parent.options.merge(options) if parent.is_a?(PoolParty::Pool::Pool)      
+        @options = parent.options.merge(options) #if parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self)
       end
       
