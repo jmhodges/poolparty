@@ -6,7 +6,7 @@ class Hash
     Hash[*self.select(&block).inject([]){|res,(k,v)| res << k << v}]    
   end
   def extract!(&block)
-    o = select(&block)
+    o = Hash[*select(&block).flatten]
     o.keys.each {|k| self.delete(k) }
     o
   end

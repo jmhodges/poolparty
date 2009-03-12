@@ -24,15 +24,6 @@ describe "Hash" do
   it "should be able to turn itself into an open struct with the method to_hash on the object" do
     @a.to_os.to_hash.should == @a
   end
-  it "should not put quotes around integers" do
-    {:a => 10, :b => "q"}.flush_out.sort.should == ["a => 10", "b => 'q'"]
-  end
-  it "should be able to flush out into a string into an array" do
-    @a.flush_out.sort.should == ["a => '10'","b => '20'","c => '30'"]
-  end
-  it "should be able to flush out with pre and posts" do
-    @a.flush_out("hi", "ho").sort.should == ["hia => '10'ho","hib => '20'ho","hic => '30'ho"]
-  end
   describe "method_missing" do
     it "should be able to call a key on the hash as a method" do
       {:first_name => "bob", :last_name => "frank"}.first_name.should == "bob"
@@ -41,14 +32,14 @@ describe "Hash" do
         {:first_name => "bob", :last_name => "frank"}.neighbor.should == nil
     end
   end
-  describe "select" do
+  describe "choose" do
     before(:each) do
-      @selected_hash = @a.select {|k,v| k if k == :a}
+      @selected_hash = @a.choose {|k,v| k if k == :a}
     end
-    it "should return a hash when selecting" do
+    it "should return a hash when choosing" do
       @selected_hash.class.should == Hash
     end
-    it "should only have the key a (selected)" do
+    it "should only have the key a (choos)" do
       @selected_hash.keys.should == [:a]
     end
   end

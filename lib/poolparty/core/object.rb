@@ -13,8 +13,8 @@ class Object
     original = self.method(original_id).to_proc
     define_method(new_id){|*args| original.call(*args)}
   end
-  def with_options(opts={}, &block)
-    @p = parent.clone
+  def with_options(opts={}, par=nil, &block)
+    @p = par.clone
     @p.options.merge!(opts)
     @p.instance_eval &block if block
   end  
