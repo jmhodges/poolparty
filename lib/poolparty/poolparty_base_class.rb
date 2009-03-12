@@ -37,7 +37,7 @@ module PoolParty
     # we want to ensure we are never calling self it parent to 
     # avoid causing an infinite loop and disappearing forever
     def parent
-      @parent || current_context[-1] == self ? current_context[-2] : current_context[-1]
+      @parent ||= current_context[-1] == self ? current_context[-2] : current_context[-1]
     end
     
     def current_context
