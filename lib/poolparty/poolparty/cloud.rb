@@ -47,7 +47,7 @@ module PoolParty
       end      
       alias :name :cloud_name
       
-      default_options({
+      @defaults = Base.class_defaults.merge({
         :minimum_instances => 2,
         :maximum_instances => 5,
         :contract_when => "cpu < 0.65",
@@ -59,9 +59,11 @@ module PoolParty
         :minimum_runtime => Base.minimum_runtime,
         :user => Base.user,
         :ami => 'ami-44bd592d'
-      }).each do |k,v|
-          class_eval "def Cloud.#{k};\"#{v}\";end"
-        end
+      })
+      define_defaults(@defaults)
+      def self.defaults
+        @defaults
+      end
       
       def initialize(name, &block)
         @cloud_name = name

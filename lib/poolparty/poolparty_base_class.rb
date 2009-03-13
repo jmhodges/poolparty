@@ -28,7 +28,10 @@ module PoolParty
       context_stack.push self
       @depth = context_stack.size - 1
       
-      instance_eval &block if block
+      # instance_eval &block if block
+c = eval("self", block.binding)
+puts c.name if c.respond_to?(:name)
+(c.is_a?(PoolParty::Script) ? self : c).instance_eval &block if block
       
       o = context_stack.pop
       dputs "Popped #{o} off the context_stack"

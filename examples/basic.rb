@@ -8,7 +8,7 @@ pool :application do
   testing true
   
   cloud :app do
-    minimum_instances 1
+    minimum_instances 12
     ami "ami-abc123"
     junk_yard_dogs "pains"
     

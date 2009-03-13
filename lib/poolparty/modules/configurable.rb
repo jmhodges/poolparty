@@ -5,8 +5,8 @@ module PoolParty
     module ClassMethods
       
       # Provides a class options hash to hold the values that will be set by define_defaults
-      def options(h={})
-        @class_options ||= h
+      def class_defaults(h={})
+        @defaults ||= h
       end
       
       def default_options(h={})
@@ -17,15 +17,29 @@ module PoolParty
         # end
       end
       
+      # def define_defaults(ops={})
+      #   ops.each do |k, v|
+      #     next if k.to_s == 'options'
+      #     class_defaults[k.to_sym] = v
+      #     methods_to_define = {
+      #       :class_getter => "class << self; def #{k}; class_defaults[:#{k}]; end; end",
+      #       :instance_get_and_set => "def #{k}(i=nil); i ? __options[:#{k}] = i : __options[:#{k}]; end",
+      #       :instance_set_with_eql => "def #{k}=(v); __options[:#{k}]=v;end",
+      #     }.each {|method, definition| module_eval definition}
+      #   end
+      # end
+
+      # try it using instance variables
       def define_defaults(ops={})
         ops.each do |k, v|
-          options[k.to_sym] = v
           next if k.to_s == 'options'
+          # class_defaults[k.to_sym] = v
+          puts "setting self #{k} = #{v}"
+          instance_variable_set "@#{k}", v
           methods_to_define = {
-            :class_getter => "class << self; def #{k}; self.options[:#{k}]; end; end",
-            :instance_get_and_set => "def #{k}(i=nil); i ? options[:#{k}] = i : options[:#{k}]; end",
-            :instance_set_with_eql => "def #{k}=(v);options[:#{k}]=v;end",
+            :attr_accessor => "attr_accessor :#{k}",
           }.each {|method, definition| module_eval definition}
+          puts " #{self} @minimum_instances= #{@minimum_instances}" if k.to_s =~ /minimum_run/
         end
       end
       
@@ -39,6 +53,10 @@ module PoolParty
     
     module InstanceMethods
       def options(h={})
+        puts "calling options from #{self} #{caller[0]}"
+        __options(h)
+      end
+      def __options(h={})
         @options ||= self.class.default_options.merge(h)
       end
       
