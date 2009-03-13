@@ -17,31 +17,32 @@ module PoolParty
         # end
       end
       
-      # def define_defaults(ops={})
-      #   ops.each do |k, v|
-      #     next if k.to_s == 'options'
-      #     class_defaults[k.to_sym] = v
-      #     methods_to_define = {
-      #       :class_getter => "class << self; def #{k}; class_defaults[:#{k}]; end; end",
-      #       :instance_get_and_set => "def #{k}(i=nil); i ? __options[:#{k}] = i : __options[:#{k}]; end",
-      #       :instance_set_with_eql => "def #{k}=(v); __options[:#{k}]=v;end",
-      #     }.each {|method, definition| module_eval definition}
-      #   end
-      # end
-
-      # try it using instance variables
       def define_defaults(ops={})
         ops.each do |k, v|
           next if k.to_s == 'options'
-          # class_defaults[k.to_sym] = v
-          puts "setting self #{k} = #{v}"
-          instance_variable_set "@#{k}", v
+          class_defaults[k.to_sym] = v
           methods_to_define = {
-            :attr_accessor => "attr_accessor :#{k}",
+            :class_getter => "class << self; def #{k}; class_defaults[:#{k}]; end; end",
+            :instance_get_and_set => "def #{k}(i=nil); i ? @#{k} = i : @#{k}; end",
+            :instance_set_with_eql => "def #{k}=(v); @#{k}=v;end",
           }.each {|method, definition| module_eval definition}
-          puts " #{self} @minimum_instances= #{@minimum_instances}" if k.to_s =~ /minimum_run/
         end
       end
+
+      # try it using instance variables
+      # def define_defaults(ops={})
+      #   ops.each do |k, v|
+      #     next if k.to_s == 'options'
+      #     # class_defaults[k.to_sym] = v
+      #     puts "setting self #{k} = #{v}"
+      #     instance_variable_set "@#{k}", v
+      #     methods_to_define = {
+      #       :attr_accessor => "attr_accessor :#{k}",
+      #       :class_getter => "class << self; def #{k}; @#{k}; end; end"
+      #     }.each {|method, definition| module_eval definition}
+      #     puts " #{self} @minimum_instances= #{@minimum_instances}" if k.to_s =~ /minimum_run/
+      #   end
+      # end
       
       def dsl_accessors(arr=[])
         @dsl_accessors ||= arr.map do |acc|
@@ -57,7 +58,8 @@ module PoolParty
         __options(h)
       end
       def __options(h={})
-        @options ||= self.class.default_options.merge(h)
+        # @options ||= self.class.default_options.merge(h)
+        @__options ||= self.class.class_defaults
       end
       
       def dsl_accessors

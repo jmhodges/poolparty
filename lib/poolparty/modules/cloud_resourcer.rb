@@ -68,7 +68,7 @@ module PoolParty
     alias :set_keypairs :keypair
     
     def _keypairs
-      options[:keypairs] ||= [Key.new]
+      __options[:keypairs] ||= [Key.new]
     end
     
     def full_keypair_path      

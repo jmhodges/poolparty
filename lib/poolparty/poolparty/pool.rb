@@ -39,8 +39,6 @@ module PoolParty
         @defaults
       end
       
-      puts "BASE_ACCESSKEY= #{Base.access_key}"
-      
       def initialize(name,&block)
         @pool_name = name
         @pool_name.freeze
@@ -52,6 +50,9 @@ module PoolParty
         # run_in_context &block if block
         # run_setup(self, &block)
         super(&block)
+      end
+      def load_from_file(filename=nil)
+        module_eval open(file).read, filename if filename
       end
       def pool_name
         @pool_name

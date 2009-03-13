@@ -6,6 +6,9 @@ class Object
   def my_methods
     self.methods.sort - (self.class.methods + self.class.superclass.methods)
   end
+  def this
+    self
+  end
   def to_os
     self
   end  

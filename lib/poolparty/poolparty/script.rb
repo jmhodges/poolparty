@@ -7,8 +7,7 @@ module PoolParty
     end
         
     def self.inflate(script, file="__SCRIPT__")
-      apool = new
-      apool.instance_eval script, file
+      module_eval script, file
     end
         
     def self.to_ruby(opts={},&blk)

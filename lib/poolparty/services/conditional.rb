@@ -10,7 +10,7 @@ module PoolParty
   end
   
   class Conditional < Service
-    def initialize(opts={}, &block)      
+    def initialize(opts={}, &block)
       super(opts, &block)
       options.freeze
     end

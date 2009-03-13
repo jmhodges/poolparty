@@ -15,7 +15,7 @@ module PoolParty
     # options of itself or its parent.
     # See get_or_set_from_options for more information
     def method_missing(m, *args, &block)
-      puts "METHOD MISSING: #{self}.#{m}"
+      puts "METHOD MISSING: #{self}.#{m}: #{caller[0]}: #{context_stack.last}"
       if block_given?
         (args[0].class == self.class) ? args[0].run_in_context(&block) : super
       else
@@ -23,14 +23,16 @@ module PoolParty
           super
         elsif m.to_s=='options'
           puts "METH missing blows up with options method"
-          require 'rubygems'; require 'ruby-debug'; debugger
-          3
         else
           m = m.to_s.gsub(/\=/, "").to_sym
           ret = args.size>1?args:args[0]
-          puts "#{self} m: #{m}"
           # self.class.class_eval "def #{m}(i=nil); i ? options[#{m}] = i : options[#{m}];end"
-          __options[m] = ret
+          context_stack.last.instance_eval <<-EOE
+            def #{m}(i=nil)
+              i ? @#{m} = i : @#{m}
+            end
+          EOE
+          context_stack.last.send m, ret
           ret
         end
       end

@@ -20,16 +20,15 @@ describe "basic" do
     # puts "inner = #{clouds[:inner].minimum_instances}"
     # puts "app parent = #{clouds[:app].parent.minimum_instances}"
     # puts "db = #{clouds[:db].minimum_instances} = #{clouds[:db].options.minimum_instances}"    
-    puts clouds[:db].junk_yard_dogs
+    # puts clouds[:db].junk_yard_dogs
     puts clouds[:app].junk_yard_dogs
-    puts pools[:application].junk_yard_dogs
+    puts clouds[:db].junk_yard_dogs
     clouds[:app].minimum_instances.should == 1
   end
   it "should set the maximum_instances on the cloud to 50" do
     clouds[:app].maximum_instances.should == 50
   end
   it "should set the minimum_instances on the db cloud to 3" do
-    require 'rubygems'; require 'ruby-debug'; debugger
     clouds[:db].minimum_instances.should == 3
     pools[:application].minimum_instances.should ==3
   end
@@ -40,7 +39,7 @@ describe "basic" do
   end
   it "should have the keypair matching /auser/on the db cloud " do
     puts clouds[:db].maximum_instances
-    clouds[:db].keypairs.select{|a| a.filepath.match(/auser/)}
+    clouds[:db]._keypairs.select{|a| a.filepath.match(/auser/)}
   end
   it "should have the keypair set for the specific cloud on top of the keypair stack" do
     pending

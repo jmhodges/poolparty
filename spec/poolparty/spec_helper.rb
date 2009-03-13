@@ -38,6 +38,9 @@ class TestClass < PoolParty::Cloud::Cloud
 end
 
 class TestBaseClass < PoolParty::PoolPartyBaseClass
+  def testing
+    true
+  end
 end
 
 def setup

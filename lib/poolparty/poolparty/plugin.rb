@@ -11,7 +11,7 @@ module PoolParty
             
       default_options({})
       
-      def initialize(opts={}, parent=nil &block)
+      def initialize(opts={}, parent=nil, &block)
         set_vars_from_options(opts) unless opts.empty?
         
         # context_stack.push parent        
