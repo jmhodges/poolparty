@@ -19,7 +19,7 @@ module PoolParty
         (args[0].class == self.class) ? args[0].run_in_context(&block) : super
       else
         if args.empty?
-          super
+          options.has_key?(m) ? options[m] : super
         else          
           m = m.to_s.gsub(/\=/, "").to_sym
           ret = args.size>1?args:args[0]

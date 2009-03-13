@@ -19,7 +19,7 @@ module PoolParty
     def set_parent_and_eval(&block)
 
       if parent
-        self.configure(parent.options) if parent.respond_to?(:options) && parent.is_a?(PoolParty::Pool::Pool)
+        configure(parent.options) if parent.respond_to?(:options) && parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self)
         @parent = parent
       end
@@ -27,8 +27,10 @@ module PoolParty
       dputs "Pushing #{self} onto the context stack"
       context_stack.push self
       @depth = context_stack.size - 1
-      
-      instance_eval &block if block
+
+      c = eval("self", block.binding)
+      puts c.name if c.respond_to?(:name)
+      (c.is_a?(PoolParty::Script) ? self : c).instance_eval &block if block
       
       o = context_stack.pop
       dputs "Popped #{o} off the context_stack"

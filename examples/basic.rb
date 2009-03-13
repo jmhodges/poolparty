@@ -7,7 +7,7 @@ pool :application do
   keypair "auser"
   testing true
   
-  cloud :app do
+  cloud :app do    
     minimum_instances 1
     ami "ami-abc123"
     junk_yard_dogs "pains"

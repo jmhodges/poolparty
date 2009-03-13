@@ -70,7 +70,7 @@ module PoolParty
         plugin_directory
         
         proc = Proc.new {
-          # add_poolparty_base_requirements unless testing
+          add_poolparty_base_requirements unless testing
           block.call if block
         }
         
