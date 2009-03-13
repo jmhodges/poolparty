@@ -2,9 +2,6 @@ require File.dirname(__FILE__) + '/../spec_helper'
 
 class MMObject
   include PoolParty::Configurable
-  def parent
-    nil
-  end
 end
 
 describe "MethodMissingSugar" do
@@ -23,26 +20,12 @@ describe "MethodMissingSugar" do
     @obj.dojo = "in the houwse"
     @obj.dojo.should == "in the houwse"
   end
-  it "should return nil if the value has not been set yet" do
-    @obj.bank.should == nil
+  it "should be able to overwrite the currently set value" do
+    @obj.hello "bob"
+    @obj.hello "marcus"
+    @obj.hello.should == "marcus"
   end
-  describe "with parent" do
-    before(:each) do
-      @@parent = MMObject.new
-      class MMObject2 < MMObject
-        def parent
-          @@parent
-        end
-      end
-      @obj = MMObject2.new
-    end
-    it "should send the query up the parent" do
-      @@parent.should_receive(:bank).and_return "of PoolParty"
-      @obj.bank.should == "of PoolParty"
-    end
-    it "shoudl query the parent and return nil if the parent' doesn't have it defined" do
-      @@parent.should_receive(:bank).and_return nil
-      @obj.bank.should == nil
-    end
+  it "should raise error as bank is not defined" do
+    lambda {@obj.bank}.should raise_error
   end
 end

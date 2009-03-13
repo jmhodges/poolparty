@@ -37,7 +37,7 @@ class TestClass < PoolParty::Cloud::Cloud
   end
 end
 
-class TestBaseClass < PoolParty::PoolPartyBaseClass  
+class TestBaseClass < PoolParty::PoolPartyBaseClass
 end
 
 def setup

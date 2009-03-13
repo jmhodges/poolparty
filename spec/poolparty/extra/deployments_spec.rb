@@ -25,13 +25,13 @@ describe "deployments" do
       end
       it "should create a class called PoolPartyHankyDankyRankyClass" do
         @klass.include_deployment(@file).should_not == nil
-        Object.const_defined?(:PoolPartyHankyDankyRankyClass).should == true
+        Object.const_defined?(:HankyDankyRankyClass).should == true
       end
       it "should create a method on the class called enable" do
-        PoolPartyHankyDankyRankyClass.new.respond_to?(:enable).should == true
+        HankyDankyRankyClass.new.respond_to?(:enable).should == true
       end
       it "should add the contents of the file to be eval'd on the method" do
-        PoolPartyHankyDankyRankyClass.new.enable.should == "hello goober"
+        HankyDankyRankyClass.new.enable.should == "hello goober"
       end
     end
     describe "include_deployments" do

@@ -13,12 +13,21 @@ module PoolParty
     # the super class worry about it.
     # If the block is not given, then we are going to look for it on the 
     # options of itself or its parent.
-    # See get_from_options for more information
+    # See get_or_set_from_options for more information
     def method_missing(m, *args, &block)
       if block_given?
         (args[0].class == self.class) ? args[0].run_in_context(&block) : super
       else
-        get_from_options(m, *args, &block)
+        if args.empty?
+          super
+        else          
+          m = m.to_s.gsub(/\=/, "").to_sym
+          ret = args.size>1?args:args[0]
+          puts "#{self} m: #{m}"
+          self.class.class_eval "def #{m}(i=nil); i ? options[#{m}] = i : options[#{m}];end"
+          options[m] = ret
+          ret
+        end
       end
     end
     
@@ -39,14 +48,6 @@ module PoolParty
     # Finally, if the method name is not in the options, then we check to make sure it's not set on the 
     # parent, we don't want the parent's set option and that the parent isnot itself and send it
     # to the parent to handle. Otherwise, we'll say it's nil instead
-    def get_from_options(m, *args, &block)
-      if args.empty?
-        options.has_key?(m)?options[m]:((!respond_to?(:parent) || parent.nil? || parent == self || !parent.respond_to?(:options) || parent.options.has_key?(m) || !parent.respond_to?(m)) ? nil : parent.send(m, *args, &block))
-      else
-        m = m.to_s.gsub(/\=/, "").to_sym
-        options[m] = args.size>1?args:args[0]
-      end
-    end
     
   end
 end

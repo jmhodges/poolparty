@@ -29,7 +29,7 @@ describe "Hash" do
       {:first_name => "bob", :last_name => "frank"}.first_name.should == "bob"
     end
     it "should return nil if there is no key set in the hash" do
-        {:first_name => "bob", :last_name => "frank"}.neighbor.should == nil
+      {:first_name => "bob", :last_name => "frank"}.neighbor.should == nil
     end
   end
   describe "choose" do

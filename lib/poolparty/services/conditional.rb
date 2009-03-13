@@ -23,12 +23,9 @@ module PoolParty
     end
     
     def add(o, &block)
-      # proc = Proc.new do
-        service = PoolParty::Service.new(&block)
-        obj = (o ? o : :default).to_sym
-        when_statements.merge!({obj => service})
-      # end
-      # set_parent_and_eval(&proc)      
+      service = PoolParty::Service.new(&block)
+      obj = (o ? o : :default).to_sym
+      when_statements.merge!({obj => service})
     end
     
     def when_statements

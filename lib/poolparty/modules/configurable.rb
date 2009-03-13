@@ -4,7 +4,10 @@ module PoolParty
   module Configurable
     module ClassMethods      
       def default_options(h={})
-        @default_options ||= h
+        @default_options ||= h.each do |k,v|
+          module_eval "def #{k}(i=nil); i ? options[:#{k}] = i : options[:#{k}]; end"
+          module_eval "def #{k}=(v);options[:#{k}]=v;end"
+        end
       end
       def dsl_accessors(arr=[])
         @dsl_accessors ||= arr.map do |acc|
@@ -28,12 +31,16 @@ module PoolParty
       end
       
       def configure(h={})
-        options(h).merge!(h)
+        options.merge!(h)
       end
       
       def reconfigure(h={})
         @options = nil
         options(h)
+      end
+      
+      def []=(k,v)
+        options[k] = v
       end
       
       def set_vars_from_options(opts={})

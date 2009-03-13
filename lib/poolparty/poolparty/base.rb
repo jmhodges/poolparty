@@ -7,9 +7,8 @@ require "ftools"
 module PoolParty
   class Base
     include Configurable
-    extend MethodMissingSugar
     
-    def self.options
+    # def self.options
       {
       :user => "root", # This should change here
       :base_keypair_path => "#{ENV["HOME"]}/.ec2",
@@ -37,8 +36,10 @@ module PoolParty
       :security_group => ["default"],
       # Options that should not be touched pretty much ever
       :manifest_path => "/etc/puppet/manifests"
-      }
-    end
+      }.each do |k,v|
+        class_eval "def Base.#{k};\"#{v}\";end"
+      end
+    # end
         
     # Class methods
     class << self

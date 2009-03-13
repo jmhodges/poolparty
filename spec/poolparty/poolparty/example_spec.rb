@@ -4,30 +4,41 @@ require "open-uri"
 describe "basic" do
   before(:each) do
     @example_dir = ::File.join(::File.dirname(__FILE__), "..", "..", "..", "examples")
-    reset!
     PoolParty::Script.inflate File.read(@example_dir + "/basic.rb")
   end
   it "should have one pool called :app" do
-
-    pools[:application].should_not be_nil
+    pool(:application).should_not be_nil
   end
   it "should have a cloud called :app" do
-    pools[:application].cloud(:app).should_not be_nil
+    clouds[:app].should_not be_nil
   end
   it "should have a cloud called :db" do
-    pools[:application].cloud(:db).should_not be_nil
+    pools[:application].clouds[:db].should_not be_nil
   end
-  it "should set the minimum_instances on the cloud to 2 (overriding the pool options)" do
-    pools[:application].cloud(:app).minimum_instances.should == 2
+  it "should set the minimum_instances on the cloud to 2 (overriding the pool options)" do    
+    # puts "app = #{clouds[:app].minimum_instances} = #{pools[:application].options - clouds[:app].options}"
+    # puts "inner = #{clouds[:inner].minimum_instances}"
+    # puts "app parent = #{clouds[:app].parent.minimum_instances}"
+    # puts "db = #{clouds[:db].minimum_instances} = #{clouds[:db].options.minimum_instances}"    
+    puts clouds[:db].junk_yard_dogs
+    puts clouds[:app].junk_yard_dogs
+    puts pools[:application].junk_yard_dogs
+    clouds[:app].minimum_instances.should == 1
   end
-  it "should set the maximum_instances on the cloud to 5" do
-    pools[:application].cloud(:app).maximum_instances.should == 5
+  it "should set the maximum_instances on the cloud to 50" do
+    clouds[:app].maximum_instances.should == 50
   end
   it "should set the minimum_instances on the db cloud to 3" do
-    pools[:application].clouds[:db].minimum_instances.should == pools[:application].minimum_instances
+    clouds[:db].minimum_instances.should == pools[:application].minimum_instances
+  end
+  it "should set the parent to the pool" do
+    clouds[:app].parent.should == pools[:application]
+    clouds[:db].parent.should == pools[:application]
+    clouds[:db].parent.should_not == pools[:app]
   end
   it "should have the keypair matching /auser/on the db cloud " do
-    pools[:application].clouds[:db].keypairs.select{|a| a.filepath.match(/auser/)}
+    puts clouds[:db].maximum_instances
+    clouds[:db].keypairs.select{|a| a.filepath.match(/auser/)}
   end
   it "should have the keypair set for the specific cloud on top of the keypair stack" do
     pending

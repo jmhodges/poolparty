@@ -2,8 +2,8 @@ module PoolParty
   module Pool
     
     def pool(name=:app, &block)
-      pools.has_key?(name) ? pools[name] : (pools[name] = Pool.new(name, &block))
-    end    
+      pools[name] ||= Pool.new(name, &block)
+    end
     
     def pools
       $pools ||= {}
@@ -24,10 +24,6 @@ module PoolParty
     end
 
     class Pool < PoolParty::PoolPartyBaseClass
-      # include PoolParty::Cloud
-      include MethodMissingSugar
-      # include PluginModel
-      include Configurable
       include PrettyPrinter
       include CloudResourcer
       include Remote
@@ -38,24 +34,26 @@ module PoolParty
       })
       
       def initialize(name,&block)
-        set_pool_specfile get_latest_caller        
-        setup_defaults
         @pool_name = name
         @pool_name.freeze
+        
+        context_stack.clear
+        
+        set_pool_specfile get_latest_caller
+        setup_defaults
         # run_in_context &block if block
         # run_setup(self, &block)
         super(&block)
       end
-            
+      def pool_name
+        @pool_name
+      end
+      alias :name :pool_name
       def parent;nil;end
       
       def setup_defaults
         plugin_directory "#{pool_specfile ? ::File.dirname(pool_specfile) : Dir.pwd}/plugins"
         PoolParty::Extra::Deployments.include_deployments "#{Dir.pwd}/deployments"
-      end
-            
-      # This is where the entire process starts
-      def inflate
       end
       
       def pool_clouds

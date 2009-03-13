@@ -9,13 +9,8 @@ module PoolParty
     def self.inflate(script, file="__SCRIPT__")
       apool = new
       apool.instance_eval script, file
-      apool.inflate
     end
-    
-    def inflate
-      pools.map {|name,pool| pool.inflate } unless pools.empty?
-    end
-    
+        
     def self.to_ruby(opts={},&blk)
       blk.to_ruby(opts)
     end

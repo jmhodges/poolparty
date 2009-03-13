@@ -36,6 +36,6 @@ class Hash
     MyOpenStruct.new(m)
   end
   def method_missing(sym, *args, &block)
-    key?(sym) ? fetch(sym) : super
+    has_key?(sym) ? fetch(sym) : super
   end
 end

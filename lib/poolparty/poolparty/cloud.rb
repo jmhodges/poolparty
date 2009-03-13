@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + "/resource"
 module PoolParty    
   module Cloud
     def cloud(name=:app, &block)
-      clouds.has_key?(name) ? clouds[name] : (clouds[name] = Cloud.new(name, context_stack.last, &block))
+      clouds[name] ||= Cloud.new(name, &block)
     end
 
     def clouds
@@ -44,8 +44,7 @@ module PoolParty
       
       def self.method_added sym        
         raise "Exception: #{sym.to_s.capitalize} method has been redefined" if immutable_methods.include?(sym) && !respond_to?(sym)
-      end
-      
+      end      
       alias :name :cloud_name
       
       default_options({
@@ -62,14 +61,14 @@ module PoolParty
         :ami => 'ami-44bd592d'
       })
       
-      def initialize(name, prent=nil, &block)
+      def initialize(name, &block)
         @cloud_name = name
         @cloud_name.freeze                
         
         plugin_directory
         
         proc = Proc.new {
-          add_poolparty_base_requirements
+          # add_poolparty_base_requirements unless testing
           block.call if block
         }
         
@@ -80,8 +79,7 @@ module PoolParty
       
       def setup_defaults
         # this can be overridden in the spec, but ec2 is the default
-        self.using :ec2
-        generate_keypair unless has_keypair?
+        using :ec2
         dependency_resolver 'puppet'
       end
             
