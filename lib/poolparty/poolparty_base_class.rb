@@ -26,8 +26,8 @@ module PoolParty
       
       dputs "Pushing #{self} onto the context stack"
       context_stack.push self
-      @depth = context_stack.size - 1
-
+      @depth = context_stack.size - 1      
+      # instance_eval &block if block
       c = eval("self", block.binding)
       puts c.name if c.respond_to?(:name)
       (c.is_a?(PoolParty::Script) ? self : c).instance_eval &block if block

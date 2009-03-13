@@ -29,7 +29,9 @@ describe "basic" do
     clouds[:app].maximum_instances.should == 50
   end
   it "should set the minimum_instances on the db cloud to 3" do
-    clouds[:db].minimum_instances.should == pools[:application].minimum_instances
+    require 'rubygems'; require 'ruby-debug'; debugger
+    clouds[:db].minimum_instances.should == 3
+    pools[:application].minimum_instances.should ==3
   end
   it "should set the parent to the pool" do
     clouds[:app].parent.should == pools[:application]
