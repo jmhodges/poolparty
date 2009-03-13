@@ -59,11 +59,13 @@ module PoolParty
         :minimum_runtime => Base.minimum_runtime,
         :user => Base.user,
         :ami => 'ami-44bd592d'
-      })
+      }).each do |k,v|
+          class_eval "def Cloud.#{k};\"#{v}\";end"
+        end
       
       def initialize(name, &block)
         @cloud_name = name
-        @cloud_name.freeze                
+        @cloud_name.freeze
         
         plugin_directory
         
@@ -82,7 +84,7 @@ module PoolParty
         using :ec2
         dependency_resolver 'puppet'
       end
-            
+      
       # provide a public ips to get into the cloud
       def ips
         list_of_running_instances.map {|ri| ri.ip }

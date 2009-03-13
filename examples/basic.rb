@@ -12,8 +12,8 @@ pool :application do
     ami "ami-abc123"
     junk_yard_dogs "pains"
     
-    cloud :inner do      
-      minimum_instances 14      
+    cloud :inner do
+      minimum_instances 14
     end
   end
   

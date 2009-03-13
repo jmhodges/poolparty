@@ -1,12 +1,12 @@
-module PoolParty    
+module PoolParty
   module Resources
-        
-    class Mount < Resource      
+    
+    class Mount < Resource
       
       default_options({
-        :name => "/data",
+        :mountpoint => "/data",
         :remounts => "true",
-        :options => "rw,nosuid,noquota",
+        :mount_options => "rw,nosuid,noquota",
         :fstype => "xfs",
         :atboot => "yes"
       })
@@ -14,7 +14,6 @@ module PoolParty
       def disallowed_options
         [:name]
       end
-            
       
     end
     

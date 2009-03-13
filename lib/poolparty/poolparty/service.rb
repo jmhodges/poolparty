@@ -8,8 +8,8 @@ module PoolParty
     
     def cloud
       @pa = parent
-      2.upto(context_stack.size) do |i|
-        return context_stack[-i] if context_stack[-i].is_a?(PoolParty::Cloud::Cloud)
+      2.upto(::PoolParty.context_stack.size) do |i|
+        return ::PoolParty.context_stack[-i] if ::PoolParty.context_stack[-i].is_a?(PoolParty::Cloud::Cloud)
       end
     end
     

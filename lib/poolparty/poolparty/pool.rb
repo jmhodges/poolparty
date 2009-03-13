@@ -37,7 +37,7 @@ module PoolParty
         @pool_name = name
         @pool_name.freeze
         
-        context_stack.clear
+        ::PoolParty.context_stack.clear
         
         set_pool_specfile get_latest_caller
         setup_defaults

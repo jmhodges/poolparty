@@ -6,19 +6,19 @@
   
   Most of the Resources will not need to create their own
 =end
-module PoolParty    
-  module Resources    
+module PoolParty
+  module Resources
     
     def custom_file(path, str)
       write_to_file_in_storage_directory(path, str)
     end
-        
+    
     class Resource < PoolParty::PoolPartyBaseClass
       attr_accessor :prestring, :poststring
       
       include Configurable
       # include CloudResourcer
-            
+      
       # For the time being, we'll make puppet the only available dependency resolution
       # base, but in the future, we can rip this out and make it an option
       # include PoolParty::DependencyResolutions::Puppet
@@ -85,9 +85,9 @@ module PoolParty
                 
         set_vars_from_options(opts) unless opts.empty?
 
-        context_stack.push self
+        ::PoolParty.context_stack.push self
         instance_eval &block if block
-        context_stack.pop
+        ::PoolParty.context_stack.pop
         
         # self.run_in_context(&block) if block
         
@@ -120,7 +120,7 @@ module PoolParty
       end
       
       def cloud
-        context_stack.each do |stk|
+        ::PoolParty.context_stack.each do |stk|
           return stk if stk.is_a?(PoolParty::Cloud::Cloud)
         end
       end

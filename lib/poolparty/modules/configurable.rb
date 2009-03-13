@@ -2,13 +2,33 @@
 # For example, this is how instance.minimum_runtime is set.  See base.rb line 12 for example of default options that are added as methods in this way. 
 module PoolParty
   module Configurable
-    module ClassMethods      
+    module ClassMethods
+      
+      # Provides a class options hash to hold the values that will be set by define_defaults
+      def options(h={})
+        @class_options ||= h
+      end
+      
       def default_options(h={})
-        @default_options ||= h.each do |k,v|
-          module_eval "def #{k}(i=nil); i ? options[:#{k}] = i : options[:#{k}]; end"
-          module_eval "def #{k}=(v);options[:#{k}]=v;end"
+        define_defaults(h)
+        # @default_options ||= h.each do |k,v|
+        #   module_eval "def #{k}(i=nil); i ? options[:#{k}] = i : options[:#{k}]; end"
+        #   module_eval "def #{k}=(v);options[:#{k}]=v;end"
+        # end
+      end
+      
+      def define_defaults(ops={})
+        ops.each do |k, v|
+        options[k.to_sym] = v
+         next if method.to_s == 'options'
+         methods_to_define = {
+            :class_getter => "class << self; def #{k}; self.options[:#{k}]; end; end",
+            :instance_get_and_set => "def #{k}(i=nil); i ? options[:#{k}] = i : options[:#{k}]; end",
+            :instance_set_with_eql => "def #{k}=(v);options[:#{k}]=v;end",
+          }.each {|method, definition| module_eval definition}
         end
       end
+      
       def dsl_accessors(arr=[])
         @dsl_accessors ||= arr.map do |acc|
           class_eval "def #{acc}(i=nil); i ? options[:#{acc}] = i : options[:#{acc}]; end;def #{acc}=(v);options[:#{acc}]=v;end"
