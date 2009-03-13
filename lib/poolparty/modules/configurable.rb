@@ -19,9 +19,9 @@ module PoolParty
       
       def define_defaults(ops={})
         ops.each do |k, v|
-        options[k.to_sym] = v
-         next if method.to_s == 'options'
-         methods_to_define = {
+          options[k.to_sym] = v
+          next if k.to_s == 'options'
+          methods_to_define = {
             :class_getter => "class << self; def #{k}; self.options[:#{k}]; end; end",
             :instance_get_and_set => "def #{k}(i=nil); i ? options[:#{k}] = i : options[:#{k}]; end",
             :instance_set_with_eql => "def #{k}=(v);options[:#{k}]=v;end",
