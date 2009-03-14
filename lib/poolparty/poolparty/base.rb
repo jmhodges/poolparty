@@ -9,42 +9,39 @@ module PoolParty
     include Configurable
     
     # def self.options
-      @defaults = {
-        :testing => false,
-        :debugging => false,
-        :minimum_instances => 1,
-        :user => "root", # This should change here
-        :base_keypair_path => "#{ENV["HOME"]}/.ec2",
-        :tmp_path => "/tmp/poolparty",
-        :poolparty_home_path => "#{ENV["HOME"]}/.poolparty",
-        :remote_storage_path => "/var/poolparty",
-        :remote_gem_path => "/var/poolparty/gems",
-        :fileserver_base => "puppet://master/files",
-        :base_config_directory => "/etc/poolparty",
-        :template_directory => "templates",
-        :template_path => "/var/lib/puppet/templates",
-        :module_path => "/etc/puppet/modules/poolparty",
-        :default_specfile_name => "clouds.rb",
-        :port => "80",
-        :forwarding_port => "8080",
-        :proxy_mode => "http",
-        :messenger_client_port => 7050,
-        :minimum_runtime  => 3000, #50.minutes in seconds
-        :agent_pid_file => ::File.readable?("/var/run/poolparty_agent.pid") ? "/var/run/agent.pid" : "#{Dir.pwd}/agent.pid",
-        :agent_port => 8081,
-        # EC2 Options
-        :ami => "ami-1cd73375",
-        :size => 'm1.small', # must be 'm1.small', 'm1.large', 'm1.xlarge', 'c1.medium', or 'c1.xlarge'
-        :availabilty_zone => "us-east-1a",
-        :security_group => ["default"],
-        # Options that should not be touched pretty much ever
-        :manifest_path => "/etc/puppet/manifests" 
-      }
-      define_defaults(@defaults)
-      def self.defaults
-        @defaults
-      end
-        
+    @defaults = {
+      :testing => false,
+      :debugging => false,
+      :minimum_instances => 1,
+      :user => "root", # This should change here
+      :base_keypair_path => "#{ENV["HOME"]}/.ec2",
+      :tmp_path => "/tmp/poolparty",
+      :poolparty_home_path => "#{ENV["HOME"]}/.poolparty",
+      :remote_storage_path => "/var/poolparty",
+      :remote_gem_path => "/var/poolparty/gems",
+      :fileserver_base => "puppet://master/files",
+      :base_config_directory => "/etc/poolparty",
+      :template_directory => "templates",
+      :template_path => "/var/lib/puppet/templates",
+      :module_path => "/etc/puppet/modules/poolparty",
+      :default_specfile_name => "clouds.rb",
+      :port => "80",
+      :forwarding_port => "8080",
+      :proxy_mode => "http",
+      :messenger_client_port => 7050,
+      :minimum_runtime  => 3000, #50.minutes in seconds
+      :agent_pid_file => ::File.readable?("/var/run/poolparty_agent.pid") ? "/var/run/agent.pid" : "#{Dir.pwd}/agent.pid",
+      :agent_port => 8081,
+      # EC2 Options
+      :ami => "ami-1cd73375",
+      :size => 'm1.small', # must be 'm1.small', 'm1.large', 'm1.xlarge', 'c1.medium', or 'c1.xlarge'
+      :availabilty_zone => "us-east-1a",
+      :security_group => ["default"],
+      # Options that should not be touched pretty much ever
+      :manifest_path => "/etc/puppet/manifests" 
+    }
+    define_defaults(@defaults)
+    
     # Class methods
     class << self
       # Get the access_key

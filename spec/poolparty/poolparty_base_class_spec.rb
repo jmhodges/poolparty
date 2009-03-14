@@ -24,10 +24,12 @@ describe "BaseClass" do
       end
     end
     describe "depth" do
-      before(:each) do
-        @a = TestBaseClass.new do
-          @@b = TestBaseClass.new do
-            @@c = TestBaseClass.new do
+      before(:all) do
+        @inflater = Proc.new do 
+          @a = $a =TestBaseClass.new do
+            @@b = $b = TestBaseClass.new do
+              @@c = $c =TestBaseClass.new do
+              end
             end
           end
         end
@@ -38,10 +40,30 @@ describe "BaseClass" do
         @@c.depth.should == 2
       end
       it "should have the parent set properly" do
+        @a.parent.should == nil
         @@c.parent.should == @@b
         @@b.parent.should == @a
-        @a.parent.should == nil
+      end
+      it "should have proper self" do
+        @a.this.should == $a.this
       end
     end
   end
+  it "should have the parent set properly" do
+    @a = TestBaseClass.new do
+      @@b = TestBaseClass.new do
+        @@c = TestBaseClass.new do
+        end
+      end
+    end
+    
+    @a.parent.should == nil
+    @@c.parent.should == @@b
+    @@b.parent.should == @a
+
+    @a.parent.should == nil
+    @@c.parent.should == @@b
+    @@b.parent.should == @a
+  end
+  
 end

@@ -13,28 +13,13 @@ module PoolParty
     # the super class worry about it.
     # If the block is not given, then we are going to look for it on the 
     # options of itself or its parent.
-    # See get_or_set_from_options for more information
+    # See get_from_options for more information
     def method_missing(m, *args, &block)
-      puts "METHOD MISSING: #{self}.#{m}: #{caller[0]}: #{context_stack.last}"
+      puts "MM: #{self.to_s}.#{m}(#{args.join(', ')}) #{self.name if self.respond_to? :name}"
       if block_given?
         (args[0].class == self.class) ? args[0].run_in_context(&block) : super
-      else
-        if args.empty?
-          super
-        elsif m.to_s=='options'
-          puts "METH missing blows up with options method"
-        else
-          m = m.to_s.gsub(/\=/, "").to_sym
-          ret = args.size>1?args:args[0]
-          # self.class.class_eval "def #{m}(i=nil); i ? options[#{m}] = i : options[#{m}];end"
-          context_stack.last.instance_eval <<-EOE
-            def #{m}(i=nil)
-              i ? @#{m} = i : @#{m}
-            end
-          EOE
-          context_stack.last.send m, ret
-          ret
-        end
+      else        
+        get_from_options(m, *args, &block)
       end
     end
     
@@ -42,8 +27,6 @@ module PoolParty
     # First, we check to see if any options are being sent to the method
     # of the form:
     # name "Fred"
-    # or
-    # name = "Fred"
     # If there are args sent to it, check to see if it is an array
     # If it is, we want to send it an array only if the array is contains more than one element.
     # This becomes important when we are building the manifest
@@ -55,6 +38,30 @@ module PoolParty
     # Finally, if the method name is not in the options, then we check to make sure it's not set on the 
     # parent, we don't want the parent's set option and that the parent isnot itself and send it
     # to the parent to handle. Otherwise, we'll say it's nil instead
+    def get_from_options(m, *args, &block)
+      if args.empty?
+        if options.has_key?(m)
+          puts " -> got #{m} from options of #{this}"
+          this.options[m]
+        elsif ret = get_option_from_parent(m)
+           ret
+        end
+      else
+        # require 'rubygems'; require 'ruby-debug'; debugger
+        this.options[m] = 
+        if (args.is_a?(Array) && args.size > 1)
+          args
+        else
+          args[0]
+        end
+      end
+    end
     
+    def get_option_from_parent(m)
+      if (!parent.nil? and parent.class != self.class and parent.respond_to?(:options) and parent.options.has_key?(m) and !parent.respond_to?(m))
+        parent.send(m, *args, &block)
+      end
+    end
+  
   end
 end

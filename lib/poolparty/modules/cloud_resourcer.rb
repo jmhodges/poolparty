@@ -14,7 +14,7 @@ module PoolParty
     def plugin_directory(*args)
       args = [
         "#{::File.expand_path(Dir.pwd)}/plugins",
-        "#{::File.expand_path(Base.poolparty_home_path)}/plugins"
+        "#{::File.expand_path(Base.default_options.poolparty_home_path)}/plugins"
       ] if args.empty?
       args.each {|arg| 
         return unless ::File.directory?(arg)
@@ -68,7 +68,7 @@ module PoolParty
     alias :set_keypairs :keypair
     
     def _keypairs
-      __options[:keypairs] ||= [Key.new]
+      options[:keypairs] ||= [Key.new]
     end
     
     def full_keypair_path      

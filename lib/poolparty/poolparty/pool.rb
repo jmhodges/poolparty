@@ -27,17 +27,14 @@ module PoolParty
       include PrettyPrinter
       include CloudResourcer
       include Remote
-      @defaults = Base.class_defaults.merge({
+      
+      @defaults = {
         :access_key => Base.access_key,
         :secret_access_key => Base.secret_access_key,
         :minimum_instances => 1,
         :maximum_instances => 4
-      })
-      puts @defaults.to_yaml
+      }
       define_defaults(@defaults)
-      def self.defaults
-        @defaults
-      end
       
       def initialize(name,&block)
         @pool_name = name

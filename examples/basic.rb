@@ -2,7 +2,7 @@
 # Shows global settings for the clouds
 
 pool :application do
-  
+  $DEBUGGING=true
   instances 3..50
   keypair "auser"
   testing true
@@ -18,6 +18,7 @@ pool :application do
   end
   
   cloud :db do
+    minimum_instances 19
     keypair "hotstuff_database"
     maximum_instances 20
     ami "ami-1234bc"

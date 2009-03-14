@@ -30,6 +30,8 @@ describe "basic" do
   end
   it "should set the minimum_instances on the db cloud to 3" do
     clouds[:db].minimum_instances.should == 3
+    clouds[:app].minimum_instances.should == 12
+    clouds[:inner].minimum_instances.should == 14
     pools[:application].minimum_instances.should ==3
   end
   it "should set the parent to the pool" do

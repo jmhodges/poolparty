@@ -47,23 +47,20 @@ module PoolParty
       end      
       alias :name :cloud_name
       
-      @defaults = Base.class_defaults.merge({
+      @defaults = {
         :minimum_instances => 2,
         :maximum_instances => 5,
         :contract_when => "cpu < 0.65",
         :expand_when => "cpu > 1.9",
-        :access_key => Base.access_key,
-        :secret_access_key => Base.secret_access_key,
+        :access_key => Base.default_options.access_key,
+        :secret_access_key => Base.default_options.secret_access_key,
         :ec2_dir => ENV["EC2_HOME"],
         :keypair => (ENV["KEYPAIR_NAME"].nil? || ENV["KEYPAIR_NAME"].empty?) ? nil : ENV["KEYPAIR_NAME"],
-        :minimum_runtime => Base.minimum_runtime,
-        :user => Base.user,
+        :minimum_runtime => Base.default_options.minimum_runtime,
+        :user => Base.default_options.user,
         :ami => 'ami-44bd592d'
-      })
+      }.freeze
       define_defaults(@defaults)
-      def self.defaults
-        @defaults
-      end
       
       def initialize(name, &block)
         @cloud_name = name
@@ -72,7 +69,7 @@ module PoolParty
         plugin_directory
         
         proc = Proc.new {
-          add_poolparty_base_requirements unless testing || debugging
+          # add_poolparty_base_requirements unless testing || debugging
           block.call if block
         }
         

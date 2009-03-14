@@ -12,6 +12,7 @@ module PoolParty
     attr_reader :parent
         
     def initialize(opts={}, &block)
+      puts "I was just created #{self.name}"
       set_vars_from_options(opts) unless !opts.is_a?(Hash)
       set_parent_and_eval(&block)
     end
@@ -26,7 +27,7 @@ module PoolParty
       
       dputs "Pushing #{self} onto the context stack"
       context_stack.push self
-      @depth = context_stack.size - 1      
+      @depth = context_stack.size - 1
 
       instance_eval &block if block
       
