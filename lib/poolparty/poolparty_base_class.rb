@@ -9,18 +9,18 @@ module PoolParty
   class PoolPartyBaseClass < Parenting::Base
     include Dslify
     include PoolParty::DependencyResolverCloudExtensions
-    attr_accessor :depth
-    attr_reader :parent
-        
+    # attr_accessor :depth
+    # attr_reader :parent
+
     def initialize(opts={}, &block)
       set_vars_from_options(opts) unless !opts.is_a?(Hash)
-      run_in_context(&block) if block
       
       if parent
-        configure(parent.options) if parent.respond_to?(:options) && parent.is_a?(PoolParty::Pool::Pool)
+        dsl_options(parent.dsl_options) if parent.respond_to?(:dsl_options) && parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self)
         @parent = parent
-      end      
+      end
+      run_in_context(&block) if block
     end
     
     # Add to the services pool for the manifest listing

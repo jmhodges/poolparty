@@ -4,7 +4,7 @@ require "open-uri"
 describe "basic" do
   before(:each) do
     @example_dir = ::File.join(::File.dirname(__FILE__), "..", "..", "..", "examples")
-    PoolParty::Script.inflate File.read(@example_dir + "/basic.rb")
+    PoolParty::Pool::Pool.new(:application).load_from_file @example_dir + "/basic.rb"
   end
   it "should have one pool called :app" do
     pool(:application).should_not be_nil
@@ -20,19 +20,20 @@ describe "basic" do
     # puts "inner = #{clouds[:inner].minimum_instances}"
     # puts "app parent = #{clouds[:app].parent.minimum_instances}"
     # puts "db = #{clouds[:db].minimum_instances} = #{clouds[:db].options.minimum_instances}"
-    # puts clouds[:db].junk_yard_dogs
-    puts clouds[:app].junk_yard_dogs
-    puts clouds[:db].junk_yard_dogs
-    clouds[:app].minimum_instances.should == 1
+    clouds[:app].minimum_instances.should == 12
   end
   it "should set the maximum_instances on the cloud to 50" do
     clouds[:app].maximum_instances.should == 50
   end
   it "should set the minimum_instances on the db cloud to 3" do
-    clouds[:db].minimum_instances.should == 3
+    clouds[:db].minimum_instances.should == 19
     clouds[:app].minimum_instances.should == 12
     clouds[:inner].minimum_instances.should == 14
     pools[:application].minimum_instances.should ==3
+  end
+  it "should set ambiguous methods on the cloud" do
+    clouds[:app].junk_yard_dogs.should == "pains"
+    clouds[:db].junk_yard_dogs.should == "are bad"
   end
   it "should set the parent to the pool" do
     clouds[:app].parent.should == pools[:application]
@@ -40,7 +41,6 @@ describe "basic" do
     clouds[:db].parent.should_not == pools[:app]
   end
   it "should have the keypair matching /auser/on the db cloud " do
-    puts clouds[:db].maximum_instances
     clouds[:db]._keypairs.select{|a| a.filepath.match(/auser/)}
   end
   it "should have the keypair set for the specific cloud on top of the keypair stack" do

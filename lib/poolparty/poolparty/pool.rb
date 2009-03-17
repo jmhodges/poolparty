@@ -48,7 +48,7 @@ module PoolParty
         super(&block)
       end
       def load_from_file(filename=nil)
-        module_eval open(file).read, filename if filename
+        eval_from_file filename
       end
       def pool_name
         @pool_name

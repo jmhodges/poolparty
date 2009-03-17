@@ -88,7 +88,7 @@ module PoolParty
         
         # self.run_in_context(&block) if block
         
-        options[:name] = resource_name unless options.has_key?(:name)
+        dsl_options[:name] = resource_name unless dsl_options.has_key?(:name)
         
         loaded(opts, &block)
       end
