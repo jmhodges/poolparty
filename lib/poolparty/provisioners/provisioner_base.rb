@@ -16,7 +16,6 @@ module PoolParty
     class ProvisionerBase
       attr_accessor :config, :loaded_tasks, :instance, :cloud, :os
       
-      include Configurable
       include CloudResourcer
       include FileWriter
       
@@ -185,7 +184,7 @@ module PoolParty
       def download_base_gems_string
         returning(Array.new) do |arr|
           base_gems.each do |name, url|
-            arr << "wget #{url} -O #{Base.remote_storage_path}/#{name}.gem 2>&1"
+            arr << "wget #{url} -O #{Default.remote_storage_path}/#{name}.gem 2>&1"
           end
         end.join(" && ")
       end
@@ -193,7 +192,7 @@ module PoolParty
       def install_base_gems_string
         returning(Array.new) do |arr|
           base_gems.each do |name, url|
-            arr << "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc #{Base.remote_storage_path}/#{name}.gem"
+            arr << "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc #{Default.remote_storage_path}/#{name}.gem"
           end
         end.join(" && ")
       end

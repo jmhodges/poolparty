@@ -42,8 +42,7 @@ describe "Object" do
     describe "running" do
       before(:each) do
         Class.stub!(:default_options).and_return({})
-        Class.send :include, Configurable
-        Class.send :include, MethodMissingSugar
+        Class.send :include, Dslify
         @a = Class.new        
         @b = Class.new
         

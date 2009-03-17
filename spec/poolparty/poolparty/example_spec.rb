@@ -19,7 +19,7 @@ describe "basic" do
     # puts "app = #{clouds[:app].minimum_instances} = #{pools[:application].options - clouds[:app].options}"
     # puts "inner = #{clouds[:inner].minimum_instances}"
     # puts "app parent = #{clouds[:app].parent.minimum_instances}"
-    # puts "db = #{clouds[:db].minimum_instances} = #{clouds[:db].options.minimum_instances}"    
+    # puts "db = #{clouds[:db].minimum_instances} = #{clouds[:db].options.minimum_instances}"
     # puts clouds[:db].junk_yard_dogs
     puts clouds[:app].junk_yard_dogs
     puts clouds[:db].junk_yard_dogs

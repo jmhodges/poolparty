@@ -7,12 +7,11 @@ require 'date'
 
 module PoolParty
   class Optioner
-    include Configurable
-    # include MethodMissingSugar
+    include Dslify
     
     def initialize(args=[], opts={}, &block)      
       boolean_args << opts[:boolean_args] if opts.has_key?(:boolean_args)
-
+      
       @arguments = parse_args(args)
       @extra_help = opts.has_key?(:extra_help) ? opts[:extra_help] : ""
       @abstract = opts.has_key?(:abstract) ? opts[:abstract] : false
