@@ -1,12 +1,12 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
 class DependencyResolverCloudExtensionsSpecBase < PoolParty::PoolPartyBaseClass
-  include PoolParty::Configurable  
+  include Dslify
 end
 
 # files, directories, etc...
 class DependencyResolverSpecTestResource
-  include PoolParty::Configurable
+  include Dslify
   include PoolParty::DependencyResolverResourceExtensions
 end
 
@@ -73,9 +73,6 @@ describe "Resolution spec" do
     end
     it "should have services on the cloud as an array of hashes" do
       @cloud.to_properties_hash[:services].class.should == Hash      
-    end
-    it "have options set on the cloud as a hash" do
-      @cloud.to_properties_hash[:options].class.should == Hash
     end
   end
 

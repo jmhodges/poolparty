@@ -18,7 +18,7 @@ class Object
   end
   def with_options(opts={}, par=nil, &block)
     @p = par.clone
-    @p.options.merge!(opts)
+    @p.dsl_options.merge!(opts)
     @p.instance_eval &block if block
   end  
   def returning(receiver)

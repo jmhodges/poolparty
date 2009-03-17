@@ -79,16 +79,10 @@ module PoolParty
           @resource_name = opts.has_key?(:name) ? opts.delete(:name) : nil
         end
         # @options = parent.options.merge(options) if parent && parent.is_a?(PoolParty::Pool::Pool)
-                
-        set_vars_from_options(opts) unless opts.empty?
-
-        ::PoolParty.context_stack.push self
-        instance_eval &block if block
-        ::PoolParty.context_stack.pop
         
-        # self.run_in_context(&block) if block
+        super(opts, &block)
         
-        dsl_options[:name] = resource_name unless dsl_options.has_key?(:name)
+        options[:name] = resource_name unless options.has_key?(:name)
         
         loaded(opts, &block)
       end
@@ -181,8 +175,8 @@ module PoolParty
       # it returns an empty hash
       def get_modified_options
         unless @modified_options
-          if options
-            opts = options.inject({}) do |sum,h|
+          if dsl_options
+            opts = dsl_options.inject({}) do |sum,h|
               sum.merge!({h[0].to_sym => ((h[1].nil?) ? self.send(h[0].to_sym) : h[1]) })
             end
           else
@@ -191,7 +185,7 @@ module PoolParty
           @full_allowed_options ||= allowed_options.reject {|ele| disallowed_options.include?(ele) }
           @modified_options = opts.reject do |k,v|
             !@full_allowed_options.include?(k) || 
-              @parent && @parent.respond_to?(:options) && @parent != self && @parent.options.has_key?(k) && @parent.options[k] == options[k]
+              @parent && @parent.respond_to?(:dsl_options) && @parent != self && @parent.dsl_options.has_key?(k) && @parent.dsl_options[k] == dsl_options[k]
           end
         end
         @modified_options

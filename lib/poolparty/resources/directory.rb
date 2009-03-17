@@ -5,7 +5,6 @@ module PoolParty
             
       default_options({
         :mode => 644
-        # :owner => "#{Base.user}"
       })
       
       def present

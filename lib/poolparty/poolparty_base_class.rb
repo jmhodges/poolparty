@@ -101,6 +101,13 @@ module PoolParty
       @resources ||= {}
     end
     
+    def method_missing(m,*a,&block)
+      if context && context != self && !self.is_a?(PoolParty::Resources::Resource)
+        context.send m, *a, &block
+      else
+        super
+      end
+    end
     
     # Adds two methods to the module
     # Adds the method type:

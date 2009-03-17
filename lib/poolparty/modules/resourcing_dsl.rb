@@ -4,10 +4,10 @@ module PoolParty
     # Allows us to send require to require a resource
     def requires(str=nil)
       # str ? options.append!(:require => str) : options[:require]
-      str ? options.merge!(:require => send_if_method(str)) : options[:require]
+      str ? dsl_options.merge!(:require => send_if_method(str)) : dsl_options[:require]
     end
     def on_change(str=nil)
-      str ? options.merge!(:notify => send_if_method(str)) : options[:notify]
+      str ? dsl_options.merge!(:notify => send_if_method(str)) : dsl_options[:notify]
     end
     def ensures(str="running")
       # if %w(absent running).map {|a| self.send a.to_sym}.include?(str)
@@ -19,15 +19,15 @@ module PoolParty
     end
     # Allows us to send an ensure to ensure the presence of a resource
     def is_present(*args)
-      options.merge!(:ensure => present)
+      dsl_options.merge!(:ensure => present)
     end
     # Ensures that what we are sending is absent
     def is_absent(*args)
-      options.merge!(:ensure => absent)
+      dsl_options.merge!(:ensure => absent)
     end
     # Alias for unless
     def ifnot(str="")
-      options.merge!(:unless => str)
+      dsl_options.merge!(:unless => str)
     end
     def present
       "present"
@@ -36,16 +36,16 @@ module PoolParty
       "absent"
     end
     def cancel(*args)
-      options[:cancelled] = args.empty? ? true : args[0]
+      dsl_options[:cancelled] = args.empty? ? true : args[0]
     end
     def cancelled?
-      options[:cancelled] || false
+      dsl_options[:cancelled] || false
     end
     def printed(*args)
-      options[:printed] = true
+      dsl_options[:printed] = true
     end
     def printed?
-      options[:printed] || false
+      dsl_options[:printed] || false
     end
     # Give us a template to work with on the resource
     # Make sure this template is moved to the tmp directory as well

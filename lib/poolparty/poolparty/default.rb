@@ -43,6 +43,9 @@ module PoolParty
     
     # Class methods
     class << self
+      def method_missing(m,*a,&block)
+        default_options.include?(m) ? default_options[m] : super
+      end
       # Get the access_key
       def access_key
         @access_key ||= load_access_keys_from_environment_var || load_keys_from_file[:access_key]
@@ -88,8 +91,8 @@ module PoolParty
       def key_file_locations
         [
           ".ppkeys",
-          "#{Default.base_config_directory}/.ppkeys",
-          "#{Default.storage_directory}/ppkeys",          
+          "#{Default.default_options.base_config_directory}/.ppkeys",
+          "#{Default.default_options.storage_directory}/ppkeys",          
           "~/.ppkeys",
           "ppkeys"
         ]
