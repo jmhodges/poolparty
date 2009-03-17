@@ -1,6 +1,7 @@
+require "parenting"
 module PoolParty
   
-  class Script
+  class Script < Parenting::Base
     
     def self.inflate_file(file)
       inflate open(file).read if file
@@ -8,6 +9,18 @@ module PoolParty
         
     def self.inflate(script, file="__SCRIPT__")
       module_eval script, file
+      # a = new
+      # a.instance_eval <<-EOM
+      #   def run_child(pa)
+      #     context_stack.push pa
+      #     #{str}
+      #     context_stack.pop
+      #     remove_method(:run_child)
+      #     self
+      #   end
+      # EOM
+      # a.run_child(self)
+      # a
     end
         
     def self.to_ruby(opts={},&blk)
