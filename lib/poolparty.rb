@@ -43,21 +43,17 @@ t=Time.now
   require "#{File.dirname(__FILE__)}/poolparty/#{f}"
 end
 
-def PoolParty.require_directory(dir, manifest=nil)
-  if manifest
-    ::File.readlines(manifest).each{|line| require line}
+def PoolParty.require_directory(dir)
+  if ::File.file?(dir)
+    puts "#{::File.expand_path(dir)}" if $DEBUGGING || $GENERATING_MANIFEST
+    require dir
   else
-    if ::File.file?(dir)
-      puts "#{dir}" if $DEBUGGING
-      require dir
-    else
-      Dir["#{dir}/*.rb"].sort.each do |file|
-         puts "#{file}" if $DEBUGGING
-         require "#{file}" if ::File.file?(file)
-      end
-      Dir["#{dir}/*"].sort.each do |dir|
-        require_directory(dir) if ::File.directory?(dir)
-      end
+    Dir["#{dir}/*.rb"].sort.each do |file|
+       puts "#{::File.expand_path(file)}" if $DEBUGGING || $GENERATING_MANIFEST
+       require "#{file}" if ::File.file?(file)
+    end
+    Dir["#{dir}/*"].sort.each do |dir|
+      require_directory(dir) if ::File.directory?(dir)
     end
   end
 end
@@ -87,10 +83,18 @@ $_poolparty_load_directories = [
   "poolparty",
   "templates"
   ]
-$_poolparty_load_directories.each do |dir|
-  PoolParty.require_directory(::File.join(::File.dirname(__FILE__),'poolparty', dir))
-end
+manifest_file_location = ::File.join(::File.dirname(__FILE__), '../config/manifest.pp')
 
+if ::File.file?(manifest_file_location)
+  ::File.readlines(manifest_file_location).each do |line| 
+    puts "#{::File.expand_path(line)}" if $DEBUGGING
+    require "#{line.gsub(/\n/, '')}"
+  end
+else
+  $_poolparty_load_directories.each do |dir|
+    PoolParty.require_directory(::File.join(::File.dirname(__FILE__),'poolparty', dir))
+  end  
+end
 
 Logging.init :debug, :info, :warn, :error, :fatal
 

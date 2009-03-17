@@ -13,3 +13,4 @@ log
 *.beam
 ri/
 doc/
+config/manifest.pp

@@ -2,13 +2,14 @@ namespace(:poolparty) do
   namespace(:setup) do
     desc "Generate a manifest for quicker loading times"
     task :manifest do
-      $DEBUGGING = true
+      $GENERATING_MANIFEST = true
       out = capture_stdout do
         $_poolparty_load_directories.each do |dir|
-          PoolParty.require_directory(dir)
+          PoolParty.require_directory ::File.join(::File.dirname(__FILE__), '../lib/poolparty', dir)
         end
       end
-      puts out
+      ::File.open(::File.join(::File.dirname(__FILE__), '../config', "manifest.pp"), "w+") {|f| f << out.map {|f| "#{f}"} }
+      puts "Manifest created"
     end
   end
   namespace :vendor do
