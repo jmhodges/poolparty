@@ -5,17 +5,17 @@
   the master instance of the cloud. This enables you to send a directory
   up to the cloud and let the master host it for the remote slaves
 =end
-module PoolParty    
+module PoolParty
   class Deploydirectory
-        
+    
     virtual_resource(:deploydirectory) do
       
       def loaded(opts={})
-        package_directory        
+        package_directory
         unpack_directory
         sync_directories
       end
-            
+      
       def package_directory
         path = ::File.join( Base.tmp_path, "#{::File.basename(from_dir)}.tar.gz" )
         archive_name = "#{::File.basename(name).dir_safe}.tar.gz"

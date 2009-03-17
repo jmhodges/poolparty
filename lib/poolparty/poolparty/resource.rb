@@ -16,7 +16,6 @@ module PoolParty
     class Resource < PoolParty::PoolPartyBaseClass
       attr_accessor :prestring, :poststring
       
-      include Configurable
       # include CloudResourcer
       
       # For the time being, we'll make puppet the only available dependency resolution

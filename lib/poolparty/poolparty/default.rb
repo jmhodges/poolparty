@@ -5,11 +5,11 @@
 require "open-uri"
 require "ftools"
 module PoolParty
-  class Base
-    include Configurable
+  class Default
+    include Dslify
     
     # def self.options
-    @defaults = {
+    default_options(
       :testing => false,
       :debugging => false,
       :minimum_instances => 1,
@@ -39,8 +39,7 @@ module PoolParty
       :security_group => ["default"],
       # Options that should not be touched pretty much ever
       :manifest_path => "/etc/puppet/manifests" 
-    }
-    define_defaults(@defaults)
+    )
     
     # Class methods
     class << self
@@ -89,8 +88,8 @@ module PoolParty
       def key_file_locations
         [
           ".ppkeys",
-          "#{Base.base_config_directory}/.ppkeys",
-          "#{Base.storage_directory}/ppkeys",          
+          "#{Default.base_config_directory}/.ppkeys",
+          "#{Default.storage_directory}/ppkeys",          
           "~/.ppkeys",
           "ppkeys"
         ]

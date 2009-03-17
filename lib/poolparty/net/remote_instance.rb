@@ -5,7 +5,7 @@ module PoolParty
     
     class RemoteInstance
       include Remote
-      include Configurable
+      include Dslify
       include CloudResourcer
       
       def initialize(opts, containing_cloud=nil)

@@ -2,7 +2,7 @@
   Dir[File.join(File.dirname(__FILE__), "spec", dir, "*.rb")].each {|f| require f}
 end
 
-class TestCloudClass < PoolParty::Cloud::Cloud  
+class TestCloudClass < PoolParty::Cloud::Cloud
   def build_test_manifest    
     returning Array.new do |arr|
       

@@ -15,9 +15,9 @@ module PoolParty
             has_variable("nodenames_haproxy", :value => "generate('/usr/bin/env', '/usr/bin/server-list-active', '-c', 'name', '-n', '#{cloud.name}')")
             has_variable("node_ips_haproxy",  :value => "generate('/usr/bin/env', '/usr/bin/server-list-active', '-c', 'ip', '-n', '#{cloud.name}')")
             # 
-            has_variable("ports_haproxy", :value => ([(self.respond_to?(:port) ? port : Base.port)].flatten))        
-            has_variable("forwarding_port", :value => (respond_to?(:forwarding_port) ? forwarding_port : Base.forwarding_port))
-            has_variable("proxy_mode", :value => (respond_to?(:proxy_mode) ? proxy_mode : Base.proxy_mode))
+            has_variable("ports_haproxy", :value => ([(self.respond_to?(:port) ? port : Default.port)].flatten))        
+            has_variable("forwarding_port", :value => (respond_to?(:forwarding_port) ? forwarding_port : Default.forwarding_port))
+            has_variable("proxy_mode", :value => (respond_to?(:proxy_mode) ? proxy_mode : Default.proxy_mode))
           
             # Startup haproxy and enable it
             has_line_in_file(:line => "ENABLED=1", :file => "/etc/default/haproxy")

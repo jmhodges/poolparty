@@ -4,51 +4,20 @@ module PoolParty
     $context_stack ||= []
   end
   
-  class PoolPartyBaseClass
-    include Configurable
-    include CloudResourcer
+  class PoolPartyBaseClass < Parenting::Base
+    include Dslify
     include PoolParty::DependencyResolverCloudExtensions
     attr_accessor :depth
     attr_reader :parent
         
     def initialize(opts={}, &block)
-      puts "I was just created #{self.name}"
       set_vars_from_options(opts) unless !opts.is_a?(Hash)
-      set_parent_and_eval(&block)
-    end
-    
-    def set_parent_and_eval(&block)
-
+      run_in_context(&block) if block
       if parent
         configure(parent.options) if parent.respond_to?(:options) && parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self)
         @parent = parent
       end
-      
-      dputs "Pushing #{self} onto the context stack"
-      context_stack.push self
-      @depth = context_stack.size - 1
-
-      instance_eval &block if block
-      
-      o = context_stack.pop
-      dputs "Popped #{o} off the context_stack"
-    end
-    
-
-    # Because we may or may not be inside the plugin when calling
-    # we want to ensure we are never calling self it parent to 
-    # avoid causing an infinite loop and disappearing forever
-    def parent
-      @parent ||= current_context[-1] == self ? current_context[-2] : current_context[-1]
-    end
-    
-    def current_context
-      @current_context ||= context_stack[0..depth]
-    end
-    
-    def depth
-      @depth ||= context_stack.size - 1
     end
     
     # Add to the services pool for the manifest listing

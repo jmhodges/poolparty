@@ -19,15 +19,15 @@ module PoolParty
     
     class Cloud < PoolParty::PoolPartyBaseClass
       attr_reader :templates, :cloud_name
-      
+
+      include CloudResourcer
       include PoolParty::PluginModel
       include PoolParty::Resources      
       include PoolParty::DependencyResolverCloudExtensions
-      
       include PrettyPrinter
       include Provisioner
 
-      # Net methods      
+      # Net methods
       include Remote
       include PoolParty::CloudDsl
       include PoolParty::Monitors
@@ -47,20 +47,19 @@ module PoolParty
       end      
       alias :name :cloud_name
       
-      @defaults = {
+      default_options(
         :minimum_instances => 2,
         :maximum_instances => 5,
         :contract_when => "cpu < 0.65",
         :expand_when => "cpu > 1.9",
-        :access_key => Base.default_options.access_key,
-        :secret_access_key => Base.default_options.secret_access_key,
+        :access_key => Default.default_options.access_key,
+        :secret_access_key => Default.default_options.secret_access_key,
         :ec2_dir => ENV["EC2_HOME"],
         :keypair => (ENV["KEYPAIR_NAME"].nil? || ENV["KEYPAIR_NAME"].empty?) ? nil : ENV["KEYPAIR_NAME"],
-        :minimum_runtime => Base.default_options.minimum_runtime,
-        :user => Base.default_options.user,
+        :minimum_runtime => Default.defaults.minimum_runtime,
+        :user => Default.default_options.user,
         :ami => 'ami-44bd592d'
-      }.freeze
-      define_defaults(@defaults)
+      )
       
       def initialize(name, &block)
         @cloud_name = name
@@ -135,7 +134,7 @@ module PoolParty
       # Store our keys for cloud access in a file 
       # that is specific to this cloud
       def store_keys_in_file
-        Base.store_keys_in_file_for(self)
+        Default.store_keys_in_file_for(self)
       end
       
       # Let's write the cookie into the tmp path
@@ -162,7 +161,7 @@ module PoolParty
       def build_and_store_new_config_file(force=false)
         vputs "Building new manifest configuration file (forced: #{force})"
               manifest = force ? rebuild_manifest : build_manifest
-              config_file = ::File.join(Base.storage_directory, "poolparty.pp")
+              config_file = ::File.join(Default.storage_directory, "poolparty.pp")
               ::File.open(config_file, "w") do |file|
                 file << manifest
               end
@@ -181,18 +180,18 @@ module PoolParty
       # the monitors directory for any custom monitors
       # that are in known locations, these are included
       def copy_custom_monitors
-        unless Base.custom_monitor_directories.empty?
+        unless Default.custom_monitor_directories.empty?
           make_directory_in_storage_directory("monitors")
-          Base.custom_monitor_directories.each do |dir|
+          Default.custom_monitor_directories.each do |dir|
             Dir["#{dir}/*.rb"].each {|f| copy_file_to_storage_directory(f, "monitors")}
           end
         end
       end
       
       def copy_custom_modules
-        unless Base.custom_modules_directories.empty?
+        unless Default.custom_modules_directories.empty?
           make_directory_in_storage_directory("modules")
-          Base.custom_modules_directories.each do |dir|
+          Default.custom_modules_directories.each do |dir|
             Dir["#{dir}/*"].each do |d|
               to = ::File.join("modules", ::File.basename(d))
               copy_directory_into_storage_directory(d, to) if ::File.directory?(d)
@@ -247,7 +246,7 @@ module PoolParty
       #             end
       
       def build_from_existing_file
-        ::FileTest.file?("#{Base.manifest_path}/classes/poolparty.pp") ? open("#{Base.manifest_path}/classes/poolparty.pp").read : nil
+        ::FileTest.file?("#{Default.manifest_path}/classes/poolparty.pp") ? open("#{Default.manifest_path}/classes/poolparty.pp").read : nil
       end
       
       # To allow the remote instances to do their job,
