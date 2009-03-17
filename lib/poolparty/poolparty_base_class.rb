@@ -14,8 +14,7 @@ module PoolParty
         
     def initialize(opts={}, &block)
       set_vars_from_options(opts) unless !opts.is_a?(Hash)
-      # run_in_context(&block) if block
-      super(&block)
+      run_in_context(&block) if block
       puts parent
       
       if parent
