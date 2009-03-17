@@ -4,7 +4,7 @@ module PoolParty
     class Service < Resource
       
       default_options({
-        :ensure => "running",
+        :ensures => "running",
         :enable => true
       })
       

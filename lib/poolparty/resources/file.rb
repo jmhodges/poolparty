@@ -3,8 +3,6 @@ module PoolParty
         
     class File < Resource      
       
-      dsl_accessors [:name, :content, :mode, :owner]
-      
       default_options({
         :mode => 644
       })      

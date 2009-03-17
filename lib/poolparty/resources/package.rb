@@ -4,7 +4,7 @@ module PoolParty
     class Package < Resource
       
       default_options({
-        :ensure => "installed"
+        :ensures => "installed"
       })
       
     end

@@ -4,7 +4,7 @@ module PoolParty
     class Remotefile < Resource
       
       default_options({
-        :ensure => "present",
+        :ensures => "present",
         :mode => 644,
         # :owner => "#{Base.user}",
         :source => nil

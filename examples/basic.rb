@@ -2,7 +2,7 @@
 # Shows global settings for the clouds
 
 pool :application do
-  $DEBUGGING=true
+  # $DEBUGGING=true
   instances 3..50
   keypair "auser"
   testing true

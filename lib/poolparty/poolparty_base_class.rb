@@ -15,7 +15,6 @@ module PoolParty
     def initialize(opts={}, &block)
       set_vars_from_options(opts) unless !opts.is_a?(Hash)
       run_in_context(&block) if block
-      puts parent
       
       if parent
         configure(parent.options) if parent.respond_to?(:options) && parent.is_a?(PoolParty::Pool::Pool)

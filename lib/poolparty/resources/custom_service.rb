@@ -4,7 +4,7 @@ module PoolParty
     class Customservice < Resource
       
       default_options({
-        :ensure => "running",
+        :ensures => "running",
         :provider => "base"
       })
       

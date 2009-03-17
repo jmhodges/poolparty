@@ -31,8 +31,6 @@ module PoolParty
       include Remote
       include PoolParty::CloudDsl
       include PoolParty::Monitors
-      
-      dsl_accessors [:verbose]  #FIXME: not setting method appropriatley
 
       def verbose
         true
@@ -56,7 +54,7 @@ module PoolParty
         :secret_access_key => Default.default_options.secret_access_key,
         :ec2_dir => ENV["EC2_HOME"],
         :keypair => (ENV["KEYPAIR_NAME"].nil? || ENV["KEYPAIR_NAME"].empty?) ? nil : ENV["KEYPAIR_NAME"],
-        :minimum_runtime => Default.defaults.minimum_runtime,
+        :minimum_runtime => Default.default_options.minimum_runtime,
         :user => Default.default_options.user,
         :ami => 'ami-44bd592d'
       )

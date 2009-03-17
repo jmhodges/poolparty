@@ -13,7 +13,7 @@ module PoolParty
     def dependency_resolver(name='puppet')
       klass = name.preserved_class_constant("Resolver")
       raise DependencyResolverException.new("Unknown resolver") unless klass
-      options[:dependency_resolver] = klass unless options[:dependency_resolver]
+      dsl_options[:dependency_resolver] = klass unless dsl_options[:dependency_resolver]
     end
     
   end
