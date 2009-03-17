@@ -42,6 +42,18 @@ module Kernel
   ensure
     $-v = saved_verbosity
   end
+  
+  def capture_stdout(&block)
+     old_stdout = $stdout
+     out = StringIO.new
+     $stdout = out
+     begin
+        block.call if block
+     ensure
+        $stdout = old_stdout
+     end
+     out.string
+  end
 
   #redirect stdout and stderr to /dev/null and reopen after block
   def hide_output

@@ -29,22 +29,26 @@ module PoolParty
     end
     
     module InstanceMethods
-      def options(h={})
-        @options ||= self.class.default_options.merge(h)
+      # def options(h={})
+      #   @options ||= self.class.default_options.merge(h)
+      # end
+      # 
+      # def configure(h={})
+      #   options(h).merge!(h)
+      # end
+      
+      def options
+        h
       end
       
-      def configure(h={})
-        options(h).merge!(h)
-      end
+      # def reconfigure(h={})
+      #   @options = nil
+      #   options(h)
+      # end
       
-      def reconfigure(h={})
-        @options = nil
-        options(h)
-      end
-      
-      def set_vars_from_options(opts={})
-        opts.each {|k,v| self.send k.to_sym, send_if_method(v) } unless opts.empty?
-      end
+      # def set_vars_from_options(opts={})
+      #   opts.each {|k,v| self.send k.to_sym, send_if_method(v) } unless opts.empty?
+      # end
     end
     
     def self.included(receiver)

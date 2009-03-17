@@ -1,10 +1,12 @@
+require "dslify"
+require "parenting"
 module PoolParty
   
   def context_stack
     $context_stack ||= []
   end
   
-  class PoolPartyBaseClass
+  class PoolPartyBaseClass < Parenting::Base
     include Configurable
     include CloudResourcer
     include PoolParty::DependencyResolverCloudExtensions
@@ -14,7 +16,12 @@ module PoolParty
     def initialize(opts={}, &block)
       puts "I was just created #{self.name}"
       set_vars_from_options(opts) unless !opts.is_a?(Hash)
-      set_parent_and_eval(&block)
+      if parent
+        configure(parent.options) if parent.respond_to?(:options) && parent.is_a?(PoolParty::Pool::Pool)
+        parent.add_service(self)
+      end
+      super(&block)
+      # set_parent_and_eval(&block)
     end
     
     def set_parent_and_eval(&block)

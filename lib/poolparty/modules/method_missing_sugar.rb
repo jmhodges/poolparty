@@ -2,6 +2,7 @@
   Using method missing gives us the ability to set any attribute on the object into the options
   such that it can be retrieved later
 =end
+require "dslify"
 module PoolParty
   module MethodMissingSugar
     # Method_Missing
@@ -15,11 +16,12 @@ module PoolParty
     # options of itself or its parent.
     # See get_from_options for more information
     def method_missing(m, *args, &block)
-      puts "MM: #{self.to_s}.#{m}(#{args.join(', ')}) #{self.name if self.respond_to? :name}"
+      puts "MM: #{this.to_s}.#{m}(#{args.join(', ')}) #{this.name if self.respond_to? :name}"
       if block_given?
         (args[0].class == self.class) ? args[0].run_in_context(&block) : super
-      else        
-        get_from_options(m, *args, &block)
+      else
+        super
+        # get_from_options(m, *args, &block)
       end
     end
     
