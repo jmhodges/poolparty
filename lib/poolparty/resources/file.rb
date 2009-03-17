@@ -9,7 +9,6 @@ module PoolParty
       
       def after_create
         if dsl_options.include?(:template)
-          puts "dsl_options include template: #{self.template}"
           filename = self.template
           options.delete(:template)
           file = ::File.basename(filename)

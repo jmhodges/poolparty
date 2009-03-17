@@ -24,16 +24,16 @@ describe "Directory" do
         @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
       end
       it "should set the filename to the name of the file" do
-        @compiled.should match(/file \{ "\/etc\/apache2"/)
+        @compiled.should =~ /file \{ "\/etc\/apache2"/
       end
       it "set the owner as the owner" do
-        @compiled.should match(/owner => "herman"/)
+        @compiled.should =~ /owner => "herman"/
       end
       it "should say it's a directory in the ensure method" do
-        @compiled.should match(/ensure => "directory"/)
+        @compiled.should =~ /ensure => "directory"/
       end
       it "have the mode set in the puppet output" do
-        @compiled.should match(/mode => 755/)
+        @compiled.should =~ /mode => 755/
       end
     end
   end

@@ -15,6 +15,7 @@ module PoolParty
               #{contents}
             end
           EOE
+          puts contents
           plugin_klass
         end
         

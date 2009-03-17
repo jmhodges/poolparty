@@ -86,7 +86,7 @@ module PoolParty
     def get_resource(ty, n, opts={}, &block)
       if in_local_resources?(ty, n)
         get_local_resource(ty, n)
-      elsif parent        
+      elsif parent
         parent.get_resource(ty, n)
       else
         nil

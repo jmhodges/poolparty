@@ -1,3 +1,9 @@
+desc "Run the specs"
+task :spec do
+  Dir["#{::File.dirname(__FILE__)}/../spec/poolparty/**/*_spec.rb"].each do |sp|
+    puts `spec #{sp}`
+  end
+end
 namespace(:poolparty) do
   namespace(:setup) do
     desc "Generate a manifest for quicker loading times"

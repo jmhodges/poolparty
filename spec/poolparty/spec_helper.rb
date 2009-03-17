@@ -1,7 +1,8 @@
 $:.unshift(File.dirname(__FILE__) + '/../../lib')
 require 'poolparty'
 
-%w(spec).each do |library|
+%w(context matchy).each do |library|
+# %w(spec).each do |library|
   begin
     require library
   rescue
@@ -30,7 +31,7 @@ class TestClass < PoolParty::Cloud::Cloud
   include CloudResourcer
   attr_accessor :parent
   def initialize(name=:name, &block)
-    super :test_cloud, nil, &block
+    super :test_cloud, &block
   end
   def keypair
     "fake_keypair"

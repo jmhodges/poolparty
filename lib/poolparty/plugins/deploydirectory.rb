@@ -50,7 +50,6 @@ module PoolParty
         cwd dir
         name dir
         has_directory(:name => "#{dir}", 
-                      :requires => get_directory("#{::File.dirname(dir)}"), 
                       :owner => owner,
                       :mode => mode)
       end

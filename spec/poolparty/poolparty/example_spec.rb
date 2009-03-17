@@ -7,13 +7,13 @@ describe "basic" do
     PoolParty::Pool::Pool.new(:application).load_from_file @example_dir + "/basic.rb"
   end
   it "should have one pool called :app" do
-    pool(:application).should_not be_nil
+    pool(:application).should_not == nil
   end
   it "should have a cloud called :app" do
-    clouds[:app].should_not be_nil
+    clouds[:app].should_not == nil
   end
   it "should have a cloud called :db" do
-    pools[:application].clouds[:db].should_not be_nil
+    pools[:application].clouds[:db].should_not == nil
   end
   it "should set the minimum_instances on the cloud to 2 (overriding the pool options)" do    
     # puts "app = #{clouds[:app].minimum_instances} = #{pools[:application].options - clouds[:app].options}"

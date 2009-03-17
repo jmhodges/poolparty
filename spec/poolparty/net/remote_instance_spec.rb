@@ -61,7 +61,7 @@ describe "Remote Instance" do
     end
     it "should give the elapsed time" do
       @ri.stub!(:launching_time).and_return(30.minutes.ago)
-      @ri.elapsed_runtime.should be >= 1800
+      @ri.elapsed_runtime.should >= 1800
     end
     it "should be say that it is the master if the name is master" do
       @ri.name.should == "master"
@@ -75,7 +75,7 @@ describe "Remote Instance" do
       @ri.respond_to?(:puppet_runner_command).should == true
     end
     it "should return the puppet_runner_command with puppetd" do
-      @ri.dependency_resolver_command.should match /puppet/
+      @ri.dependency_resolver_command.should =~ /puppet/
       @ri.puppet_runner_command.should =~ /puppetrun/
     end
   end
