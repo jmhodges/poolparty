@@ -80,7 +80,7 @@ describe "Console" do
       load_pool("pop")
     end
     it "should be able to print the clouds" do      
-      pools.should_not be_empty
+      pools.empty?.should == false
       hide_output do
         pool_describe.should == pools.size
       end      

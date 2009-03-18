@@ -16,6 +16,7 @@ module PoolParty
     class ProvisionerBase
       attr_accessor :config, :loaded_tasks, :instance, :cloud, :os
       
+      include Dslify
       include CloudResourcer
       include FileWriter
       

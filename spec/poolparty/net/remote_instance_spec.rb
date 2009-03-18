@@ -68,7 +68,7 @@ describe "Remote Instance" do
       @ri.master?.should == true
     end
     it "should say that it is responding? if responding is not nil" do
-      @ri.responding.should_not be_nil
+      @ri.responding.should_not == nil
       @ri.responding?.should == true
     end
     it "should have the puppet_runner_command" do

@@ -6,7 +6,8 @@ describe "Remoter" do
     @cloud = cloud :app do;end
     @tc = TestClass.new
     @tc.parent = @cloud
-    ::File.stub!(:exists?).with("#{File.expand_path(Base.base_keypair_path)}/id_rsa-fake_keypair").and_return true
+    @key = Key.new("fake_keypair")
+    @tc.stub!(:keypair).and_return @key
     @sample_instances_list = [{:ip => "192.168.0.1", :name => "master"}, {:ip => "192.168.0.2", :name => "node1"}]
   end
   describe "ssh_string" do
@@ -31,10 +32,10 @@ describe "Remoter" do
       @ri.stub!(:ip).and_return "192.168.0.22"
     end
     it "should have rsync in the rsync_command" do
-      @tc.rsync_command.should == "rsync -azP --exclude cache -e '#{@tc.ssh_string} -l #{Base.user}'"
+      @tc.rsync_command.should == "rsync -azP --exclude cache -e '#{@tc.ssh_string} -l #{Default.user}'"
     end
     it "should be able to rsync storage commands" do
-      @tc.rsync_storage_files_to_command(@ri).should == "#{@tc.rsync_command} #{Base.storage_directory}/ 192.168.0.22:/var/poolparty"
+      @tc.rsync_storage_files_to_command(@ri).should == "#{@tc.rsync_command} #{Default.storage_directory}/ 192.168.0.22:/var/poolparty"
     end
   end
   describe "launch_and_configure_master!" do

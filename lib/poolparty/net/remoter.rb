@@ -6,8 +6,8 @@ module PoolParty
   module Remote
     module Remoter
       def rsync_storage_files_to_command(remote_instance)
-        #TODO: rsync_to_command("#{Base.storage_directory}/", Base.remote_storage_path, remote_storage_path) if remote_instance
-        "#{rsync_command} #{Base.storage_directory}/ #{remote_instance.ip}:#{Base.remote_storage_path}" if remote_instance
+        #TODO: rsync_to_command("#{Default.storage_directory}/", Default.remote_storage_path, remote_storage_path) if remote_instance
+        "#{rsync_command} #{Default.storage_directory}/ #{remote_instance.ip}:#{Default.remote_storage_path}" if remote_instance
       end
       # rsync a file to a node.  By default to the master node.
       def rsync_to_command(source, target=source, remote_instance=master)
@@ -28,18 +28,18 @@ module PoolParty
       # Includes StrictHostKeyChecking to no
       # Ssh with the user in Base
       # And including the keypair_path
-      # "-l '#{Base.user}'", 
+      # "-l '#{Default.user}'", 
       def ssh_array
-        ["-o StrictHostKeyChecking=no", "-l #{Base.user}", '-i "'+full_keypair_path+'"']
+        ["-o StrictHostKeyChecking=no", "-l #{Default.user}", '-i "'+full_keypair_path+'"']
       end
       def scp_array
         ["-o StrictHostKeyChecking=no", '-i "'+full_keypair_path+'"']
       end
       def rsync_command
-        "rsync -azP --exclude cache -e '#{ssh_string} -l #{Base.user}'"
+        "rsync -azP --exclude cache -e '#{ssh_string} -l #{Default.user}'"
       end
       def remote_ssh_array
-        ["-o StrictHostKeyChecking=no", "-l '#{Base.user}'", '-i "'+remote_keypair_path+'"']
+        ["-o StrictHostKeyChecking=no", "-l '#{Default.user}'", '-i "'+remote_keypair_path+'"']
       end
       def remote_ssh_string
         (["ssh"] << remote_ssh_array).join(" ")

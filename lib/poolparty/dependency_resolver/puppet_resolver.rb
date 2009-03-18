@@ -11,7 +11,12 @@ module PoolParty
       :exec => [:command, :path, :refreshonly]
     })
     
+    def initialize(hsh=nil)
+      super(hsh)
+    end
+    
     def self.compile(props)
+      puts "compile: #{self}"
       "class poolparty {
         #{new(props).compile}
       }"

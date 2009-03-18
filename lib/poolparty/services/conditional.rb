@@ -9,9 +9,12 @@ module PoolParty
     c
   end
   
-  class Conditional < Service
+  class Conditional < PoolParty::Service
+    default_options({})
+    
     def initialize(opts={}, &block)
       super(opts, &block)
+      dsl_options(opts)
       options.freeze
     end
     
@@ -33,7 +36,7 @@ module PoolParty
     end
     def to_properties_hash
       {
-        :options => {:variable => self.attribute},
+        :options => {:variable => (dsl_options.attribute)},
         :resources => {},
         :services => {:control_statements => when_statements}
       }

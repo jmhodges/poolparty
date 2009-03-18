@@ -7,7 +7,7 @@ class Loggable
     file_logger.level = :info
   end
   def file_logger
-    @file_logger ||= Logging.logger( Base.pool_logger_location, logging_opts )
+    @file_logger ||= Logging.logger( Default.pool_logger_location, logging_opts )
   end
   def stdout_logger
     @stdout_logger ||= Logging.logger(STDOUT, logging_opts.merge({:pattern => "%m\n"}))

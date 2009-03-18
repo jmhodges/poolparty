@@ -73,7 +73,7 @@ module PoolParty
       # Finally, it uses the parent's options as the lowest priority
       def initialize(opts={}, extra_opts={}, &block)                        
         if opts.is_a?(String)
-          @resource_name = options[:name] = opts
+          @resource_name = dsl_options[:name] = opts
           opts = extra_opts.merge(:name => @resource_name)
         else
           @resource_name = opts.has_key?(:name) ? opts.delete(:name) : nil
@@ -82,7 +82,7 @@ module PoolParty
         
         super(opts, &block)
         
-        options[:name] = resource_name unless options.has_key?(:name)
+        dsl_options[:name] = resource_name unless dsl_options.has_key?(:name)
         
         loaded(opts, &block)
       end

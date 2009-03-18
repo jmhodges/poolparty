@@ -9,7 +9,7 @@ describe "Conditional" do
     lambda {
       case_of "b" do
       end
-    }.should_not raise_error
+    }.should !raise_error
   end
   it "should put the case object on the case stack as a Conditional object" do
     c = case_of "b" do
