@@ -1,7 +1,7 @@
 $:.unshift(File.dirname(__FILE__) + '/../../lib')
 require 'poolparty'
 
-%w(context matchy).each do |library|
+%w(context matchy pending).each do |library|
 # %w(spec).each do |library|
   begin
     require library

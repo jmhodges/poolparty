@@ -28,7 +28,7 @@ module PoolParty
       include CloudResourcer
       include Remote
       
-      default_options(
+      default_options Default.default_options.merge(
         :access_key => Default.access_key,
         :secret_access_key => Default.secret_access_key,
         :minimum_instances => 1,

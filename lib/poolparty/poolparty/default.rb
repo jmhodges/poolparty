@@ -91,8 +91,8 @@ module PoolParty
       def key_file_locations
         [
           ".ppkeys",
-          "#{Default.default_options.base_config_directory}/.ppkeys",
-          "#{Default.default_options.storage_directory}/ppkeys",          
+          "#{Default.base_config_directory}/.ppkeys",
+          "#{Default.storage_directory}/ppkeys",          
           "~/.ppkeys",
           "ppkeys"
         ]
