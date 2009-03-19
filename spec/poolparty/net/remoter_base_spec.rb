@@ -30,7 +30,7 @@ describe "RemoterBase" do
               end
             end
             @tr.#{method}
-          }.should !raise_error
+          }.should_not raise_error
         end
       EOE
     end
@@ -70,7 +70,7 @@ describe "RemoterBase" do
           @tr.get_instance_by_number(0).name.should == "master"
         end
         it "should not throw a fit if the node doesn't exist" do
-          lambda {@tr.get_instance_by_number(1000)}.should !raise_error
+          lambda {@tr.get_instance_by_number(1000)}.should_not raise_error
         end
       end
     end
