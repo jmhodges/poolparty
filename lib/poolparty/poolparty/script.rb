@@ -1,7 +1,8 @@
 require "parenting"
 module PoolParty
   
-  class Script < Parenting::Base
+  class Script
+    include Parenting
     
     def self.inflate_file(file)
       inflate open(file).read if file

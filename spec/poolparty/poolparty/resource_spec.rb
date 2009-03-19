@@ -6,9 +6,7 @@ require File.dirname(__FILE__) + '/test_plugins/webserver'
 
 class MyResource < PoolParty::Resources::Resource
   # Just to give some options for the test class
-  def options(h={})
-    @options ||= {:a => 1,:b => 2,:c => 3}
-  end
+  default_options(:a => 1,:b => 2,:c => 3)
 end
 describe "Resource" do
   before(:each) do
@@ -34,7 +32,7 @@ describe "Resource" do
         PoolParty::Resources::Resource.available_resources.class.should == Array
       end
       it "should not be empty" do
-        PoolParty::Resources::Resource.available_resources.should_not be_empty
+        PoolParty::Resources::Resource.available_resources.empty?.should == false
       end
     end
     describe "instance methods" do
@@ -168,7 +166,7 @@ describe "Resource" do
           @tc.get_resource(:file, "hot").name.should == "hot"
         end
         it "should return nil if the resource requested is not there" do
-          @tc.get_resource(:file, "smarties").should be_nil
+          @tc.get_resource(:file, "smarties").nil?.should == true
         end
         it "should not have created any more resources" do
           @tc.resource(:file).size.should == 3

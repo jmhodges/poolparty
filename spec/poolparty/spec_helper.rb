@@ -1,8 +1,8 @@
 $:.unshift(File.dirname(__FILE__) + '/../../lib')
 require 'poolparty'
 
-%w(context matchy).each do |library|
-# %w(spec).each do |library|
+# %w(context matchy).each do |library|
+%w(spec).each do |library|
   begin
     require library
   rescue
@@ -39,9 +39,6 @@ class TestClass < PoolParty::Cloud::Cloud
 end
 
 class TestBaseClass < PoolParty::PoolPartyBaseClass
-  def testing
-    true
-  end
 end
 
 def setup

@@ -49,23 +49,22 @@ describe "Cloud" do
       before(:each) do
         reset!
         setup
-        @p = pool :options do
+        pool :options do
           minimum_instances 100
-          access_key "access_key"
+          access_key "pool_access_key"
           cloud :apple do          
             access_key "cloud_access_key"
           end
         end
-        @c = @p.cloud(:apple)
       end
       it "should be able to grab the cloud from the pool" do
-        @c.should == @p.cloud(:apple)
+        clouds[:apple].should == pools[:options].cloud(:apple)
       end
       it "should take the options set on the pool" do
-        @p.minimum_instances.should == 100
+        pools[:options].minimum_instances.should == 100
       end
       it "should take the access_key option set from the cloud" do
-        @c.access_key.should == "cloud_access_key"
+        clouds[:apple].access_key.should == "cloud_access_key"
       end
     end
     describe "block" do
@@ -74,6 +73,7 @@ describe "Cloud" do
         pool :test do
           Cloud.new(:test) do
             # Inside cloud block
+            testing true
             keypair "fake_keypair"
           end
         end
@@ -91,14 +91,14 @@ describe "Cloud" do
         end
         cloud(:paddy_wack).parent.should == pool(:knick_knack)
       end
-      it "should have services in an array" do
-        @cloud.services.class.should == Array
+      it "should have services in an hash" do
+        @cloud.services.class.should == Hash
       end
       it "should have no services in the array when there are no services defined" do
         @cloud.services.size.should == 0
       end
-      it "should respond to a configure method" do
-        @cloud.respond_to?(:configure).should == true
+      it "should respond to a options method (from Dslify)" do
+        @cloud.respond_to?(:options).should == true
       end
       describe "configuration" do
         before(:each) do
@@ -127,8 +127,8 @@ describe "Cloud" do
           @cloud.minimum_instances.should == 3
         end
         it "should be able to take a hash from configure and convert it to the options" do
-          @cloud.configure( {:minimum_instances => 1, :maximum_instances => 10, :keypair => "friend"} )
-          @cloud.keypair.should == "friend"
+          @cloud.set_vars_from_options( {:minimum_instances => 1, :maximum_instances => 10, :keypair => "friend"} )
+          @cloud.minimum_instances.should == 1
         end
         describe "minimum_instances/maximum_instances as a range" do
           before(:each) do
@@ -153,30 +153,28 @@ describe "Cloud" do
           end
           it "should be able to define a keypair in the cloud" do
             @c = cloud :app do
+              puts "self: #{self.this_context.class} in #{self.context_stack.map {|a| a.class }.join(", ")}"
               keypair "hotdog"
             end
-            @c.keypair.should == "hotdog"
+            @c.keypairs.first.name.should == "hotdog"
           end
           it "should take the pool parent's keypair if it's defined on the pool" do
             pool :pool do
               keypair "ney"
               cloud :app do
               end
-              cloud :group do
-              end
             end
-            pool(:pool).cloud(:app).keypair.should == "ney"
-            pool(:pool).cloud(:group).keypair.should == "ney"
+            clouds[:app]._keypairs.first.stub!(:exists?).and_return true
+            clouds[:app]._keypairs.first.stub!(:full_filepath).and_return "ney"
+            clouds[:app].keypair.full_filepath.should == "ney"
+            clouds[:group].keypair.full_filepath.should == "ney"
           end
-          it "should generate a keypair based on the cloud name if none is defined" do
+          it "should default to ~/.ssh/id_rsa if none are defined" do
             pool :pool do
               cloud :app do
               end
-              cloud :nickes do
-              end
             end
-            pool(:pool).cloud(:app).keypair.should == "pool_app"
-            pool(:pool).cloud(:nickes).keypair.should == "pool_nickes"
+            clouds[:app].keypair.full_filepath.should match(/\.ssh\/id_rsa/)
           end
         end
         describe "Manifest" do
@@ -215,7 +213,7 @@ describe "Cloud" do
               @cloud.instance_eval do
                 @heartbeat = nil
               end
-              @hb = "heartbeat".class_constant.new(@cloud)
+              @hb = "heartbeat".class_constant.new
               @cloud.stub!(:realize_plugins!).and_return []
             end
             it "should call initialize on heartbeat (in add_poolparty_base_requirements)" do

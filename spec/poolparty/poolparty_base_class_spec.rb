@@ -32,7 +32,7 @@ describe "BaseClass" do
               end
             end
           end
-        end
+        end.call
       end
       it "should set the correct depth" do
         @a.depth.should == 0
