@@ -64,15 +64,16 @@ module PoolParty
         @cloud_name.freeze
         
         plugin_directory
-        
-        proc = Proc.new {
-          # add_poolparty_base_requirements unless testing || debugging
-          block.call if block
-        }
-        
-        super(&proc)
+                
+        super        
         
         setup_defaults
+        
+        after_create
+      end
+      
+      # Callback
+      def after_create
       end
       
       def setup_defaults
@@ -204,6 +205,8 @@ module PoolParty
         vputs "Building manifest"
         @build_manifest ||= build_from_existing_file
         unless @build_manifest
+          run_in_context(&lambda {add_poolparty_base_requirements})
+          
           props = to_properties_hash
          
           @build_manifest =  options[:dependency_resolver].send(:compile, props)

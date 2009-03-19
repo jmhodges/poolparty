@@ -15,13 +15,15 @@ module PoolParty
     def initialize(opts={}, &block)
       set_vars_from_options(opts) unless !opts.is_a?(Hash)
       
+      run_in_context(&block) if block
+      
       if parent
         options(parent.options) if parent.respond_to?(:options) && parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self) && parent.respond_to?(:add_service) && parent.respond_to?(:services)
         @parent = parent
       end
       
-      run_in_context(&block) if block
+      super      
     end
     
     # Add to the services pool for the manifest listing

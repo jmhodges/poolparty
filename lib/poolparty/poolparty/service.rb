@@ -7,10 +7,10 @@ module PoolParty
     end
     
     def cloud
-      @pa = parent
-      2.upto(::PoolParty.context_stack.size) do |i|
+      2.upto(context_stack.size) do |i|
         return ::PoolParty.context_stack[-i] if ::PoolParty.context_stack[-i].is_a?(PoolParty::Cloud::Cloud)
       end
+      nil
     end
     
     def self.add_has_and_does_not_have_methods_for(type=:file)

@@ -1,11 +1,12 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-include PoolParty::Cloud
-include PoolParty::Resources
-
 class TestServiceClass
   plugin :test_service do
-    def enable
+    def initialize(o={}, e=nil, &block)
+      puts "Called initialize on #{self.class}"
+      super(&block)
+    end
+    def enable(o={})
       has_file(:name => "/etc/poolparty/lobos")
     end                  
   end
@@ -50,6 +51,7 @@ describe "Cloud" do
         reset!
         setup
         pool :options do
+          testing true
           minimum_instances 100
           access_key "pool_access_key"
           cloud :apple do          
@@ -65,6 +67,9 @@ describe "Cloud" do
       end
       it "should take the access_key option set from the cloud" do
         clouds[:apple].access_key.should == "cloud_access_key"
+      end
+      it "shoudl take the option testing from the superclass" do
+        clouds[:apple].testing.should == true
       end
     end
     describe "block" do
@@ -153,10 +158,9 @@ describe "Cloud" do
           end
           it "should be able to define a keypair in the cloud" do
             @c = cloud :app do
-              puts "self: #{self.this_context.class} in #{self.context_stack.map {|a| a.class }.join(", ")}"
               keypair "hotdog"
             end
-            @c.keypairs.first.name.should == "hotdog"
+            @c.keypairs.first.filepath.should == "hotdog"
           end
           it "should take the pool parent's keypair if it's defined on the pool" do
             pool :pool do
@@ -167,7 +171,6 @@ describe "Cloud" do
             clouds[:app]._keypairs.first.stub!(:exists?).and_return true
             clouds[:app]._keypairs.first.stub!(:full_filepath).and_return "ney"
             clouds[:app].keypair.full_filepath.should == "ney"
-            clouds[:group].keypair.full_filepath.should == "ney"
           end
           it "should default to ~/.ssh/id_rsa if none are defined" do
             pool :pool do
@@ -181,7 +184,7 @@ describe "Cloud" do
           before(:each) do
             reset!
             stub_list_from_remote_for(@cloud)
-            @cloud.instance_eval do
+            @cloud = cloud :test_more_manifest do
               has_file(:name => "/etc/httpd/http.conf") do
                 content <<-EOE
                   hello my lady
@@ -190,16 +193,16 @@ describe "Cloud" do
               has_gempackage(:name => "poolparty")
               has_package(:name => "dummy")            
             end
+            context_stack.push @cloud
           end
           it "should it should have the method build_manifest" do
             @cloud.respond_to?(:build_manifest).should == true
           end
           it "should make a new 'haproxy' class" do
-            @cloud.stub!(:realize_plugins!).and_return true
-            PoolPartyHaproxyClass.should_receive(:new).once
+            PoolpartyBaseHaproxyClass.should_receive(:new).once
             @cloud.add_poolparty_base_requirements
           end
-          it "should have 3 resources" do
+          it "should have 3 resources" do            
             @cloud.add_poolparty_base_requirements
             @cloud.number_of_resources.should > 2
           end
@@ -207,34 +210,35 @@ describe "Cloud" do
             @cloud.should_receive(:add_poolparty_base_requirements).once
             @cloud.build_manifest
           end
+          after(:each) do
+            context_stack.pop
+          end
           describe "add_poolparty_base_requirements" do
             before(:each) do
               reset!            
               @cloud.instance_eval do
                 @heartbeat = nil
               end
-              @hb = "heartbeat".class_constant.new
-              @cloud.stub!(:realize_plugins!).and_return []
+              @hb = PoolpartyBaseHeartbeatClass.new
             end
             it "should call initialize on heartbeat (in add_poolparty_base_requirements)" do
-              @cloud.stub!(:realize_plugins!).and_return []
               @hb.class.should_receive(:new).and_return true
               @cloud.add_poolparty_base_requirements
             end
             it "should call heartbeat on the cloud" do
-              @cloud.should_receive(:heartbeat).and_return true
+              @cloud.should_receive(:poolparty_base_heartbeat).and_return true
               @cloud.add_poolparty_base_requirements
             end
             it "should call Hearbeat.new" do
-              "heartbeat".class_constant.should_receive(:new).and_return @hb
+              PoolpartyBaseHeartbeatClass.should_receive(:new).and_return @hb
               @cloud.add_poolparty_base_requirements            
             end
             it "should call enable on the plugin call" do
-              @hb = "heartbeat".class_constant
-              "heartbeat".class_constant.stub!(:new).and_return @hb
+              @hb = PoolpartyBaseHeartbeatClass.new
+              PoolpartyBaseHeartbeatClass.stub!(:new).and_return @hb
               
               @cloud.add_poolparty_base_requirements
-              @cloud.heartbeat.should == @hb
+              @cloud.poolparty_base_heartbeat.should == @hb
             end
             describe "after adding" do
               before(:each) do
@@ -244,19 +248,21 @@ describe "Cloud" do
               it "should add resources onto the heartbeat class inside the cloud" do
                 @cloud.services.size.should > 0
               end
-              it "should store the class heartbeat" do              
-                @cloud.services.map {|a| a.class}.include?("heartbeat".class_constant).should == true
+              it "should store the class heartbeat" do
+                @cloud.services.map {|k,v| k}.include?(:poolparty_base_heartbeat_class).should == true
               end
               it "should have an array of resources on the heartbeat" do
-                @cloud.services.first.resources.class.should == Hash
+                @cloud.services.class.should == Hash
               end
               describe "resources" do
                 before(:each) do
-                  @cloud8 = Cloud.new(:tester, @pool) do     
-                    test_service             
+                  @cloud8 = cloud :tester do
+                    test_service
                   end
-                  @service = @cloud8.services.first
+                  puts "clouds[:tester]: #{clouds[:tester].to_properties_hash.services}"
+                  @service = clouds[:tester].services
                   @files = @service.resource(:file)
+                  puts "@files: #{@files}"
                 end
                 it "should have a file resource" do
                   @files.first.nil?.should == false
