@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe "Base" do
+describe "Default" do
   before(:each) do
     # To clear out the instance variables just in case
     Default.instance_eval do

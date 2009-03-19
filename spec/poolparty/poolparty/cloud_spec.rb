@@ -203,7 +203,7 @@ describe "Cloud" do
           end
           it "should have 3 resources" do            
             @cloud.add_poolparty_base_requirements
-            @cloud.number_of_resources.should > 2
+            @cloud.services.size.should > 2
           end
           it "should receive add_poolparty_base_requirements before building the manifest" do
             @cloud.should_receive(:add_poolparty_base_requirements).once
@@ -340,8 +340,8 @@ describe "Cloud" do
             end
             describe "copy_custom_monitors" do
               before(:each) do                
-                Base.stub!(:custom_monitor_directories).and_return ["/tmp/monitors/custom_monitor.rb"]
-                Dir.stub!(:[]).with("#{Base.custom_monitor_directories}/*.rb").and_return ["/tmp/monitors/custom_monitor.rb"]
+                Default.stub!(:custom_monitor_directories).and_return ["/tmp/monitors/custom_monitor.rb"]
+                Dir.stub!(:[]).with("#{Default.custom_monitor_directories}/*.rb").and_return ["/tmp/monitors/custom_monitor.rb"]
                 @cloud.stub!(:copy_misc_templates).and_return true
                 @cloud.stub!(:copy_file_to_storage_directory).and_return true
               end

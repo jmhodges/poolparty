@@ -49,10 +49,10 @@ module Capistrano
             provisioner.send(sym, *args, &block)
           elsif cloud.respond_to?(sym)
             cloud.send(sym, *args, &block)
-          elsif PoolParty::Base.options.has_key?(sym)
-            PoolParty::Base.options[sym]
-          elsif PoolParty::Base.respond_to?(sym)
-            PoolParty::Base.send(sym, *args, &block)
+          elsif PoolParty::Default.options.has_key?(sym)
+            PoolParty::Default.options[sym]
+          elsif PoolParty::Default.respond_to?(sym)
+            PoolParty::Default.send(sym, *args, &block)
           else
             super
           end
