@@ -42,8 +42,12 @@ module PoolParty
         # run_setup(self, &block)
         super(&block)
       end
-      def load_from_file(filename=nil)
-        eval_from_file filename
+      def self.load_from_file(filename=nil)
+        a = new ::File.basename(filename, ::File.extname(filename))
+        File.open(filename, 'r') do |f|
+          a.eval_from_string f.read
+        end
+        a
       end
       def pool_name
         @pool_name
