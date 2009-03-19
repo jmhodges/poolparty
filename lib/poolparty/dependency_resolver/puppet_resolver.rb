@@ -16,7 +16,6 @@ module PoolParty
     end
     
     def self.compile(props)
-      puts "compile: #{self}"
       "class poolparty {
         #{new(props).compile}
       }"
@@ -79,8 +78,18 @@ module PoolParty
     
     def hash_flush_out(hash, pre="", post="")
       hash.map do |k,v|
+        key = to_puppet_key(k)
         res = to_option_string(v)
-        res ? "#{pre}#{k} => #{res}#{post}" : ""
+        res ? "#{pre}#{key} => #{res}#{post}" : ""
+      end
+    end
+    
+    def to_puppet_key(key)
+      case key
+      when :ensures
+        "ensure"
+      else
+        "#{key}"        
       end
     end
     

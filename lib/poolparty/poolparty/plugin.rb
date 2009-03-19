@@ -14,7 +14,7 @@ module PoolParty
         set_vars_from_options(opts) unless opts.empty?
         
         # context_stack.push parent
-       unless block
+       if block
           block = Proc.new {enable}
           super(&block)
         end

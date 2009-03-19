@@ -32,7 +32,7 @@ describe "PuppetResolver" do
     # lambda { PoolParty::PuppetResolver.compile }.should raise_error
   end
   it "accept a hash" do
-    lambda { PoolParty::PuppetResolver.compile({})}.should !raise_error
+    lambda { PoolParty::PuppetResolver.compile({})}.should_not raise_error
   end
   
   describe "when passed a valid cloud hash" do
