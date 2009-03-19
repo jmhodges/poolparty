@@ -4,10 +4,11 @@ require "open-uri"
 describe "basic" do
   before(:each) do
     @example_dir = ::File.join(::File.dirname(__FILE__), "..", "..", "..", "examples")
-    PoolParty::Pool::Pool.new(:application).load_from_file @example_dir + "/basic.rb"
+    PoolParty::Pool::Pool.eval_from_file @example_dir + "/basic.rb"
   end
   it "should have one pool called :app" do
     pool(:application).should_not == nil
+    pools[:application].should_not == nil
   end
   it "should have a cloud called :app" do
     clouds[:app].should_not == nil

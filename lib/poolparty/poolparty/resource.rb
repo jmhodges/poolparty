@@ -110,11 +110,11 @@ module PoolParty
       def services
       end
       
-      def cloud
-        ::PoolParty.context_stack.each do |stk|
-          return stk if stk.is_a?(PoolParty::Cloud::Cloud)
-        end
-      end
+      # def cloud
+      #   ::PoolParty.context_stack.each do |stk|
+      #     return stk if stk.is_a?(PoolParty::Cloud::Cloud)
+      #   end
+      # end
       
       def duplicatable?
         false
