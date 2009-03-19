@@ -3,37 +3,33 @@ module PoolParty
     # Overrides for syntax
     # Allows us to send require to require a resource
     def requires(str=nil)
-      # str ? options.append!(:require => str) : options[:require]
       str ? dsl_options.merge!(:require => send_if_method(str)) : dsl_options[:require]
     end
     def on_change(str=nil)
       str ? dsl_options.merge!(:notify => send_if_method(str)) : dsl_options[:notify]
     end
     def ensures(str="running")
-      # if %w(absent running).map {|a| self.send a.to_sym}.include?(str)
         str == "absent" ? is_absent : is_present
-      # else
-        # options.append!(:ensure => str)
-      # end
-      # str
-    end
-    # Allows us to send an ensure to ensure the presence of a resource
-    def is_present(*args)
-      dsl_options.merge!(:ensure => present)
-    end
-    # Ensures that what we are sending is absent
-    def is_absent(*args)
-      dsl_options.merge!(:ensure => absent)
-    end
-    # Alias for unless
-    def ifnot(str="")
-      dsl_options.merge!(:unless => str)
     end
     def present
       "present"
     end
     def absent
       "absent"
+    end
+    # Allows us to send an ensure to ensure the presence of a resource
+    def is_present(*args)
+      dsl_options.merge!(:ensures => present)
+      present
+    end
+    # Ensures that what we are sending is absent
+    def is_absent(*args)
+      dsl_options.merge!(:ensures => absent)
+      absent
+    end
+    # Alias for unless
+    def ifnot(str="")
+      dsl_options.merge!(:unless => str)
     end
     def cancel(*args)
       dsl_options[:cancelled] = args.empty? ? true : args[0]

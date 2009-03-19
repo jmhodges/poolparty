@@ -37,14 +37,14 @@ end
       include PoolParty::Remote::RemoterBase
       
       def instance_options(opts={}) #TODO: merge in from global options hash
-        { :image_id  => (ami || Base.ami),
+        { :image_id  => (ami || Default.ami),
           :user_data => "",
           :minCount  => 1,
           :maxCount  => 2,
-          :key_name  => (keypair || Base.keypair),
-          :group_id  => ["#{security_group || Base.security_group}"],
-          :instance_type => "#{size || Base.size}",
-          :availability_zone => (availabilty_zone || Base.availabilty_zone)}.merge(opts)
+          :key_name  => (keypair || Default.keypair),
+          :group_id  => ["#{security_group || Default.security_group}"],
+          :instance_type => "#{size || Default.size}",
+          :availability_zone => (availabilty_zone || Default.availabilty_zone)}.merge(opts)
       end
       
       def launch_new_instance!(num=1)
@@ -149,8 +149,8 @@ end
       
       # EC2 connections
       def ec2
-        @ec2 ||= EC2::Base.new( :access_key_id => (access_key || Base.access_key), 
-                                :secret_access_key => (secret_access_key || Base.secret_access_key)
+        @ec2 ||= EC2::Base.new( :access_key_id => (access_key || Default.access_key), 
+                                :secret_access_key => (secret_access_key || Default.secret_access_key)
                               )
       end
       

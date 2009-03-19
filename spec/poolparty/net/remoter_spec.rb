@@ -7,6 +7,7 @@ describe "Remoter" do
     @tc = TestClass.new
     @tc.parent = @cloud
     @key = Key.new("fake_keypair")
+    @key.stub!(:full_filepath).and_return "keyeeee"
     @tc.stub!(:keypair).and_return @key
     @sample_instances_list = [{:ip => "192.168.0.1", :name => "master"}, {:ip => "192.168.0.2", :name => "node1"}]
   end
@@ -15,7 +16,7 @@ describe "Remoter" do
       @tc.ssh_string.should =~ /ssh -o StrictHostKeyChecking=no -l/
     end
     it "should have the keypair in the ssh_string" do
-      @tc.ssh_string.should =~ /#{@tc.keypair}/
+      @tc.ssh_string.should =~ /#{@tc.full_keypair_path}/
     end
   end
   describe "ssh_array" do

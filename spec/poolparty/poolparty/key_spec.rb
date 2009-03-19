@@ -31,7 +31,7 @@ describe "Key" do
       @key.full_filepath
     end
     it "return the full filepath when the key exists (checking last possible Dir.pwd)" do      
-      @key.full_filepath.should == ::File.join(Dir.pwd, "test_plugins/sshkey_test")
+      @key.full_filepath.should =~ /test_plugins\/sshkey_test/
     end
     it "should return the content of the keyfile when requested" do
       @key.content.should == "-- THIS IS A TEST SSH KEY FILE --\n\n"

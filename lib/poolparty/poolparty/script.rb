@@ -1,7 +1,8 @@
 require "parenting"
 module PoolParty
   
-  class Script < Parenting::Base
+  class Script
+    include Parenting
     
     def self.inflate_file(file)
       inflate open(file).read if file
@@ -44,7 +45,7 @@ module PoolParty
     end
     
     def self.save!(to_file=true)
-      write_to_file_in_storage_directory(Base.default_specfile_name, for_save_string) if to_file
+      write_to_file_in_storage_directory(Default.default_specfile_name, for_save_string) if to_file
       for_save_string
     end
     

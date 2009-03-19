@@ -24,15 +24,15 @@ describe "BaseClass" do
       end
     end
     describe "depth" do
-      before(:all) do
-        @inflater = Proc.new do 
+      before(:each) do
+        Proc.new do 
           @a = $a =TestBaseClass.new do
             @@b = $b = TestBaseClass.new do
               @@c = $c =TestBaseClass.new do
               end
             end
           end
-        end
+        end.call
       end
       it "should set the correct depth" do
         @a.depth.should == 0

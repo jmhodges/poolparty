@@ -12,7 +12,8 @@ module PoolParty
     default_options(
       :testing => false,
       :debugging => false,
-      :minimum_instances => 1,
+      :minimum_instances => 2,
+      :maximum_instances => 5,
       :user => "root", # This should change here
       :base_keypair_path => "#{ENV["HOME"]}/.ec2",
       :tmp_path => "/tmp/poolparty",

@@ -8,6 +8,7 @@ module PoolParty
   
   class PoolPartyBaseClass
     include Parenting, Dslify
+    
     include PoolParty::DependencyResolverCloudExtensions
     # attr_accessor :depth
     # attr_reader :parent
@@ -15,15 +16,13 @@ module PoolParty
     def initialize(opts={}, &block)
       set_vars_from_options(opts) unless !opts.is_a?(Hash)
       
-      run_in_context(&block) if block
-      
-      if parent
+      if parent && !parent.is_a?(PoolParty::Resources::Resource)
         options(parent.options) if parent.respond_to?(:options) && parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self) && parent.respond_to?(:add_service) && parent.respond_to?(:services)
         @parent = parent
       end
       
-      super      
+      run_in_context(&block) if block
     end
     
     # Add to the services pool for the manifest listing
@@ -105,8 +104,8 @@ module PoolParty
     end
     
     def method_missing(m,*a,&block)
-      if context && context != self && !self.is_a?(PoolParty::Resources::Resource)
-        context.send m, *a, &block
+      if this_context && this_context != self && !self.is_a?(PoolParty::Resources::Resource)
+        this_context.send m, *a, &block
       else
         super
       end

@@ -49,9 +49,8 @@ describe "Rules" do
   it "should be able to say that rules are defined when they are defined" do
     @car.names.should_not == nil
   end
-  it "should be able tos ay that rules are not defined when they are not defined" do
-    # @car.look_up_rules(:cars_and_wheels).empty?.should == false
-    pending
+  it "should be able to say that rules are not defined when they are not defined" do
+    @car.look_up_rules(:cars_and_wheels).empty?.should == true
   end
   it "should be able to say if the rules are not rules" do
     @car.are_rules?(:cars_and_wheels).should == false

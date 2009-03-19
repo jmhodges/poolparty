@@ -11,13 +11,9 @@ module PoolParty
       default_options({})
       
       def initialize(opts={}, parent=nil, &block)
-        set_vars_from_options(opts) unless opts.empty?
-        
-        # context_stack.push parent
+        set_vars_from_options(opts) unless opts.empty?        
         block = Proc.new {enable} unless block
-        super(&block)
-        # context_stack.pop
-        
+        super(&block)        
         loaded(opts, &block)
       end
       

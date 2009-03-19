@@ -28,12 +28,7 @@ module PoolParty
       include CloudResourcer
       include Remote
       
-      default_options Default.default_options.merge(
-        :access_key => Default.access_key,
-        :secret_access_key => Default.secret_access_key,
-        :minimum_instances => 1,
-        :maximum_instances => 4
-      )
+      default_options Default.default_options
       
       def initialize(name,&block)
         @pool_name = name
@@ -47,8 +42,12 @@ module PoolParty
         # run_setup(self, &block)
         super(&block)
       end
-      def load_from_file(filename=nil)
-        eval_from_file filename
+      def self.load_from_file(filename=nil)
+        a = new ::File.basename(filename, ::File.extname(filename))
+        File.open(filename, 'r') do |f|
+          a.eval_from_string f.read
+        end
+        a
       end
       def pool_name
         @pool_name
