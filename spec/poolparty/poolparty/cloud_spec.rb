@@ -1,9 +1,8 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-class TestServiceClass
+class TestService
   plugin :test_service do
     def initialize(o={}, e=nil, &block)
-      puts "Called initialize on #{self.class}"
       super(&block)
     end
     def enable(o={})
@@ -259,10 +258,8 @@ describe "Cloud" do
                   @cloud8 = cloud :tester do
                     test_service
                   end
-                  puts "clouds[:tester]: #{clouds[:tester].to_properties_hash.services}"
-                  @service = clouds[:tester].services
+                  @service = clouds[:tester].services.test_service_class
                   @files = @service.resource(:file)
-                  puts "@files: #{@files}"
                 end
                 it "should have a file resource" do
                   @files.first.nil?.should == false
@@ -301,9 +298,6 @@ describe "Cloud" do
             end
             it "should include the poolparty gem" do
               @manifest.should =~ /package \{/
-            end
-            it "should include custom functions" do
-              @manifest.should =~ /define line\(\$file/
             end
           end
           describe "prepare_for_configuration" do

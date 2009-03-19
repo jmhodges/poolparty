@@ -45,7 +45,7 @@ module PoolParty
     end
     
     def self.save!(to_file=true)
-      write_to_file_in_storage_directory(Base.default_specfile_name, for_save_string) if to_file
+      write_to_file_in_storage_directory(Default.default_specfile_name, for_save_string) if to_file
       for_save_string
     end
     
