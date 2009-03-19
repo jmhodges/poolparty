@@ -50,12 +50,12 @@ module PoolParty
         :maximum_instances => 5,
         :contract_when => "cpu < 0.65",
         :expand_when => "cpu > 1.9",
-        :access_key => Default.default_options.access_key,
-        :secret_access_key => Default.default_options.secret_access_key,
+        :access_key => Default.access_key,
+        :secret_access_key => Default.secret_access_key,
         :ec2_dir => ENV["EC2_HOME"],
         :keypair => (ENV["KEYPAIR_NAME"].nil? || ENV["KEYPAIR_NAME"].empty?) ? nil : ENV["KEYPAIR_NAME"],
-        :minimum_runtime => Default.default_options.minimum_runtime,
-        :user => Default.default_options.user,
+        :minimum_runtime => Default.minimum_runtime,
+        :user => Default.user,
         :ami => 'ami-44bd592d'
       )
       

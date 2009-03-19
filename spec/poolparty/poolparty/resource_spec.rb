@@ -56,19 +56,20 @@ describe "Resource" do
         @resource.respond_to?(:ensures).should == true
       end
       it "should push the option ensure onto the options" do
-        @resource.options.has_key?(:ensure).should == false
+        @resource.options.has_key?(:ensures).should == false
         @resource.ensures("nibbles")
-        @resource.options.has_key?(:ensure).should == true
+        @resource.options.has_key?(:ensures).should == true
+        @resource.options.ensures.should == 'present'
       end
       it "should write the option ensures as present with is_present" do
-        @resource.options.has_key?(:ensure).should == false
+        @resource.options.has_key?(:ensures).should == false
         @resource.is_present
-        @resource.options[:ensure].should == "present"
+        @resource.options[:ensures].should == "present"
       end
       it "should write the option ensures as absent with is_absent" do
-        @resource.options.has_key?(:ensure).should == false
+        @resource.options.has_key?(:ensures).should == false
         @resource.is_absent
-        @resource.options[:ensure].should == "absent"
+        @resource.options[:ensures].should == "absent"
       end
       it "should write the option unless for ifnot" do
         @resource.options.has_key?(:unless).should == false
