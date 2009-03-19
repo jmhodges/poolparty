@@ -4,11 +4,11 @@ module PoolParty
     class Symlink < Resource
             
       def source(i=nil)
-        i ? options[:ensure] = i : options[:ensure]
+        i ? options[:ensures] = i : options[:ensures]
       end
       
       def present
-        options[:ensure]
+        options[:ensures]
       end
       
     end

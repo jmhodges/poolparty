@@ -12,7 +12,7 @@ describe "File" do
       @package.name.should == "apache2"
     end
     it "should ensure it's present" do
-      @package.ensure.should == "present"
+      @package.ensures.should == "present"
     end
     describe "into PuppetResolver" do
       before(:each) do

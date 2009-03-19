@@ -3,22 +3,15 @@ module PoolParty
     # Overrides for syntax
     # Allows us to send require to require a resource
     def requires(str=nil)
-      # str ? options.append!(:require => str) : options[:require]
       str ? dsl_options.merge!(:require => send_if_method(str)) : dsl_options[:require]
     end
     def on_change(str=nil)
       str ? dsl_options.merge!(:notify => send_if_method(str)) : dsl_options[:notify]
     end
     def ensures(str="running")
-      # if %w(absent running).map {|a| self.send a.to_sym}.include?(str)
         str == "absent" ? is_absent : is_present
-      # else
-        # options.append!(:ensure => str)
-      # end
-      # str
     end
     def present
-      puts "Calling present in #{__FILE__}:#{__LINE__}"
       "present"
     end
     def absent
@@ -26,11 +19,13 @@ module PoolParty
     end
     # Allows us to send an ensure to ensure the presence of a resource
     def is_present(*args)
-      dsl_options.merge!(:ensure => present)
+      dsl_options.merge!(:ensures => present)
+      present
     end
     # Ensures that what we are sending is absent
     def is_absent(*args)
-      dsl_options.merge!(:ensure => absent)
+      dsl_options.merge!(:ensures => absent)
+      absent
     end
     # Alias for unless
     def ifnot(str="")

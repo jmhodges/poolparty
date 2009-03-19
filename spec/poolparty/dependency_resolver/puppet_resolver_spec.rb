@@ -85,7 +85,7 @@ describe "PuppetResolver" do
         end
         
         case_of "hostname" do
-          when_is 'master' do
+          when_is 'master' do            
             has_package :name=>'haproxy'
           end
         end
@@ -108,6 +108,10 @@ describe "PuppetResolver" do
     it "should include the case statement" do
       @compiled.should =~ /case \$hostname \{/
       @compiled.should =~ /master : \{/
+    end
+    it "should ensure file" do
+      @compiled.should =~ /ensure => "present"/
+      
     end
   end
   
