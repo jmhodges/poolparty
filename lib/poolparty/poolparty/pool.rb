@@ -28,12 +28,7 @@ module PoolParty
       include CloudResourcer
       include Remote
       
-      default_options(
-        :access_key => Default.access_key,
-        :secret_access_key => Default.secret_access_key,
-        :minimum_instances => 1,
-        :maximum_instances => 4
-      )
+      default_options Default.default_options
       
       def initialize(name,&block)
         @pool_name = name

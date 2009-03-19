@@ -17,6 +17,13 @@ module PoolParty
       # end
       # str
     end
+    def present
+      puts "Calling present in #{__FILE__}:#{__LINE__}"
+      "present"
+    end
+    def absent
+      "absent"
+    end
     # Allows us to send an ensure to ensure the presence of a resource
     def is_present(*args)
       dsl_options.merge!(:ensure => present)
@@ -28,12 +35,6 @@ module PoolParty
     # Alias for unless
     def ifnot(str="")
       dsl_options.merge!(:unless => str)
-    end
-    def present
-      "present"
-    end
-    def absent
-      "absent"
     end
     def cancel(*args)
       dsl_options[:cancelled] = args.empty? ? true : args[0]

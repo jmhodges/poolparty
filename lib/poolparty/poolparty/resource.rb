@@ -149,12 +149,7 @@ module PoolParty
       def disallowed_options
         []
       end
-      def present
-        "present"
-      end
-      def absent
-        "absent"
-      end
+
       def key
         name
       end
@@ -164,6 +159,7 @@ module PoolParty
       def printable?
         true
       end
+      
       # Private method just for resource retrievling purposes
       def class_name_sym
         self.class.to_s.top_level_class.downcase.to_sym
