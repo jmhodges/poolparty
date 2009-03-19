@@ -21,7 +21,7 @@ describe "Configurer" do
     describe "clouds" do
       before(:each) do
         reset!
-        PoolParty::Pool::Pool.eval_from_file @basic
+        PoolParty::Pool::Pool.load_from_file @basic
         @cloud = clouds[:app]
       end
       it "should contain a list of the clouds within the pool (:app)" do
