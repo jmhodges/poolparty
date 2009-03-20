@@ -25,7 +25,9 @@ namespace(:poolparty) do
     end
     desc "Update the submodules"
     task :update do
-      `git submodule update`
+      Dir["#{File.dirname(__FILE__)}/../vendor/gems/*"].each do |dir|
+        Kernel.system "cd #{::File.expand_path(dir)} && git pull --rebase" if ::File.directory?(dir)
+      end
     end
   end
 end
