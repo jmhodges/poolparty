@@ -3,7 +3,7 @@ module PoolParty
   
   # Load a file that contains a pool into memory
   def load_pool(filename=nil)
-    filename = filename || Binary.get_existing_spec_location#Dir["#{Dir.pwd}/**/*.rb"].select {|f| ::File.basename(f) == "clouds.rb" }.first unless filename
+    filename = filename || Binary.get_existing_spec_location
     dputs "Using spec at #{filename}"
     
     unless filename && ::File.readable?(filename)
@@ -11,7 +11,7 @@ module PoolParty
       exit(1)
     else
       $pool_specfile = filename
-      PoolParty::Script.inflate(open(filename).read, filename)
+      PoolParty::Pool::Pool.load_from_file filename
     end
   end
   

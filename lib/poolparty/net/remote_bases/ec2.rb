@@ -44,6 +44,7 @@ end
           :key_name  => (keypair || Default.keypair),
           :group_id  => ["#{security_group || Default.security_group}"],
           :instance_type => "#{size || Default.size}",
+          :base_keypair_path => "#{ENV["HOME"]}/.ec2",
           :availability_zone => (availabilty_zone || Default.availabilty_zone)}.merge(opts)
       end
       
@@ -132,8 +133,7 @@ end
 
       # Help create a keypair for the cloud
       # This is a helper to create the keypair and add them to the cloud for you
-      def create_keypair
-        return false unless keypair
+      def create_keypair(new_keypair_path=base_keypair_path)
         unless ::File.exists?( new_keypair_path )
           FileUtils.mkdir_p ::File.dirname( new_keypair_path )
           vputs "Creating keypair: #{keypair} in #{new_keypair_path}"

@@ -9,6 +9,8 @@ module PoolParty
   class Optioner
     include Dslify
     
+    default_options({:verbose => false, :quiet => false})
+    
     def initialize(args=[], opts={}, &block)      
       boolean_args << opts[:boolean_args] if opts.has_key?(:boolean_args)
       
@@ -20,7 +22,6 @@ module PoolParty
       @command = opts.has_key?(:command) ? opts[:command] : false
       
       parse_options(&block) if @parse_options
-      set_default_options
       self
     end
     def daemonizeable
@@ -65,11 +66,6 @@ module PoolParty
     # def parent
     #   self
     # end
-    
-    def set_default_options
-      self.verbose false
-      self.quiet false
-    end
     
     def parent
       self

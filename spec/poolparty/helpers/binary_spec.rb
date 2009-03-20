@@ -33,6 +33,7 @@ describe "Binary" do
     end
     it "should call Dir[Dir.pwd] if there is no filename given" do      
       Dir.should_receive(:[]).with("#{Dir.pwd}/*/clouds.rb").and_return ["clouds.rb"]
+      ::File.stub!(:open).with("/var/poolparty/clouds.rb", 'r').and_return "wee"
       Binary.load_pool
     end
   end

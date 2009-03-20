@@ -10,7 +10,7 @@ module PoolParty
     virtual_resource(:git_repos) do
       
       def loaded(opts={}, &block)
-        has_git
+        has_package("git-core")
         has_git_repos
       end
             
@@ -19,7 +19,7 @@ module PoolParty
           command requires_user ? "git clone #{requires_user}@#{source} #{working_dir}" : "cd #{working_dir} && git clone #{source}"
           cwd "#{working_dir if working_dir}"
           creates creates_dir
-        end
+        end                
         has_exec(:name => "update-#{name}") do
           cwd ::File.dirname( creates_dir )
           command "git pull"
@@ -28,6 +28,7 @@ module PoolParty
       
       def at(dir)
         working_dir dir
+        has_directory(::File.dirname(dir))
         has_directory(:name => "#{dir}", :requires => get_directory("#{::File.dirname(dir)}"))
       end
       

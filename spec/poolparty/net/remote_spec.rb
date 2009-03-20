@@ -81,7 +81,7 @@ describe "Remote" do
     it "should not raise an exception because instances_list is defined" do
       lambda {
         @tc.remote_instances_list
-      }.should !raise_error
+      }.should_not raise_error
     end
     it "should run hyper" do
       @tc.hyper.should == "beatnick"
@@ -281,7 +281,7 @@ describe "Remote" do
         ::File.stub!(:exists?).with("#{File.expand_path(Default.base_keypair_path)}/id_rsa-funky").and_return true
         lambda {
           @tc.rsync_storage_files_to(@tc.master)
-        }.should !raise_error
+        }.should_not raise_error
       end
       describe "run_command_on" do
         before(:each) do

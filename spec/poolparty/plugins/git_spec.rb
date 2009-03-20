@@ -2,8 +2,7 @@ require File.dirname(__FILE__) + '/../spec_helper'
 
 include PoolParty::Resources
 
-class TestGitClass
-  include PoolParty::Resources
+class TestGitClass < PoolParty::Resources::Resource
 end
 describe "Remote Instance" do
   describe "wrapped" do

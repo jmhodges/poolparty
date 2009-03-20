@@ -20,7 +20,7 @@ describe "Plugin" do
       @plugin.class.should == ApacheClass
     end
     it "should have enable_php as a method" do
-      @plugin.respond_to?(:enable_php).should == true
+      ApacheClass.new.respond_to?(:enable_php).should == true
     end    
   end
 end

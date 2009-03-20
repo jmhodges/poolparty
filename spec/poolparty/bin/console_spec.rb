@@ -30,7 +30,7 @@ describe "Console" do
       self.respond_to?(:load_pool).should == true
     end
     it "should call script inflate on the filename" do      
-      PoolParty::Script.should_receive(:inflate).once
+      PoolParty::Pool::Pool.should_receive(:load_from_file).and_return "wee"
       load_pool("pop")
     end
   end  
@@ -61,7 +61,7 @@ describe "Console" do
       }
     end
     it "should call inflate from Script with the poolspec" do
-      PoolParty::Script.should_receive(:inflate).with("spec contents", "myspec.spec").and_return true
+      PoolParty::Pool::Pool.should_receive(:load_from_file).with("myspec.spec").and_return true
       load_pool(@filename)
     end
   end
@@ -77,7 +77,7 @@ describe "Console" do
       EOS
       self.stub!(:open).and_return @string
       @string.stub!(:read).and_return @string
-      load_pool("pop")
+      PoolParty::Pool::Pool.new(:dummy).eval_from_string @string
     end
     it "should be able to print the clouds" do      
       pools.empty?.should == false
