@@ -58,9 +58,9 @@ end
         ec2.terminate_instances(:instance_id => instance_id)
       end
       # Describe an instance's status
-      def describe_instance(node_name?)
-        return describe_instances.first if node_name.nil?
-        describe_instances.select {|a| a[:name] == node_name }
+      def describe_instance(identifier=nil)
+        return describe_instances.first if identifier.nil?
+        describe_instances.detect {|a| a[:name] == identifier || a[:ip] == identifier }
       end
       def describe_instances
         id = 0
