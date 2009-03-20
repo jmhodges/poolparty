@@ -26,7 +26,6 @@ module PoolParty
           unless using_remoter?
             self.class.send :attr_reader, :remote_base
             self.class.send :attr_reader, :parent_cloud
-
             klass = "#{t}".classify.constantize
             @remote_base = klass.send :new
             @parent_cloud = @cloud
@@ -52,6 +51,7 @@ module PoolParty
     end
     
     def self.included(receiver)
+      puts "I, #{self} WAS INCLUDED by #{receiver}"
       receiver.extend         ClassMethods
       receiver.send :include, InstanceMethods      
     end

@@ -61,12 +61,16 @@ require File.dirname(__FILE__)+'/net/remoter_bases/ec2_mocks_and_stubs.rb'
 #   end
 # end
 # >>>>>>> 5898f093b3a829180dc16916b32ce90a8cc877c5:spec/poolparty/spec_helper.rb
+class FakeKey < Key
+  def exist?; true; end
+  def full_filepath; "~/.ec2/fake_keypair"; end
+end
 
 class TestRemoterClass < ::PoolParty::Remote::Ec2
   include CloudResourcer
   include CloudDsl
   
-  def keypair;"fake_keypair";  end
+  def keypair;FakeKey.new;  end
   def ami;"ami-abc123";end
   def size; "small";end
   def security_group; "default";end
@@ -81,16 +85,18 @@ class TestRemoterClass < ::PoolParty::Remote::Ec2
   end
 end
 
-class TestClass < PoolParty::Cloud::Cloud
+class TestClass < ::PoolParty::Cloud::Cloud
   include CloudResourcer
+  include PoolParty::Remote
   attr_accessor :parent
   def initialize(name=:name, &block)
     super :test_cloud, &block
   end
   def keypair
-    "fake_keypair"
+    FakeKey.new
   end  
 end
+TestCloud = TestClass 
 
 class TestBaseClass < PoolParty::PoolPartyBaseClass
 end
@@ -194,7 +200,7 @@ def stub_remoting_methods_for(o)
 end
 def stub_list_of_instances_for(o)  
   # o.stub!(:list_of_running_instances).once.and_return running_remote_instances
-  o.stub!(:keypair).and_return "fake_keypair"
+  o.stub!(:keypair).and_return FakeKey.new
   o.stub!(:describe_instances).and_return response_list_of_instances
 end
 

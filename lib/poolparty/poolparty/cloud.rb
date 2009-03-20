@@ -28,7 +28,7 @@ module PoolParty
       include Provisioner
 
       # Net methods
-      include Remote
+      include PoolParty::Remote
       include PoolParty::CloudDsl
       include PoolParty::Monitors
 
@@ -61,14 +61,10 @@ module PoolParty
       
       def initialize(name, &block)
         @cloud_name = name
-        @cloud_name.freeze
-        
+        @cloud_name.freeze        
         plugin_directory
-                
-        super        
-        
+        super
         setup_defaults
-        
         after_create
       end
       
