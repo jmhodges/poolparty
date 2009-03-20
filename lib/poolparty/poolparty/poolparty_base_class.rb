@@ -104,8 +104,8 @@ module PoolParty
     end
     
     def method_missing(m,*a,&block)
-      if this_context && this_context != self && !self.is_a?(PoolParty::Resources::Resource)
-        this_context.send m, *a, &block
+      if this_context && this_context != self# && !self.is_a?(PoolParty::Resources::Resource)
+        this_context.send m, *a, &block rescue super
       else
         super
       end

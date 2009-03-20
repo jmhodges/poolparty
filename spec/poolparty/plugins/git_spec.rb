@@ -1,22 +1,26 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-include PoolParty::Resources
-
-class TestGitClass < PoolParty::Resources::Resource
+class TestGitClass < PoolParty::Cloud::Cloud
 end
+
 describe "Remote Instance" do
   describe "wrapped" do
     before(:each) do
-      @tc = TestGitClass.new
+      @tc = cloud :test_git_class_cloud do
+        has_git_repos(:at => "/var/www/", :name => "gitrepos.git", :source => "git://source.git", :requires_user => "finger")
+        puts "services: #{services.git_repos_class}"
+      end
+      @compiled = PuppetResolver.new(@tc.to_properties_hash).compile
     end
     it "should be a string" do
-      @tc.has_git_repos(:at => "/var/www/", :name => "gitrepos.git", :source => "git://source.git").to_string.should =~ /exec/
+      puts "<pre>"+@tc.to_properties_hash.inspect+"</pre>"
+      @compiled.should =~ /exec/
     end
     it "should included the flushed out options" do
-      @tc.has_git_repos({:name => "git.git", :source => "git://source.git", :requires_user => "finger", :at => "/var/www/"}).to_string.should =~ /finger@git:/
+      @compiled.should =~ /finger@git:/
     end
     it "should not include the user if none is given" do
-      @tc.has_git_repos({:name => "git.git", :source => "git://source.git",:at => "/var/www/"}).to_string.should =~ /git clone git:/
+      @compiled.should =~ /git clone git:/
     end
     describe "in resource" do
       before(:each) do

@@ -97,7 +97,7 @@ module PoolParty
         @resource_name
       end
       
-      def name        
+      def name(*args)        
         resource_name
       end
       
@@ -111,9 +111,21 @@ module PoolParty
       end
       
       def cloud
-        ::PoolParty.context_stack.each do |stk|
-          return stk if stk.is_a?(PoolParty::Cloud::Cloud)
+        2.upto(context_stack.size) do |i|
+          return ::PoolParty.context_stack[-i] if ::PoolParty.context_stack[-i].is_a?(PoolParty::Cloud::Cloud)
         end
+        nil
+      end
+      
+      def method_missing(m,*a,&block)
+        begin
+          cloud.send(m, *a, &block)
+        rescue Exception => e
+          puts "- MM Exception: #{e} - #{self}(#{m}) going to #{self.class.ancestors.inspect}"
+          super
+        end
+        
+         # rescue super
       end
       
       def duplicatable?
@@ -158,6 +170,10 @@ module PoolParty
       end
       def printable?
         true
+      end
+      
+      def to_s
+        "#{class_name_sym}(#{name})"
       end
       
       # Private method just for resource retrievling purposes

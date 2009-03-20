@@ -13,7 +13,7 @@ module PoolParty
       def initialize(opts={}, parent=nil, &block)
         set_vars_from_options(opts) unless opts.empty?        
         block = Proc.new {enable} unless block
-        super(&block)        
+        super(&block)
         loaded(opts, &block)
       end
       
