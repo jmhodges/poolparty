@@ -4,7 +4,6 @@ module PoolParty
   module Remote
     
     class RemoteInstance
-      include Remote
       include Dslify
       include CloudResourcer
       
@@ -13,7 +12,6 @@ module PoolParty
 
         set_vars_from_options(containing_cloud.options) if containing_cloud && containing_cloud.respond_to?(:options)
         set_vars_from_options(opts) unless opts.nil? || opts.empty?
-        
         on_init
       end
       
@@ -26,25 +24,27 @@ module PoolParty
       end
       
       # Is this remote instance the master?
+      # DEPRECATE
       def master?
         name == "master"
       end
       
       # The remote instances is only valid if there is an ip and a name
       def valid?
-        !(ip.nil? || name.nil?)
+        (ip.nil? || name.nil?) ? false : true
       end
       
       # Determine if the RemoteInstance is responding
       def responding?
-        !responding.nil?
+        running?
+        # !responding.nil? #TODO MF this needs to actually ping the node or something similar.  stubbed to running? for now
       end
       
       # This is how we get the current load of the instance
       # The approach of this may change entirely, but the usage of
       # it will always be the same
       def load
-        current_load ||= 0.0
+        current_load ||= 0.0  #NOTE MF: returning 0.0 seems like a bad idea here.  should return nil if we dont have a real value
       end
             
       # Is this instance running?

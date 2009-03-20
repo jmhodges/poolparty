@@ -5,7 +5,7 @@
   cluster. 
 =end
 require "date"
-require "#{::File.dirname(__FILE__)}/ec2/ec2_response_object"
+require "#{::File.dirname(__FILE__)}/ec2_response_object"
 
 begin
   require 'EC2'
@@ -32,30 +32,19 @@ end
       DateTime.parse( self.chomp ) rescue self
     end
   end
-  module PoolParty
-
+  module PoolParty    
     class Ec2 < PoolParty::Remote::RemoterBase
+
       def launch_new_instance!(num=1)
         instance = ec2.run_instances(
-         {:image_id => (ami || Base.ami),
+          :image_id => (ami || Base.ami),
           :user_data => "",
-          :minCount  => 1,
-          :maxCount  => 2,
-          :key_name  => (keypair || Default.keypair),
-          :group_id  => ["#{security_group || Default.security_group}"],
-          :instance_type => "#{size || Default.size}",
-          :base_keypair_path => "#{ENV["HOME"]}/.ec2",
-          :availability_zone => (availabilty_zone || Default.availabilty_zone)
-          }.merge(opts))
-      end
-      
-      def launch_new_instance!(num=1)
-        if cloud.testing
-          # require "../../../../spec/spec_helper.rb"
-           instance = {:ip => "127.0.0.1", :name => "master", :launching_time => 2.days.ago}
-        else
-          instance = ec2.run_instances(instance_options(:minCount=>num, :maxCount=>num))
-        end
+          :minCount => 1,
+          :maxCount => num,
+          :key_name => (keypair || Base.keypair),
+          :availability_zone => (availabilty_zone || Base.availabilty_zone),
+          :instance_type => "#{size || Base.size}",
+          :group_id => ["#{security_group || Base.security_group}"])
         begin
           h = EC2ResponseObject.get_hash_from_response(instance)
           #h = instance.instancesSet.item.first
@@ -65,12 +54,13 @@ end
         h
       end
       # Terminate an instance by id
-      def terminate_instance!(instance_id=nil)
+      def terminate_instance!(instance_id=nil)  #MF why allow this command wihtout an instance_idˇ
         ec2.terminate_instances(:instance_id => instance_id)
       end
       # Describe an instance's status
-      def describe_instance(id=nil)
-        describe_instances.select {|a| a[:name] == id}[0] rescue nil
+      def describe_instance(node_name?)
+        return describe_instances.first if node_name.nil?
+        describe_instances.select {|a| a[:name] == node_name }
       end
       def describe_instances
         id = 0
@@ -85,12 +75,12 @@ end
             :name => inst_name,
             :hostname => h[:ip],
             :ip => h[:ip].convert_from_ec2_to_ip,
-            :index => i,
+            :index => i,  #TODO MF get the instance id from the aws result instead
             :launching_time => (h[:launching_time])
           })
         end.sort {|a,b| a[:index] <=> b[:index] }
       end
-      # Get the s3 description for the response in a hash format
+      # Get the ec2 description for the response in a hash format
       def get_instances_description
         EC2ResponseObject.get_descriptions(ec2.describe_instances)
       end
@@ -116,6 +106,7 @@ end
       end
       
       # Attach a volume to the instance
+      # DEPRECATE this relies on master.  master will be removed in next major release.  This method will be in ec2_remote_instance instead, or require an instance id
       def attach_volume(instance=nil)
         if ebs_volume_id
           vputs "Attaching volume #{ebs_volume_id} to the master at #{ebs_volume_device}"
@@ -124,6 +115,7 @@ end
         end
       end
       # Associate an address with the instance using ec2
+      # DEPRECATE relies on master
       def associate_address(instance=nil)
         if set_master_ip_to
           dputs "Associating master with #{set_master_ip_to}"
@@ -134,7 +126,8 @@ end
 
       # Help create a keypair for the cloud
       # This is a helper to create the keypair and add them to the cloud for you
-      def create_keypair(new_keypair_path=base_keypair_path)
+      def create_keypair
+        return false unless keypair
         unless ::File.exists?( new_keypair_path )
           FileUtils.mkdir_p ::File.dirname( new_keypair_path )
           vputs "Creating keypair: #{keypair} in #{new_keypair_path}"
@@ -150,8 +143,8 @@ end
       
       # EC2 connections
       def ec2
-        @ec2 ||= EC2::Base.new( :access_key_id => (access_key || Default.access_key), 
-                                :secret_access_key => (secret_access_key || Default.secret_access_key)
+        @ec2 ||= EC2::Base.new( :access_key_id => (access_key || Base.access_key), 
+                                :secret_access_key => (secret_access_key || Base.secret_access_key)
                               )
       end
       

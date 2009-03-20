@@ -33,6 +33,7 @@ module PoolParty
       set_cloud(name)
     end
     
+    # Get the master ip for the cloud to set in the deploy.rb file
     def cloud_master(name)
       get_cloud(name).ip
     end

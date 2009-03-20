@@ -63,7 +63,7 @@ describe "Remoter" do
     end
     it "should have dependency_resolver_command" do
       @tc.respond_to?(:dependency_resolver_command)
-      @tc.dependency_resolver_command.should match /puppet/
+      @tc.dependency_resolver_command.should match(/puppet/)
     end
     it "should have the method launch_master!" do
       @tc.respond_to?(:launch_and_configure_master!).should == true

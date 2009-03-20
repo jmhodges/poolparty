@@ -1,29 +1,7 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
-
 # include Remote
+require File.dirname(__FILE__) + '/ec2_mocks_and_stubs.rb'
 
-class TestEC2Class
-  include PoolParty::Remote::RemoterBase
-  include Ec2
-  include CloudResourcer
-  include CloudDsl
-  
-  def keypair
-    "fake_keypair"
-  end
-  
-  def ami;"ami-abc123";end
-  def size; "small";end
-  def security_group; "default";end
-  def ebs_volume_id; "ebs_volume_id";end
-  def availabilty_zone; "us-east-1a";end
-  def verbose
-    false
-  end
-  def ec2
-    @ec2 ||= EC2::Base.new( :access_key_id => "not_an_access_key", :secret_access_key => "not_a_secret_access_key")
-  end
-end
 describe "ec2 remote base" do
   before(:each) do
     setup
@@ -81,12 +59,17 @@ describe "ec2 remote base" do
     end
   end
   describe "describe_instance" do
-    it "should call get_instances_description on itself" do
-      @tr.should_receive(:get_instances_description).and_return {}
-      @tr.describe_instance
+    it "should return a default instance if called with no paramters" do
+      @tr.describe_instances.size.should > 0
+      @tr.describe_instance.should_not be_nil
+      @tr.describe_instance[:name].should_not be_nil
+    end
+    it "should return nil if the cloud has no instances" do
+      @tr.stub!(:describe_instances).and_return []
+      @tr.describe_instance.should be_nil
     end
   end
-  describe "get_instances_description" do
+  describe "get_instances_description" do  #NOTE MF: this test is sorta bogus since it is just checking what we stubbed 
     it "should return a hash" do
       @tr.describe_instances.class.should == Array
     end
@@ -97,7 +80,7 @@ describe "ec2 remote base" do
       @tr.describe_instances[1][:name].should == "node1"
     end
     it "should call the third node2" do
-      @tr.describe_instances[2][:name].should == "terminated_node2"
+      @tr.describe_instances[2][:name].should == "node2"
     end
   end
   describe "create_keypair" do

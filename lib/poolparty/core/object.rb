@@ -33,8 +33,8 @@ class Object
     if (v.nil? || v.to_s.empty? || v.is_a?(Array) || v.is_a?(Integer))# && !v.is_a?(Symbol))#)v.is_a?(String)
       v
     else
-      vs = v.to_s.to_sym      
-      respond_to?(vs) ? self.send(vs, *args) : v rescue v
+      vs = v.to_s.to_sym
+      respond_to?(vs) ? self.send(vs, *args) : v rescue v  #NOTE MF: maybe we should not rescue all errors?
     end
   end
   def respec_string

@@ -256,8 +256,12 @@ module PoolParty
       def minimum_runnable_options
         ([
           :keypair, :minimum_instances, :maximum_instances,
-          :expand_when, :contract_when, :set_master_ip_to
+          :expand_when, :contract_when, :set_master_ip_to  #DEPRECATE set_master_ip_to
         ]<< custom_minimum_runnable_options).flatten
+      end
+      
+      def custom_minimum_runnable_options
+        using_remoter? ? @remote_base.custom_minimum_runnable_options : []
       end
       
       # Add all the poolparty requirements here
@@ -286,5 +290,5 @@ module PoolParty
         @build_manifest = @describe_instances = nil
       end            
     end
-  end  
+  end 
 end

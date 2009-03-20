@@ -4,7 +4,7 @@ include Provisioner
 
 describe "ProvisionerBase" do
   before(:each) do    
-    @cloud = cloud :app do;end
+    @cloud = new_test_cloud
     @remote_instance = PoolParty::Remote::RemoteInstance.new({:ip => "192.168.0.1", :status => "running", :name => "master"}, @cloud)
     @pb = PoolParty::Provisioner::ProvisionerBase.new(@remote_instance, @cloud)
     stub_list_from_remote_for(@cloud)

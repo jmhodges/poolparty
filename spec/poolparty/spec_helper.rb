@@ -13,18 +13,36 @@ end
 # Dir["#{File.dirname(__FILE__)}/helpers/**"].each {|a| require a}
 
 ENV["POOL_SPEC"] = nil
+ENV["AWS_ACCESS_KEY"] = 'fake_access_key'
+ENV["AWS_SECRET_ACCESS_KEY"] = 'fake_aws_secret_access_key'
 
 include PoolParty
 extend PoolParty
 
-def debugging(*args)
-  false
-end
-def are_too_many_instances_running?  
-end
-def are_any_nodes_exceeding_minimum_runtime?  
-end
-def are_too_few_instances_running?
+def debugging; false; end
+def are_too_many_instances_running?; end
+def are_any_nodes_exceeding_minimum_runtime?; end
+def are_too_few_instances_running?; end
+
+require File.dirname(__FILE__)+'/net/remote_bases/ec2_mocks_and_stubs.rb'
+
+class TestRemoterClass < Ec2
+  include CloudResourcer
+  include CloudDsl
+  
+  def keypair;"fake_keypair";  end
+  def ami;"ami-abc123";end
+  def size; "small";end
+  def security_group; "default";end
+  def ebs_volume_id; "ebs_volume_id";end
+  def availabilty_zone; "us-east-1a";end
+  def verbose; false; end
+  def ec2
+    @ec2 ||= EC2::Base.new( :access_key_id => "not_an_access_key", :secret_access_key => "not_a_secret_access_key")
+  end
+  def describe_instances
+    response_list_of_instances
+  end
 end
 
 class TestClass < PoolParty::Cloud::Cloud
@@ -35,14 +53,23 @@ class TestClass < PoolParty::Cloud::Cloud
   end
   def keypair
     "fake_keypair"
-  end
+  end  
 end
 
 class TestBaseClass < PoolParty::PoolPartyBaseClass
 end
 
 def setup
-  PoolParty::Messenger.stub!(:messenger_send!).and_return false
+  PoolParty::Messenger.stub!(:messenger_send!).and_return false  
+end
+
+def new_test_cloud(force_new=false)
+  unless @test_cloud || force_new
+    @test_cloud = Cloud.new("test_cloud_#{rand(10000)}")
+    stub_list_from_remote_for @test_cloud
+    @test_cloud.stub!(:describe_instances).and_return response_list_of_instances
+  end
+  @test_cloud
 end
 
 def setup_cl
@@ -139,11 +166,14 @@ def response_list_of_instances(arr=[])
   unless @response_list_of_instances
     @a1 = stub_instance(1); 
     @a1[:name] = "master"
-    @a2 = stub_instance(1); @a3 = stub_instance(2, "terminated"); @a4 = stub_instance(3, "pending")
-    @b1 = stub_instance(4, "shutting down", "blist"); @c1 = stub_instance(5, "pending", "clist")
+    @a2 = stub_instance(1); 
+    @a3 = stub_instance(2, "terminated"); 
+    @a4 = stub_instance(3, "pending")
+    @b1 = stub_instance(4, "shutting down", "blist"); 
+    @c1 = stub_instance(5, "pending", "clist")
     @response_list_of_instances = [@a1, @a2, @a3, @a4, @b1, @c1]
   end
-  @response_list_of_instances
+  @response_list_of_instances+arr
 end
 
 def running_remote_instances
