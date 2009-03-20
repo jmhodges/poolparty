@@ -56,12 +56,6 @@ module PoolParty
       receiver.send :include, InstanceMethods      
     end
 
-    # The Remote class is a wrapps the core methods of
-    # launch_new_instance! terminate_instance describe_instance instances_list
-    #  with convenience methods.
-    class Remote
-      include PoolParty::Remote::Remoter
-    end
   end
 end
 

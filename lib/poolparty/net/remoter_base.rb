@@ -21,7 +21,8 @@ module PoolParty
   module Remote    
     # This class is the base class for all remote types, such as ec2
     # Everything remoting-wise is derived from this class
-    class RemoterBase < Remote
+    class RemoterBase
+      include  Remote
       # Required methods
       # The next methods are required on all RemoteInstance types
       # If your RemoteInstance type does not overwrite the following methods
@@ -44,8 +45,22 @@ module PoolParty
       def describe_instances
         raise RemoteException.new(:method_not_defined, "describe_instances")
       end
-            
+      
+      # After launch callback
+      # This is called after a new instance is launched
+      def after_launched(force=false)        
+      end
+      
+      # Before shutdown callback
+      # This is called before the cloud is contracted
+      def before_shutdown
+      end
+      
     end
     
   end
+end
+
+Dir["#{File.dirname(__FILE__)}/remoter/*.rb"].each do |remoter_module| 
+  require remoter_module
 end
