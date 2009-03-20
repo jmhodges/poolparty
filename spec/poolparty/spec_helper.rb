@@ -24,7 +24,7 @@ def are_too_many_instances_running?; end
 def are_any_nodes_exceeding_minimum_runtime?; end
 def are_too_few_instances_running?; end
 
-require File.dirname(__FILE__)+'/net/remote_bases/ec2_mocks_and_stubs.rb'
+require File.dirname(__FILE__)+'/net/remoter_bases/ec2_mocks_and_stubs.rb'
 
 class TestRemoterClass < Ec2
   include CloudResourcer

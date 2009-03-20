@@ -1,10 +1,10 @@
 require File.join(File.dirname(__FILE__), '../../spec_helper')
 require File.dirname(__FILE__) + '/ec2_mocks_and_stubs.rb'
 
-include Remote
+include PoolParty::Remote
 include Aska
 
-require File.dirname(__FILE__) + '/ec2_mocks_and_stubs.rb'
+# require File.dirname(__FILE__) + '/ec2_mocks_and_stubs.rb'
 
 
 describe "Ec2RemoteInstance" do
