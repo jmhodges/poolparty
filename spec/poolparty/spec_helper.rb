@@ -19,7 +19,7 @@ ENV["AWS_SECRET_ACCESS_KEY"] = 'fake_aws_secret_access_key'
 include PoolParty
 extend PoolParty
 
-def debugging; false; end
+def debugging(*args); false; end
 def are_too_many_instances_running?; end
 def are_any_nodes_exceeding_minimum_runtime?; end
 def are_too_few_instances_running?; end
