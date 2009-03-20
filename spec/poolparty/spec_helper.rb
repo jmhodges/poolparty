@@ -24,9 +24,42 @@ def are_too_many_instances_running?; end
 def are_any_nodes_exceeding_minimum_runtime?; end
 def are_too_few_instances_running?; end
 
-require File.dirname(__FILE__)+'/net/remote_bases/ec2_mocks_and_stubs.rb'
+require File.dirname(__FILE__)+'/net/remoter_bases/ec2_mocks_and_stubs.rb'
+# 
+# module PoolParty
+#   module Remote
+#     class TestEC2Class < Ec2
+#       include CloudResourcer
+#       include CloudDsl
+#   
+#       def keypair;"fake_keypair";  end
+#       def ami;"ami-abc123";end
+#       def size; "small";end
+#       def security_group; "default";end
+#       def ebs_volume_id; "ebs_volume_id";end
+#       def availabilty_zone; "us-east-1a";end
+#       def verbose; false; end
+#       def ec2
+#         @ec2 ||= EC2::Base.new( :access_key_id => "not_an_access_key", :secret_access_key => "not_a_secret_access_key")
+#       end
+#       def describe_instances
+#         response_list_of_instances
+#       end
+#     end
+# 
+#     module PoolParty  
+#       module Remote
+#         class TestEc2RemoteInstance < Ec2RemoteInstance
+#           def initialize(opts, parent=TestEC2Class.new)
+#             super(opts, parent)
+#           end
+#         end
+#       end
+#     end
+#   end
+# end
 
-class TestRemoterClass < Ec2
+class TestRemoterClass < ::PoolParty::Remote::Ec2
   include CloudResourcer
   include CloudDsl
   

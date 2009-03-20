@@ -32,8 +32,10 @@ end
       DateTime.parse( self.chomp ) rescue self
     end
   end
-  module PoolParty    
-    class Ec2 < PoolParty::Remote::RemoterBase
+  
+module PoolParty    
+  module Remote
+    class Ec2 < Remote::RemoterBase
 
       def launch_new_instance!(num=1)
         instance = ec2.run_instances(
@@ -104,7 +106,7 @@ end
         reset_remoter_base!
         when_all_assigned_ips {wait "5.seconds"}
       end
-      
+    
       # Attach a volume to the instance
       # DEPRECATE this relies on master.  master will be removed in next major release.  This method will be in ec2_remote_instance instead, or require an instance id
       def attach_volume(instance=nil)
@@ -134,33 +136,33 @@ end
           Kernel.system "ec2-add-keypair #{keypair} > #{new_keypair_path} && chmod 600 #{new_keypair_path}"
         end
       end
-      
+    
       # wrapper for remote base to perform a snapshot backup for the ebs volume
       def create_snapshot
         return nil if ebs_volume_id.nil?
         ec2.create_snapshot(:volume_id => ebs_volume_id)
       end
-      
+    
       # EC2 connections
       def ec2
         @ec2 ||= EC2::Base.new( :access_key_id => (access_key || Base.access_key), 
                                 :secret_access_key => (secret_access_key || Base.secret_access_key)
                               )
       end
-      
+    
       # These are tasks that run before the configuration runs
       def before_configuration_tasks
         if set_master_ip_to && master.ip && master.ip.to_s != set_master_ip_to.to_s
           associate_address(master)
           reset_remoter_base!
-        
+      
           when_no_pending_instances do
             when_all_assigned_ips do
               vputs "Associated master with #{set_master_ip_to}"
             end
           end
         end
-        
+      
       end
       def has_cert_and_key?
         pub_key && private_key
@@ -175,7 +177,7 @@ end
       def private_key
         @private_key ||= ENV["EC2_PRIVATE_KEY"] ? ENV["EC2_PRIVATE_KEY"] : nil
       end
-      
+    
       def custom_minimum_runnable_options
         [:ami, :availabilty_zone, :security_group]
       end
@@ -190,7 +192,7 @@ end
           "echo #{o.name} > /etc/hostname"
         ]
       end
-      
+    
       def after_install_tasks_for(o)
         [
           "cd /var/poolparty && wget http://rubyforge.org/frs/download.php/43666/amazon-ec2-0.3.1.gem -O amazon-ec2.gem 2>&1",
@@ -206,5 +208,7 @@ end
       def reset_base!
         @describe_instances = @cached_descriptions = nil
       end      
-    end    
+    end
+        
   end
+end
