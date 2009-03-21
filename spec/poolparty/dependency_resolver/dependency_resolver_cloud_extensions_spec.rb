@@ -107,6 +107,7 @@ describe "Resolution spec" do
     end
     it "contain content in the template's hash" do
       apache_key = @cloud.to_properties_hash[:services].keys.select{|k| k.to_s =~ /apache/ }.first
+      puts "<pre>#{@cloud.to_properties_hash.to_yaml}</pre>"
       @cloud.to_properties_hash[:services][apache_key].resources[:file].first[:content].should == "Hello bob on port 8080"
     end
     it "contain the files in a hash" do

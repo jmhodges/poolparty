@@ -154,15 +154,18 @@ module PoolParty
       def key
         name
       end
-      def virtual_resource?
-        false
-      end
-      def printable?
-        true
+      # def virtual_resource?
+      #   false
+      # end
+      # def printable?
+      #   true
+      # end
+      def is_in_plugin?
+        parent.is_plugin?
       end
       
       def method_missing(m,*a,&block)
-        if parent && parent.dsl_options.has_key?(m)
+        if parent && parent.dsl_options.has_key?(m) && is_in_plugin?
           parent.dsl_options[m]
         else
           super

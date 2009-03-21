@@ -20,14 +20,15 @@ module PoolParty
         }        
         
         super(opts, &proc)
-        
-        @opts = nil
       end
       
       # Overwrite this method
       def loaded(o={}, &block)
       end
       def enable
+      end
+      def is_plugin?
+        true
       end
       
       def self.inherited(subclass)

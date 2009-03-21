@@ -22,9 +22,8 @@ module PoolParty
         @parent = parent
       end
       
+      run_in_context(&block) if block
       super(&block)
-      
-      run_in_context(&block) if block      
     end
     
     # Add to the services pool for the manifest listing
@@ -103,6 +102,10 @@ module PoolParty
     
     def resources
       @resources ||= {}
+    end
+    
+    def is_plugin?
+      false
     end
     
     def method_missing(m,*a,&block)
