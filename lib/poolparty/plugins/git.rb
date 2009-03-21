@@ -9,9 +9,7 @@ module PoolParty
     
     virtual_resource(:git_repos) do
       
-      def loaded(opts={}, &block)
-        set_vars_from_options(opts)
-        
+      def loaded(opts={}, &block)        
         # opts.has_key?(:at) ? at(opts.delete(:at)) : raise(Exception.new("You must include a directory for the git repos set by :at"))
         # opts.has_key?(:source) ? git_repos(opts.delete(:source) || opts[:name]) : raise(Exception.new("You must include the git source set by :source"))        
         

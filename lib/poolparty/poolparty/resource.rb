@@ -76,14 +76,7 @@ module PoolParty
         
         opts = extra_opts.merge(opts).merge(:name => @resource_name)        
         
-        @opts = opts
-        
-        proc = Proc.new {
-          block.call if block
-          loaded(@opts, &block)
-        }        
-        
-        super(opts, &proc)
+        super(opts, &block)
         
         dsl_options[:name] = resource_name unless dsl_options.has_key?(:name)        
       end

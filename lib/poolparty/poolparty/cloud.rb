@@ -59,11 +59,11 @@ module PoolParty
         :ami => 'ami-44bd592d'
       )
       
-      def initialize(name, opts={}, &block)
+      def initialize(name, &block)
         @cloud_name = name
         @cloud_name.freeze        
         plugin_directory
-        super(opts, &block)
+        super
         setup_defaults
         after_create
       end

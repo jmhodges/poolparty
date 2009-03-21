@@ -19,6 +19,31 @@ describe "File" do
     it "should store the mode (from within the block)" do
       @file.mode.should == 755
     end
+    describe "template" do
+      before(:each) do
+        @file = "<%= friends %> <%= runner %>"
+        @file.stub!(:read).and_return @file
+        Template.stub!(:open).and_return @file
+        
+        @tc = TestBaseClass.new do
+          file({:name => "/etc/apache2/puppetmaster.conf", :owner => "herman"}) do
+            template "/absolute/path/to/template"
+            runner "is super fast"
+            friends "bob"
+          end
+        end
+        @file = @tc.resource(:file).first
+      end
+      it "should have content in the options" do
+        @file.content.nil?.should == false
+      end
+      it "should fill in the template (Erb) with the variables" do
+        @file.content.should == "bob is super fast"
+      end
+      it "should remove the template from the options" do
+        @file.template.nil?.should == true
+      end
+    end
     describe "into PuppetResolver" do
       before(:each) do
         @compiled = PuppetResolver.new(@tc.to_properties_hash).compile

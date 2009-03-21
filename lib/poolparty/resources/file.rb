@@ -8,10 +8,10 @@ module PoolParty
       })
       
       def after_create
-        if dsl_options.include?(:template)
-          filename = self.template
+        if dsl_options.include?(:template)          
+          filename = dsl_options.template
           dsl_options.delete(:template)
-          file = ::File.basename(filename)
+          file = ::File.basename( filename )
           raise TemplateNotFound.new("no template given") unless file
 
           template_opts = (parent ? options.merge(parent.options) : options)

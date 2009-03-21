@@ -20,16 +20,14 @@ module PoolParty
         @parent = parent
       end
       
-      @opts = opts
-      
-      proc = Proc.new do
-        set_vars_from_options(@opts)
+      if opts.is_a?(Hash)
+        @opts = opts  
+        proc = Proc.new {set_vars_from_options(@opts)}
+        run_in_context(&proc)
       end
-      
-      run_in_context(&proc)
+            
       run_in_context(&block) if block
-      super(&block)     
-      @opts = nil
+      super(&block)           
     end
     
     # Add to the services pool for the manifest listing
