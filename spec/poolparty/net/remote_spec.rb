@@ -15,7 +15,7 @@ PoolParty::Remote.register_remote_base :Hype
 describe "Remote" do
   before(:each) do
     @cloud = cloud :test_cloud do;end
-    @tc = TestClass.new
+    @tc = TestRemoterClass.new
     @tc.stub!(:verbose).and_return false
     setup 
   end
@@ -56,17 +56,17 @@ describe "Remote" do
   end
   describe "after using" do
     before(:each) do
-      @tc = TestClass.new do
+      @hype_cloud = TestCloud.new do
         using :hype
       end
-      stub_list_from_remote_for(@tc, false)
+      stub_list_from_remote_for(@hype_cloud, false)
     end
     it "should set the remote_base as an instance of the remoter base" do
-      @tc.remote_base.class.should == Hype
+      @hype_cloud.remote_base.class.should == Hype
     end
     it "should now have the methods available from the module" do
       lambda {
-        @tc.hyper
+        @hype_cloud.hyper
       }.should_not raise_error
     end
     it "should raise an exception because the launch_new_instance! is not defined" do
@@ -78,7 +78,7 @@ describe "Remote" do
     end
     it "should not raise an exception because instances_list is defined" do
       lambda {
-        @tc.remote_instances_list
+        @hype_cloud.remote_instances_list
       }.should_not raise_error
     end
     it "should run hyper" do
@@ -270,7 +270,6 @@ describe "Remote" do
       before(:each) do
         Kernel.stub!(:system).and_return true
         @tc.extend CloudResourcer        
-        @tc.stub!(:keypair_path).and_return "~/.ec2/fake_keypair"
         @obj = Object.new
         @obj.stub!(:ip).and_return "192.168.0.1"
       end

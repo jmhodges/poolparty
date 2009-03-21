@@ -2,7 +2,7 @@ class TestEC2Class < Ec2
   include CloudResourcer
   include CloudDsl
   
-  def keypair;"fake_keypair";  end
+  def keypair;FakeKey.new;  end
   def ami;"ami-abc123";end
   def size; "small";end
   def security_group; "default";end

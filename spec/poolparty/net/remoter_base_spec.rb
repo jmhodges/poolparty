@@ -5,7 +5,7 @@ class TestRemoteClass
   include PoolParty::Remote
 
   def keypair
-    "fake_keypair"
+   FakeKey.new
   end
 end
 
