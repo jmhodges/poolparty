@@ -13,19 +13,23 @@ module PoolParty
     # attr_accessor :depth
     # attr_reader :parent
 
-    def initialize(opts={}, &block)
-      @dsl_options = nil
-      
+    def initialize(opts={}, &block)      
       if parent && !parent.is_a?(PoolParty::Resources::Resource)
         options(parent.dsl_options) if parent.respond_to?(:dsl_options) && parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self) && parent.respond_to?(:add_service) && parent.respond_to?(:services)
         @parent = parent
       end
       
-      set_vars_from_options(opts)
+      @opts = opts
       
+      proc = Proc.new do
+        set_vars_from_options(@opts)
+      end
+      
+      run_in_context(&proc)
       run_in_context(&block) if block
-      super(&block)      
+      super(&block)     
+      @opts = nil
     end
     
     # Add to the services pool for the manifest listing

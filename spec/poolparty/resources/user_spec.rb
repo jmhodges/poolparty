@@ -31,7 +31,7 @@ describe "User" do
         @compiled.should match(/user \{ "bob"/)
       end
       it "set the owner as the owner" do
-        puts "<pre>"+@compiled.to_yaml+"</pre>"
+        # puts "<pre>"+@compiled.to_yaml+"</pre>"
         @compiled.should match(/comment => "Bob is outstanding"/)
       end
       it "should say it's a user in the ensure method" do

@@ -74,11 +74,7 @@ module PoolParty
       def initialize(opts={}, extra_opts={}, &block)                        
         @resource_name = opts.is_a?(String) ? dsl_options[:name] = opts :  (opts.has_key?(:name) ? opts.delete(:name) : nil)
         
-        opts = extra_opts.merge(opts).merge(:name => @resource_name)
-        
-        puts "BEFORE: resource: #{opts.inspect} for #{self.class}" #if self.class.to_s == "user"
-        
-        dsl_options[:name] = resource_name unless dsl_options.has_key?(:name)        
+        opts = extra_opts.merge(opts).merge(:name => @resource_name)        
         
         @opts = opts
         
@@ -88,7 +84,8 @@ module PoolParty
         }        
         
         super(opts, &proc)
-        puts "AFTER resource: #{dsl_options.inspect} for #{self.class}" #if self.class.to_s == "user"
+        
+        dsl_options[:name] = resource_name unless dsl_options.has_key?(:name)        
       end
             
       # Stub, so you can create virtual resources
