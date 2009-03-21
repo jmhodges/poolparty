@@ -5,16 +5,23 @@ module PoolParty
         
     class Plugin < PoolParty::Service
       include CloudResourcer
-      include Resources
       include PoolParty::DependencyResolverCloudExtensions
             
       default_options({})
       
-      def initialize(opts={}, parent=nil, &block)
-        set_vars_from_options(opts) unless opts.empty?        
+      def initialize(opts={}, prnt=nil, &block)
         block = Proc.new {enable} unless block
-        super(&block)
-        loaded(opts, &block)
+
+        @opts = opts
+        
+        proc = Proc.new {
+          block.call if block
+          loaded(@opts, &block)
+        }        
+        
+        super(opts, &proc)
+        
+        @opts = nil
       end
       
       # Overwrite this method

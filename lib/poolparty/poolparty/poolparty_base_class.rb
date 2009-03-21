@@ -17,12 +17,14 @@ module PoolParty
       set_vars_from_options(opts) unless !opts.is_a?(Hash)
       
       if parent && !parent.is_a?(PoolParty::Resources::Resource)
-        options(parent.options) if parent.respond_to?(:options) && parent.is_a?(PoolParty::Pool::Pool)
+        options(parent.dsl_options) if parent.respond_to?(:dsl_options) && parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self) && parent.respond_to?(:add_service) && parent.respond_to?(:services)
         @parent = parent
       end
       
-      run_in_context(&block) if block
+      super(&block)
+      
+      run_in_context(&block) if block      
     end
     
     # Add to the services pool for the manifest listing

@@ -10,19 +10,29 @@ module PoolParty
     virtual_resource(:git_repos) do
       
       def loaded(opts={}, &block)
+        set_vars_from_options(opts)
+        
+        # opts.has_key?(:at) ? at(opts.delete(:at)) : raise(Exception.new("You must include a directory for the git repos set by :at"))
+        # opts.has_key?(:source) ? git_repos(opts.delete(:source) || opts[:name]) : raise(Exception.new("You must include the git source set by :source"))        
+        
         has_package("git-core")
         has_git_repository
       end
-            
+
       def has_git_repository
-        has_exec({:name => key, :requires => [get_directory("#{working_dir}"), get_package("git-core")] }) do
+        has_exec({:name => "git-#{name}", :requires => [get_directory("#{working_dir}"), get_package("git-core")] }) do
+          # Cloud, GitRepos, Exec
           command requires_user ? "git clone #{requires_user}@#{source} #{working_dir}" : "cd #{working_dir} && git clone #{source}"
           cwd "#{working_dir if working_dir}"
           creates creates_dir
-        end                
+        end
         has_exec(:name => "update-#{name}", :cwd => ::File.dirname( creates_dir )) do          
           command "git pull"
         end                
+      end
+      
+      def git_repos(src)
+        source src
       end
       
       def at(dir)

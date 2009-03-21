@@ -48,7 +48,7 @@ module PoolParty
             end
             def get_#{lowercase_class_name}(n, opts={}, &block)
               res = get_resource(:#{lowercase_class_name}, n, opts, &block)
-              raise PackageException.new("A required #{lowercase_class_name.capitalize} \#\{n\} was not found.") unless res
+              raise PackageException.new("A required #{lowercase_class_name} \#\{n\} was not found.") unless res
               res
             end
           EOE
@@ -117,17 +117,6 @@ module PoolParty
         nil
       end
       
-      def method_missing(m,*a,&block)
-        begin
-          cloud.send(m, *a, &block)
-        rescue Exception => e
-          puts "- MM Exception: #{e} - #{self}(#{m}) going to #{self.class.ancestors.inspect}"
-          super
-        end
-        
-         # rescue super
-      end
-      
       def duplicatable?
         false
       end
@@ -172,8 +161,12 @@ module PoolParty
         true
       end
       
-      def to_s
-        "#{class_name_sym}(#{name})"
+      def method_missing(m,*a,&block)
+        if parent && parent.dsl_options.has_key?(m)
+          parent.dsl_options[m]
+        else
+          super
+        end
       end
       
       # Private method just for resource retrievling purposes
