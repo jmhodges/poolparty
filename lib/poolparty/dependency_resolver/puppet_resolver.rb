@@ -57,11 +57,12 @@ module PoolParty
     end
     
     def permitted_option?(ty, key)
-      if permitted_resource_options.has_key?(ty)
-        permitted_resource_options[ty].include?(key) || true #permitted_resource_options[:global].include?(key)
-      else
-        true
-      end
+      true
+      # if permitted_resource_options.has_key?(ty)
+      #   permitted_resource_options[ty].include?(key) || true #permitted_resource_options[:global].include?(key)
+      # else
+      #   true
+      # end
     end
     
     def services_to_string(opts,tabs=0)

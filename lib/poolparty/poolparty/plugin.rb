@@ -15,6 +15,7 @@ module PoolParty
         @opts = opts
         
         proc = Proc.new {
+          set_vars_from_options(@opts)
           block.call if block
           loaded(@opts, &block)
         }        

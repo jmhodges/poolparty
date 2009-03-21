@@ -62,7 +62,7 @@ end
 $_poolparty_load_directories = [
   "core",
   "dependency_resolver/dependency_resolver_cloud_extensions.rb",
-  "poolparty_base_class.rb",
+  "poolparty/poolparty_base_class.rb",
   "modules",
   "exceptions",
   "dependency_resolver",

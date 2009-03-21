@@ -4,24 +4,24 @@ describe "User" do
   describe "instances" do
     before(:each) do
       @tc = TestBaseClass.new do
-        has_user("bob", {:comment => "Bob is outstanding"}) do
+        has_user("bob", {:job => "accountant", :comment => "Bob is outstanding"}) do
           password "b0b"
           home "/home/bob"
         end
       end
-      @dir = @tc.resource(:user).first
+      @user = @tc.resources[:user].first
     end
-    it "have the name in the options" do
-      @dir.name.should == "bob"
+    it "have the name in the options" do      
+      @user.name.should == "bob"
     end
     it "should store the owner's name" do
-      @dir.comment.should == "Bob is outstanding"
+      @user.comment.should == "Bob is outstanding"
     end
     it "should store the password (from within the block)" do
-      @dir.password.should == "b0b"
+      @user.password.should == "b0b"
     end
     it "should store the home" do
-      @dir.home.should == "/home/bob"
+      @user.home.should == "/home/bob"
     end
     describe "into PuppetResolver" do
       before(:each) do
@@ -31,6 +31,7 @@ describe "User" do
         @compiled.should match(/user \{ "bob"/)
       end
       it "set the owner as the owner" do
+        puts "<pre>"+@compiled.to_yaml+"</pre>"
         @compiled.should match(/comment => "Bob is outstanding"/)
       end
       it "should say it's a user in the ensure method" do

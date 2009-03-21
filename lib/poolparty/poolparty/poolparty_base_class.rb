@@ -14,7 +14,7 @@ module PoolParty
     # attr_reader :parent
 
     def initialize(opts={}, &block)
-      set_vars_from_options(opts) unless !opts.is_a?(Hash)
+      @dsl_options = nil
       
       if parent && !parent.is_a?(PoolParty::Resources::Resource)
         options(parent.dsl_options) if parent.respond_to?(:dsl_options) && parent.is_a?(PoolParty::Pool::Pool)
@@ -22,8 +22,10 @@ module PoolParty
         @parent = parent
       end
       
+      set_vars_from_options(opts)
+      
       run_in_context(&block) if block
-      super(&block)
+      super(&block)      
     end
     
     # Add to the services pool for the manifest listing

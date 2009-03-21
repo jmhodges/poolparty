@@ -72,19 +72,23 @@ module PoolParty
       # the options
       # Finally, it uses the parent's options as the lowest priority
       def initialize(opts={}, extra_opts={}, &block)                        
-        if opts.is_a?(String)
-          @resource_name = dsl_options[:name] = opts
-          opts = extra_opts.merge(:name => @resource_name)
-        else
-          @resource_name = opts.has_key?(:name) ? opts.delete(:name) : nil
-        end
-        # @options = parent.options.merge(options) if parent && parent.is_a?(PoolParty::Pool::Pool)
+        @resource_name = opts.is_a?(String) ? dsl_options[:name] = opts :  (opts.has_key?(:name) ? opts.delete(:name) : nil)
         
-        super(opts, &block)
+        opts = extra_opts.merge(opts).merge(:name => @resource_name)
         
-        dsl_options[:name] = resource_name unless dsl_options.has_key?(:name)
+        puts "BEFORE: resource: #{opts.inspect} for #{self.class}" #if self.class.to_s == "user"
         
-        loaded(opts, &block)
+        dsl_options[:name] = resource_name unless dsl_options.has_key?(:name)        
+        
+        @opts = opts
+        
+        proc = Proc.new {
+          block.call if block
+          loaded(@opts, &block)
+        }        
+        
+        super(opts, &proc)
+        puts "AFTER resource: #{dsl_options.inspect} for #{self.class}" #if self.class.to_s == "user"
       end
             
       # Stub, so you can create virtual resources
