@@ -28,7 +28,7 @@ module PoolParty
       include Provisioner
 
       # Net methods
-      include PoolParty::Remote
+      include ::PoolParty::Remote
       include PoolParty::CloudDsl
       include PoolParty::Monitors
 

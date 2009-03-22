@@ -55,6 +55,25 @@ module PoolParty
       return true if ::File.exists?("#{remote_keypair_path}") || master.nil?
     end
     
+    def using(t)
+      @cloud = self
+      if t && self.class.available_bases.include?(t.to_sym)
+        unless using_remoter?
+          self.class.send :attr_reader, :remote_base
+          self.class.send :attr_reader, :parent_cloud
+          klass = "#{t}".classify.constantize
+          @remote_base = klass.send :new
+          @parent_cloud = @cloud
+        end
+      else
+        puts "Unknown remote base" 
+      end
+    end
+    
+    def using_remoter?
+      @remote_base
+    end
+    
     # Keypairs
     # Use the keypair path
     def keypair(args=nil)

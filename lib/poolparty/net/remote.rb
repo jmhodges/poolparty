@@ -22,6 +22,7 @@ module PoolParty
     module InstanceMethods
       def using(t)
         @cloud = self
+        puts "--- using t: #{t} and #{self.class.available_bases.join(" ")}"
         if t && self.class.available_bases.include?(t.to_sym)
           unless using_remoter?
             self.class.send :attr_reader, :remote_base
