@@ -64,6 +64,7 @@ module PoolParty
           klass = "#{t}".classify.constantize
           @remote_base = klass.send :new
           @parent_cloud = @cloud
+          instance_eval "def #{t};@remote_base;end;"
         end
       else
         puts "Unknown remote base" 

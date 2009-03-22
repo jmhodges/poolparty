@@ -82,7 +82,7 @@ describe "Remote" do
       }.should_not raise_error
     end
     it "should run hyper" do
-      @tc.hyper.should == "beatnick"
+      @hype_cloud.hype.hyper.should == "beatnick"
     end
   end
   describe "methods" do
@@ -134,6 +134,7 @@ describe "Remote" do
     end
     describe "can_start_a_new_instance?" do
       it "should be true because the maximum instances are not running" do
+        @tc.stub!(:list_of_pending_instances).and_return ["none"]
         @tc.can_start_a_new_instance?.should == false
       end
       it "should say that we cannot start a new instance because we are at the maximum instances" do
@@ -186,7 +187,10 @@ describe "Remote" do
         @tc.request_termination_of_non_master_instance
       end
       it "should call terminate on an instance" do
-        @tc.should_receive(:terminate_instance!).once
+        @inst = "last instance of the pack"
+        @inst.stub!(:instance_id).and_return "12345"
+        @tc.stub!(:nonmaster_nonterminated_instances).and_return [@inst]
+        @tc.should_receive(:terminate_instance!).with("12345").and_return true
         @tc.request_termination_of_non_master_instance
       end
     end
