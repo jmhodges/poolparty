@@ -38,7 +38,7 @@ module PoolParty
       end
     end
     
-    def add_to_parent_if_parent_exists_and_is_a_service(opts={})
+    def add_to_parent_if_parent_exists_and_is_a_service
       if parent && !parent.is_a?(PoolParty::Resources::Resource)
         dsl_options(parent.dsl_options) if parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self) if parent.respond_to?(:add_service) && !is_a_resource?

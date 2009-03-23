@@ -4,7 +4,7 @@ describe "File" do
   describe "instances" do
     before(:each) do
       @tc = TestBaseClass.new do
-        file({:name => "/etc/apache2/puppetmaster.conf", :owner => "herman"}) do
+        has_file({:name => "/etc/apache2/puppetmaster.conf", :owner => "herman"}) do
           mode 755
         end
       end
@@ -26,7 +26,7 @@ describe "File" do
         Template.stub!(:open).and_return @file
         
         @tc = TestBaseClass.new do
-          file({:name => "/etc/apache2/puppetmaster.conf", :owner => "herman"}) do
+          has_file({:name => "/etc/apache2/puppetmaster.conf", :owner => "herman"}) do
             template "/absolute/path/to/template"
             runner "is super fast"
             friends "bob"
