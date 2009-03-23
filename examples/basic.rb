@@ -11,10 +11,6 @@ pool :application do
     minimum_instances 12
     ami "ami-abc123"
     junk_yard_dogs "pains"
-    
-    cloud :inner do
-      minimum_instances 14
-    end
   end
   
   cloud :db do

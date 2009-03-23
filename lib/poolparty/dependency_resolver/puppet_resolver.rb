@@ -116,7 +116,7 @@ module PoolParty
         "#{tf(tabs)}case $#{klasshash[:options][:variable]} {#{klasshash[:services][:control_statements].map do |k,v|"\n#{tf(tabs+1)}#{k} : {#{compile(v.to_properties_hash, tabs+2)}#{tf(tabs+1)}\n#{tf(tabs)}}" end}}"
       else
         kname = klassname.to_s.gsub(/pool_party_/, '').gsub(/_class/, '')
-        "\n#{tf(tabs)}class #{kname} {#{tf(tabs)}#{compile(klasshash,tabs+1)}#{tf(tabs)}} include #{kname}"
+        "\n#{tf(tabs)}class #{kname} {\n#{tf(tabs)}#{compile(klasshash,tabs+1)}#{tf(tabs)}} include #{kname}"
       end
     end
     
@@ -125,7 +125,7 @@ module PoolParty
       when "variable"
         "$#{res[:name]} = #{to_option_string(res[:value])}"
       when "line_in_file"
-        "#{PoolParty::Resources::LineInFile.command(res[:line], res[:file])}"
+        "#{tf(tabs)}exec { \"#{res[:file]}_line_#{tabs}\": \n#{tf(tabs+1)}command => '#{PoolParty::Resources::LineInFile.command(res[:line], res[:file])}'\n#{tf(tabs)}}"
       else
         klasstype = case type.to_s
         when "directory"

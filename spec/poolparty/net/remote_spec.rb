@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 require "ftools"
 
-class Hype < PoolParty::Remote::RemoterBase
+class PoolParty::Remote::Hype < PoolParty::Remote::RemoterBase
   def hyper
     "beatnick"
   end

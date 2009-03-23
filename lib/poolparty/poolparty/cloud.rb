@@ -117,6 +117,7 @@ module PoolParty
         copy_ssh_key
         write_unique_cookie
         before_configuration_tasks
+        write_properties_hash if debugging
       end
       
       def copy_custom_templates
@@ -158,12 +159,13 @@ module PoolParty
       # classes to separate files and keeping the containing
       # references in the include
       def build_and_store_new_config_file(force=false)
+        # write_properties_hash if debugging
         vputs "Building new manifest configuration file (forced: #{force})"
-              manifest = force ? rebuild_manifest : build_manifest
-              config_file = ::File.join(Default.storage_directory, "poolparty.pp")
-              ::File.open(config_file, "w") do |file|
-                file << manifest
-              end
+        manifest = force ? rebuild_manifest : build_manifest
+        config_file = ::File.join(Default.storage_directory, "poolparty.pp")
+        ::File.open(config_file, "w") do |file|
+          file << manifest
+        end
       end
       
       def copy_misc_templates
@@ -248,6 +250,13 @@ module PoolParty
       
       def build_from_existing_file
         ::FileTest.file?("#{Default.manifest_path}/classes/poolparty.pp") ? open("#{Default.manifest_path}/classes/poolparty.pp").read : nil
+      end
+      
+      def write_properties_hash(filename="#{Default.tmp_path}/properties_hash.yml")
+        require "pp"
+        output capture_stdout {pp(to_properties_hash)}
+        ::File.open(filename, "w") {|f| f.write output }
+        true
       end
       
       # To allow the remote instances to do their job,

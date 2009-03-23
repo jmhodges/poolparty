@@ -9,7 +9,7 @@ module PoolParty
   class Optioner
     include Dslify
     
-    default_options({:verbose => false, :quiet => false})
+    default_options({:verbose => false, :quiet => false, :cloudname => false, :poolname => false})
     
     def initialize(args=[], opts={}, &block)      
       boolean_args << opts[:boolean_args] if opts.has_key?(:boolean_args)
@@ -119,7 +119,7 @@ module PoolParty
     end
     def reject_junk_options!
       %w(loaded_pool cloudname extract_pool_from_options).each do |opt|
-        @options.delete(opt.to_sym)
+        @dsl_options.delete(opt.to_sym)
       end
     end
     def process_options
