@@ -13,13 +13,14 @@ module PoolParty
       nil
     end
     
-    def self.add_has_and_does_not_have_methods_for(type=:file)
-      lowercase_class_name = type.to_s.top_level_class.downcase
+    def self.add_has_and_does_not_have_methods_for(typ=:file)
+      lowercase_class_name = typ.to_s.top_level_class.downcase
       
       meth = <<-EOM
         def __#{lowercase_class_name}(opts={}, &block)
           PoolParty::#{lowercase_class_name.camelcase}Class.new(opts, &block)
         end
+        alias :#{lowercase_class_name} :__#{lowercase_class_name}
       EOM
       
       PoolParty::PoolPartyBaseClass.module_eval meth
