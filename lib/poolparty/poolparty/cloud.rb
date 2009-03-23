@@ -252,7 +252,7 @@ module PoolParty
         ::FileTest.file?("#{Default.manifest_path}/classes/poolparty.pp") ? open("#{Default.manifest_path}/classes/poolparty.pp").read : nil
       end
       
-      def write_properties_hash(filename="#{Default.tmp_path}/properties_hash.yml")
+      def write_properties_hash(filename="#{Default.tmp_path}/properties_hash.rb")
         file_path = ::File.dirname(filename)
         file_name = "#{::File.basename(filename, ::File.extname(filename))}_#{name}#{::File.extname(filename)}"
         require "pp"
