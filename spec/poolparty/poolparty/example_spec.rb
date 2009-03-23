@@ -17,9 +17,11 @@ describe "basic" do
     pools[:application].clouds[:db].should_not == nil
   end
   it "should set the minimum_instances on the cloud to 2 (overriding the pool options)" do    
+    pools[:application].minimum_instances.should == 3
     clouds[:app].minimum_instances.should == 12
   end
   it "should set the maximum_instances on the cloud to 50" do
+    puts "<pre>#{clouds[:app].dsl_options.inspect}</pre>"
     clouds[:app].maximum_instances.should == 50
   end
   it "should set the minimum_instances on the db cloud to 3" do

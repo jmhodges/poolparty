@@ -38,9 +38,9 @@ module PoolParty
     end
     
     def add_to_parent_if_parent_exists_and_is_a_service
-      if parent && !parent.is_a?(PoolParty::Resources::Resource)
+      if parent# && !parent.is_a?(PoolParty::Resources::Resource)
         options(parent.dsl_options) if parent.is_a?(PoolParty::Pool::Pool)
-        parent.add_service(self) if parent.respond_to?(:add_service) && parent.respond_to?(:services) && !is_a_resource?
+        parent.add_service(self) if parent.respond_to?(:services) && !is_a_resource?
       end
     end
     
@@ -132,8 +132,8 @@ module PoolParty
     end
     
     def method_missing(m,*a,&block)
-      if this_context && this_context != self# && !self.is_a?(PoolParty::Resources::Resource)
-        this_context.send m, *a, &block rescue super
+      if this_context && this_context != self && this_context.respond_to?(m)# && !self.is_a?(PoolParty::Resources::Resource)
+        this_context.send m, *a, &block
       else
         super
       end
