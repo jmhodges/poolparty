@@ -77,7 +77,7 @@ describe "Console" do
       EOS
       self.stub!(:open).and_return @string
       @string.stub!(:read).and_return @string
-      PoolParty::Pool::Pool.new(:dummy).eval_from_string @string
+      PoolParty::Pool::Pool.new(:dummy).instance_eval @string
     end
     it "should be able to print the clouds" do      
       pools.empty?.should == false
