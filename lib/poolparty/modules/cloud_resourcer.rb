@@ -61,7 +61,8 @@ module PoolParty
         unless using_remoter?
           self.class.send :attr_reader, :remote_base
           self.class.send :attr_reader, :parent_cloud
-          klass = "#{t}".classify.constantize
+          klass_string = "#{t}".classify
+          klass = "::PoolParty::Remote::#{klass_string}".constantize
           @remote_base = klass.send :new
           @parent_cloud = @cloud
           instance_eval "def #{t};@remote_base;end;"
