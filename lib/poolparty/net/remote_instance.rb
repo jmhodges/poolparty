@@ -7,7 +7,7 @@ module PoolParty
       include Dslify
       include CloudResourcer
       
-      def initialize(opts, containing_cloud=nil)
+      def initialize(opts={}, containing_cloud=nil)
         @parent = containing_cloud
 
         set_vars_from_options(containing_cloud.options) if containing_cloud && containing_cloud.respond_to?(:options)
@@ -46,22 +46,23 @@ module PoolParty
       def load
         current_load ||= 0.0  #NOTE MF: returning 0.0 seems like a bad idea here.  should return nil if we dont have a real value
       end
-            
+      
+      # Note, the next 4 methods will be overridden by the cloud specific remoter_base
       # Is this instance running?
       def running?
-        !(status =~ /running/).nil?
+        true
       end
       # Is this instance pending?
       def pending?
-        !(status =~ /pending/).nil?
+        false
       end
       # Is this instance terminating?
       def terminating?
-        !(status =~ /shutting/).nil?
+        false
       end
       # Has this instance been terminated?
       def terminated?
-        !(status =~ /terminated/).nil?
+        false
       end
       
       # Printing. This is how we extract the instances into the listing on the 

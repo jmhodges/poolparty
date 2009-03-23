@@ -32,6 +32,23 @@ module PoolParty
         self
       end
       
+      # Is this instance running?
+      def running?
+        !(status =~ /running/).nil?
+      end
+      # Is this instance pending?
+      def pending?
+        !(status =~ /pending/).nil?
+      end
+      # Is this instance terminating?
+      def terminating?
+        !(status =~ /shutting/).nil?
+      end
+      # Has this instance been terminated?
+      def terminated?
+        !(status =~ /terminated/).nil?
+      end
+      
     end
   end
 end
