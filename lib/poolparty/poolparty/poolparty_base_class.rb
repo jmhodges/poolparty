@@ -76,13 +76,15 @@ module PoolParty
     # A word about stores, the global store stores the entire list of stored
     # resources. The local resource store is available on all clouds and plugins
     # which stores the instance variable's local resources. 
-    def add_resource(ty, opts={}, extra={}, &block)    
+    def add_resource(ty, opts={}, extra_opts={}, &block)    
       temp_name = get_name_from_options_and_extra_options(opts, extra_opts)
       
       if res = get_resource(ty, temp_name, opts)        
         res
       else
-        opts.merge!(:name => temp_name) unless opts.has_key?(:name)
+        opts = (opts.is_a?(Hash) ? extra_opts.merge(opts) : extra_opts).merge(:name => temp_name)
+        
+        # opts.merge!(:name => temp_name) unless opts.has_key?(:name)
         res = if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
           "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
         else
@@ -147,13 +149,14 @@ module PoolParty
     # add_has_and_does_not_have_methods_for(:file)
     # gives you the methods has_file and does_not_have_file
     # TODO: Refactor nicely to include other types that don't accept ensure
-    def self.add_has_and_does_not_have_methods_for(type=:file)
+    def self.add_has_and_does_not_have_methods_for(typ=:file)
+      method_name = "__#{typ}"
       PoolParty::PoolPartyBaseClass.module_eval <<-EOE
-        def has_#{type}(opts={}, extra={}, &block)
-          #{type}(handle_option_values(opts).merge(extra.merge(:ensures => present)), &block)
+        def has_#{typ}(opts={}, extra={}, &block)
+          #{method_name}(handle_option_values(opts).merge(extra.merge(:ensures => present)), &block)
         end
-        def does_not_have_#{type}(opts={}, extra={}, &block)
-          #{type}(handle_option_values(opts).merge(extra.merge(:ensures => absent)), &block)
+        def does_not_have_#{typ}(opts={}, extra={}, &block)
+          #{method_name}(handle_option_values(opts).merge(extra.merge(:ensures => absent)), &block)
         end
       EOE
     end

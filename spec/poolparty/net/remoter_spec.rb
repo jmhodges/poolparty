@@ -84,10 +84,11 @@ describe "Remoter" do
     before(:each) do
       @tc = TestClass.new
       stub_list_from_remote_for @tc # sets the list of instances to 2
+      stub_running_remote_instances @tc
     end
     describe "list_of_nodes_exceeding_minimum_runtime" do
       before(:each) do
-        @tc.stub!(:minimum_runtime).and_return 3000
+        @tc.stub!(:minimum_runtime).and_return 3000        
       end
       it "should not be empty" do
         @tc.list_of_running_instances.size.should == 2

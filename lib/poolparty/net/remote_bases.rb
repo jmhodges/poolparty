@@ -17,7 +17,6 @@ end
 
 Dir["#{File.dirname(__FILE__)}/remote_bases/*.rb"].each do |base| 
   name = ::File.basename(base, ::File.extname(base))
-  puts "weee: #{base}"
   require base
   register_remote_base name
 end

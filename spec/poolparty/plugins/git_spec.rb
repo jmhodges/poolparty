@@ -24,9 +24,9 @@ describe "Remote Instance" do
       before(:each) do
         @tc = cloud :test_git_class_cloud_two do
           has_git_repos(:name => "gittr") do
-            source "git://source.git"
-            path "/var/www/xnot.org"
             symlink "/var/www/xnot.org/public"
+            source "git://source.git"
+            path "/var/www/xnot.org"       
             at "/var/www"
           end
         end

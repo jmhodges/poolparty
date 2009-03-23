@@ -39,11 +39,13 @@ module PoolParty
       def self.inherited(subclass)
         subclass = subclass.to_s.split("::")[-1] if subclass.to_s.index("::")
         lowercase_class_name = subclass.to_s.underscore.downcase || subclass.downcase
+        method_name = "__#{lowercase_class_name}".to_sym
         
         # Add add resource method to the Resources module
-        unless PoolParty::PoolPartyBaseClass.respond_to?(lowercase_class_name.to_sym)          
+        unless PoolParty::PoolPartyBaseClass.respond_to?(method_name)
           method =<<-EOE
-            def #{lowercase_class_name}(opts={}, &blk)
+            private 
+            def #{method_name}(opts={}, &blk)
               add_resource(:#{lowercase_class_name}, opts, &blk)
             end
             def get_#{lowercase_class_name}(n, opts={}, &block)
@@ -51,6 +53,7 @@ module PoolParty
               raise PackageException.new("A required #{lowercase_class_name} \#\{n\} was not found.") unless res
               res
             end
+            public
           EOE
           PoolParty::PoolPartyBaseClass.module_eval method
           PoolParty::PoolPartyBaseClass.add_has_and_does_not_have_methods_for(lowercase_class_name.to_sym)

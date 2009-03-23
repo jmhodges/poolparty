@@ -88,7 +88,7 @@ describe "Resource" do
         it "should call add_resource when creating using the command: file" do
           @cloud.should_receive(:add_resource).with(:file, {:name => "frank"})
           @cloud.instance_eval do
-            file(:name => "frank")
+            __file(:name => "frank")
           end
         end
         it "should return a resource when the resource does not exist" do
@@ -97,7 +97,7 @@ describe "Resource" do
         it "should return a resource when the resource does exist" do
           @cloud.instance_eval do
             resources[:file] = nil
-            file({:name => "frank"})
+            has_file({:name => "frank"})
           end
           @cloud.resource(:file).first.class.should == PoolParty::Resources::File
         end
@@ -108,9 +108,9 @@ describe "Resource" do
       it "should contain 3 instances after calling resource 3 times" do
         @cloud.instance_eval do
           resources[:file] = nil
-          file({:name => "red"})
-          file({:name => "hot"})
-          file({:name => "summer"})
+          has_file({:name => "red"})
+          has_file({:name => "hot"})
+          has_file({:name => "summer"})
         end
         @tc.resource(:file).size.should == 3
       end
@@ -118,9 +118,9 @@ describe "Resource" do
         before(:each) do
           @cloud.instance_eval do
             resources[:file] = nil
-            file({:name => "red"})
-            file({:name => "hot"})
-            file({:name => "summer"})
+            has_file({:name => "red"})
+            has_file({:name => "hot"})
+            has_file({:name => "summer"})
           end
         end
         it "should contain file named with 'red'" do
@@ -131,9 +131,9 @@ describe "Resource" do
         before(:each) do
           @cloud.instance_eval do
             resources[:file] = nil
-            file({:name => "red"})
-            file({:name => "hot"})
-            file({:name => "summer"})
+            has_file({:name => "red"})
+            has_file({:name => "hot"})
+            has_file({:name => "summer"})
           end
         end
         it "should be able to pick out methods with the phrase has_" do
@@ -155,9 +155,9 @@ describe "Resource" do
         before(:each) do
           @tc.instance_eval do
             resources[:file] = nil
-            file(:name => "red")
-            file(:name => "hot")
-            file(:name => "tamales")
+            has_file(:name => "red")
+            has_file(:name => "hot")
+            has_file(:name => "tamales")
           end
         end
         it "should return a type of resource when looking for a resource that exists" do
@@ -176,8 +176,8 @@ describe "Resource" do
       describe "appending to resource" do
         before(:each) do
           @tc = TestBaseClass.new do
-            directory(:name => "/var/www") do
-              file(:name => "/var/www/file.html")
+            has_directory(:name => "/var/www") do
+              has_file(:name => "/var/www/file.html")
             end
           end
           @dir = @tc.resource(:directory).first
@@ -196,7 +196,7 @@ describe "Resource" do
       describe "fetching" do
         before(:each) do
           @tc = TestBaseClass.new do
-            file(:name => "pancakes")
+            has_file(:name => "pancakes")
           end
           @file = @tc.resource(:file).first
         end

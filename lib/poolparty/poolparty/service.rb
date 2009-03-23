@@ -17,7 +17,7 @@ module PoolParty
       lowercase_class_name = type.to_s.top_level_class.downcase
       
       meth = <<-EOM
-        def #{lowercase_class_name}(opts={}, &block)
+        def __#{lowercase_class_name}(opts={}, &block)
           PoolParty::#{lowercase_class_name.camelcase}Class.new(opts, &block)
         end
       EOM

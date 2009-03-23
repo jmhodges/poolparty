@@ -12,12 +12,11 @@ module PoolParty
       def loaded(opts={}, &block)        
         # opts.has_key?(:at) ? at(opts.delete(:at)) : raise(Exception.new("You must include a directory for the git repos set by :at"))
         # opts.has_key?(:source) ? git_repos(opts.delete(:source) || opts[:name]) : raise(Exception.new("You must include the git source set by :source"))        
-        
         has_package("git-core")
         has_git_repository
       end
 
-      def has_git_repository
+      def has_git_repository        
         has_exec({:name => "git-#{name}", :requires => [get_directory("#{working_dir}"), get_package("git-core")] }) do
           # Cloud, GitRepos, Exec
           command requires_user ? "git clone #{requires_user}@#{source} #{working_dir}" : "cd #{working_dir} && git clone #{source}"

@@ -1,6 +1,7 @@
 $:.unshift(File.dirname(__FILE__) + '/../../lib')
 require 'poolparty'
 
+# TODO: FIX THE STUBS
 # %w(context matchy).each do |library|
 %w(spec).each do |library|
   begin
@@ -202,6 +203,10 @@ def stub_list_of_instances_for(o)
   o.stub!(:list_of_running_instances).once.and_return running_remote_instances
   o.stub!(:keypair).and_return FakeKey.new
   o.stub!(:describe_instances).and_return response_list_of_instances
+end
+
+def stub_running_remote_instances(o)
+  o.stub!(:list_of_running_instances).and_return(running_remote_instances.map {|h| PoolParty::Remote::RemoteInstance.new(h) })
 end
 
 def response_list_of_instances(arr=[])
