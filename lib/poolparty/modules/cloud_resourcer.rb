@@ -77,7 +77,7 @@ module PoolParty
     
     # Keypairs
     # Use the keypair path
-    def keypair(args=nil)
+    def keypair(*args)
       if args && !args.empty?
         args.each {|arg| _keypairs.unshift Key.new(arg) }
       else

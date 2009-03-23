@@ -13,21 +13,39 @@ module PoolParty
     # attr_accessor :depth
     # attr_reader :parent
 
-    def initialize(opts={}, &block)      
-      if parent && !parent.is_a?(PoolParty::Resources::Resource)
-        options(parent.dsl_options) if parent.respond_to?(:dsl_options) && parent.is_a?(PoolParty::Pool::Pool)
-        parent.add_service(self) && parent.respond_to?(:add_service) && parent.respond_to?(:services)
-        @parent = parent
-      end
+    def initialize(opts={}, extra_opts={}, &block)
+      @init_block = block
+      @base_name = get_name_from_options_and_extra_options(opts, extra_opts)
+      opts = (opts.is_a?(Hash) ? extra_opts.merge(opts) : extra_opts).merge(:name => @base_name)
       
-      if opts.is_a?(Hash)
-        @opts = opts  
-        proc = Proc.new {set_vars_from_options(@opts)}
-        run_in_context(&proc)
+      add_to_parent_if_parent_exists_and_is_a_service      
+      
+      run_in_context(opts, &block)
+      super(&block)
+    end
+    
+    # Overloading the parent run_in_context
+    def run_in_context(opts={}, &block)
+      if opts
+        context_stack.push self
+        set_vars_from_options(opts)
+        instance_eval &block if block
+        context_stack.pop
+        head
+      else
+        super
       end
-            
-      run_in_context(&block) if block
-      super(&block)           
+    end
+    
+    def add_to_parent_if_parent_exists_and_is_a_service
+      if parent && !parent.is_a?(PoolParty::Resources::Resource)
+        options(parent.dsl_options) if parent.is_a?(PoolParty::Pool::Pool)
+        parent.add_service(self) if parent.respond_to?(:add_service) && parent.respond_to?(:services) && !is_a_resource?
+      end
+    end
+    
+    def get_name_from_options_and_extra_options(opts={}, extra_opts={})
+      opts.is_a?(Hash) ? (opts.has_key?(:name) ? opts.delete(:name) : nil) : dsl_options[:name] = opts
     end
     
     # Add to the services pool for the manifest listing
@@ -58,13 +76,8 @@ module PoolParty
     # A word about stores, the global store stores the entire list of stored
     # resources. The local resource store is available on all clouds and plugins
     # which stores the instance variable's local resources. 
-    def add_resource(ty, opts={}, extra={}, &block)
-      if opts.is_a?(String)
-        temp_name = opts
-        opts = (extra_opts || {}).merge(:name => @name)
-      else
-        temp_name = opts.has_key?(:name) ? opts.delete(:name) : "#{ty}_#{ty.to_s.keyerize}"
-      end
+    def add_resource(ty, opts={}, extra={}, &block)    
+      temp_name = get_name_from_options_and_extra_options(opts, extra_opts)
       
       if res = get_resource(ty, temp_name, opts)        
         res
@@ -109,6 +122,10 @@ module PoolParty
     end
     
     def is_plugin?
+      false
+    end
+    
+    def is_a_resource?
       false
     end
     

@@ -16,6 +16,7 @@
     register_remote_base :remote_base_name
   
 =end
+
 module PoolParty
 
   module Remote    

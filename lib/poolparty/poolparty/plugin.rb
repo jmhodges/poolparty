@@ -12,14 +12,12 @@ module PoolParty
       def initialize(opts={}, prnt=nil, &block)
         block = Proc.new {enable} unless block
 
-        @opts = opts
+        @opts = opts        
+        super(opts, &block)
         
-        proc = Proc.new {
-          block.call if block
-          loaded(@opts, &block)
-        }
-        
-        super(opts, &proc)
+        run_in_context do
+          loaded @opts, &block
+        end
       end
       
       # Overwrite this method

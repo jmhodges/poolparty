@@ -20,7 +20,7 @@ class DependencyResolverSpecTestCloud < DependencyResolverCloudExtensionsSpecBas
 end
 
 class JunkClassForDefiningPlugin
-  plugin :apache do  
+  plugin :apache do
   end  
 end
 
@@ -82,15 +82,16 @@ describe "Resolution spec" do
       @file.stub!(:read).and_return @file
       Template.stub!(:open).and_return @file
 
-      @cloud = TestBaseClass.new :dog do
+      @cloud = TestClass.new :dog do
         keypair "bob"
         has_file :name => "/etc/motd", :content => "Welcome to the cloud"
         has_file :name => "/etc/profile", :content => "profile info"
         has_directory :name => "/var/www"
         has_package :name => "bash"
-        # parent == cloud
+        # parent == nil
         apache do
-          # parent == apache
+          # parent == TestClass
+          # puts "<pre>#{parent}</pre> on <pre>#{context_stack.map {|a| a.class }.join(", ")} from #{self.class}</pre>"
           listen "8080"
           has_file :name => "/etc/apache2/apache2.conf", :template => "/absolute/path/to/template", :friends => "bob"
         end
@@ -107,7 +108,7 @@ describe "Resolution spec" do
     end
     it "contain content in the template's hash" do
       apache_key = @cloud.to_properties_hash[:services].keys.select{|k| k.to_s =~ /apache/ }.first
-      puts "<pre>#{@cloud.to_properties_hash.to_yaml}</pre>"
+      # puts "<pre>#{@cloud.to_properties_hash[:services][apache_key].inspect} as #{apache_key}</pre>"
       @cloud.to_properties_hash[:services][apache_key].resources[:file].first[:content].should == "Hello bob on port 8080"
     end
     it "contain the files in a hash" do

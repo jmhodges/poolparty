@@ -38,8 +38,7 @@ module PoolParty
         
         set_pool_specfile get_latest_caller
         setup_defaults
-        # run_in_context &block if block
-        # run_setup(self, &block)
+
         super(&block)
       end
       def self.load_from_file(filename=nil)
@@ -49,10 +48,10 @@ module PoolParty
         end
         a
       end
-      def pool_name
-        @pool_name
+      def name(*args)
+        @pool_name ||= @pool_name ? @pool_name : (args.empty? ? :default_pool : args.first)
       end
-      alias :name :pool_name
+
       def parent;nil;end
       
       def setup_defaults

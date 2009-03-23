@@ -92,7 +92,7 @@ class TestClass < ::PoolParty::Cloud::Cloud
   def initialize(name=:name, &block)
     super :test_cloud, &block
   end
-  def keypair
+  def keypair(*args)
     FakeKey.new
   end  
 end

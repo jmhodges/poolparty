@@ -71,13 +71,10 @@ module PoolParty
       # Then it takes the value of the block and sets whatever is sent there as 
       # the options
       # Finally, it uses the parent's options as the lowest priority
-      def initialize(opts={}, extra_opts={}, &block)                        
-        @resource_name = opts.is_a?(String) ? dsl_options[:name] = opts :  (opts.has_key?(:name) ? opts.delete(:name) : nil)
-        
-        opts = extra_opts.merge(opts).merge(:name => @resource_name)        
-        
+      def initialize(opts={}, extra_opts={}, &block)
         super(opts, &block)
         
+        @resource_name = @base_name
         dsl_options[:name] = resource_name unless dsl_options.has_key?(:name)        
       end
             
@@ -91,7 +88,7 @@ module PoolParty
         @resource_name
       end
       
-      def name(*args)        
+      def name(*args)
         resource_name
       end
       
@@ -156,6 +153,10 @@ module PoolParty
       # end
       def is_in_plugin?
         parent.is_plugin?
+      end
+      
+      def is_a_resource?
+        true
       end
       
       def method_missing(m,*a,&block)

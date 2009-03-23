@@ -68,6 +68,10 @@ module PoolParty
         after_create
       end
       
+      def name(*args)
+        @cloud_name ||= @cloud_name ? @cloud_name : (args.empty? ? :default_cloud : args.first)
+      end
+      
       # Callback
       def after_create
       end
