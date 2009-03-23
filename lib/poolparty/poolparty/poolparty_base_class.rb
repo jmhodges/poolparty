@@ -13,12 +13,13 @@ module PoolParty
     # attr_accessor :depth
     # attr_reader :parent
 
-    def initialize(opts={}, extra_opts={}, &block)
-      opts = (opts.is_a?(Hash) ? extra_opts.merge(opts) : extra_opts).merge(:name => @base_name)      
+    def initialize(opts={}, extra_opts={}, &block)      
       add_to_parent_if_parent_exists_and_is_a_service
       
       @init_block = block
-      @base_name = get_name_from_options_and_extra_options(opts, extra_opts)      
+      @base_name = get_name_from_options_and_extra_options(opts, extra_opts)
+      
+      opts = (opts.is_a?(Hash) ? extra_opts.merge(opts) : extra_opts).merge(:name => @base_name)
       
       run_in_context(opts, &block)
       super(&block)
@@ -37,9 +38,9 @@ module PoolParty
       end
     end
     
-    def add_to_parent_if_parent_exists_and_is_a_service
+    def add_to_parent_if_parent_exists_and_is_a_service(opts={})
       if parent && !parent.is_a?(PoolParty::Resources::Resource)
-        options(parent.dsl_options) if parent.is_a?(PoolParty::Pool::Pool)
+        dsl_options(parent.dsl_options) if parent.is_a?(PoolParty::Pool::Pool)
         parent.add_service(self) if parent.respond_to?(:add_service) && !is_a_resource?
       end
     end
