@@ -42,11 +42,11 @@ module PoolParty
         super(&block)
       end
       def self.load_from_file(filename=nil)
-        a = new ::File.basename(filename, ::File.extname(filename))
+        # a = new ::File.basename(filename, ::File.extname(filename))
         File.open(filename, 'r') do |f|
-          a.eval_from_string f.read
+          instance_eval f.read
         end
-        a
+        # a
       end
       def name(*args)
         @pool_name ||= @pool_name ? @pool_name : (args.empty? ? :default_pool : args.first)

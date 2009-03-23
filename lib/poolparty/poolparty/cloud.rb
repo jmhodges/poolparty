@@ -112,12 +112,12 @@ module PoolParty
         copy_custom_modules
         copy_custom_templates
         store_keys_in_file
-        Script.save!(self)
+        # Script.save!(self)
         # not my favorite...
         copy_ssh_key
         write_unique_cookie
         before_configuration_tasks
-        write_properties_hash if debugging
+        write_properties_hash if debugging || testing
       end
       
       def copy_custom_templates
@@ -253,9 +253,11 @@ module PoolParty
       end
       
       def write_properties_hash(filename="#{Default.tmp_path}/properties_hash.yml")
+        file_path = ::File.dirname(filename)
+        file_name = "#{::File.basename(filename, ::File.extname(filename))}_#{name}#{::File.extname(filename)}"
         require "pp"
         output capture_stdout {pp(to_properties_hash)}
-        ::File.open(filename, "w") {|f| f.write output }
+        ::File.open("#{file_path}/#{file_name}", "w") {|f| f.write output }
         true
       end
       

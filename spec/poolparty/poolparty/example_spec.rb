@@ -26,7 +26,6 @@ describe "basic" do
   it "should set the minimum_instances on the db cloud to 3" do
     clouds[:db].minimum_instances.should == 19
     clouds[:app].minimum_instances.should == 12
-    clouds[:inner].minimum_instances.should == 14
     pools[:application].minimum_instances.should ==3
   end
   it "should set ambiguous methods on the cloud" do
