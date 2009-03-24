@@ -138,5 +138,7 @@ module PoolParty
         ::File.directory?(dir) && ::File.readable?(dir)
       end
     end
+    #end of class methods
+    
   end    
 end

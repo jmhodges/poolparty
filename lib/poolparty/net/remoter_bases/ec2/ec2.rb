@@ -64,7 +64,7 @@ module PoolParty
         return describe_instances.first if identifier.nil?
         describe_instances.detect {|a| a[:name] == identifier || a[:ip] == identifier }
       end
-      def describe_instances
+      def describe_instances        
         id = 0
         get_instances_description.each_with_index do |h,i|
           if h[:status] == "running"

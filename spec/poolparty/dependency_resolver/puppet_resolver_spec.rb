@@ -89,7 +89,6 @@ describe "PuppetResolver" do
             has_package :name=>'haproxy'
           end
         end
-        end_of
       end
       @properties = @cloud.to_properties_hash
       

@@ -20,8 +20,11 @@ module PoolParty
     def full_filepath
       @full_filepath ||= ::File.file?(::File.expand_path(filepath)) ? ::File.expand_path(filepath) : search_in_known_locations
     end
-    
     alias :to_s :full_filepath
+    
+    def basename
+      @basename ||= ::File.basename(full_filepath, ::File.extname(full_filepath))
+    end
     
     def search_in_known_locations
       self.class.keypair_paths.each do |path|

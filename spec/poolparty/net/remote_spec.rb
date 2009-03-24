@@ -278,10 +278,8 @@ describe "Remote" do
         @obj.stub!(:ip).and_return "192.168.0.1"
       end
       it "should call exec on the kernel" do
-        @tc.stub!(:keypair).and_return "funky"
-        ::File.stub!(:exists?).with("#{File.expand_path(Default.base_keypair_path)}/id_rsa-funky").and_return true
         lambda {
-          @tc.rsync_storage_files_to(@tc.master)
+          @tc.rsync_storage_files_to(stub_instance(1))
         }.should_not raise_error
       end
       describe "run_command_on" do

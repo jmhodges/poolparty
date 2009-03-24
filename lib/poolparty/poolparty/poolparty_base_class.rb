@@ -134,9 +134,19 @@ module PoolParty
     
     def method_missing(m,*a,&block)
       if this_context && this_context != self && this_context.respond_to?(m)# && !self.is_a?(PoolParty::Resources::Resource)
-        this_context.send m, *a, &block
+        this_context.send m, *a, &block      
       else
-        super
+        # if dsl_options.has_key?(m)
+        #          dsl_options[m]
+        #        elsif parent && parent.respond_to?(:dsl_options) && parent.dsl_options.has_key?(m)
+        #          parent.dsl_options[m]
+        #        elsif self.class.default_options.has_key?(m)
+        #          self.class.default_options[m]
+        #        elsif parent && parent.respond_to?(:dsl_options) && parent.default_options.has_key?(m)
+        #          parent.default_options[m]
+        #        else
+          super
+        # end
       end
     end
     
@@ -154,10 +164,10 @@ module PoolParty
       method_name = "__#{typ}"
       PoolParty::PoolPartyBaseClass.module_eval <<-EOE
         def has_#{typ}(opts={}, extra={}, &block)
-          #{method_name}(handle_option_values(opts).merge(extra.merge(:ensures => present)), &block)
+          #{method_name}(handle_option_values(opts).merge(extra.merge(:ensures => :present)), &block)
         end
         def does_not_have_#{typ}(opts={}, extra={}, &block)
-          #{method_name}(handle_option_values(opts).merge(extra.merge(:ensures => absent)), &block)
+          #{method_name}(handle_option_values(opts).merge(extra.merge(:ensures => :absent)), &block)
         end
       EOE
     end

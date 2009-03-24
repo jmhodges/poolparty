@@ -5,7 +5,6 @@ module PoolParty
     
     class RemoteInstance
       include Dslify
-      include CloudResourcer
       
       def initialize(opts={}, containing_cloud=nil)
         @parent = containing_cloud
@@ -91,13 +90,6 @@ module PoolParty
       end
       #
       
-      def my_cloud
-        @pa = parent
-        while !(@pa.is_a?(PoolParty::Cloud::Cloud) || @pa.nil? || @pa == self)
-          @pa = @pa.parent
-        end
-        @pa
-      end
       def hosts_file_listing_for(cl)
         string = (cl.name == cloud.name) ? "#{name}.#{my_cloud.name}\t#{name}" : "#{name}.#{my_cloud.name}"
         "#{internal_ip}\t#{string}"

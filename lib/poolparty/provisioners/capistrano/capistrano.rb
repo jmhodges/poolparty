@@ -99,7 +99,7 @@ module PoolParty
         
         @config.load(:string => capfile)
         
-        @cloud.deploy_file ? @config.load(@cloud.deploy_file) : @config.set(:user, @cloud.user)
+        @cloud.deploy_file? ? @config.load(@cloud.deploy_file) : @config.set(:user, @cloud.user)
       end
       
       # Prerun

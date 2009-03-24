@@ -5,6 +5,8 @@ describe "basic" do
   before(:each) do
     @example_spec_file = ::File.join(::File.dirname(__FILE__), "..", "..", "..", "examples", 'basic.rb')
     PoolParty::Pool::Pool.load_from_file(@example_spec_file)
+    @db = clouds[:db]
+    @app = clouds[:app]
   end
   it "should have one pool called :app" do
     pool(:application).should_not == nil
@@ -40,8 +42,17 @@ describe "basic" do
   it "should have the keypair matching /auser/on the db cloud " do
     clouds[:db]._keypairs.select{|a| a.filepath.match(/auser/)}
   end
+  it "cloud should know what remoter base it is using" do
+    clouds[:db].remote_base.class.should == PoolParty::Remote::Ec2
+  end
+  it "cloud should have methods from the remoter base available" do
+    clouds[:db].remote_base.should_receive(:describe_instances).and_return({})
+    clouds[:db].describe_instances.should == {}
+  end
+  it "should not return nil to undefined methods" do
+    lambda {clouds[:db].not_a_method_that_exists_anywhere}.should raise_error
+  end
   it "should have the keypair set for the specific cloud on top of the keypair stack" do
-    pending
     #I think this should be the behavior. mf
     # pools[:application].clouds[:db].keypairs.last.filepath.should_match(/auser/)
   end

@@ -21,10 +21,6 @@ describe "Ec2RemoteInstance" do
     @ec2.options.keys.include?(:name).should == true
     @ec2.name.should == 'node3'
   end
-  it "should not be able to find a node that is not in the instance list" do
-    other_ec2 = TestEc2RemoteInstance.new( {:name => "not_existing"} )
-    other_ec2.ip.should be_nil
-  end
   it "should have access to parent cloud options" do
     @ec2.my_cloud.class.should ==  TestEC2Class
     @ec2.my_cloud.should respond_to(:describe_instances)

@@ -27,41 +27,7 @@ def are_too_few_instances_running?; end
 
 include Remote
 require File.dirname(__FILE__)+'/net/remoter_bases/ec2_mocks_and_stubs.rb'
-# =======
-# 
-# module PoolParty
-#   module Remote
-#     class TestEC2Class < Ec2
-#       include CloudResourcer
-#       include CloudDsl
-#   
-#       def keypair;"fake_keypair";  end
-#       def ami;"ami-abc123";end
-#       def size; "small";end
-#       def security_group; "default";end
-#       def ebs_volume_id; "ebs_volume_id";end
-#       def availabilty_zone; "us-east-1a";end
-#       def verbose; false; end
-#       def ec2
-#         @ec2 ||= EC2::Base.new( :access_key_id => "not_an_access_key", :secret_access_key => "not_a_secret_access_key")
-#       end
-#       def describe_instances
-#         response_list_of_instances
-#       end
-#     end
-# 
-#     module PoolParty  
-#       module Remote
-#         class TestEc2RemoteInstance < Ec2RemoteInstance
-#           def initialize(opts, parent=TestEC2Class.new)
-#             super(opts, parent)
-#           end
-#         end
-#       end
-#     end
-#   end
-# end
-# >>>>>>> 5898f093b3a829180dc16916b32ce90a8cc877c5:spec/poolparty/spec_helper.rb
+
 class FakeKey < Key
   def exist?; true; end
   def full_filepath; "~/.ec2/fake_keypair"; end

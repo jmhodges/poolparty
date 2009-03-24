@@ -17,12 +17,8 @@ class TestEC2Class < Ec2
   end
 end
 
-# module PoolParty  
-#   module Remote
-    class TestEc2RemoteInstance < PoolParty::Remote::Ec2RemoteInstance
-      def initialize(opts, parent=TestEC2Class.new)
-        super(opts, parent)
-      end
-    end
-#   end
-# end
+class TestEc2RemoteInstance < PoolParty::Remote::Ec2RemoteInstance
+  def initialize(opts, p=TestEC2Class.new)
+    super
+  end
+end

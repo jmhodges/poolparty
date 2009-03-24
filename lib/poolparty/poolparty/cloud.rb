@@ -43,7 +43,12 @@ module PoolParty
       def self.method_added sym        
         raise "Exception: #{sym.to_s.capitalize} method has been redefined" if immutable_methods.include?(sym) && !respond_to?(sym)
       end      
+      
       alias :name :cloud_name
+      
+      def method_missing(m, *args, &block)
+        @remote_base.respond_to?(m) ? @remote_base.send(m, *args, &block) : super
+      end
       
       default_options(
         :minimum_instances => 2,
@@ -82,13 +87,13 @@ module PoolParty
         dependency_resolver 'puppet'
       end
       
-      # provide a public ips to get into the cloud
+      # provide list of public ips to get into the cloud
       def ips
         list_of_running_instances.map {|ri| ri.ip }
       end
       
       def ip
-        master ? master.ip : ips.first
+        ips.first  #TODO: make this be a random ip, since we should not rely on it being the same each time
       end
       
       # FIXME: this is a quick hack.  refactor this to the resources class #MF
@@ -148,7 +153,7 @@ module PoolParty
       # talk to each other safely. This is based off the keypair
       # and the name of the cloud
       def generate_unique_cookie_string
-        Digest::SHA256.hexdigest("#{full_keypair_name}#{name}")[0..12]
+        Digest::SHA256.hexdigest("#{keypair.basename}#{name}")[0..12]
       end
       
       # Build the new poolparty manifest

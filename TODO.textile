@@ -1,0 +1,1 @@
+# Remove Monitors from cloud.rb

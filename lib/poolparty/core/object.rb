@@ -83,6 +83,7 @@ class Object
   def debugging(bool=false)
     $DEBUGGING = bool
   end
+  alias :debug :debugging
   def testing(bool=nil)
      $TESTING = (bool.nil? ? $TESTING : bool)
   end
