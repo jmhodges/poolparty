@@ -1,6 +1,19 @@
 module PoolParty
   class Dependencies
     
+    def self.dependencies_dirs
+      [
+        "#{::File.dirname(__FILE__)}/../../vendor/dependencies/cache"
+      ]
+    end
+    def self.package(file)
+      ::Tar.open(file, File::CREAT | File::WRONLY, 0644, Tar::GNU | Tar::VERBOSE) do |tar|
+        Dir["#{dependencies_dirs}/*"].each do |file|
+          tar.append_file(file) if ::File.file? file
+        end
+      end      
+    end
+    
     def self.gems(gem_list, gem_location)
       require 'rubygems/dependency_installer'
       
