@@ -9,7 +9,10 @@ module PoolParty
   class Optioner
     include Dslify
     
-    default_options({:verbose => false, :quiet => false, :cloudname => false, :poolname => false})
+    default_options(:verbose => false, 
+                     :quiet => false, 
+                     :cloudname => false, 
+                     :poolname => false)
     
     def initialize(args=[], opts={}, &block)      
       boolean_args << opts[:boolean_args] if opts.has_key?(:boolean_args)
@@ -74,6 +77,7 @@ module PoolParty
     def parse_options(&blk)
       progname = $0.include?("-") ? "#{::File.basename($0[/(\w+)-/, 1])} #{::File.basename($0[/-(.*)/, 1])}" : ::File.basename($0)
       @opts = OptionParser.new
+      @opts.extend(Dslify)
       @opts.banner = "Usage: #{progname} #{@abstract ? "[command] " : ""}[options]"
 
       @opts.separator ""

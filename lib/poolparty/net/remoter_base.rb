@@ -24,6 +24,19 @@ module PoolParty
     # Everything remoting-wise is derived from this class
     class RemoterBase
       include  Remote
+      
+      def initialize(prnt = nil)
+        @parent = prnt
+      end
+      
+      def method_missing(meth, *args, &block)
+        if @parent
+          @parent.send meth, *args, &block rescue super
+        else
+          super
+        end
+      end
+      
       # Required methods
       # The next methods are required on all RemoteInstance types
       # If your RemoteInstance type does not overwrite the following methods

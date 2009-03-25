@@ -67,7 +67,7 @@ module PoolParty
     end
     
     # Ssh into the instance given
-    def ssh_into(instance=nil)
+    def ssh_into(instance)
       cmd = "#{ssh_command(instance)}"
       vputs "Running #{cmd}"
       Kernel.system cmd if instance
@@ -75,12 +75,12 @@ module PoolParty
     # Find the instance by the number given
     # and then ssh into the instance
     def ssh_into_instance_number(num=0)
-      ssh_into( get_instance_by_number( num || 0 ) )
+      ssh_into( get_instance_by_number( num ) )
     end
     
     # Run command on the instance by the number
     def run_command_on_instance_number(cmd="ls -l", num=0)
-      run_command_on(cmd, get_instance_by_number( num || 0 ) )
+      run_command_on(cmd, get_instance_by_number( num ) )
     end
     
   end

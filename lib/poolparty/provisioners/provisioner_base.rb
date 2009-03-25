@@ -59,7 +59,7 @@ module PoolParty
         unless testing
           before_install(@instance)
 
-          vputs "Provisioning #{@instance.name}"
+          vputs "Provisioning #{@instance}"
           process_install!(testing)
 
           after_install(@instance)
@@ -112,7 +112,7 @@ module PoolParty
       # Allow the remoter bases to attach their own tasks on the 
       # installation process
       def custom_install_tasks
-        @cloud.custom_install_tasks_for(@instance) || []
+        @cloud.0(@instance) || []
       end
       # Custom configure tasks
       # Allows the remoter bases to attach their own

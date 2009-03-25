@@ -39,14 +39,14 @@ module PoolParty
 
       def launch_new_instance!(num=1)
         instance = ec2.run_instances(
-          :image_id => (ami || Base.ami),
+          :image_id => ami,
           :user_data => "",
           :minCount => 1,
           :maxCount => num,
-          :key_name => (keypair || Base.keypair),
-          :availability_zone => (availabilty_zone || Base.availabilty_zone),
-          :instance_type => "#{size || Base.size}",
-          :group_id => ["#{security_group || Base.security_group}"])
+          :key_name => keypair.basename,
+          :availability_zone => availabilty_zone,
+          :instance_type => size,
+          :group_id => security_group)
         begin
           h = EC2ResponseObject.get_hash_from_response(instance)
           #h = instance.instancesSet.item.first
@@ -145,8 +145,8 @@ module PoolParty
     
       # EC2 connections
       def ec2
-        @ec2 ||= EC2::Base.new( :access_key_id => (access_key || Base.access_key), 
-                                :secret_access_key => (secret_access_key || Base.secret_access_key)
+        @ec2 ||= EC2::Base.new( :access_key_id => (access_key), 
+                                :secret_access_key => (secret_access_key || Default.secret_access_key)
                               )
       end
     

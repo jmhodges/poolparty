@@ -38,7 +38,7 @@ module PoolParty
     end
     
     # Set instances with a range or a number
-    def instances(arg)      
+    def instances(arg)
       case arg
       when Range
         minimum_instances arg.first
@@ -52,7 +52,7 @@ module PoolParty
     end
     
     def setup_dev
-      return true if ::File.exists?("#{remote_keypair_path}") || master.nil?
+      return true if keypair || master.nil?
     end
     
     def using(t)
@@ -63,7 +63,7 @@ module PoolParty
           self.class.send :attr_reader, :parent_cloud
           klass_string = "#{t}".classify
           klass = "::PoolParty::Remote::#{klass_string}".constantize
-          @remote_base = klass.send :new
+          @remote_base = klass.send :new, self
           @parent_cloud = @cloud
           instance_eval "def #{t};@remote_base;end;"
         end
