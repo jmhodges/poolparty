@@ -61,6 +61,7 @@ end
 #load poolparty framework in specific order
 $_poolparty_load_directories = [
   "core",
+  "dependencies.rb",
   "dependency_resolver/dependency_resolver_cloud_extensions.rb",
   "poolparty/poolparty_base_class.rb",
   "modules",

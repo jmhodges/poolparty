@@ -112,7 +112,7 @@ module PoolParty
       # Allow the remoter bases to attach their own tasks on the 
       # installation process
       def custom_install_tasks
-        @cloud.0(@instance) || []
+        @cloud.custom_install_tasks_for(@instance) || []
       end
       # Custom configure tasks
       # Allows the remoter bases to attach their own
