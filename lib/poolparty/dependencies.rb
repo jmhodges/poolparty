@@ -7,7 +7,7 @@ module PoolParty
       ]
     end
     def self.package(file)
-      ::Tar.open(file, File::CREAT | File::WRONLY, 0644, Tar::GNU | Tar::VERBOSE) do |tar|
+      ::Tar.open(file, File::CREAT | File::WRONLY, 0644, Tar::GNU) do |tar|
         Dir["#{dependencies_dirs}/*"].each do |file|
           tar.append_file(file) if ::File.file? file
         end
