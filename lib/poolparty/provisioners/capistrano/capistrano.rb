@@ -88,7 +88,7 @@ module PoolParty
         end
         
         capfile = returning Array.new do |arr|
-          Dir["#{::File.dirname(__FILE__)}/recipies/*.rb"].each {|a| arr << "require '#{a}'" }
+          Dir["#{::File.dirname(__FILE__)}/recipes/*.rb"].each {|a| arr << "require '#{a}'" }
           arr << "ssh_options[:keys] = '#{parent.keypair}'"
           
           arr << set_poolparty_roles
