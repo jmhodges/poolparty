@@ -106,7 +106,7 @@ module PoolParty
       output_options if verbose
       
       if @load_pools
-        self.loaded_pool load_pool(self.spec || Binary.get_existing_spec_location)
+        self.loaded_pool load_pool( spec? ? spec : Binary.get_existing_spec_location)
 
         self.loaded_clouds extract_cloud_from_options(self)
         self.loaded_pools extract_pool_from_options(self)
