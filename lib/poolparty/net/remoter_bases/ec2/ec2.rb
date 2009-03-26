@@ -195,8 +195,8 @@ module PoolParty
     
       def after_install_tasks_for(o)
         [
-          "cd /var/poolparty && wget http://rubyforge.org/frs/download.php/43666/amazon-ec2-0.3.1.gem -O amazon-ec2.gem 2>&1",
-          "/usr/bin/gem install --no-ri --no-rdoc amazon-ec2.gem 2>&1"
+          # "cd /var/poolparty && wget http://rubyforge.org/frs/download.php/43666/amazon-ec2-0.3.1.gem -O amazon-ec2.gem 2>&1",
+          # "/usr/bin/gem install --no-ri --no-rdoc amazon-ec2.gem 2>&1"
         ]
       end
 

@@ -38,6 +38,7 @@ namespace(:poolparty) do
     task :update => [:clean_gem_cache] do
       gem_location = "#{::File.dirname(__FILE__)}/../vendor/dependencies"
       PoolParty::Dependencies.gems open("#{gem_location}/gems_list").read.split("\n"), gem_location
+      PoolParty::Dependencies.packages ['http://rubyforge.org/frs/download.php/45905/rubygems-1.3.1.tgz'], gem_location
     end
   end
 end

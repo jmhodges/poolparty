@@ -49,7 +49,6 @@ module PoolParty
     # List the instances for the current key pair, regardless of their states
     # If no keypair is passed, select them all
     def list_of_instances(keyp=nil)
-      puts "keyp = #{keyp}"
       tmp_key = (keyp ? keyp : nil)
       
       unless @describe_instances

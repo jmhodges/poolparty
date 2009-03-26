@@ -24,9 +24,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Configure a slave"
     def slave_configure_slave_task
       create_local_node_entry_for_puppet
-      move_provisioner_manifest
+      put_provisioner_manifest
       move_template_files
-      setup_poolparty_base_structure
       run_provisioner
     end
     desc "Add master ip to hosts file"

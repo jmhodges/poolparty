@@ -12,7 +12,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
     desc "Setup for poolparty"
     def setup_for_poolparty
-      run "mkdir -p /etc/poolparty"
+      run "mkdir -p #{Default.base_config_directory}"
+      put cloud.to_properties_hash.to_yml, Default.default_properties_hash_file
     end
     desc "Install provisioner"
     def install_provisioner
@@ -23,11 +24,26 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
     desc "Create poolparty runner command"
     def create_puppetrunner_command
-      run <<-EOR
-        cp #{remote_storage_path}/templates/puppetrunner /usr/bin/puppetrunner &&
-        chmod +x /usr/bin/puppetrunner
-      EOR
+      puppet_runner_string = <<-EOE
+      #!/usr/bin/env bash
+      . /etc/profile
+      echo 'checking if puppet is running'
+      PUPRUN=`ps aux | grep \/usr\/bin\/puppet\/  | grep -v grep | wc -c`
+      echo '$PUPRUN'
+      if [ $PUPRUN -eq 0 ]; then 
+        # /usr/bin/puppet -d --logdest syslog /etc/puppet/manifests/site.pp
+        /usr/bin/puppet -d /etc/puppet/manifests/site.pp
+        echo 'puppet was run'
+        echo 'puppet was run `date`'>>/root/log/pool.log
+      else
+        echo 'puppet was not run.  It may already be running.'
+        echo 'puppet was not run.  It may already be running.' >> /root/log/pool.log
+      fi
+      EOE
+      run 'mkdir -p /root/log'
+      put(puppet_runner_string, '/usr/bin/puppetrunner', :mode=>755)
     end
+    
     desc "Create poolparty rerun command"
     def create_puppetrerun_command
       run <<-EOR
@@ -113,10 +129,9 @@ aptitude update -y
     end
     desc "Add erlang cookie"
     def write_erlang_cookie
-      run <<-EOR
-        mv #{remote_storage_path}/cookie ~/.erlang.cookie &&
-        chmod 400 ~/.erlang.cookie
-      EOR
+      # cookie = (1..16).collect { chars[rand(chars.size)] }.pack("C*")
+      cookie =  (1..65).collect {rand(9)}.join()
+      put( cookie, '/root/.erlang.cookie', :mode => 400 )
     end
     desc "Setup basic poolparty structure"
     def setup_basic_poolparty_structure
@@ -143,19 +158,9 @@ aptitude update -y
     def setup_provisioner_autosigning
       run "echo \"*\" > /etc/puppet/autosign.conf"
     end
-    desc "Setup poolparty structure"
-    def setup_poolparty_base_structure
-      run <<-EOR
-        cp #{remote_storage_path}/#{key_file_locations.first} "#{base_config_directory}/.ppkeys" &&
-        mv #{remote_storage_path}/#{default_specfile_name} #{base_config_directory}/#{default_specfile_name}
-      EOR
-    end
-    
     desc "ensure gem binaries are copied to /usr/bin/"
     def copy_gem_bins_to_usr_bin
-      run 'GEMPATH=`gem env gempath` && cp $GEMPATH/bin/* /usr/bin/'
-      run 'ls /usr/bin/|grep server'
-      run 'echo ---------   binaries copied  ---------\n\n'
+      run 'cp /usr/lib/ruby/gems/1.8/gems/*/bin/* /usr/bin'
     end
     
   # end
