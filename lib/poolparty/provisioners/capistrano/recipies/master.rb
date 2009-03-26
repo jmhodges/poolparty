@@ -19,7 +19,6 @@ Capistrano::Configuration.instance(:must_exist).load do
       add_provisioner_configs
       setup_provisioner_config
       create_puppetrunner_command
-      start_provisioner_base      
       # create_puppetrerun_command
       # download_base_gems
       unpack_dependencies_store
@@ -33,6 +32,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     def master_configure_master_task
       create_local_node_entry_for_puppet
       put_provisioner_manifest
+      start_provisioner_base
       # move_template_files
       ensure_provisioner_is_running
       run_provisioner
@@ -65,7 +65,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       #   end
       # end.join(" && "))
       run <<-EOR
-        ruby -e 'Dir["#{Default.remote_storage_path}/vendor/dependencies/cache/*.gem"].each {|g| "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc \#\{g\}; echo 'insatlled \#\{g\}'" }'
+        ruby -e 'Dir["#{Default.remote_storage_path}/vendor/dependencies/cache/*.gem"].each {|g| `/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc \#\{g\}` }'
       EOR
     end
     
@@ -103,6 +103,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     # end
     desc "put manifest into place" 
     def put_provisioner_manifest
+      puts "\n\nputting manifest:put #{build_manifest} ---\n\n"
+      
       put build_manifest, '/etc/puppet/manifests/classes/poolparty.pp'
     end
     desc "Put poolparty keys"
