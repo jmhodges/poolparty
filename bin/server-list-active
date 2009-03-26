@@ -1,28 +1,28 @@
 #!/usr/bin/env ruby
 require "rubygems"
 $:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
-require "#{::File.dirname(__FILE__)}/../vendor/gems/dslify/lib/dslify"
-require "poolparty/poolparty/default"
-require "poolparty/schema"
-require "poolparty/net/init"
+# require "#{::File.dirname(__FILE__)}/../vendor/gems/dslify/lib/dslify"
+# require "poolparty/poolparty/default"
+# require "poolparty/schema"
+# require "poolparty/net/init"
+require "poolparty"
+require "poolpartycl"
 
-# require "poolpartycl"
+o = PoolParty::Optioner.new(ARGV) do |opts, optioner|
+  opts.on('-c name', '--class name', 'Listing for cloud class (valid args: [name|ip])')    { |t| optioner.classname t }
+  opts.on('-n name', '--name name', 'Listing for cloud name')    { |c| optioner.cloudname c }
+end
 
-# o = PoolParty::Optioner.new(ARGV) do |opts, optioner|
-#   opts.on('-c name', '--class name', 'Listing for cloud class (valid args: [name|ip])')    { |t| optioner.classname t }
-#   opts.on('-n name', '--name name', 'Listing for cloud name')    { |c| optioner.cloudname c }
-# end
+@ctype = (o.classname || "name").downcase.to_sym
 
-# @ctype = (o.classname || "name").downcase.to_sym
+o.loaded_clouds.each do |cloud|
+  with_cloud(cloud, {:ctype => @ctype}) do
+    print "#{list_of_running_instances.collect{|a| "#{a.send ctype}" }.join("\t")}"
+  end  
+  
+end
 
-# o.loaded_clouds.each do |cloud|
-#   with_cloud(cloud, {:ctype => @ctype}) do
-#     print "#{list_of_running_instances.collect{|a| "#{a.send ctype}" }.join("\t")}"
-#   end  
-#   
-# end
-
-o = open( PoolParty::Default.default_properties_hash_file ).read
-remoter_base = o.options.remoter_base
-
-print remoter_base.new(nil).list_of_running_instances.join("\n")
+# o = open( PoolParty::Default.default_properties_hash_file ).read
+# remoter_base = o.options.remoter_base
+# 
+# print remoter_base.new(nil).list_of_running_instances.join("\n")
