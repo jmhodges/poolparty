@@ -26,6 +26,7 @@ module PoolParty
       :template_path => "/var/lib/puppet/templates",
       :module_path => "/etc/puppet/modules/poolparty",
       :default_specfile_name => "clouds.rb",
+      :default_properties_hash_filename => "cloud.yml",
       :port => "80",
       :forwarding_port => "8080",
       :proxy_mode => "http",
@@ -97,6 +98,9 @@ module PoolParty
           "~/.ppkeys",
           "ppkeys"
         ]
+      end
+      def default_properties_hash_file
+        "#{Default.base_config_directory}/#{Default.default_properties_hash_filename}"
       end
       def storage_directory
         [
