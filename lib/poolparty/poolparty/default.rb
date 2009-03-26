@@ -35,17 +35,24 @@ module PoolParty
       # :agent_port => 8081,
       # EC2 Options
       :ami => "ami-1cd73375",
-      :size => 'm1.small', # must be 'm1.small', 'm1.large', 'm1.xlarge', 'c1.medium', or 'c1.xlarge'  #TODO: change to instance size
+      :size => 'm1.small', # must be 'm1.small', 'm1.large', 'm1.xlarge', 'c1.medium', or 'c1.xlarge'  #TODO: change to instance_size
       :availabilty_zone => "us-east-1a",
       :security_group => ["default"],
       # Options that should not be touched pretty much ever
       :manifest_path => "/etc/puppet/manifests" 
     )
     
+    def options
+      default_options
+    end
+    
     # Class methods
     class << self
       def method_missing(m,*a,&block)
         default_options.include?(m) ? default_options[m] : super
+      end
+      def options
+        default_options
       end
       # Get the access_key
       def access_key

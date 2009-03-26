@@ -23,11 +23,26 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
     desc "Create poolparty runner command"
     def create_puppetrunner_command
-      run <<-EOR
-        cp #{remote_storage_path}/templates/puppetrunner /usr/bin/puppetrunner &&
-        chmod +x /usr/bin/puppetrunner
-      EOR
+      puppet_runner_string = <<-EOE
+      #!/usr/bin/env bash
+      . /etc/profile
+      echo 'checking if puppet is running'
+      PUPRUN=`ps aux | grep \/usr\/bin\/puppet\/  | grep -v grep | wc -c`
+      echo '$PUPRUN'
+      if [ $PUPRUN -eq 0 ]; then 
+        # /usr/bin/puppet -d --logdest syslog /etc/puppet/manifests/site.pp
+        /usr/bin/puppet -d /etc/puppet/manifests/site.pp
+        echo 'puppet was run'
+        echo 'puppet was run `date`'>>/root/log/pool.log
+      else
+        echo 'puppet was not run.  It may already be running.'
+        echo 'puppet was not run.  It may already be running.' >> /root/log/pool.log
+      fi
+      EOE
+      run 'mkdir -p /root/log'
+      put(puppet_runner_string, '/usr/bin/puppetrunner', :mode=>755)
     end
+    
     desc "Create poolparty rerun command"
     def create_puppetrerun_command
       run <<-EOR
@@ -109,10 +124,9 @@ aptitude update -y
     end
     desc "Add erlang cookie"
     def write_erlang_cookie
-      run <<-EOR
-        mv #{remote_storage_path}/cookie ~/.erlang.cookie &&
-        chmod 400 ~/.erlang.cookie
-      EOR
+      # cookie = (1..16).collect { chars[rand(chars.size)] }.pack("C*")
+      cookie =  (1..65).collect {rand(9)}.join()
+      put( cookie, '/root/.erlang.cookie', :mode => 400 )
     end
     desc "Setup basic poolparty structure"
     def setup_basic_poolparty_structure

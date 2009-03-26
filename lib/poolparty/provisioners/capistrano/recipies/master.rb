@@ -9,7 +9,6 @@ Capistrano::Configuration.instance(:must_exist).load do
       create_local_hosts_entry
       setup_for_poolparty
       install_provisioner
-      start_provisioner_base
       setup_basic_poolparty_structure
       setup_provisioner_filestore
       setup_provisioner_autosigning
@@ -18,12 +17,13 @@ Capistrano::Configuration.instance(:must_exist).load do
       add_provisioner_configs
       setup_provisioner_config
       create_puppetrunner_command
-      # create_puppetrerun_command
+      start_provisioner_base      
+      #  # create_puppetrerun_command
       download_base_gems
       install_base_gems
       copy_gem_bins_to_usr_bin
       write_erlang_cookie
-      vputs "#{__method__} complete"
+      vputs "master_provision_master_task complete"
     end
     
     desc "Configure master"
@@ -49,8 +49,8 @@ Capistrano::Configuration.instance(:must_exist).load do
       run(returning(Array.new) do |arr|
         base_gems.each do |name, url|
           if url && !url.empty?
-            arr << "curl -L -o #{Base.remote_storage_path}/#{name}.gem #{url} 2>&1; echo 'downloaded #{name}'"
-            arr << "if test -s #{Base.remote_storage_path}/#{name}.gem; then echo ''; else rm #{Base.remote_storage_path}/#{name}.gem; fi; echo ''"
+            arr << "curl -L -o #{Default.remote_storage_path}/#{name}.gem #{url} 2>&1; echo 'downloaded #{name}'"
+            arr << "if test -s #{Default.remote_storage_path}/#{name}.gem; then echo ''; else rm #{Default.remote_storage_path}/#{name}.gem; fi; echo ''"
           end
         end
       end.join(" && "))
@@ -59,7 +59,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     def install_base_gems
       run(returning(Array.new) do |arr|
         base_gems.each do |name, url|
-          str = url.empty? ? "#{name}" : "#{Base.remote_storage_path}/#{name}.gem"
+          str = url.empty? ? "#{name}" : "#{Default.remote_storage_path}/#{name}.gem"
           arr << "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc #{str}; echo 'insatlled #{name}'"
         end
       end.join(" && "))
