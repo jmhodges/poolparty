@@ -33,5 +33,12 @@ module PoolParty
       end
     end
     
+    def self.packages(package_list, package_location)
+      package_list.each do |package|
+        puts "downloading #{package} to #{package_location}/#{package.split('/').last}"
+        `curl -L #{package} > #{package_location}/#{package.split('/').last}`        
+      end
+    end
+    
   end
 end

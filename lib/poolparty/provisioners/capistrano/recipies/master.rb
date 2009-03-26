@@ -4,8 +4,8 @@ Capistrano::Configuration.instance(:must_exist).load do
   # namespace(:master) do
     desc "Provision master"
     def master_provision_master_task
-      $stderr.puts "\nRETUNRING from master_provision_master_task without doing anything"
-      return 
+      # $stderr.puts "\nRETUNRING from master_provision_master_task without doing anything"
+      # return 
       upgrade_system
       set_hostname_to_master
       create_local_hosts_entry
