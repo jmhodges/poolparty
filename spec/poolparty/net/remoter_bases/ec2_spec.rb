@@ -5,10 +5,9 @@ require File.dirname(__FILE__) + '/ec2_mocks_and_stubs.rb'
 describe "ec2 remote base" do
   before(:each) do
     setup
-    @tr = TestEC2Class.new
-    @tr.stub!(:options).and_return(Default.default_options.merge({:access_key => "Not an access key", :secret_access_key => "not a secret access key"}))
+    @tr = TestEC2Class.new    
     stub_remoter_for(@tr)
-    @tr.stub!(:get_instances_description).and_return response_list_of_instances
+    # @tr.stub!(:get_instances_description).and_return response_list_of_instances
   end
   %w(launch_new_instance! terminate_instance! describe_instance describe_instances create_snapshot).each do |method|
     eval <<-EOE

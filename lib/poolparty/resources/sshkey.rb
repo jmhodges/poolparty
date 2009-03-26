@@ -5,10 +5,8 @@ module PoolParty
       
       def initialize(opts={}, extra_opts={}, &block)
         super(opts, extra_opts, &block)
-        unless keypath
-          @key = Key.new(keypath)
-          options[:key] = @key.content
-        end
+        @key = Key.new(keypath? ? keypath : nil)
+        options[:key] = @key.content
       end
       
       def name(i=nil)

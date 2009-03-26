@@ -10,7 +10,7 @@ module PoolParty
         @parent = containing_cloud
 
         set_vars_from_options(containing_cloud.options) if containing_cloud && containing_cloud.respond_to?(:options)
-        set_vars_from_options(opts) unless opts.nil? || opts.empty?
+        set_vars_from_options(opts) if opts.is_a?(Hash)
         on_init
       end
       
