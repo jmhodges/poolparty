@@ -82,9 +82,18 @@ module PoolParty
           })
         end.sort {|a,b| a[:index] <=> b[:index] }
       end
+      
+      def self.ec2(o={})
+        @ec2 ||= EC2::Base.new( :access_key_id => o[:access_key], 
+                                :secret_access_key => o[:secret_access_key]
+                              )
+      end
       # Get the ec2 description for the response in a hash format
-      def get_instances_description(o={})
+      def self.get_instances_description(o={})
         EC2ResponseObject.get_descriptions(ec2(o).describe_instances)
+      end
+      def get_descriptions(o={})
+        self.class.get_descriptions(o)
       end
 
       def after_launch_master(inst=nil)
@@ -145,9 +154,7 @@ module PoolParty
     
       # EC2 connections
       def ec2(o={})
-        @ec2 ||= EC2::Base.new( :access_key_id => o[:access_key], 
-                                :secret_access_key => o[:secret_access_key]
-                              )
+        @ec2 ||= self.class.ec2(o)
       end
     
       # These are tasks that run before the configuration runs
