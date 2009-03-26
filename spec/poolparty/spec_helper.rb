@@ -133,13 +133,16 @@ def stub_list_from_local_for(o)
 
   @ris = @list.split(/\n/).map {|line| PoolParty::Remote::RemoteInstance.new(line) }
 end
-def stub_remoter_for(o)
+def stub_remoter_for(o)  
   @ec2 = EC2::Base.new( :access_key_id => "not a key",  :secret_access_key => "even more not a key")
-  o.class.stub!(:ec2).and_return @ec2  
+  EC2::Base.stub!(:new).and_return @ec2
+  
+  o.class.stub!(:ec2).and_return @ec2 
   o.stub!(:list_of_running_instances).and_return sample_instances
   
+  o.stub!(:list_of_instances).and_return sample_instances
   @ec2.stub!(:run_instances).and_return true
-  @ec2.stub!(:describe_instances).and_return true
+  @ec2.stub!(:describe_instances).and_return sample_instances
   @ec2.stub!(:describe_instance).and_return sample_instances
 end
 def stub_list_from_remote_for(o, launch_stub=true)

@@ -20,7 +20,7 @@ module PoolParty
       include CloudResourcer
       include FileWriter
       
-      def initialize(instance=nil, cld=self, os=:ubuntu, &block)
+      def initialize(instance=nil, cld=nil, os=:ubuntu, &block)
         @instance = instance
         @cloud = cld
         options(cloud.options) if cloud && cloud.respond_to?(:options)

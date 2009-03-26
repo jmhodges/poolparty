@@ -5,6 +5,9 @@ class PoolParty::Remote::Hype < PoolParty::Remote::RemoterBase
   def hyper
     "beatnick"
   end
+  def self.describe_instances(o={})
+    []
+  end
   def instances_list
     []
   end  
@@ -77,6 +80,7 @@ describe "Remote" do
       # }.should raise_error
     end
     it "should not raise an exception because instances_list is defined" do
+      @hype_cloud.remote_instances_list
       lambda {
         @hype_cloud.remote_instances_list
       }.should_not raise_error
@@ -160,6 +164,7 @@ describe "Remote" do
         @tc.stub!(:wait).and_return "true"
         remove_stub_instance_from(@tc, 3)
         remove_stub_instance_from(@tc, 5)
+        stub_remoter_for(@tc)
         @tc.stub!(:launch_new_instance!).and_return {}
       end
       it "should call reset! once" do
@@ -181,15 +186,17 @@ describe "Remote" do
       # TODO: Stub methods with wait
     end
     describe "request_termination_of_non_master_instance" do
+      before(:each) do
+        @inst = "last instance of the pack"
+        @inst.stub!(:instance_id).and_return "12345"
+        @tc.stub!(:nonmaster_nonterminated_instances).and_return [@inst]
+      end
       it "should reject the master instance from the list of instances (we should never shut down the master unless shutting down the cloud)" do
         @master = @tc.list_of_running_instances.select {|a| a.master? }.first
         @tc.should_not_receive(:terminate_instance!).with(@master).and_return true
         @tc.request_termination_of_non_master_instance
       end
       it "should call terminate on an instance" do
-        @inst = "last instance of the pack"
-        @inst.stub!(:instance_id).and_return "12345"
-        @tc.stub!(:nonmaster_nonterminated_instances).and_return [@inst]
         @tc.should_receive(:terminate_instance!).with("12345").and_return true
         @tc.request_termination_of_non_master_instance
       end

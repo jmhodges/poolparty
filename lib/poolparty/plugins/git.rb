@@ -16,10 +16,10 @@ module PoolParty
         has_git_repository
       end
 
-      def has_git_repository        
-        has_exec({:name => "git-#{name}", :requires => [get_directory("#{working_dir}"), get_package("git-core")] }) do
+      def has_git_repository
+        has_exec(:name => "git-#{name}", :requires => [get_directory("#{working_dir}"), get_package("git-core")] ) do
           # Cloud, GitRepos, Exec
-          command requires_user ? "git clone #{requires_user}@#{source} #{working_dir}" : "cd #{working_dir} && git clone #{source}"
+          command parent.requires_user? ? "git clone #{requires_user}@#{source} #{working_dir}" : "cd #{working_dir} && git clone #{source}"
           cwd "#{working_dir if working_dir}"
           creates creates_dir
         end
