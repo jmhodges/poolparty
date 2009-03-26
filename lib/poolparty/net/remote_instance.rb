@@ -67,7 +67,7 @@ module PoolParty
       # Printing. This is how we extract the instances into the listing on the 
       # local side into the local listing file
       def to_s
-        "#{name}\t#{ip}\t#{instance_id}"
+        "#{name}\t#{ip}\t#{instance_id rescue ""}"
       end
       
       def dependency_resolver_command
