@@ -53,7 +53,7 @@ module PoolParty
       ### Installation tasks
       
       def package_dependencies
-        PoolParty::Dependencies.package("/tmp/dependencies.tar.gz")
+        PoolParty::Dependencies.package("#{Default.tmp_path}/dependencies.tar.gz")
       end
       
       # This is the actual runner for the installation

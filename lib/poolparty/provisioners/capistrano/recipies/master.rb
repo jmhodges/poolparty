@@ -12,14 +12,15 @@ Capistrano::Configuration.instance(:must_exist).load do
       start_provisioner_base
       setup_basic_poolparty_structure
       setup_provisioner_filestore
-      setup_provisioner_autosigning
+      setup_provisioner_autosigning      
       install_rubygems
       fix_rubygems
       add_provisioner_configs
       setup_provisioner_config
       create_puppetrunner_command
       # create_puppetrerun_command
-      download_base_gems
+      # download_base_gems
+      unpack_dependencies_store
       install_base_gems
       copy_gem_bins_to_usr_bin
       write_erlang_cookie
@@ -57,12 +58,15 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
     desc "Install base gems"
     def install_base_gems
-      run(returning(Array.new) do |arr|
-        base_gems.each do |name, url|
-          str = url.empty? ? "#{name}" : "#{Base.remote_storage_path}/#{name}.gem"
-          arr << "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc #{str}; echo 'insatlled #{name}'"
-        end
-      end.join(" && "))
+      # run(returning(Array.new) do |arr|
+      #   base_gems.each do |name, url|
+      #     str = url.empty? ? "#{name}" : "#{Base.remote_storage_path}/#{name}.gem"
+      #     arr << "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc #{str}; echo 'insatlled #{name}'"
+      #   end
+      # end.join(" && "))
+      run <<-EOR
+        ruby -e 'Dir["#{Default.remote_storage_path}/vendor/dependencies/cache/*.gem"].each {|g| "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc \#\{g\}; echo 'insatlled \#\{g\}'" }'
+      EOR
     end
     
     desc "Start provisioner base"

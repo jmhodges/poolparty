@@ -78,6 +78,10 @@ Capistrano::Configuration.instance(:must_exist).load do
         echo 'gems updated!'
       EOR
     end
+    desc "Unpack dependency store"
+    def unpack_dependencies_store
+      "tar -zxf #{remote_storage_path}/dependencies.tar.gz"
+    end
     desc "Upgrade system"
     def upgrade_system
       str = case os
