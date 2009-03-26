@@ -28,4 +28,16 @@ namespace(:poolparty) do
       `git submodule update`
     end
   end
+  namespace :deps do
+    task :clean_gem_cache do
+      gem_location = "#{::File.dirname(__FILE__)}/../vendor/dependencies"
+      cache_dir = "#{gem_location}/cache"
+      Dir["#{cache_dir}/*.gem"].each {|file| ::File.unlink file }
+    end
+    desc "Update dependencies gem"
+    task :update => [:clean_gem_cache] do
+      gem_location = "#{::File.dirname(__FILE__)}/../vendor/dependencies"
+      PoolParty::Dependencies.gems open("#{gem_location}/gems_list").read.split("\n"), gem_location
+    end
+  end
 end

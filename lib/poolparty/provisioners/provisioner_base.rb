@@ -52,6 +52,10 @@ module PoolParty
       
       ### Installation tasks
       
+      def package_dependencies
+        PoolParty::Dependencies.package("/tmp/dependencies.tar.gz")
+      end
+      
       # This is the actual runner for the installation
       def install(testing=false)
         error unless valid?
@@ -89,6 +93,7 @@ module PoolParty
       def setup_runner(force=false)
         @cloud.prepare_for_configuration
         @cloud.build_and_store_new_config_file(force)
+        package_dependencies
       end
       
       # Callbacks

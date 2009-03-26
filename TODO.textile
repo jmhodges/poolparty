@@ -1,1 +1,4 @@
 # Remove Monitors from cloud.rb
+# Remove Ruby2Ruby dependency
+# Move server binaries to use props_hash
+# Reduce dependencies

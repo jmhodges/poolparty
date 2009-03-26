@@ -3,7 +3,7 @@ $LOAD_PATH<< File.dirname(__FILE__)
 # Load required gems
 #TODO: remove activesupport
 @required_software = Array.new
-%w(rubygems activesupport ftools logging resolv ruby2ruby digest/sha2).each do |lib|
+%w(rubygems activesupport ftools logging resolv ruby2ruby digest/sha2 tarruby).each do |lib|
   begin
     require lib
   rescue Exception => e
@@ -61,6 +61,7 @@ end
 #load poolparty framework in specific order
 $_poolparty_load_directories = [
   "core",
+  "dependencies.rb",
   "dependency_resolver/dependency_resolver_cloud_extensions.rb",
   "poolparty/poolparty_base_class.rb",
   "modules",
