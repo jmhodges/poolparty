@@ -57,12 +57,12 @@ module PoolParty
       end
       # Terminate an instance by id
       def self.terminate_instance!(o={})  #MF why allow this command wihtout an instance_idˇ
-        ec2(o).terminate_instances(:instance_id => o[:id])
+        ec2(o).terminate_instances(:instance_id => o[:instance_id])
       end
       # Describe an instance's status
       def self.describe_instance(o={})
-        return describe_instances.first if o[:id].nil?
-        describe_instances.detect {|a| a[:name] == o[:id] || a[:ip] == o[:id] }
+        return describe_instances.first if o[:instance_id].nil?
+        describe_instances.detect {|a| a[:name] == o[:instance_id] || a[:ip] == o[:instance_id] }
       end
       def self.describe_instances(o={})
         id = 0
