@@ -9,10 +9,7 @@ class TestEC2Class < Ec2
   def ebs_volume_id; "ebs_volume_id";end
   def availabilty_zone; "us-east-1a";end
   def verbose; false; end
-  def ec2
-    @ec2 ||= EC2::Base.new( :access_key_id => "not_an_access_key", :secret_access_key => "not_a_secret_access_key")
-  end
-  def describe_instances
+  def describe_instances(o={})
     response_list_of_instances
   end
 end
