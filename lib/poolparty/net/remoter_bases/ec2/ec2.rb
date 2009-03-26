@@ -37,16 +37,16 @@ module PoolParty
   module Remote
     class Ec2 < Remote::RemoterBase
 
-      def launch_new_instance!(num=1)
-        instance = ec2.run_instances(
-          :image_id => ami,
-          :user_data => "",
+      def self.launch_new_instance!(o={})
+        instance = ec2(o).run_instances(
+          :image_id => o[:ami],
+          :user_data => o[:user_data],
           :minCount => 1,
-          :maxCount => num,
-          :key_name => keypair.basename,
-          :availability_zone => availabilty_zone,
-          :instance_type => size,
-          :group_id => security_group)
+          :maxCount => o[:num],
+          :key_name => o[:keypair],
+          :availability_zone => o[:availabilty_zone],
+          :instance_type => o[:size],
+          :group_id => o[:security_group])
         begin
           h = EC2ResponseObject.get_hash_from_response(instance)
           #h = instance.instancesSet.item.first
@@ -56,17 +56,17 @@ module PoolParty
         h
       end
       # Terminate an instance by id
-      def terminate_instance!(instance_id=nil)  #MF why allow this command wihtout an instance_idˇ
-        ec2.terminate_instances(:instance_id => instance_id)
+      def self.terminate_instance!(o={})  #MF why allow this command wihtout an instance_idˇ
+        ec2(o).terminate_instances(:instance_id => o[:id])
       end
       # Describe an instance's status
-      def describe_instance(identifier=nil)
-        return describe_instances.first if identifier.nil?
-        describe_instances.detect {|a| a[:name] == identifier || a[:ip] == identifier }
+      def self.describe_instance(o={})
+        return describe_instances.first if o[:id].nil?
+        describe_instances.detect {|a| a[:name] == o[:id] || a[:ip] == o[:id] }
       end
-      def describe_instances        
+      def self.describe_instances(o={})
         id = 0
-        get_instances_description.each_with_index do |h,i|
+        get_instances_description(o).each_with_index do |h,i|
           if h[:status] == "running"
             inst_name = id == 0 ? "master" : "node#{id}"
             id += 1
@@ -83,8 +83,8 @@ module PoolParty
         end.sort {|a,b| a[:index] <=> b[:index] }
       end
       # Get the ec2 description for the response in a hash format
-      def get_instances_description
-        EC2ResponseObject.get_descriptions(ec2.describe_instances)
+      def get_instances_description(o={})
+        EC2ResponseObject.get_descriptions(ec2(o).describe_instances)
       end
 
       def after_launch_master(inst=nil)
@@ -144,9 +144,9 @@ module PoolParty
       end
     
       # EC2 connections
-      def ec2
-        @ec2 ||= EC2::Base.new( :access_key_id => (access_key), 
-                                :secret_access_key => (secret_access_key || Default.secret_access_key)
+      def ec2(o={})
+        @ec2 ||= EC2::Base.new( :access_key_id => o[:access_key], 
+                                :secret_access_key => o[:secret_access_key]
                               )
       end
     
