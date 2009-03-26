@@ -18,9 +18,9 @@ a different remoter base, specify it with:
 
 using :remoter_name
 
-in your config file, otherwise, to continue install amazon-ec2 with
+in your config file, otherwise, to continue install grempe-amazon-ec2 with
 
-gem install amazon-ec2
+sudo gem install grempe-amazon-ec2 --source http://gems.github.com
 EOM
 end
   
