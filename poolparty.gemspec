@@ -28,14 +28,20 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<activesupport>, [">= 0"])
       s.add_runtime_dependency(%q<logging>, [">= 0"])
       s.add_runtime_dependency(%q<ruby2ruby>, [">= 0"])
+      s.add_runtime_dependency(%q<grempe-amazon-ec2>, [">= 0"])
+      s.add_runtime_dependency(%q<rubigen>, [">= 1.5.2"])
     else
       s.add_dependency(%q<activesupport>, [">= 0"])
       s.add_dependency(%q<logging>, [">= 0"])
       s.add_dependency(%q<ruby2ruby>, [">= 0"])
+      s.add_dependency(%q<grempe-amazon-ec2>, [">= 0"])
+      s.add_dependency(%q<rubigen>, [">= 1.5.2"])
     end
   else
     s.add_dependency(%q<activesupport>, [">= 0"])
     s.add_dependency(%q<logging>, [">= 0"])
     s.add_dependency(%q<ruby2ruby>, [">= 0"])
+    s.add_dependency(%q<grempe-amazon-ec2>, [">= 0"])
+    s.add_dependency(%q<rubigen>, [">= 1.5.2"])
   end
 end
