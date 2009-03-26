@@ -26,7 +26,6 @@ Capistrano::Configuration.instance(:must_exist).load do
       create_local_node_entry_for_puppet
       put_provisioner_manifest
       move_template_files
-      setup_poolparty_base_structure
       run_provisioner
     end
     desc "Add master ip to hosts file"

@@ -93,6 +93,10 @@ Capistrano::Configuration.instance(:must_exist).load do
         echo 'gems updated!'
       EOR
     end
+    desc "Unpack dependency store"
+    def unpack_dependencies_store
+      "tar -zxf #{remote_storage_path}/dependencies.tar.gz"
+    end
     desc "Upgrade system"
     def upgrade_system
       str = case os
@@ -153,15 +157,6 @@ aptitude update -y
     def setup_provisioner_autosigning
       run "echo \"*\" > /etc/puppet/autosign.conf"
     end
-    desc "Setup poolparty structure"
-    def setup_poolparty_base_structure
-      # put key
-      run <<-EOR
-        cp #{remote_storage_path}/#{key_file_locations.first} "#{base_config_directory}/.ppkeys" &&
-        mv #{remote_storage_path}/#{default_specfile_name} #{base_config_directory}/#{default_specfile_name}
-      EOR
-    end
-    
     desc "ensure gem binaries are copied to /usr/bin/"
     def copy_gem_bins_to_usr_bin
       run 'cp /usr/lib/ruby/gems/1.8/gems/*/bin/* /usr/bin'

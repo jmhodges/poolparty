@@ -13,15 +13,16 @@ Capistrano::Configuration.instance(:must_exist).load do
       install_provisioner
       setup_basic_poolparty_structure
       setup_provisioner_filestore
-      setup_provisioner_autosigning
+      setup_provisioner_autosigning      
       install_rubygems
       fix_rubygems
       add_provisioner_configs
       setup_provisioner_config
       create_puppetrunner_command
       start_provisioner_base      
-      #  # create_puppetrerun_command
-      download_base_gems
+      # create_puppetrerun_command
+      # download_base_gems
+      unpack_dependencies_store
       install_base_gems
       copy_gem_bins_to_usr_bin
       write_erlang_cookie
@@ -33,7 +34,6 @@ Capistrano::Configuration.instance(:must_exist).load do
       create_local_node_entry_for_puppet
       put_provisioner_manifest
       # move_template_files
-      setup_poolparty_base_structure
       ensure_provisioner_is_running
       run_provisioner
     end
@@ -58,12 +58,16 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
     desc "Install base gems"
     def install_base_gems
-      run(returning(Array.new) do |arr|
-        base_gems.each do |name, url|
-          str = url.empty? ? "#{name}" : "#{Default.remote_storage_path}/#{name}.gem"
-          arr << "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc #{str}; echo 'insatlled #{name}'"
-        end
-      end.join(" && "))
+
+      # run(returning(Array.new) do |arr|
+      #   base_gems.each do |name, url|
+      #     str = url.empty? ? "#{name}" : "#{Base.remote_storage_path}/#{name}.gem"
+      #     arr << "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc #{str}; echo 'insatlled #{name}'"
+      #   end
+      # end.join(" && "))
+      run <<-EOR
+        ruby -e 'Dir["#{Default.remote_storage_path}/vendor/dependencies/cache/*.gem"].each {|g| "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc \#\{g\}; echo 'insatlled \#\{g\}'" }'
+      EOR
     end
     
     desc "Start provisioner base"
@@ -100,11 +104,11 @@ Capistrano::Configuration.instance(:must_exist).load do
     # end
     desc "put manifest into place" 
     def put_provisioner_manifest
-      put build_manifest, ' /etc/puppet/manifests/classes/poolparty.pp'
+      put build_manifest, '/etc/puppet/manifests/classes/poolparty.pp'
     end
-    desc "Move poolparty keys"
-    def move_poolparty_keys
-      run "cp #{remote_storage_path}/#{full_keypair_name} #{remote_keypair_path}"
+    desc "Put poolparty keys"
+    def put_poolparty_keys
+      put keypair.full_filepath, remote_keypair_path, :mode => 600
     end
   # end
 end
