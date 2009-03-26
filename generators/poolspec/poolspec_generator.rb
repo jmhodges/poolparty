@@ -31,14 +31,6 @@ class PoolspecGenerator < RubiGen::Base
   end
 
   protected
-    def banner
-      <<-EOS
-Creates a basic poolparty spec tempalte
-
-USAGE: #{spec.name} name
-EOS
-    end
-
     def add_options!(opts)
       opts.separator ''
       opts.separator 'Options:'
