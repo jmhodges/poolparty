@@ -1,8 +1,6 @@
 flexmock
 lockfile
 logging
-rubyforge
-hoe
 ZenTest
 rake
 xml-simple
