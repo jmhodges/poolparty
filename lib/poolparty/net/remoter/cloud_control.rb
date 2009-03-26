@@ -71,7 +71,7 @@ module PoolParty
     # Request to launch a number of instances
     def request_launch_new_instances(num=1)
       out = []
-      num.times {out << launch_new_instance!}
+      num.times {out << launch_new_instance!(options) }
       out
     end
     def request_launch_master_instance

@@ -24,9 +24,9 @@ module PoolParty
     end
     
     #DEPRECATE We'll stub the ip to be the master ip for ease and accessibility
-    def ip
+    def ip(i=nil)
       puts "DEPRECATED:  ip will only be callable against a RemoteInstance in the next release."
-      master.ip
+      i ? options[:ip] = i : (master ? master.ip : options[:ip])
     end
     # #DEPRECATE: get the master instance
     def master
