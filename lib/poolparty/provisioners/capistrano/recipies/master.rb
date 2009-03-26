@@ -58,7 +58,6 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
     desc "Install base gems"
     def install_base_gems
-
       # run(returning(Array.new) do |arr|
       #   base_gems.each do |name, url|
       #     str = url.empty? ? "#{name}" : "#{Base.remote_storage_path}/#{name}.gem"
