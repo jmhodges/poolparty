@@ -4,6 +4,8 @@ Capistrano::Configuration.instance(:must_exist).load do
   # namespace(:master) do
     desc "Provision master"
     def master_provision_master_task
+      $stderr.puts "\nRETUNRING from master_provision_master_task without doing anything"
+      return 
       upgrade_system
       set_hostname_to_master
       create_local_hosts_entry
@@ -29,9 +31,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Configure master"
     def master_configure_master_task
       create_local_node_entry_for_puppet
-      move_provisioner_manifest
-      move_template_files
-      move_custom_modules
+      put_provisioner_manifest
+      # move_template_files
       setup_poolparty_base_structure
       ensure_provisioner_is_running
       run_provisioner
@@ -83,34 +84,23 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Create local node for puppet manifest"
     def create_local_node_entry_for_puppet
       # run ". /etc/profile && server-write-new-nodes"
-      str = returning Array.new do |arr|
-        arr << "node default { include poolparty }"
-        list_of_running_instances.each do |ri| 
-          arr << "node \"#{ri.name}\" inherits default {}\n"
-        end
-      end.join("\n")
-      run "echo #{str} > #{manifest_path}/nodes/nodes.pp"
+      str = ["node default { include poolparty }"]
+      list_of_running_instances.each do |ri| 
+        str << "node \"#{ri.name}\" inherits default {}\n"
+      end
+      put( str.join("\n"), "#{manifest_path}/nodes/nodes.pp")
     end
-    desc "Move template files into place"
-    def move_template_files
-      run <<-EOR
-        mkdir -p #{template_path} &&
-        cp -R #{remote_storage_path}/templates/* #{template_path}
-      EOR
-    end
-    desc "Move custom modules"
-    def move_custom_modules
-      run <<-EOR
-        if test -d #{remote_storage_path}/modules; then
-          mkdir -p #{base_config_directory}/modules && cp -R #{remote_storage_path}/modules #{base_config_directory};
-        fi
-      EOR
-    end
-    desc "Move manifest into place" 
-    def move_provisioner_manifest
-      run <<-EOR
-        cp #{remote_storage_path}/poolparty.pp /etc/puppet/manifests/classes/poolparty.pp
-      EOR
+    #DEPRECATED
+    # desc "Move template files into place"
+    # def move_template_files
+    #   run <<-EOR
+    #     mkdir -p #{template_path} &&
+    #     cp -R #{remote_storage_path}/templates/* #{template_path}
+    #   EOR
+    # end
+    desc "put manifest into place" 
+    def put_provisioner_manifest
+      put build_manifest, ' /etc/puppet/manifests/classes/poolparty.pp'
     end
     desc "Move poolparty keys"
     def move_poolparty_keys
