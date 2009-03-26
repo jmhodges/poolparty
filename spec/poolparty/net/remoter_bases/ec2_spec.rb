@@ -56,7 +56,7 @@ describe "ec2 remote base" do
   describe "terminating" do
     it "should call terminate_instance! on ec2 when asking to terminate_instance!" do
       @tr.ec2.should_receive(:terminate_instances).with(:instance_id => "abc-123").and_return true
-      @tr.terminate_instance!(:id => "abc-123")
+      @tr.terminate_instance!({:instance_id => "abc-123"})
     end
   end
   describe "describe_instance" do
