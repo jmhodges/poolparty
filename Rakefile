@@ -5,7 +5,8 @@ Dir['tasks/**/*.rake'].each { |rake| load rake }
 
 desc "Clean tmp directory"
 task :clean_tmp do |t|
-  %x[rm #{File.dirname(__FILE__)}/Manifest.txt; touch #{File.dirname(__FILE__)}/Manifest.txt]
+  FileUtils.rm_rf("#{File.dirname(__FILE__)}/Manifest.txt") if ::File.exists?("#{File.dirname(__FILE__)}/Manifest.txt") 
+  FileUtils.touch("#{File.dirname(__FILE__)}/Manifest.txt")
   %w(logs tmp).each do |dir|
     FileUtils.rm_rf("#{File.dirname(__FILE__)}/#{dir}") if ::File.exists?("#{File.dirname(__FILE__)}/#{dir}")
   end
@@ -19,6 +20,9 @@ end
 
 desc "Generate a new manifest and a new gem"
 task :build_local_gem => [:clean_tmp, :spec, :clean_pkg, :"manifest:refresh", :package]
+
+desc "Generate a new manifest and a new gem without running the specs"
+task :build_local_gem_without_spec => [:clean_tmp, :clean_pkg, :"manifest:refresh", :package]
 
 desc "Packge with timestamp"
 task :update_timestamp do
