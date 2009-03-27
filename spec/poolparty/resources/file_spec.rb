@@ -41,7 +41,7 @@ describe "File" do
         @file.content.should == "bob is super fast"
       end
       it "should remove the template from the options" do
-        @file.template.nil?.should == true
+        @file.template?.should == false
       end
     end
     describe "into PuppetResolver" do

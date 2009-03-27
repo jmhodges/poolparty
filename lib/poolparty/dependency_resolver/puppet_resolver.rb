@@ -125,7 +125,7 @@ module PoolParty
       when "variable"
         "$#{res[:name]} = #{to_option_string(res[:value])}"
       when "line_in_file"
-        "#{tf(tabs)}exec { \"#{res[:file]}_line_#{tabs}\": \n#{tf(tabs+1)}command => '#{PoolParty::Resources::LineInFile.command(res[:line], res[:file])}'\n#{tf(tabs)}}"
+        "#{tf(tabs)}exec { \"#{res[:file]}_line_#{tabs}\": \n#{tf(tabs+1)}command => '#{PoolParty::Resources::LineInFile.command(res[:line], res[:file])}'\n#{tf(tabs)}\n#{tf(tabs+1)}path => '/usr/bin:/bin:/usr/local/bin:$PATH'}\n#{tf(tabs)}"
       else
         klasstype = case type.to_s
         when "directory"
