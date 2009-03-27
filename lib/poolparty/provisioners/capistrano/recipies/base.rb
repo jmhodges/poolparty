@@ -14,8 +14,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Setup for poolparty"
     def setup_for_poolparty
       run "mkdir -p #{Default.base_config_directory}"
-      # upload $pool_specfile, "#{Default.base_config_directory}/clouds.rb"
-      put cloud.to_properties_hash.to_json, "#{Default.base_config_directory}/clouds.json"
+      put cloud.to_properties_hash.to_yml, Default.properties_hash_file
+      upload $pool_specfile, "#{Default.base_config_directory}/clouds.rb"
     end
     
     desc "Install provisioner"
