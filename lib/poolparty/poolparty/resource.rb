@@ -164,7 +164,7 @@ module PoolParty
       
       def method_missing(m,*a,&block)
         if parent && parent.dsl_options.has_key?(m) && is_in_plugin?
-          parent.dsl_options[m]
+          parent.send m, *a, &block
         else
           super
         end
