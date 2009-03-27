@@ -44,6 +44,7 @@ class TestRemoterClass < ::PoolParty::Remote::Ec2
   def ebs_volume_id; "ebs_volume_id";end
   def availabilty_zone; "us-east-1a";end
   def verbose; false; end
+  def debugging; false; end
   def ec2
     @ec2 ||= EC2::Base.new( :access_key_id => "not_an_access_key", :secret_access_key => "not_a_secret_access_key")
   end
@@ -61,9 +62,13 @@ class TestClass < ::PoolParty::Cloud::Cloud
   end
   def keypair(*args)
     FakeKey.new
-  end  
+  end
+  def verbose
+    false
+  end
 end
-TestCloud = TestClass
+class TestCloud < TestClass  
+end
 
 class TestBaseClass < PoolParty::PoolPartyBaseClass
 end

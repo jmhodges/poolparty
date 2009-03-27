@@ -91,7 +91,7 @@ describe "Remote" do
   end
   describe "methods" do
     before(:each) do
-      @tc = TestClass.new
+      @tc = TestClass.new      
       @tc.using :ec2
       
       @tc.reset!
