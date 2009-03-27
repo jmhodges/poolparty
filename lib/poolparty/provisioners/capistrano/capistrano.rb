@@ -66,9 +66,9 @@ module PoolParty
       def set_poolparty_roles
         return "" if testing
         returning Array.new do |arr|
-          arr << "role 'master.#{@cloud.name}'.to_sym, '#{@cloud.ip}'"
-          arr << "role :master, '#{@cloud.ip}'"
-          arr << "role :slaves, '#{@cloud.nonmaster_nonterminated_instances.map{|a| a.ip}.join('", "')}'" if @cloud.nonmaster_nonterminated_instances.size > 0
+          arr << "role 'master.#{cloud.name}'.to_sym, '#{cloud.ip}'"
+          arr << "role :master, '#{cloud.ip}'"
+          arr << "role :slaves, '#{cloud.nonmaster_nonterminated_instances.map{|a| a.ip}.join('", "')}'" if cloud.nonmaster_nonterminated_instances.size > 0
           arr << "role :single, '#{@instance.ip}'" if @instance && @instance.ip
         end.join("\n")
       end

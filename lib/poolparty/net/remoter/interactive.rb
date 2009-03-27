@@ -23,11 +23,11 @@ module PoolParty
       list.reject {|i| i.terminating? || i.terminated? }
     end
     
-    #DEPRECATE We'll stub the ip to be the master ip for ease and accessibility
-    def ip
-      puts "DEPRECATED:  ip will only be callable against a RemoteInstance in the next release."
-      master.ip
-    end
+    # #DEPRECATE We'll stub the ip to be the master ip for ease and accessibility
+    # def ip(i=nil)
+    #   puts "DEPRECATED:  ip will only be callable against a RemoteInstance in the next release."
+    #   i ? options[:ip] = i : (master ? master.ip : options[:ip])
+    # end
     # #DEPRECATE: get the master instance
     def master
       puts "DEPRECATED:  'master' is deprecated and will be removed in the next major release."
@@ -52,7 +52,7 @@ module PoolParty
       tmp_key = (keyp ? keyp : nil)
       
       unless @describe_instances
-        tmpInstanceList = describe_instances.select {|a| a if (tmp_key.nil? || tmp_key.empty? ? true : a[:keypair] == tmp_key) }
+        tmpInstanceList = describe_instances(options).select {|a| a if (tmp_key.nil? || tmp_key.empty? ? true : a[:keypair] == tmp_key) }
         has_master = !tmpInstanceList.select {|a| a[:name] == "master" }.empty?          
         if has_master
           @describe_instances = tmpInstanceList

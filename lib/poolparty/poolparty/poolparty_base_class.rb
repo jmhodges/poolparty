@@ -7,7 +7,7 @@ module PoolParty
   end
   
   class PoolPartyBaseClass
-    include Parenting, Dslify
+    include Dslify, Parenting
     
     include PoolParty::DependencyResolverCloudExtensions
     # attr_accessor :depth

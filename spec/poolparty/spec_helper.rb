@@ -47,7 +47,7 @@ class TestRemoterClass < ::PoolParty::Remote::Ec2
   def ec2
     @ec2 ||= EC2::Base.new( :access_key_id => "not_an_access_key", :secret_access_key => "not_a_secret_access_key")
   end
-  def describe_instances
+  def describe_instances(o={})
     response_list_of_instances
   end
 end
@@ -133,9 +133,17 @@ def stub_list_from_local_for(o)
 
   @ris = @list.split(/\n/).map {|line| PoolParty::Remote::RemoteInstance.new(line) }
 end
-def stub_remoter_for(o)
-  o.stub!(:ec2).and_return EC2::Base.new( :access_key_id => "not a key",  :secret_access_key => "even more not a key")
+def stub_remoter_for(o)  
+  @ec2 = EC2::Base.new( :access_key_id => "not a key",  :secret_access_key => "even more not a key")
+  EC2::Base.stub!(:new).and_return @ec2
+  
+  o.class.stub!(:ec2).and_return @ec2 
   o.stub!(:list_of_running_instances).and_return sample_instances
+  
+  o.stub!(:list_of_instances).and_return sample_instances
+  @ec2.stub!(:run_instances).and_return true
+  @ec2.stub!(:describe_instances).and_return sample_instances
+  @ec2.stub!(:describe_instance).and_return sample_instances
 end
 def stub_list_from_remote_for(o, launch_stub=true)
   stub_remoter_for(o)
@@ -168,7 +176,7 @@ end
 def stub_list_of_instances_for(o)  
   o.stub!(:list_of_running_instances).once.and_return running_remote_instances
   o.stub!(:keypair).and_return FakeKey.new
-  o.stub!(:describe_instances).and_return response_list_of_instances
+  # o.stub!(:describe_instances).and_return response_list_of_instances
 end
 
 def stub_running_remote_instances(o)

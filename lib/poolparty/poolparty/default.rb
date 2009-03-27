@@ -26,7 +26,7 @@ module PoolParty
       :template_path => "/var/lib/puppet/templates",
       :module_path => "/etc/puppet/modules/poolparty",
       :default_specfile_name => "clouds.rb",
-      :default_properties_hash_filename => "cloud.json",
+      :properties_hash_filename => "cloud.json",
       :port => "80",
       :forwarding_port => "8080",
       :proxy_mode => "http",
@@ -106,8 +106,15 @@ module PoolParty
           "ppkeys"
         ]
       end
-      def default_properties_hash_file
-        "#{Default.base_config_directory}/#{Default.default_properties_hash_filename}"
+      def properties_hash_file
+        [
+          Default.base_config_directory,
+          Dir.pwd,
+          Default.storage_directory
+        ].each do |dir|
+          full_dir = ::File.join(dir, Default.properties_hash_filename)
+          return full_dir if ::File.file?(full_dir)
+        end || "#{Default.base_config_directory}/#{Default.properties_hash_filename}"
       end
       def storage_directory
         [

@@ -1,19 +1,28 @@
 #!/usr/bin/env ruby
 $:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
-require 'rubygems'
-require "poolparty"
-require "poolpartycl"
+require "poolparty/lite"
+# require "poolpartycl"
 
-o = PoolParty::Optioner.new(ARGV) do |opts, optioner|
-  opts.on('-c name', '--class name', 'Listing for cloud class (valid args: [name|ip])')    { |t| optioner.classname t }
-  opts.on('-n name', '--name name', 'Listing for cloud name')    { |c| optioner.cloudname c }
+# o = PoolParty::Optioner.new(ARGV) do |opts, optioner|
+#   opts.on('-c name', '--class name', 'Listing for cloud class (valid args: [name|ip])')    { |t| optioner.classname t }
+#   opts.on('-n name', '--name name', 'Listing for cloud name')    { |c| optioner.cloudname c }
+# end
+# 
+# @ctype = (o.classname || "name").downcase.to_sym
+# 
+# o.loaded_clouds.each do |cloud|
+#   with_cloud(cloud, {:ctype => @ctype}) do
+#     print "#{list_of_running_instances.collect{|a| "#{a.send ctype}" }.join("\t")}"
+#   end  
+#   
+# end
+json_file = ARGV[0] || PoolParty::Default.properties_hash_file
+schema = PoolParty::Schema.new( ::File.read(json_file) )
+
+remoter_base = schema.options.remote_base
+
+instances = PoolParty::Remote::Ec2.describe_instances(schema.options)
+instances.each do |inst|
+  puts "#{inst.name}\t#{inst.ip}"
 end
-
-@ctype = (o.classname || "name").downcase.to_sym
-
-o.loaded_clouds.each do |cloud|
-  with_cloud(cloud, {:ctype => @ctype}) do
-    print "#{describe_instances.collect {|a| a[:ip] if a[:status]=='running' }.join("\t")}"
-  end  
-  
-end
+# puts Object.const_get(remoter_base)

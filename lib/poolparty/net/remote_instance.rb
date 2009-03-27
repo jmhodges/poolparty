@@ -10,7 +10,7 @@ module PoolParty
         @parent = containing_cloud
 
         set_vars_from_options(containing_cloud.options) if containing_cloud && containing_cloud.respond_to?(:options)
-        set_vars_from_options(opts) unless opts.nil? || opts.empty?
+        set_vars_from_options(opts) if opts.is_a?(Hash)
         on_init
       end
       
@@ -67,7 +67,7 @@ module PoolParty
       # Printing. This is how we extract the instances into the listing on the 
       # local side into the local listing file
       def to_s
-        "#{name}\t#{ip}\t#{instance_id}"
+        "#{name}\t#{ip}\t#{instance_id rescue ""}"
       end
       
       def dependency_resolver_command
