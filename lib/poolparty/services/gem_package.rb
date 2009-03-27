@@ -13,20 +13,20 @@ module PoolParty
                     
           case_of "hostname"
           when_is "master" do
-            has_exec(:name => "download-#{name}", :cwd => Base.remote_storage_path, :command => "wget #{download_url} -O #{name}.gem", :ifnot => "test -f #{Base.remote_storage_path}/#{name}.gem")
+            has_exec(:name => "download-#{name}", :cwd => Default.remote_storage_path, :command => "wget #{download_url} -O #{name}.gem", :ifnot => "test -f #{Default.remote_storage_path}/#{name}.gem")
           end
           end_of
           
           has_file({
-            :name => "#{Base.remote_storage_path}/#{name}.gem", 
+            :name => "#{Default.remote_storage_path}/#{name}.gem", 
             :source => "#{Base.fileserver_base}/#{name}.gem",
             :requires => get_host("master")
           })
                     
-          has_exec(opts.merge({:name => "#{name}", :cwd =>"#{Base.remote_storage_path}"})) do
-            command "gem install --no-ri --no-rdoc #{Base.remote_storage_path}/#{name}.gem"
+          has_exec(opts.merge({:name => "#{name}", :cwd =>"#{Default.remote_storage_path}"})) do
+            command "gem install --no-ri --no-rdoc #{Default.remote_storage_path}/#{name}.gem"
             ifnot "gem list --local #{name} | grep #{name} #{"| grep #{version}" if version}"
-            requires get_file("#{Base.remote_storage_path}/#{name}.gem")
+            requires get_file("#{Default.remote_storage_path}/#{name}.gem")
           end
           
         else

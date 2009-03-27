@@ -37,7 +37,8 @@ module PoolParty
   module Remote
     class Ec2 < Remote::RemoterBase
 
-      def self.launch_new_instance!(o={})
+      def self.launch_new_instance!(o = options)
+        raise "You must pass a keypair to launch an instance, or else you wont be able to login." if !o[:keypair]
         instance = ec2(o).run_instances(
           :image_id => o[:ami],
           :user_data => o[:user_data],

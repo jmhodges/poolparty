@@ -47,7 +47,7 @@ module PoolParty
         raise RemoteException.new(:method_not_defined, "launch_new_instance!")
       end
       def launch_new_instance!(o={})
-        self.class.launch_new_instance!(o ? options.merge(o) : options)
+        self.class.launch_new_instance!( options.merge(o) )
       end
       # Terminate an instance by id
       def self.terminate_instance!(o={})

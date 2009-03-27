@@ -9,7 +9,7 @@ module PoolParty
     def with_socket(testing=false, &block)
       host = testing ? "localhost" : (master.ip)
       vputs "Pinging #{host} with the messenger"
-      socket = TCPSocket.open(host, Base.messenger_client_port)
+      socket = TCPSocket.open(host, Default.messenger_client_port)
       out = yield(socket)
       socket.close
       out

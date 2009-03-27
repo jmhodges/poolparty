@@ -80,6 +80,7 @@ $_poolparty_load_directories = [
   "poolparty/service.rb",
   "resources",
   "services",
+  'poolparty/key.rb',
   "poolparty/cloud.rb",
   "poolparty",
   "templates"

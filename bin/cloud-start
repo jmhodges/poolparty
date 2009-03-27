@@ -10,7 +10,7 @@ end
 
 o.loaded_clouds.each do |cloud|
   with_cloud(cloud) do
-    setup_dev
+    setup_dev    # true if keypair || master.nil?
     vputs header("Starting cloud #{name}")
     vputs "#{list_of_running_instances.size} running instances (#{minimum_instances} - #{maximum_instances})"
     # if list_of_running_instances.size <= 1
@@ -20,7 +20,9 @@ o.loaded_clouds.each do |cloud|
       # else
         vputs "Launching and configuring the master"
         @cl = self
-        daemon? ? daemonize {@cl.launch_and_configure_master!(testing)} : launch_and_configure_master!(testing)
+        @cl.launch_and_configure_master!(testing?)
+        #TODO: daemonize has been removed for now
+        # daemon? ? daemonize {@cl.launch_and_configure_master!(testing?)} : launch_and_configure_master!(testing?)
       # end
     # end
     when_no_pending_instances do

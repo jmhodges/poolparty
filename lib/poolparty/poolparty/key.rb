@@ -35,8 +35,7 @@ module PoolParty
     end
     
     def self.keypair_paths
-      [
-        "#{ENV["HOME"]}/.ssh",
+      [ "#{ENV["HOME"]}/.ssh",
         "#{Default.poolparty_home_path}/keys",
         Default.base_keypair_path,
         Default.base_config_directory,
