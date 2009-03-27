@@ -34,7 +34,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Setup for poolparty"
     def setup_for_poolparty
       run "mkdir -p #{Default.base_config_directory}"
-      put cloud.to_properties_hash.to_yml, Default.properties_hash_file
+      put cloud.to_properties_hash.to_json, "/etc/poolparty/clouds.json"
       upload $pool_specfile, "#{Default.base_config_directory}/clouds.rb"
     end
     
@@ -87,7 +87,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 echo 'deb http://mirrors.kernel.org/ubuntu hardy main universe' >> /etc/apt/sources.list &&
 aptitude update -y
         "
-      else4
+      else
         "echo 'No system upgrade needed'"
       end
       run str
