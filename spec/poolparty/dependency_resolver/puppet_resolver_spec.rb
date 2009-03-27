@@ -82,6 +82,7 @@ describe "PuppetResolver" do
           # parent == apache
           listen "8080"
           has_file :name => "/etc/apache2/apache2.conf", :template => "#{::File.dirname(__FILE__)}/../fixtures/test_template.erb", :friends => "bob"
+          has_exec :command => "ls /etc/apache2"
         end
         
         case_of "hostname" do
