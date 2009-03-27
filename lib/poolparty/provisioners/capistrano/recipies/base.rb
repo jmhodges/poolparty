@@ -14,6 +14,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     def setup_for_poolparty
       run "mkdir -p #{Default.base_config_directory}"
       put cloud.to_properties_hash.to_yml, Default.properties_hash_file
+      upload $pool_specfile, "#{Default.base_config_directory}/clouds.rb"
     end
     desc "Install provisioner"
     def install_provisioner
@@ -24,24 +25,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
     desc "Create poolparty runner command"
     def create_puppetrunner_command
-      puppet_runner_string = <<-EOE
-      #!/usr/bin/env bash
-      . /etc/profile
-      echo 'checking if puppet is running'
-      PUPRUN=`ps aux | grep \/usr\/bin\/puppet\/  | grep -v grep | wc -c`
-      echo '$PUPRUN'
-      if [ $PUPRUN -eq 0 ]; then 
-        # /usr/bin/puppet -d --logdest syslog /etc/puppet/manifests/site.pp
-        /usr/bin/puppet -d /etc/puppet/manifests/site.pp
-        echo 'puppet was run'
-        echo 'puppet was run `date`'>>/root/log/pool.log
-      else
-        echo 'puppet was not run.  It may already be running.'
-        echo 'puppet was not run.  It may already be running.' >> /root/log/pool.log
-      fi
-      EOE
       run 'mkdir -p /root/log'
-      put(puppet_runner_string, '/usr/bin/puppetrunner', :mode=>755)
+      put(::File.read(::File.dirname(__FILE__)+'/../../../templates/puppetrunner'), '/usr/bin/puppetrunner', :mode=>755)
     end
     
     desc "Create poolparty rerun command"
@@ -162,6 +147,7 @@ aptitude update -y
     def copy_gem_bins_to_usr_bin
       run 'cp /usr/lib/ruby/gems/1.8/gems/*/bin/* /usr/bin'
     end
+
     
   # end
 end

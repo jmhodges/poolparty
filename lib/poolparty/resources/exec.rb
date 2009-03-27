@@ -8,7 +8,11 @@ module PoolParty
       })
       
       def present
-        "running"
+        nil
+      end
+      
+      def absent
+        nil
       end
       
       def key

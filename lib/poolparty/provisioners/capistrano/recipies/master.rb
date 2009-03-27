@@ -4,8 +4,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   # namespace(:master) do
     desc "Provision master"
     def master_provision_master_task
-      # $stderr.puts "\nRETUNRING from master_provision_master_task without doing anything"
-      # return 
       upgrade_system
       set_hostname_to_master
       create_local_hosts_entry
@@ -18,13 +16,14 @@ Capistrano::Configuration.instance(:must_exist).load do
       fix_rubygems
       add_provisioner_configs
       setup_provisioner_config
+      put_aws_credintials_on_server if using_remoter? == 'ec2'
+      copy_ec2_poolparty_server_binaries if using_remoter? == 'ec2'
       create_puppetrunner_command
-      start_provisioner_base      
-      # create_puppetrerun_command
       # download_base_gems
       unpack_dependencies_store
-      install_base_gems
-      copy_gem_bins_to_usr_bin
+      install_base_gems      
+      # copy_gem_bins_to_usr_bin
+      # install_poolparty_from_github
       write_erlang_cookie
       vputs "master_provision_master_task complete"
     end
@@ -32,7 +31,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Configure master"
     def master_configure_master_task
       create_local_node_entry_for_puppet
-      put_provisioner_manifest
+      put_provisioner_manifest_on_server
+      start_provisioner_base
       # move_template_files
       ensure_provisioner_is_running
       run_provisioner
@@ -65,7 +65,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       #   end
       # end.join(" && "))
       run <<-EOR
-        ruby -e 'Dir["#{Default.remote_storage_path}/vendor/dependencies/cache/*.gem"].each {|g| "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc \#\{g\}; echo 'insatlled \#\{g\}'" }'
+        ruby -e 'Dir["#{Default.remote_storage_path}/vendor/dependencies/cache/*.gem"].each {|g| `/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc \#\{g\}` }'
       EOR
     end
     
@@ -102,12 +102,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     #   EOR
     # end
     desc "put manifest into place" 
-    def put_provisioner_manifest
+    def put_provisioner_manifest_on_server  
       put build_manifest, '/etc/puppet/manifests/classes/poolparty.pp'
-    end
-    desc "Put poolparty keys"
-    def put_poolparty_keys
-      put keypair.full_filepath, remote_keypair_path, :mode => 600
     end
   # end
 end

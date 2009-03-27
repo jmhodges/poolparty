@@ -3,7 +3,7 @@ $LOAD_PATH<< File.dirname(__FILE__)
 # Load required gems
 #TODO: remove activesupport
 @required_software = Array.new
-%w(rubygems activesupport ftools logging resolv ruby2ruby digest/sha2 tarruby).each do |lib|
+%w(rubygems activesupport ftools logging resolv ruby2ruby digest/sha2 tarruby json).each do |lib|
   begin
     require lib
   rescue Exception => e
