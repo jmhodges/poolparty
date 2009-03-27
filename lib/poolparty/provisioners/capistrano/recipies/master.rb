@@ -17,7 +17,6 @@ Capistrano::Configuration.instance(:must_exist).load do
       add_provisioner_configs
       setup_provisioner_config
       put_aws_credintials_on_server if using_remoter? == 'ec2'
-      copy_ec2_poolparty_server_binaries if using_remoter? == 'ec2'
       create_puppetrunner_command
       # download_base_gems
       unpack_dependencies_store
