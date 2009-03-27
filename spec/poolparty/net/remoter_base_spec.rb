@@ -20,8 +20,8 @@ describe "RemoterBase" do
     %w(launch_new_instance! terminate_instance describe_instance instances_list).each do |method|
       eval <<-EOE
         it "should raise an exception if #{method} is not defined as a method" do
-          pending # Weird .should raise_error
-          # lambda { @tr.#{method} }.should raise_error
+          # pending # Weird .should raise_error
+          lambda { @tr.class.#{method} }.should raise_error
         end
         it "should not raise an exception if #{method} is defined as a method" do
           lambda {

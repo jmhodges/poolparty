@@ -3,6 +3,7 @@ require "open-uri"
 
 describe "basic" do
   before(:each) do
+    PoolParty.reset!
     @example_spec_file = ::File.join(::File.dirname(__FILE__), "..", "..", "..", "examples", 'basic.rb')
     PoolParty::Pool::Pool.load_from_file(@example_spec_file)
     @db = clouds[:basic_db]
