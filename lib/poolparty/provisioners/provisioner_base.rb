@@ -25,7 +25,7 @@ module PoolParty
         @cloud = cld
         options(cloud.options) if cloud && cloud.respond_to?(:options)
         
-        dputs "Using key at: #{cld.keypair.full_filepath}"
+        dputs "Using key at: #{cld.keypair}"
         
         @os = os.to_s.downcase.to_sym
         self.instance_eval &block if block
@@ -52,8 +52,12 @@ module PoolParty
       
       ### Installation tasks
       
+      # Add the gems to the 
       def package_dependencies
-        PoolParty::Dependencies.package("#{Default.tmp_path}/dependencies.tar.gz")
+        vputs "Adding dependencies"
+        Suitcase::Zipper.gems open("#{Default.vendor_path}/gems_list").read.split("\n"), gem_location
+        Suitcase::Zipper.add("#{Default.vendor_path}/dependencies/cache", "gems")
+        Suitcase::Zipper.zip!("#{Default.tmp_path}/dependencies.tar.gz")
       end
       
       # This is the actual runner for the installation

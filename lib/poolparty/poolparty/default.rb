@@ -27,6 +27,7 @@ module PoolParty
       :module_path => "/etc/puppet/modules/poolparty",
       :default_specfile_name => "clouds.rb",
       :properties_hash_filename => "cloud.json",
+      :vendor_path => "#{::File.dirname(__FILE__)}/../../../vendor",
       :port => "80",
       :forwarding_port => "8080",
       :proxy_mode => "http",
