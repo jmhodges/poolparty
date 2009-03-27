@@ -36,14 +36,17 @@ Capistrano::Configuration.instance(:must_exist).load do
       ensure_provisioner_is_running
       run_provisioner
     end
+    
     desc "Set hostname to master"
     def set_hostname_to_master
       run "hostname master"
     end
+    
     desc "Add host entry into the master instance"
     def create_local_hosts_entry
-      run "if [ -z \"$(grep -v '#' /etc/hosts | grep 'puppet')\" ]; then echo '#{cloud.master.ip}          master puppet localhost' >> /etc/hosts; fi"
+      run "if [ -z \"$(grep -v '#' /etc/hosts | grep 'puppet')\" ]; then echo '#{cloud.master.ip} master puppet localhost' >> /etc/hosts; fi"
     end
+    
     desc "Download base gems"
     def download_base_gems
       run(returning(Array.new) do |arr|
@@ -55,6 +58,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
       end.join(" && "))
     end
+    
     desc "Install base gems"
     def install_base_gems
       # run(returning(Array.new) do |arr|
@@ -66,43 +70,6 @@ Capistrano::Configuration.instance(:must_exist).load do
       run <<-EOR
         ruby -e 'Dir["#{Default.remote_storage_path}/vendor/dependencies/cache/*.gem"].each {|g| `/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc \#\{g\}` }'
       EOR
-    end
-    
-    desc "Start provisioner base"
-    def start_provisioner_base
-      # run "/etc/init.d/puppetmaster start"
-      run "/usr/bin/puppetrunner"
-    end
-    desc "Restart provisioner base"
-    def restart_provisioner_base #FIXME: should inherit from cloud dependency_resolver_command
-      "/usr/bin/puppetrunner"
-      # run "/etc/init.d/puppetmaster stop;rm -rf /etc/poolparty/ssl;start_provisioner_based --verbose;/etc/init.d/puppetmaster start"
-    end
-    desc "Ensure provisioner is running"
-    def ensure_provisioner_is_running
-      "/usr/bin/puppetrunner"
-      # run "/usr/sbin/puppetmasterd --verbose 2>1 > /dev/null;echo ''"
-    end
-    desc "Create local node for puppet manifest"
-    def create_local_node_entry_for_puppet
-      # run ". /etc/profile && server-write-new-nodes"
-      str = ["node default { include poolparty }"]
-      list_of_running_instances.each do |ri| 
-        str << "node \"#{ri.name}\" inherits default {}\n"
-      end
-      put( str.join("\n"), "#{manifest_path}/nodes/nodes.pp")
-    end
-    #DEPRECATED
-    # desc "Move template files into place"
-    # def move_template_files
-    #   run <<-EOR
-    #     mkdir -p #{template_path} &&
-    #     cp -R #{remote_storage_path}/templates/* #{template_path}
-    #   EOR
-    # end
-    desc "put manifest into place" 
-    def put_provisioner_manifest_on_server  
-      put build_manifest, '/etc/puppet/manifests/classes/poolparty.pp'
     end
   # end
 end

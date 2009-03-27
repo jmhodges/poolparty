@@ -1,5 +1,5 @@
 Capistrano::Configuration.instance(:must_exist).load do
-  # namespace(:slave) do
+# namespace(:slave) do
     desc "Provision a slave"
     def slave_provision_slave_task
       upgrade_system
@@ -32,9 +32,5 @@ Capistrano::Configuration.instance(:must_exist).load do
     def add_master_to_hosts_file
       run "if [ -z \"$(grep -v '#' /etc/hosts | grep 'master' | grep '#{cloud.master.ip}' )\" ]; then echo '#{cloud.master.ip} puppet master' >> /etc/hosts; else echo 'host already set'; fi"
     end
-    desc "Stop provisioner daemon"
-    def stop_provisioner_daemon
-      run "/etc/init.d/puppetmaster stop"
-    end
-  # end
+# end
 end
