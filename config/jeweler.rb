@@ -16,6 +16,8 @@ begin
     s.authors = ["Ari Lerner"]
     
     s.test_files = Dir["test/**/test_*.rb"]
+    s.files = %w(Rakefile History.txt README.txt PostInstall.txt License.txt VERSION.yml) + 
+              Dir["{config,examples,lib,spec,test,tasks,script,generators,bin,vendor}/**/*"]
     
     s.has_rdoc = true
     s.extra_rdoc_files = ["README.txt", "License.txt", 'History.txt']
@@ -29,6 +31,7 @@ begin
     s.add_dependency 'logging'
     s.add_dependency 'ruby2ruby'
     s.add_dependency 'grempe-amazon-ec2'
+    s.add_dependency 'rubigen', ">=1.5.2"
     # Certainly there should be more here
     
   end
