@@ -63,7 +63,7 @@ class TestClass < ::PoolParty::Cloud::Cloud
     FakeKey.new
   end  
 end
-TestCloud = TestClass 
+TestCloud = TestClass
 
 class TestBaseClass < PoolParty::PoolPartyBaseClass
 end
