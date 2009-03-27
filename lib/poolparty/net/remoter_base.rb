@@ -46,23 +46,31 @@ module PoolParty
       def self.launch_new_instance!(o={})
         raise RemoteException.new(:method_not_defined, "launch_new_instance!")
       end
-      def launch_new_instance!(o={});self.class.launch_new_instance!(o ? options.merge(o) : options);end
+      def launch_new_instance!(o={})
+        self.class.launch_new_instance!(o ? options.merge(o) : options)
+      end
       # Terminate an instance by id
       def self.terminate_instance!(o={})
         raise RemoteException.new(:method_not_defined, "terminate_instance!")
       end
-      def terminate_instance!(o={});self.class.terminate_instance!(o ? options.merge(o) : options);end
+      def terminate_instance!(o={})
+        self.class.terminate_instance!(o ? options.merge(o) : options)
+      end
       # Describe an instance's status
       def self.describe_instance(o={})
         raise RemoteException.new(:method_not_defined, "describe_instance")
       end
-      def describe_instance(o={});self.class.describe_instance(o ? options.merge(o) : options);end
+      def describe_instance(o={})
+        self.class.describe_instance(o ? options.merge(o) : options)
+      end
       # Get instances
       # The instances must have a status associated with them on the hash
       def self.describe_instances(o={})
         raise RemoteException.new(:method_not_defined, "describe_instances")
       end
-      def describe_instances(o={});self.class.describe_instances(o ? options.merge(o) : options);end
+      def describe_instances(o={})
+        self.class.describe_instances(o ? options.merge(o) : options)
+      end
       
       # After launch callback
       # This is called after a new instance is launched
