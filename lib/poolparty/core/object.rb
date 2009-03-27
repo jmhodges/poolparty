@@ -83,10 +83,10 @@ class Object
   def debugging(bool=false)
     $DEBUGGING = bool
   end
-  alias :debug :debugging
-  def testing(bool=nil)
-     $TESTING = (bool.nil? ? $TESTING : bool)
+  def testing(bool=$TESTING)
+    bool.nil? ? false : bool
   end
+  alias :debug :debugging
   def unix_hide_string
     "2>&1 > /dev/null"
   end

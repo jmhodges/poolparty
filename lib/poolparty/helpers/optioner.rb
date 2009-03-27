@@ -75,6 +75,9 @@ module PoolParty
     end
     
     def parse_options(&blk)
+      self.spec = nil
+      self.num = nil
+      
       progname = $0.include?("-") ? "#{::File.basename($0[/(\w+)-/, 1])} #{::File.basename($0[/-(.*)/, 1])}" : ::File.basename($0)
       @opts = OptionParser.new
       @opts.extend(Dslify)
@@ -85,10 +88,10 @@ module PoolParty
       unless @abstract
         @opts.separator "Options:"
         
-        @opts.on('-v', '--verbose', 'Be verbose')    { self.verbose true }  
-        @opts.on('-d', "--debug", "Debug setting") {self.debugging true}
-        @opts.on('-s [file]', '--spec-file [file]', 'Set the spec file')      { |file| self.spec file.chomp }
-        @opts.on('-t', '--test', 'Testing mode')    { self.testing true }
+        @opts.on('-v', '--verbose', 'Be verbose') { self.verbose true }  
+        @opts.on('-d', "--debug", "Debug setting") { self.debugging true }
+        @opts.on('-s [file]', '--spec-file [file]', 'Set the spec file') { |file| self.spec file.chomp }
+        @opts.on('-t', '--test', 'Testing mode') { self.testing true }
         
         blk.call(@opts, self) if blk
       end
@@ -120,11 +123,13 @@ module PoolParty
         end
       end
     end
+    
     def reject_junk_options!
       %w(loaded_pool cloudname extract_pool_from_options).each do |opt|
         @dsl_options.delete(opt.to_sym)
       end
     end
+    
     def process_options
     end
         

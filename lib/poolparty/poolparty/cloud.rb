@@ -49,7 +49,6 @@ module PoolParty
       def method_missing(m, *args, &block)
         @remote_base.respond_to?(m) ? @remote_base.send(m, *args, &block) : super
       end
-      
       default_options(
         :minimum_instances => 2,
         :maximum_instances => 5,
@@ -58,7 +57,6 @@ module PoolParty
         :access_key => Default.access_key,
         :secret_access_key => Default.secret_access_key,
         :ec2_dir => ENV["EC2_HOME"],
-        :keypair => (ENV["KEYPAIR_NAME"].nil? || ENV["KEYPAIR_NAME"].empty?) ? nil : ENV["KEYPAIR_NAME"],
         :minimum_runtime => Default.minimum_runtime,
         :user => Default.user,
         :ami => 'ami-44bd592d'
@@ -67,9 +65,10 @@ module PoolParty
       def initialize(name, &block)
         @cloud_name = name
         @cloud_name.freeze        
-        plugin_directory
+        plugin_directory        
         super
         setup_defaults
+        
         after_create
       end
       
@@ -84,6 +83,7 @@ module PoolParty
       def setup_defaults
         # this can be overridden in the spec, but ec2 is the default
         using :ec2
+        options[:keypair] = keypair.basename
         dependency_resolver 'puppet'
       end
       

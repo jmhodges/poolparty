@@ -46,7 +46,7 @@ module PoolParty
         # has_variable(:name => "ha_node_ips",  :value => "generate('/usr/bin/env', '/usr/bin/server-list-active', '-c', 'ip', '-n', '#{cloud.name}')")
         # 
         # has_variable({:name => "ha_timeout",  :value => (self.respond_to?(:timeout) ? timeout : "5s")})
-        # has_variable({:name => "ha_port", :value => (self.respond_to?(:port) ? port : Base.port)})
+        # has_variable({:name => "ha_port", :value => (self.respond_to?(:port) ? port : Default.port)})
           
       end
 
