@@ -4,3 +4,6 @@
 [submodule "vendor/gems/dslify"]
 	path = vendor/gems/dslify
 	url = git://github.com/auser/dslify.git
+[submodule "vendor/gems/suitcase"]
+	path = vendor/gems/suitcase
+	url = git://github.com/auser/suitcase.git
