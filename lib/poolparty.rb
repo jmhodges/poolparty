@@ -103,7 +103,7 @@ module PoolParty
   include FileWriter
   
   def log
-    @logger ||= make_new_logger
+    @logger ||= STDOUT #make_new_logger
   end
   def reset!
     $pools = $clouds = $plugins = @describe_instances = nil
@@ -117,10 +117,10 @@ module PoolParty
   
   private
   #:nodoc:#
-  def make_new_logger
-    FileUtils.mkdir_p ::File.dirname(Default.pool_logger_location) unless ::File.directory?(::File.dirname(Default.pool_logger_location))
-    Loggable.new
-  end
+  # def make_new_logger
+  #   FileUtils.mkdir_p ::File.dirname(Default.pool_logger_location) unless ::File.directory?(::File.dirname(Default.pool_logger_location))
+  #   Loggable.new
+  # end
 end
 
 class Object
