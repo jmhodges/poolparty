@@ -25,7 +25,7 @@ module PoolParty
         @cloud = cld
         options(cloud.options) if cloud && cloud.respond_to?(:options)
         
-        dputs "Using key at: #{cld.keypair.full_filepath}"
+        dputs "Using key at: #{cld.keypair}"
         
         @os = os.to_s.downcase.to_sym
         self.instance_eval &block if block
@@ -52,8 +52,17 @@ module PoolParty
       
       ### Installation tasks
       
+      # Add the gems to the suitcase
       def package_dependencies
-        PoolParty::Dependencies.package("#{Default.tmp_path}/dependencies.tar.gz")
+        vputs "Adding default gem depdendencies"
+        ::Suitcase::Zipper.gems open("#{Default.vendor_path}/dependencies/gems_list").read.split("\n"), "#{Default.vendor_path}/dependencies"
+        
+        # Download the latest ruby to install
+        ::Suitcase::Zipper.packages "ftp://ftp.ruby-lang.org/pub/ruby/stable-snapshot.tar.gz", "#{Default.vendor_path}/dependencies/packages"
+        ::Suitcase::Zipper.packages "http://rubyforge.org/frs/download.php/45905/rubygems-1.3.1.tgz", "#{Default.vendor_path}/dependencies/packages"
+        
+        ::Suitcase::Zipper.add("#{Default.vendor_path}/dependencies/cache", "gems")
+        ::Suitcase::Zipper.zip!("#{Default.tmp_path}/dependencies.tar.gz")
       end
       
       # This is the actual runner for the installation

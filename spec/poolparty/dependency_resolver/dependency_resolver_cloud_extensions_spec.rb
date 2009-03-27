@@ -20,7 +20,7 @@ class DependencyResolverSpecTestCloud < DependencyResolverCloudExtensionsSpecBas
 end
 
 class JunkClassForDefiningPlugin
-  plugin :apache do
+  plugin :apache_plugin do
   end  
 end
 
@@ -89,7 +89,7 @@ describe "Resolution spec" do
         has_directory :name => "/var/www"
         has_package :name => "bash"
         # parent == nil
-        apache do
+        apache_plugin do
           # parent == TestClass
           # puts "<pre>#{parent}</pre> on <pre>#{context_stack.map {|a| a.class }.join(", ")} from #{self.class}</pre>"
           listen "8080"

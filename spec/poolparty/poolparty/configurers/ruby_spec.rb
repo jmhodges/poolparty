@@ -4,8 +4,8 @@ require File.dirname(__FILE__) + '/../test_plugins/webserver'
 describe "Configurer" do
   before(:each) do
     reset!
-    @basic = read_file(File.join(File.dirname(__FILE__), "files", "ruby_basic.rb"))
-    Script.inflate @basic
+    @basic = File.join(File.dirname(__FILE__), "files", "ruby_basic.rb")
+    PoolParty::Pool::Pool.load_from_file @basic
     @conf = Object.new
   end
   it "should not be nil" do

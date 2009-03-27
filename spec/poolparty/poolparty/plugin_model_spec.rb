@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/test_plugins/webserver'
 
 describe "Plugin" do
   before(:each) do    
-    @c = TestBaseClass.new do
+    @c = cloud :test_plugin_model_cloud do
       apache do                
         enable_php
         site("heady", {

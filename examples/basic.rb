@@ -5,14 +5,14 @@ pool :application do
   keypair "auser"
   testing true
   
-  cloud :app do
+  cloud :basic_app do
     minimum_instances 12
     ami "ami-abc123"
     junk_yard_dogs "pains"
     has_file :name => "/etc/init.d/motd", :content => "Welcome to your PoolParty instance"
   end
   
-  cloud :db do
+  cloud :basic_db do
     minimum_instances 19
     keypair "hotstuff_database"
     maximum_instances 20

@@ -20,6 +20,9 @@ describe "Default" do
   it "should set the storage_directory to the tmp directory of the current working directory" do
     Default.storage_directory.should =~ /tmp/
   end
+  it "should have the vendor_path" do
+    ::File.expand_path(Default.vendor_path).should =~ /\/vendor/
+  end
   it "should set the tmp path to tmp" do
     Default.tmp_path.should == "/tmp/poolparty"
   end
