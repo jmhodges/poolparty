@@ -66,6 +66,7 @@ $_poolparty_load_directories = [
   "poolparty/poolparty_base_class.rb",
   "modules",
   "exceptions",
+  'poolparty/key.rb',
   "dependency_resolver",
   "aska",
   "config",
@@ -80,7 +81,6 @@ $_poolparty_load_directories = [
   "poolparty/service.rb",
   "resources",
   "services",
-  'poolparty/key.rb',
   "poolparty/cloud.rb",
   "poolparty",
   "templates"
