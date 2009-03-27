@@ -6,9 +6,29 @@
 Capistrano::Configuration.instance(:must_exist).load do
   
   # namespace(:base) do
+  desc "Install ruby"
+  def install_ruby_from_stable_source
+    # Not sure which is the appropriate step to take yet... install from source or using a package manager... 
+    # We'll stick with the package manager for now
+    run "#{installer_for} ruby"
+    # run <<-EOR
+    #   cd #{remote_storage_path}/dependencies.tar/packages/
+    #   tar -zxf stable-snapshot.tar.gz
+    #   cd ruby
+    #   ./configure
+    #   make
+    #   make install
+    # EOR
+  end
     desc "Install rubygems"
-    def install_rubygems
-      run "#{installer_for} ruby rubygems"
+    def install_rubygems_from_stable_source
+      # run "#{installer_for} ruby rubygems"
+      run <<-EOR
+        cd #{remote_storage_path}/dependencies.tar/packages/
+        tar -zxf rubygems
+        cd rubygems-1.3.1
+        ruby setup.rb
+      EOR
     end
     
     desc "Setup for poolparty"
@@ -44,6 +64,19 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Unpack dependency store"
     def unpack_dependencies_store
       "tar -zxf #{remote_storage_path}/dependencies.tar.gz"
+    end
+    
+    desc "Install base gems"
+    def install_base_gems
+      # run(returning(Array.new) do |arr|
+      #   base_gems.each do |name, url|
+      #     str = url.empty? ? "#{name}" : "#{Base.remote_storage_path}/#{name}.gem"
+      #     arr << "/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc #{str}; echo 'insatlled #{name}'"
+      #   end
+      # end.join(" && "))
+      run <<-EOR
+        ruby -e 'Dir["#{remote_storage_path}/gems/cache/*.gem"].each {|g| `/usr/bin/gem install --ignore-dependencies --no-ri --no-rdoc \#\{g\}` }'
+      EOR
     end
     
     desc "Upgrade system"
