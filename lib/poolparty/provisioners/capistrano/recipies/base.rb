@@ -13,7 +13,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Setup for poolparty"
     def setup_for_poolparty
       run "mkdir -p #{Default.base_config_directory}"
-      put cloud.to_properties_hash.to_yml, Default.default_properties_hash_file
+      put cloud.to_properties_hash.to_yml, Default.properties_hash_file
     end
     desc "Install provisioner"
     def install_provisioner
