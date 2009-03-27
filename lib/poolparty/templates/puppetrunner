@@ -2,7 +2,7 @@
 . /etc/profile
 echo 'checking if puppet is running'
 PUPRUN=`ps aux | grep \/usr\/bin\/puppet\/  | grep -v grep | wc -c`
-echo "$PUPRUN"
+echo $PUPRUN
 if [ $PUPRUN -eq 0 ]; then 
   # /usr/bin/puppet -d --logdest syslog /etc/puppet/manifests/site.pp
   /usr/bin/puppet -d /etc/puppet/manifests/site.pp
