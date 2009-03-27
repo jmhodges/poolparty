@@ -1,15 +1,20 @@
 module PoolParty
   class Dependencies
     
-    def self.dependencies_dirs
-      [
-        "#{::File.dirname(__FILE__)}/../../vendor/dependencies/cache"
-      ]
+    def self.dependencies
+      @dependencies ||= ["#{::File.dirname(__FILE__)}/../../vendor/dependencies/cache"]
     end
+    
     def self.package(file)
       ::Tar.open(file, File::CREAT | File::WRONLY, 0644, Tar::GNU) do |tar|
-        Dir["#{dependencies_dirs}/*"].each do |file|
-          tar.append_file(file) if ::File.file? file
+        dependencies.each do |dep|
+          if ::File.file? dep
+            tar.append_file(dep)
+          elsif ::File.directory? dep
+            Dir["#{dep}/*"].each do |file|
+              tar.append_file(file) if ::File.file? file
+            end
+          end
         end
       end      
     end
