@@ -12,8 +12,8 @@ module PoolParty
           
             # Template variables
             has_variable("name_haproxy", :value => "#{cloud.name}")
-            has_variable("nodenames_haproxy", :value => "generate('/usr/bin/env', '/usr/bin/server-list-active', '-c', 'name', '-n', '#{cloud.name}')")
-            has_variable("node_ips_haproxy",  :value => "generate('/usr/bin/env', '/usr/bin/server-list-active', '-c', 'ip', '-n', '#{cloud.name}')")
+            has_variable("nodenames_haproxy", :value => "generate('/usr/bin/env', '/usr/bin/server-list-active', 'name'")
+            has_variable("node_ips_haproxy",  :value => "generate('/usr/bin/env', '/usr/bin/server-list-active', 'ip'")
             # 
             has_variable("ports_haproxy", :value => ([(self.respond_to?(:port) ? port : Default.port)].flatten))        
             has_variable("forwarding_port", :value => (respond_to?(:forwarding_port) ? forwarding_port : Default.forwarding_port))

@@ -17,6 +17,7 @@ require "poolparty/lite"
 #   
 # end
 list_type = ARGV.pop || "ip"
+
 json_file = ARGV[0] || PoolParty::Default.properties_hash_file
 schema = PoolParty::Schema.new( ::File.read(json_file) )
 
