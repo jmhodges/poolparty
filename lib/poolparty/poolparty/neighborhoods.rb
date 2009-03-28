@@ -5,10 +5,14 @@ module PoolParty
     attr_reader :schema
     
     def initialize(json)
-      if json.is_a?(Array)
-        json = {:instances => json.map {|entry| disect(entry) }}
-      end
       raise Exception.new("You must pass a string or a hash to Neighborhoods") unless json
+      
+      case json
+      when Array
+        json = {:instances => json.map {|entry| disect(entry) }}
+      when String
+        json = {:instances => JSON.parse(json).map {|inst| "#{inst["name"]}\t#{inst["ip"]}"}}
+      end
       @schema = PoolParty::Schema.new(json)
       raise Exception.new("No instances found in the Neighborhoods schema") unless @schema.instances
     end
@@ -26,6 +30,8 @@ module PoolParty
       when String
         arr = line.split("\t")
         {:name => arr[0], :ip => arr[1]}
+      when Hash
+        "#{line[:name]}\t#{line[:ip]}"
       else
         line
       end

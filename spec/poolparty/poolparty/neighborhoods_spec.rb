@@ -41,6 +41,10 @@ describe "Neighborhoods" do
     ::File.should_receive(:open).with(filepath, "w").and_return true
     Neighborhoods.clump(sample_instances_list,filepath)
   end
+  it "should load from the default properly with the first's instance's ip" do
+    n = Neighborhoods.load_default
+    n[0].ip.should == "127.0.0.1"
+  end
   context "load_default" do
     it "should try to look in the paths to see if the neighborhood file exists" do
       ::File.should_receive(:file?).with("/etc/poolparty/neighborhood.json").and_return true
