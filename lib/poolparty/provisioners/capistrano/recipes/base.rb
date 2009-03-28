@@ -87,12 +87,13 @@ Capistrano::Configuration.instance(:must_exist).load do
 echo 'deb http://mirrors.kernel.org/ubuntu hardy main universe' >> /etc/apt/sources.list &&
 aptitude update -y
         "
-      else4
+      else
         "echo 'No system upgrade needed'"
       end
       run str
     end
     
+    # DEPRECATE
     desc "Upgrade rubygems"
     def upgrade_rubygems
       
