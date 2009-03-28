@@ -50,6 +50,7 @@ describe "Cloud" do
         reset!
         setup
         pool :options do
+          user "bob"
           pop_stick true
           minimum_instances 100
           access_key "pool_access_key"
@@ -69,6 +70,10 @@ describe "Cloud" do
       end
       it "should take the option pop_stick from the superclass" do
         clouds[:apple].pop_stick.should == true
+      end
+      it "should take the option testing true from the superclass" do
+        pools[:options].user.should == "bob"
+        clouds[:apple].user.should == "bob"
       end
     end
     describe "block" do
