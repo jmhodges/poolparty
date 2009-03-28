@@ -183,7 +183,7 @@ describe "Cloud" do
           before(:each) do
             reset!
             stub_list_from_remote_for(@cloud)
-            @cloud = cloud :test_more_manifest do
+            @cloud = TestClass.new :test_more_manifest do
               has_file(:name => "/etc/httpd/http.conf") do
                 content <<-EOE
                   hello my lady
