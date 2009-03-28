@@ -24,12 +24,15 @@ module PoolParty
     def disect(line)
       case line
       when String
-        PoolParty::Remote::RemoteInstance.hash_from_s(line)
-      when Hash
-        PoolParty::Remote::RemoteInstance.to_s(line)
+        arr = line.split("\t")
+        {:name => arr[0], :ip => arr[1]}
       else
         line
       end
+    end
+    
+    def each(&block)
+      instances.each &block
     end
     
     # TODO: Make this into something useful
