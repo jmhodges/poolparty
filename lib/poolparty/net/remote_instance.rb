@@ -1,5 +1,3 @@
-require File.dirname(__FILE__) + "/remoter"
-
 module PoolParty  
   module Remote
     
@@ -68,6 +66,16 @@ module PoolParty
       # local side into the local listing file
       def to_s
         "#{name}\t#{ip}\t#{instance_id rescue ""}"
+      end
+      
+      # Class method to disect a neighborhood line
+      def self.hash_from_s(s)
+        arr = s.split("\t")
+        {:name => arr[0], :ip => arr[1]}
+      end
+      
+      def self.to_s(hsh)
+        new(hsh).to_s
       end
       
       def dependency_resolver_command

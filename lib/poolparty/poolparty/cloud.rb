@@ -49,6 +49,7 @@ module PoolParty
       def method_missing(m, *args, &block)
         @remote_base.respond_to?(m) ? @remote_base.send(m, *args, &block) : super
       end
+      
       default_options(
         :minimum_instances => 2,
         :maximum_instances => 5,

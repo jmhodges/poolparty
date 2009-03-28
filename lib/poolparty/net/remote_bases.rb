@@ -1,5 +1,4 @@
 require File.dirname(__FILE__) + "/remoter_base"
-require File.dirname(__FILE__) + "/remoter"
 
 class Object
   def remote_bases
