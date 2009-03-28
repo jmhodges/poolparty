@@ -93,6 +93,7 @@ aptitude update -y
       run str
     end
     
+    # DEPRECATE
     desc "Upgrade rubygems"
     def upgrade_rubygems
       
