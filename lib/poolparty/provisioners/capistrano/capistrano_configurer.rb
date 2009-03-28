@@ -21,8 +21,7 @@ module Capistrano
       elsif PoolParty::Default.respond_to?(sym)
         PoolParty::Default.send(sym, *args, &block)
       else
-        require 'rubygems'; require 'ruby-debug';
-        super #rescue  debugger
+        super
       end
     end
       
