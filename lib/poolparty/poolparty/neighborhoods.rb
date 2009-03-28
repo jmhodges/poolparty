@@ -63,7 +63,7 @@ module PoolParty
         filepath = ::File.expand_path("#{dir}/neighborhood.json")
         filepath if ::File.file?(filepath)
       end.first || nil
-      def_file ? new( open(::File.expand_path("#{def_file}/neighborhood.json")).read ) : raise
+      def_file ? new( open(::File.expand_path("#{def_file}/neighborhood.json")).read ) : nil
     end
     
   end

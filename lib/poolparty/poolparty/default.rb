@@ -112,10 +112,10 @@ module PoolParty
           Default.base_config_directory,
           Dir.pwd,
           Default.storage_directory
-        ].each do |dir|
+        ].select do |dir|
           full_dir = ::File.join(dir, Default.properties_hash_filename)
-          return full_dir if ::File.file?(full_dir)
-        end || "#{Default.base_config_directory}/#{Default.properties_hash_filename}"
+          full_dir if ::File.file?(full_dir)
+        end.first || "#{Default.base_config_directory}/#{Default.properties_hash_filename}"
       end
       def storage_directory
         [

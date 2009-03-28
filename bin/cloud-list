@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# #!/usr/bin/env ruby
 $:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
 require "poolparty"
 require "poolpartycl"
@@ -15,6 +16,7 @@ o.loaded_clouds.each do |cloud|
   with_cloud(cloud) do
     puts header("Listing cloud #{name}")
     puts subheader("Active instances")
+    
     puts list_of_running_instances.map{|a| a.to_s}.join("\n")
     puts ""
     if list_of_pending_instances.size > 0
