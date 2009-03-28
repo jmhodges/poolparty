@@ -42,6 +42,13 @@ describe "Neighborhoods" do
     Neighborhoods.clump(sample_instances_list,filepath)
   end
   it "should load from the default properly with the first's instance's ip" do
+    str = "[{\"name\":\"master\",\"launching_time\":\"2009/03/26 01:06:18 -0700\",\"ip\":\"127.0.0.1\"},{\"name\":\"node1\",\"launching_time\":\"2009/03/26 01:06:18 -0700\",\"ip\":\"127.0.0.2\"}]"
+    ::File.should_receive(:file?).with("/etc/poolparty/neighborhood.json").and_return true
+    ::File.stub!(:file?).and_return false
+    
+    str.stub!(:read).and_return str
+    Neighborhoods.should_receive(:open).with("/etc/poolparty/neighborhood.json").and_return str
+    
     n = Neighborhoods.load_default
     n[0].ip.should == "127.0.0.1"
   end
