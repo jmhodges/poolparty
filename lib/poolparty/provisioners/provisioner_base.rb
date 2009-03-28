@@ -103,6 +103,7 @@ module PoolParty
         @cloud.prepare_for_configuration
         @cloud.build_and_store_new_config_file(force)
         package_dependencies
+        Neighborhoods.clump(@cloud.remote_instances_list, "#{Default.tmp_path}/neighborhood.json")
       end
       
       # Callbacks

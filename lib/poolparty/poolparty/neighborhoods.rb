@@ -17,6 +17,10 @@ module PoolParty
       @instances ||= @schema.instances.map {|line| disect(line) }
     end
     
+    def [](at)
+      instances[at] if at >= 0 && at < instances.size
+    end
+    
     def disect(line)
       case line
       when String
@@ -35,6 +39,10 @@ module PoolParty
       out
     end
     
+    def self.clump(json, filepath=nil)
+      new(json).clump(filepath)
+    end
+    
     def self.load_default
       def_file = [
         Dir.pwd,
@@ -45,8 +53,8 @@ module PoolParty
       ].select do |dir|
         filepath = ::File.expand_path("#{dir}/neighborhood.json")
         filepath if ::File.file?(filepath)
-      end.first
-      new(open(::File.expand_path("#{def_file}/neighborhood.json")).read)
+      end.first || nil
+      def_file ? new( open(::File.expand_path("#{def_file}/neighborhood.json")).read ) : raise
     end
     
   end

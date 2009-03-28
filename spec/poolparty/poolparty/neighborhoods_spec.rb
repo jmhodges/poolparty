@@ -26,10 +26,20 @@ describe "Neighborhoods" do
     n.instances.first.ip.should == "127.0.0.1"
     n.instances[1].ip.should == "127.0.0.2"
   end
+  it "should return an instance ip when calling for the [0] instance" do
+    n = Neighborhoods.new(sample_instances_list)
+    n[0].ip.should == "127.0.0.1"
+    n[1].ip.should == "127.0.0.2"
+  end
   it "should be able to try to save the instances into a json file" do
     filepath = "/tmp/poolparty/neighborhood.json"
     ::File.should_receive(:open).with(filepath, "w").and_return true
     Neighborhoods.new(sample_instances_list).clump(filepath)
+  end
+  it "should be able to try to save the instances (class method) into a json file" do
+    filepath = "/tmp/poolparty/neighborhood.json"
+    ::File.should_receive(:open).with(filepath, "w").and_return true
+    Neighborhoods.clump(sample_instances_list,filepath)
   end
   context "load_default" do
     it "should try to look in the paths to see if the neighborhood file exists" do

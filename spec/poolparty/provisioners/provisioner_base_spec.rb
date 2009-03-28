@@ -25,6 +25,7 @@ describe "ProvisionerBase" do
     describe "in action" do
       it "should call a new ProvisionerBase" do
         ProvisionerBase.should_receive(:new).with(@remote_instance, @cloud).and_return @pb
+        @cloud.stub!(:remote_instances_list).and_return sample_instances_list
         ProvisionerBase.install(@remote_instance, @cloud)
       end
     end
@@ -34,6 +35,7 @@ describe "ProvisionerBase" do
       @pb = PoolParty::Provisioner::ProvisionerBase.new(@remote_instance, @cloud)
       stub_list_from_remote_for(@pb)
       stub_list_from_remote_for(@cloud)
+      @cloud.stub!(:remote_instances_list).and_return sample_instances_list
       stub_remoting_methods_for(@pb)
     end
     it "should store the instance on the ProvisionerBase" do
