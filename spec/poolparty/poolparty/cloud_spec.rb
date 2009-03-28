@@ -53,7 +53,7 @@ describe "Cloud" do
           testing true
           minimum_instances 100
           access_key "pool_access_key"
-          cloud :apple do          
+          cloud :apple do
             access_key "cloud_access_key"
           end
         end
@@ -67,7 +67,7 @@ describe "Cloud" do
       it "should take the access_key option set from the cloud" do
         clouds[:apple].access_key.should == "cloud_access_key"
       end
-      it "shoudl take the option testing from the superclass" do
+      it "should take the option testing from the superclass" do
         clouds[:apple].testing.should == true
       end
     end

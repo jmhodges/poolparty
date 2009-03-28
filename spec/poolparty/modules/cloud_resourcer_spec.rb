@@ -7,7 +7,7 @@ class ResourcerTestClass < PoolParty::Cloud::Cloud
   
   # Stub keypair
   def keypair
-    "rangerbob"
+    FakeKey.new
   end
 end
 class TestParentClass < PoolParty::Cloud::Cloud  
