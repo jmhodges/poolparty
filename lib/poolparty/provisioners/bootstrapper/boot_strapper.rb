@@ -1,34 +1,22 @@
 require 'rubygems'
 require 'open4'
 require 'ec2'
+require "#{::File.dirname(__FILE__)}/../../lite"
 
 #provide a very simple provisioner with as few dependencies as possible
 module BootStrap
-  class Ec2
-    aws_keys = {}
-    aws_keys = YAML::load( File.open('/etc/poolparty/aws_keys.yml') ) rescue 'No aws_keys.yml file.   Will try to use enviornment variables'
-    ACCESS_KEY_ID = aws_keys[:access_key] || ENV['AMAZON_ACCESS_KEY_ID'] || ENV['AWS_ACCESS_KEY']
-    SECRET_ACCESS_KEY = aws_keys[:secret_access_key] || ENV['AMAZON_SECRET_ACCESS_KEY'] || ENV['AWS_SECRET_ACCESS_KEY']
-  
-    def ec2
-      # default server is US ec2.amazonaws.com
-      @ec2 ||= EC2::Base.new( :access_key_id => ACCESS_KEY_ID, :secret_access_key => SECRET_ACCESS_KEY )
-    end
-  
-    # Return a list of public dns names of running instances
-    def instances( conditions = {:instanceState=>'running'} )
-      ec2.describe_instances.reservationSet.item.first.instancesSet.item.collect do |instance|
-         instance.dnsName if instance.instanceState.name == conditions[:instanceState]
-      end.compact
-    end
-  end
+  # class Ec2
+  #   # access_key, secret_access_key = PoolParty::Remote::Ec2.aws_keys
+  #   # Return a list of public dns names of running instances
+  #   def instances( conditions = {:instanceState=>'running'} )
+  #     ec2.describe_instances.reservationSet.item.first.instancesSet.item.collect do |instance|
+  #        instance.dnsName if instance.instanceState.name == conditions[:instanceState]
+  #     end.compact
+  #   end
+  # end
  
  
-  module CommandRunner
-    def ec2
-      @ec2 ||= Ec2.new
-    end
-  
+  module CommandRunner  
     def target_host(dns_or_ip=nil)
       dns_or_ip ? @target_host=dns_or_ip : @target_host
     end
@@ -71,7 +59,7 @@ module BootStrap
       :distro                => 'ubuntu',
       :installer             => 'apt-get install -y',
       :dependency_resolver   => 'puppet',
-      :dependencies_tarball  => ''
+      :dependencies_tarball  => '/tmp/poolparty/dependencies_tarball.tar.gz'
     }
     class <<self; attr_reader :defaults; end
   
@@ -102,9 +90,10 @@ module BootStrap
  
   #======
  
-  host = Ec2.new.instances.shift
+  access_key, secret_access_key = ::PoolParty::Remote::Ec2.aws_keys
+  host = ::PoolParty::Remote::Ec2.describe_instances({:access_key => access_key, :secret_access_key => secret_access_key}).shift[:ip]
   
-  server = BootStraper.new(host, {:keypair_file => '/Users/mfairchild/.ec2oncourse/r_and_d.pem'}) do
+  server = BootStraper.new(host, {:keypair_file => '~/.ssh/r_and_d'}) do
     if host.nil? || host.empty?
        # ec2.run_instance
       loop do
@@ -129,19 +118,22 @@ module BootStrap
       "wget http://rubyforge.org/frs/download.php/45905/rubygems-1.3.1.tgz",
       "tar -zxvf rubygems-1.3.1.tgz",
       "cd rubygems-1.3.1",
-      "ruby setup.rb",
+      # "ruby setup.rb",
       "ln -sfv /usr/bin/gem1.8 /usr/bin/gem"
       ]
  
     commands << install_gems = [
-     "cd /mnt/poolparty/",
-     # "tar -zxvf #{dependencies_tarball}",
-     # "cd #{dependencies_tarball.gsub(/\.tgz/,'')}",
-     "gem install -y *.gem"]   
+      "echo 'installing gems'",
+      "cd /mnt/poolparty/",
+     "tar -zxvf #{dependencies_tarball}",
+     "cd #{dependencies_tarball.gsub(/\.tgz/,'')}"
+     # "gem install -y *.gem"
+     ]   
  
     # chef solo install
     commands << install_chef = [
       # 'gem sources -a http://gems.opscode.com',
+      'gem install json',
       'gem install chef ohai rake -s http://gems.opscode.com']
   
     commands << ['touch /tmp/testfile']

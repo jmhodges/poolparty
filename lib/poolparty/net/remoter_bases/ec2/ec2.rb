@@ -96,6 +96,17 @@ module PoolParty
       def get_descriptions(o={})
         self.class.get_descriptions(o)
       end
+      
+      # Class method helpers
+      def self.aws_keys
+        unless @access_key && @secret_access_key          
+          aws_keys = {}
+          aws_keys = YAML::load( File.open('/etc/poolparty/aws_keys.yml') ) rescue 'No aws_keys.yml file.   Will try to use enviornment variables'
+          @access_key ||= aws_keys[:access_key] || ENV['AMAZON_ACCESS_KEY_ID'] || ENV['AWS_ACCESS_KEY']
+          @secret_access_key ||= aws_keys[:secret_access_key] || ENV['AMAZON_SECRET_ACCESS_KEY'] || ENV['AWS_SECRET_ACCESS_KEY']
+        end
+        [@access_key, @secret_access_key]
+      end
 
       def after_launch_master(inst=nil)
         instance = master
