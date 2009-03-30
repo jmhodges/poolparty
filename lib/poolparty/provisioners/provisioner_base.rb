@@ -31,6 +31,8 @@ module PoolParty
         self.instance_eval &block if block
         
         loaded
+        
+        # PoolPartyBootStrapper.new(options).execute!
       end
       
       # deprecate

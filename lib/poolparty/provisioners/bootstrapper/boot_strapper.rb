@@ -59,7 +59,7 @@ module BootStrap
       :distro                => 'ubuntu',
       :installer             => 'apt-get install -y',
       :dependency_resolver   => 'puppet',
-      :dependencies_tarball  => '/tmp/poolparty/dependencies_tarball.tar.gz'
+      :dependencies_tarball  => ''
     }
     class <<self; attr_reader :defaults; end
   
@@ -93,7 +93,7 @@ module BootStrap
   access_key, secret_access_key = ::PoolParty::Remote::Ec2.aws_keys
   host = ::PoolParty::Remote::Ec2.describe_instances({:access_key => access_key, :secret_access_key => secret_access_key}).shift[:ip]
   
-  server = BootStraper.new(host, {:keypair_file => '~/.ssh/r_and_d'}) do
+  server = BootStraper.new(host, {:keypair_file => '~/.ssh/r_and_d.pem'}) do
     if host.nil? || host.empty?
        # ec2.run_instance
       loop do
@@ -118,22 +118,19 @@ module BootStrap
       "wget http://rubyforge.org/frs/download.php/45905/rubygems-1.3.1.tgz",
       "tar -zxvf rubygems-1.3.1.tgz",
       "cd rubygems-1.3.1",
-      # "ruby setup.rb",
+      "ruby setup.rb",
       "ln -sfv /usr/bin/gem1.8 /usr/bin/gem"
       ]
  
     commands << install_gems = [
-      "echo 'installing gems'",
-      "cd /mnt/poolparty/",
-     "tar -zxvf #{dependencies_tarball}",
-     "cd #{dependencies_tarball.gsub(/\.tgz/,'')}"
-     # "gem install -y *.gem"
-     ]   
+     "cd /mnt/poolparty/",
+     # "tar -zxvf #{dependencies_tarball}",
+     # "cd #{dependencies_tarball.gsub(/\.tgz/,'')}",
+     "gem install -y *.gem"]   
  
     # chef solo install
     commands << install_chef = [
       # 'gem sources -a http://gems.opscode.com',
-      'gem install json',
       'gem install chef ohai rake -s http://gems.opscode.com']
   
     commands << ['touch /tmp/testfile']
