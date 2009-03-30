@@ -47,6 +47,7 @@ module PoolParty
       n = Neighborhoods.load_default
       @remote_instances_list ||= (n ? n.instances : list_of_instances(keypair.basename)).collect {|h| PoolParty::Remote::RemoteInstance.new(h, @containing_cloud) }
     end
+    alias :instances :remote_instances_list
     # List the instances for the current key pair, regardless of their states
     # If no keypair is passed, select them all
     def list_of_instances(keyp=nil)
