@@ -103,7 +103,7 @@ module BootStrap
       end
     end
     
-    puts "Provisioning #{host}"
+    puts "Provisioning #{host}" 
     
     # base_tasks
     commands << prepare_host = [
