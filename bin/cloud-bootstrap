@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+$:.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
+require "poolparty"
+require "poolparty/provisioners/boot_strapper"
+
+o = PoolParty::Optioner.new(ARGV) do |opts, optioner|
+  opts.on('-n cloudname', '--name name', 'Start cloud by this name')    { |c| optioner.cloudname c }
+end
+
+o.loaded_clouds.each do |cld|
+  cld.remote_instances_list.select {|inst| inst if inst.running? }.each do |node|
+    ::BootStrap::BootStrapper.new node.ip
+  end
+end

@@ -4,6 +4,7 @@ logging
 ZenTest
 rake
 xml-simple
+ec2
 grempe-amazon-ec2
 sexp_processor
 net-ssh
@@ -19,3 +20,4 @@ activesupport
 RubyInline
 archive-tar-minitar
 auser-poolparty
+puppet

@@ -54,19 +54,6 @@ module PoolParty
       
       ### Installation tasks
       
-      # Add the gems to the suitcase
-      def package_dependencies
-        vputs "Adding default gem depdendencies"
-        ::Suitcase::Zipper.gems open("#{Default.vendor_path}/dependencies/gems_list").read.split("\n"), "#{Default.vendor_path}/dependencies"
-        
-        # Download the latest ruby to install
-        ::Suitcase::Zipper.packages "ftp://ftp.ruby-lang.org/pub/ruby/stable-snapshot.tar.gz", "#{Default.vendor_path}/dependencies/packages"
-        ::Suitcase::Zipper.packages "http://rubyforge.org/frs/download.php/45905/rubygems-1.3.1.tgz", "#{Default.vendor_path}/dependencies/packages"
-        
-        ::Suitcase::Zipper.add("#{Default.vendor_path}/dependencies/cache", "gems")
-        ::Suitcase::Zipper.zip!("#{Default.tmp_path}/dependencies.tar.gz")
-      end
-      
       # This is the actual runner for the installation
       def install(testing=false)
         error unless valid?
@@ -104,7 +91,6 @@ module PoolParty
       def setup_runner(force=false)
         @cloud.prepare_for_configuration
         @cloud.build_and_store_new_config_file(force)
-        package_dependencies
         Neighborhoods.clump(@cloud.remote_instances_list, "#{Default.tmp_path}/neighborhood.json")
       end
       
