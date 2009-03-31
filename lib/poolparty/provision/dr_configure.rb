@@ -56,7 +56,7 @@ module PoolParty
        @cloud.write_properties_hash("#{Default.tmp_path}/properties_hash.rb")
        #TODO: move to puppet class
        @cloud.build_and_store_new_config_file("#{Default.tmp_path}/dr_configure/poolparty.pp") 
-       Neighborhoods.clump(@cloud.remote_instances_list, "#{Default.tmp_path}/neighborhood.json")
+       # Neighborhoods.clump(@cloud.remote_instances_list, "#{Default.tmp_path}/neighborhood.json")
      end
      
      def write_erlang_cookie
