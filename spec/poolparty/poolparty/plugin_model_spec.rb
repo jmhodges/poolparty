@@ -38,7 +38,7 @@ describe "Plugin" do
         @plugin.respond_to?(:enable_php).should == true
       end
       it "should call php = true in the enable_php" do
-        @plugin.php.should_not == true
+        @plugin.php?.should == false
         @plugin.enable_php
         @plugin.php.should == true
       end
