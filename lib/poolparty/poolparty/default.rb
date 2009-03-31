@@ -118,7 +118,7 @@ module PoolParty
       end
       def storage_directory
         [
-            "/var/poolparty"           
+            "/var/poolparty"
         ].select do |dir|
           dir if viable_directory?(dir)
         end.first || ::File.join( "/tmp/poolparty")
