@@ -91,7 +91,7 @@ module PoolParty
       def setup_runner(force=false)
         @cloud.prepare_for_configuration
         @cloud.build_and_store_new_config_file(force)
-        Neighborhoods.clump(@cloud.remote_instances_list, "#{Default.tmp_path}/neighborhood.json")
+        Neighborhoods.clump(@cloud.remote_instances_list, "#{Default.tmp_path}/neighborhood.json") unless testing
       end
       
       # Callbacks
