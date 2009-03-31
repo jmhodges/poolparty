@@ -15,7 +15,8 @@ o.loaded_clouds.each do |cld|
   nodes = !o.unflagged_args.empty? ?  o.unflagged_args : cld.remote_instances_list.collect {|inst| inst.ip if inst.running? }.compact
   nodes.each do |address|
     puts "configuring: #{address}"
-    ::PoolParty::Provision::DrConfigure.new( address, :full_keypair_path => cld.keypair.full_filepath, 
-                                                      :cloud => cld )
+    ::PoolParty::Provision::DrConfigure.new( address, 
+                                             :full_keypair_path => cld.keypair.full_filepath, 
+                                             :cloud => cld )
   end
 end

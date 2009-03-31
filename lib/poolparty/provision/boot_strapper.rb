@@ -70,8 +70,7 @@ module PoolParty
         commands << [
           "mkdir -p /etc/poolparty",
           'cd /var/poolparty/dependencies',
-          "#{installer} ruby",
-          "#{installer} ruby1.8-dev libopenssl-ruby1.8 ruby1.8-dev build-essential wget",  #optional, but nice to have
+          "#{installer} ruby1.8 libopenssl-ruby1.8 build-essential wget",  #optional, but nice to have
           "tar -zxvf packages/rubygems-1.3.1.tgz",        
           "cd rubygems-1.3.1",
           "ruby setup.rb",

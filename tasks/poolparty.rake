@@ -4,7 +4,8 @@ task :slow_spec do
   Dir["#{::File.dirname(__FILE__)}/../spec/poolparty/**/*_spec.rb"].each do |sp|
     puts "---------------- #{::File.basename(sp)} ----------------"
     results = `spec #{sp}`
-    stats[:errors] += $i.to_i if results.match(/([1-9]+0?)\sfailures|errors/)
+    results.match(/([1-9]+0?)\sfailures|errors/)
+    stats[:failures] += $i.to_i
     puts results
   end
   puts "#{stats[:errors]} total errors"
