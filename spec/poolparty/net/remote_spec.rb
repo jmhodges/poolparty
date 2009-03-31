@@ -290,11 +290,6 @@ describe "Remote" do
       end
       describe "run_command_on" do
         before(:each) do
-          @key = Key.new("fake_keypair")
-          @key.stub!(:exist?).and_return true
-          @key.stub!(:full_filepath).and_return "~/.ec2/fake_keypair"
-          @tc.stub!(:keypair).and_return @key
-          @tc.stub!(:search_in_known_locations).and_return @key
           @obj.stub!(:name).and_return "pop"
         end
         it "should call system on the kernel" do

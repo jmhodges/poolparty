@@ -28,16 +28,21 @@ def are_too_few_instances_running?; end
 include Remote
 require File.dirname(__FILE__)+'/net/remoter_bases/ec2_mocks_and_stubs.rb'
 
-class FakeKey < Key
-  def exist?; true; end
-  def full_filepath; "~/.ec2/fake_keypair"; end
+# Append this directory - which contains a mock key named id_rsa - to the list of searchable locations 
+class Key
+  class << self
+    alias :keypair_paths_without_spec_dir :keypair_paths unless method_defined?(:keypair_paths_without_spec_dir)
+    def keypair_paths
+      [keypair_paths_without_spec_dir, File.dirname(__FILE__)].flatten
+    end
+  end
+  
 end
 
 class TestRemoterClass < ::PoolParty::Remote::Ec2
   include CloudResourcer
   include CloudDsl
   
-  def keypair;FakeKey.new;  end
   def ami;"ami-abc123";end
   def size; "small";end
   def security_group; "default";end
@@ -60,9 +65,6 @@ class TestClass < ::PoolParty::Cloud::Cloud
   def initialize(name=:name, &block)
     super :test_cloud, &block
   end
-  def keypair(*args)
-    FakeKey.new
-  end
   def verbose
     false
   end
@@ -79,7 +81,7 @@ end
 
 def new_test_cloud(force_new=false)
   unless @test_cloud || force_new
-    @test_cloud = Cloud.new("test_cloud_#{rand(10000)}")
+    @test_cloud = TestCloud.new("test_cloud_#{rand(10000)}")
     stub_list_from_remote_for @test_cloud
     @test_cloud.stub!(:describe_instances).and_return response_list_of_instances
   end
@@ -162,9 +164,6 @@ def stub_list_from_remote_for(o, launch_stub=true)
   stub_remoting_methods_for(o)
 end
 def stub_remoting_methods_for(o)
-  @key = Key.new
-  o.stub!(:keypair).and_return @key
-  o.stub!(:keypair_path).and_return "~/.ec2/fake_keypair"
   o.stub!(:other_clouds).and_return []
   o.stub!(:expand_when).and_return "cpu > 10"
   o.stub!(:copy_file_to_storage_directory).and_return true
@@ -180,7 +179,6 @@ def stub_remoting_methods_for(o)
 end
 def stub_list_of_instances_for(o)  
   o.stub!(:list_of_running_instances).once.and_return running_remote_instances
-  o.stub!(:keypair).and_return FakeKey.new
   # o.stub!(:describe_instances).and_return response_list_of_instances
 end
 

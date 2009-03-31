@@ -4,10 +4,8 @@ class TestEC2Class < Ec2
   include Dslify
   
   default_options PoolParty::Default.default_options.merge({:access_key => "Not an access key", 
-    :secret_access_key => "not a secret access key", 
-    :keypair => 'fake_key.rsa'})
+    :secret_access_key => "not a secret access key", :keypair => 'id_rsa'})
   
-  def keypair;FakeKey.new;  end
   def ami;"ami-abc123";end
   def size; "small";end
   def security_group; "default";end

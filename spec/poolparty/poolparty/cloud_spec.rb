@@ -177,6 +177,7 @@ describe "Cloud" do
             clouds[:app].keypair.full_filepath.should == "ney"
           end
           it "should default to ~/.ssh/id_rsa if none are defined" do
+            File.stub!(:exists?).with("#{ENV["HOME"]}/.ssh/id_rsa").and_return(true)
             pool :pool do
               cloud :app do
               end
