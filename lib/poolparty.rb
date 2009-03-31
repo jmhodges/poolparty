@@ -74,6 +74,7 @@ $_poolparty_load_directories = [
   "capistrano.rb",
   'provisioners/provisioner_base.rb',
   'provisioners/capistrano/capistrano.rb',
+  'provision',
   "extra",
   "net",
   "helpers",
