@@ -16,7 +16,6 @@ o.loaded_clouds.each do |cld|
     ::PoolParty::Provision::BootStrapper.new( inst.ip, {:full_keypair_path => cld.keypair.full_filepath} )
     ::PoolParty::Provision::DrConfigure.new( inst.ip, :full_keypair_path => cld.keypair.full_filepath, 
                                                       :cloud => cld )
-    
     when_no_pending_instances do
       vputs <<-EOM
         Your cloud has started. Your ip is #{inst.ip}
