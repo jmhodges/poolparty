@@ -2,3 +2,4 @@
 # Remove Ruby2Ruby dependency
 # Move server binaries to use props_hash
 # Reduce dependencies
+# task for "rake clean_pkg && rake gemspec && rake build && rm -rf /tmp/poolparty/ && rm -rf vendor/dependencies/"

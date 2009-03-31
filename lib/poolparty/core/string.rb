@@ -67,6 +67,20 @@ class String
     klass
   end
   
+  def camel_case
+    gsub(/(^|_|-)(.)/) { $2.upcase }
+  end
+  
+  # "FooBar".snake_case #=> "foo_bar"
+   def snake_case
+     gsub(/\B[A-Z]+/, '_\&').downcase
+   end
+   
+    # "FooBar".dasherize #=> "foo-bar"
+    def dasherize
+      gsub(/\B[A-Z]+/, '-\&').downcase
+    end
+    
   # Constantize tries to find a declared constant with the name specified
   # in the string. It raises a NameError when the name is not in CamelCase
   # or is not initialized.
@@ -75,16 +89,14 @@ class String
   #   "Module".constantize #=> Module
   #   "Class".constantize #=> Class
   def constantize
-    unless /\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/ =~ self
-      raise NameError, "#{camel_cased_word.inspect} is not a valid constant name!"
+    camel_cased_word = camel_case
+    begin
+      Object.module_eval(camel_cased_word, __FILE__, __LINE__)
+    rescue NameError
+      puts "#{camel_cased_word} is not defined."
+      nil
     end
-    Object.module_eval("::#{$1}", __FILE__, __LINE__)
   end
-  
-  #TODO: define here to remove dependency on activesupport
-  # def classify
-  #   self.camelize(self.sub(/.*\./, ''))
-  # end
   
   def preserved_class_constant(append="")
     klass = "#{self}#{append}".classify

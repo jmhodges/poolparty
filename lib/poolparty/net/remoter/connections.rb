@@ -5,30 +5,45 @@ module PoolParty
       dns_or_ip ? @target_host=dns_or_ip : @target_host
     end
   
-    def run_remote(command, host=target_host, options=[])
+    def run_remote(command, host=target_host, options=ssh_options)
       command = command.join(' && ') if command.is_a? Array
       cmd = "ssh #{host} #{options.join(' ')} '#{command}'"
       puts "--------\nrunning_remote:\n #{cmd}\n"
       puts %x{#{cmd}}
     end
     
-    def ssh_options(ops=[""])
-      ["-i #{keypair.full_filepath} -l #{user} -o StrictHostKeyChecking=no"]
+    def ssh_into(inst)
+      ip = inst.ip
+      puts str="ssh #{ssh_options} #{ip}"
+      Kernel.system("ssh #{ssh_options} #{ip}")
+    end
+    
+    def ssh_options
+      ["-i #{full_keypair_path} -l #{user} -o StrictHostKeyChecking=no"]
     end
   
-    def rsync( source_path, destination_path, ssh_options, options=['--progress -a'] )
+    def rsync( source_path, destination_path, options=['--progress -a'] )
       puts "rsync -e 'ssh #{ssh_options}' #{options.join(' ')} #{source_path}  root@#{target_host}:#{destination_path}"
       puts %x{ rsync -e 'ssh #{ssh_options}' #{options.join(' ')} #{source_path}  root@#{target_host}:#{destination_path}}
     end
    
-     def run_local(commands)
-       commands.each do |cmd|
-         puts `#{cmd}`
-       end
-     end
+    def run_local(commands)
+      commands.each do |cmd|
+        puts `#{cmd}`
+      end
+    end
+
+    def commands
+      @commands ||= Array.new
+    end
+
+    # TODO: make extendable multithreaded version
+    def execute!
+      commands.each {|c| run_remote(c, target_host) }
+    end
     
-    
-    #TODO: Delete deprecated commands below here ######
+##########################################################################################################   
+# TODO: Delete deprecated commands below here
     
     def rsync_storage_files_to_command(remote_instance)
       #TODO: rsync_to_command("#{Default.storage_directory}/", Default.remote_storage_path, remote_storage_path) if remote_instance
@@ -96,11 +111,11 @@ module PoolParty
     end
     
     # Ssh into the instance given
-    def ssh_into(instance)
-      cmd = "#{ssh_command(instance)}"
-      vputs "Running #{cmd}"
-      Kernel.system cmd if instance
-    end
+    # def ssh_into(instance)
+    #   cmd = "#{ssh_command(instance)}"
+    #   vputs "Running #{cmd}"
+    #   Kernel.system cmd if instance
+    # end
     # Find the instance by the number given
     # and then ssh into the instance
     def ssh_into_instance_number(num=0)

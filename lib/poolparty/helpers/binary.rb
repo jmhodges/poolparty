@@ -49,8 +49,7 @@ module PoolParty
             "#{Default.default_specfile_name}",            
             "#{Default.base_config_directory}/#{Default.default_specfile_name}",            
             Dir["#{Dir.pwd}/*/clouds.rb"],
-            ENV["POOL_SPEC"],
-            "#{Default.storage_directory}/#{Default.default_specfile_name}"
+            ENV["POOL_SPEC"]
         ].flatten.reject {|a| a.nil?}.reject do |f|
           f unless ::File.readable?(f)
         end.first
