@@ -71,7 +71,7 @@ describe "PuppetResolver" do
         plugin :apache do
         end
       end
-      @cloud = TestBaseClass.new do
+      @cloud = cloud :hope do
         keypair "bob"
         has_file :name => "/etc/motd", :content => "Welcome to the cloud"        
         has_file :name => "/etc/profile", :content => "profile info"

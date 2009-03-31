@@ -96,7 +96,8 @@ module PoolParty
     def full_keypair_path      
       @full_keypair_path ||= keypair.full_filepath
     end
-                
+    
+    # TODO: deprecate
     def number_of_resources
       arr = resources.map do |n, r|
         r.size
@@ -104,10 +105,12 @@ module PoolParty
       resources.map {|n,r| r.size}.inject(0){|sum,i| sum+=i}
     end
     
+    # TODO: deprecate
     def plugin_store
       @plugin_store ||= []
     end
     
+    # TODO: deprecate
     def realize_plugins!(force=false)
       plugin_store.each {|plugin| puts "plugin: #{plugin}";plugin.realize!(force) if plugin }
     end
