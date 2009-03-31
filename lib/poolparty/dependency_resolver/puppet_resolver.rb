@@ -97,7 +97,12 @@ module PoolParty
     def to_option_string(obj)
       case obj
       when PoolParty::Resources::Resource
-        "#{obj.class.to_s.top_level_class.capitalize}[\"#{obj.name}\"]"
+        case obj
+        when PoolParty::Resources::Directory
+          "File[\"#{obj.name}\"]"
+        else
+          "#{obj.class.to_s.top_level_class.capitalize}[\"#{obj.name}\"]"
+        end        
       when Fixnum
         "#{obj}"
       when String

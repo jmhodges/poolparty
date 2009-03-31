@@ -74,8 +74,9 @@ describe "PuppetResolver" do
       @cloud = cloud :hope do
         keypair "bob"
         has_file :name => "/etc/motd", :content => "Welcome to the cloud"        
-        has_file :name => "/etc/profile", :content => "profile info"
+        has_file :name => "/etc/profile", :content => "profile info"        
         has_directory :name => "/var/www"
+        has_file :name => "/var/www/index.html", :content => "profile info", :requires => get_directory("/var/www")
         # has_package :name => "bash"        
         # parent == cloud
         apache do
@@ -108,9 +109,11 @@ describe "PuppetResolver" do
       @compiled.should =~ /case \$hostname \{/
       @compiled.should =~ /master : \{/
     end
+    it "should require the file to have the directory (written as file)" do
+      @compiled.should =~ /require => File\[\"\/var\/www\"\]/
+    end
     it "should ensure file" do
-      @compiled.should =~ /ensure => "present"/
-      
+      @compiled.should =~ /ensure => "present"/      
     end
   end
   
