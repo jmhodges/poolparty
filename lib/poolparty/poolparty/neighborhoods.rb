@@ -57,7 +57,6 @@ module PoolParty
         Dir.pwd,
         Default.base_config_directory,
         Default.remote_storage_path,
-        Default.tmp_path,
         Default.poolparty_home_path
       ].select do |dir|
         filepath = ::File.expand_path("#{dir}/neighborhood.json")
