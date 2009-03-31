@@ -10,7 +10,11 @@ class WebServers
     end
     
     def enable_php
-      @enable_php ||= true
+      @php = true
+    end
+    
+    def php
+      @php ||= false
     end
     
     def site(name=:domain1, opts={})
