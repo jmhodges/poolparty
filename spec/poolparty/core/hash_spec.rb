@@ -43,7 +43,6 @@ describe "Hash" do
       @selected_hash.keys.should == [:a]
     end
   end
-
   #TODO: deprecate
   # describe "extract!" do
   #   before(:each) do
