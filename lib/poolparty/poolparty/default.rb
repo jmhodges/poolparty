@@ -36,7 +36,7 @@ module PoolParty
       # :agent_pid_file => ::File.readable?("/var/run/poolparty_agent.pid") ? "/var/run/agent.pid" : "#{Dir.pwd}/agent.pid",
       # :agent_port => 8081,
       # EC2 Options
-      :ami => "ami-1cd73375",
+      :ami => "ami-7cfd1a15",
       :size => 'm1.small', # must be 'm1.small', 'm1.large', 'm1.xlarge', 'c1.medium', or 'c1.xlarge'  #TODO: change to instance_size
       :availabilty_zone => "us-east-1a",
       :security_group => ["default"],

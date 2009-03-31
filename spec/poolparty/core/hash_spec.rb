@@ -43,20 +43,25 @@ describe "Hash" do
       @selected_hash.keys.should == [:a]
     end
   end
-  describe "extract!" do
-    before(:each) do
-      @rejected_hash = @a.extract! {|k,v| k == :a }
-    end
-    it "should have a reject with the keys" do
-      @rejected_hash.keys.should == [:a]
-    end
-    it "should return the old array with the other keys" do
-      @a.keys.sort.should == [:b, :c]
-    end
-    it "should not throw a fit with an empty hash" do
-      lambda { {}.extract! }.should_not raise_error
-    end
-  end
+  #TODO: deprecate
+  # describe "extract!" do
+  #   before(:each) do
+  #     @rejected_hash = @a.extract! {|k,v| k == :a }
+  #   end
+  #   it "should have a reject with the keys" do
+  #     @rejected_hash.keys.should == [:a]
+  #   end
+  #   it "should return the old array with the other keys" do
+  #     @a.keys.sort.should == [:b, :c]
+  #   end
+  #   it "should not throw a fit with an empty hash" do
+  # {}.extract!
+  #       lambda {
+  #       {}.extract!
+  #     }.should_not raise_error
+  #   end
+  # end
+ 
   describe "append" do
     before(:each) do
       @hash = {:game => "token", :required => "for_play"}
