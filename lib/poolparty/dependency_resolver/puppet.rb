@@ -47,24 +47,25 @@ module PoolParty
           end
         end.join("\n")
       end
-      
-      def resources_string_from_resources(res, pre="\t")
-        return nil if res.keys == [:classpackage] && res.size == 1
-        @variables = res.extract! {|name,resource| name == :variable}
-        
-        returning Array.new do |str|
-          unless @variables.empty?
-            str << "\n# Variables"
-            @variables.each do |name, variable|
-              str << variable.to_string("#{pre}")
-            end          
-          end
 
-          res.reject do |type, resource|
-            str << resource.to_string("#{pre*2}")
-          end
-        end.join("\n")
-      end
+      #TODO: deprecated
+      # def resources_string_from_resources(res, pre="\t")
+      #   return nil if res.keys == [:classpackage] && res.size == 1
+      #   @variables = res.extract! {|name,resource| name == :variable}
+      #   
+      #   returning Array.new do |str|
+      #     unless @variables.empty?
+      #       str << "\n# Variables"
+      #       @variables.each do |name, variable|
+      #         str << variable.to_string("#{pre}")
+      #       end          
+      #     end
+      # 
+      #     res.reject do |type, resource|
+      #       str << resource.to_string("#{pre*2}")
+      #     end
+      #   end.join("\n")
+      # end
       
       # def to_s
       #   self.class.resource_string_name(class_type_name.capitalize, key)
