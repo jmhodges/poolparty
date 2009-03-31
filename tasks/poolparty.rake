@@ -1,9 +1,13 @@
 desc "Run the specs"
 task :slow_spec do
+  stats = {:example=>0, :failures=>0, :pending=>0}
   Dir["#{::File.dirname(__FILE__)}/../spec/poolparty/**/*_spec.rb"].each do |sp|
     puts "---------------- #{::File.basename(sp)} ----------------"
-    puts `spec #{sp}`
+    results = `spec #{sp}`
+    stats[:errors] += $i.to_i if results.match(/([1-9]+0?)\sfailures|errors/)
+    puts results
   end
+  puts "#{stats[:errors]} total errors"
 end
 namespace(:poolparty) do
   namespace(:setup) do
