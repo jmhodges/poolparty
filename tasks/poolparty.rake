@@ -1,6 +1,7 @@
 desc "Run the specs"
 task :slow_spec do
   Dir["#{::File.dirname(__FILE__)}/../spec/poolparty/**/*_spec.rb"].each do |sp|
+    puts "---------------- #{::File.basename(sp)} ----------------"
     puts `spec #{sp}`
   end
 end
