@@ -54,9 +54,7 @@ describe "Hash" do
       @a.keys.sort.should == [:b, :c]
     end
     it "should not throw a fit with an empty hash" do
-      lambda {
-        {}.extract!
-      }.should_not raise_error
+      lambda { {}.extract! }.should_not raise_error
     end
   end
   describe "append" do
