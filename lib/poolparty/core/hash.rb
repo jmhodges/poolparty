@@ -5,11 +5,12 @@ class Hash
   def choose(&block)
     Hash[*self.select(&block).inject([]){|res,(k,v)| res << k << v}]    
   end
-  def extract!(&block)
-    o = Hash[*select(&block).flatten]
-    o.keys.each {|k| self.delete(k) }
-    o
-  end
+  #TODO: deprecate
+  # def extract!(&block)
+  #   o = Hash[*select(&block).flatten]
+  #   o.keys.each {|k| self.delete(k) }
+  #   o
+  # end
   def append(other_hash)
     returning Hash.new do |h|
       h.merge!(self)
