@@ -5,6 +5,7 @@ class Hash
   def choose(&block)
     Hash[*self.select(&block).inject([]){|res,(k,v)| res << k << v}]    
   end
+
   def to_instance_variables(inst=nil)
     each do |k,v|
       inst.instance_variable_set "@#{k}", v

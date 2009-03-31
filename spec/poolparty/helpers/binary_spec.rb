@@ -17,7 +17,7 @@ describe "Binary" do
   describe "get_existing_spec_location" do
     before(:each) do
       ::File.stub!(:readable?).and_return false
-      ::File.stub!(:readable?).with("#{Default.storage_directory}/clouds.rb").and_return true
+      ::File.stub!(:readable?).with("/etc/poolparty/clouds.rb").and_return true
     end
     it "should be a String" do
       Binary.get_existing_spec_location.class.should == String

@@ -2,16 +2,15 @@ class WebServers
   plugin :apache do    
     attr_accessor :php
     
-    def enable      
+    def loaded(o={}, &block)
+      @loaded ||= true
+    end
+    
+    def enable
     end
     
     def enable_php
-      @php = true
-      php
-    end
-    
-    def php
-      @php
+      @enable_php ||= true
     end
     
     def site(name=:domain1, opts={})

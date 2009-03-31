@@ -1,6 +1,35 @@
 module PoolParty
   module Remote
     
+    def launch_instance!(o={})
+      @inst = launch_new_instance!( o )
+      wait "5.seconds"
+      when_no_pending_instances do
+        vputs "Master has launched"
+        reset!
+        after_launch_instance(@inst)
+      end
+      @inst
+    end
+    
+    # Called after an instance is launched
+    def after_launch_instance(instance=nil)      
+    end
+    
+    # A convenience method for waiting until there are no more
+    # pending instances and then running the block
+    def when_no_pending_instances(&block)
+      reset!
+      if list_of_pending_instances && list_of_pending_instances.size == 0
+        vputs "" # Clear the terminal with a newline
+        block.call if block
+      else
+        vprint "."
+        wait "5.seconds"
+        when_no_pending_instances(&block)
+      end
+    end
+    
     # Stub method for the time being to handle expansion of the cloud
     def can_expand_cloud?(force=false)
       (are_too_few_instances_running? || are_expansion_rules_valid? ) || force || false
@@ -68,6 +97,11 @@ module PoolParty
     def are_too_many_instances_running?
       list_of_running_instances.size > maximum_instances.to_i
     end
+    
+    ########
+    # TODO: deprecate methods below here (only if they are deprecate-able)
+    ########
+    
     # Request to launch a number of instances
     def request_launch_new_instances(num=1)
       out = []
@@ -83,6 +117,8 @@ module PoolParty
         after_launch_master(@inst)
       end
     end
+    
+    
     def after_launch_master(inst=nil)
       vputs "After launch master in remoter"
     end
@@ -109,19 +145,7 @@ module PoolParty
     def request_launch_one_instance_at_a_time
       when_no_pending_instances { launch_new_instance! }
     end
-    # A convenience method for waiting until there are no more
-    # pending instances and then running the block
-    def when_no_pending_instances(&block)
-      reset!
-      if list_of_pending_instances && list_of_pending_instances.size == 0
-        vputs "" # Clear the terminal with a newline
-        block.call if block
-      else
-        vprint "."
-        wait "5.seconds"
-        when_no_pending_instances(&block)
-      end
-    end
+
     # A convenience method for waiting until all the instances have an ip
     # assigned to them. This is useful when shifting the ip addresses
     # around on the instances
