@@ -7,14 +7,17 @@ describe "Plugin" do
   describe "wrapped" do
     before(:each) do
       cloud :app_for_plugin do
-        apache_plugin apache do
+        apache do
           enable_php
           site("heady", {
             :document_root => "/root"
           })
         end
+        apache do
+          site("boob")
+        end
       end
-      @plugin = clouds[:app_for_plugin].apache_plugin
+      @plugin = clouds[:app_for_plugin].apache
     end
     it "should not be empty" do
       clouds[:app_for_plugin].apache.class.should == ApacheClass
@@ -27,6 +30,11 @@ describe "Plugin" do
     end
     it "should set enable_php" do
       @plugin.enable_php.should == true
+    end
+    it "should store the plugin in the clouds plugin_store" do
+      clouds[:app_for_plugin].plugin_store.should == [@plugin]
+      clouds[:app_for_plugin].apache
+      clouds[:app_for_plugin].plugin_store.should == [@plugin]
     end
   end
 end
