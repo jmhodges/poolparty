@@ -47,7 +47,7 @@ module PoolParty
       alias :name :cloud_name
       
       def method_missing(m, *args, &block)
-        @remote_base.respond_to?(m) ? @remote_base.send(m, *args, &block) : super
+        remote_base.respond_to?(m) ? remote_base.send(m, *args, &block) : super
       end
       
       default_options(
@@ -175,7 +175,7 @@ module PoolParty
       end
       
       def copy_misc_templates
-        ["namespaceauth.conf", "puppet.conf", "gem"].each do |f|
+        ["namespaceauth.conf", "puppet/puppet.conf", "gem"].each do |f|
           copy_file_to_storage_directory(::File.join(::File.dirname(__FILE__), "..", "templates", f))
         end
       end
@@ -278,7 +278,11 @@ module PoolParty
       end
       
       def custom_minimum_runnable_options
-        using_remoter? ? @remote_base.custom_minimum_runnable_options : []
+        using_remoter? ? remote_base.custom_minimum_runnable_options : []
+      end
+      
+      def remote_base
+        @remote_base ||= nil
       end
       
       # Add all the poolparty requirements here

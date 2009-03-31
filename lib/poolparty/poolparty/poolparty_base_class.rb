@@ -99,17 +99,17 @@ module PoolParty
     def store_in_local_resources(ty, obj)
       resource(ty) << obj
     end
-    def in_local_resources?(ty, key)
-      !resource(ty).select {|r| r.name == key }.empty? rescue false
+    def in_local_resources?(ty, k)
+      !resource(ty).select {|r| r.name == k }.empty? rescue false
     end
-    def get_local_resource(ty, key)
-      resource(ty).select {|r| r.name == key }.first
+    def get_local_resource(ty, k)
+      resource(ty).select {|r| r.resource_name == k }.first
     end
     
     def get_resource(ty, n, opts={}, &block)
       if in_local_resources?(ty, n)
         get_local_resource(ty, n)
-      elsif parent
+      elsif parent && parent != self
         parent.get_resource(ty, n)
       else
         nil
@@ -132,7 +132,7 @@ module PoolParty
       false
     end
     
-    def method_missing(m,*a,&block)
+    def method_missing(m,*a,&block)      
       if this_context && this_context != self && this_context.respond_to?(m)# && !self.is_a?(PoolParty::Resources::Resource)
         this_context.send m, *a, &block      
       else

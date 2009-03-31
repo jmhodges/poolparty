@@ -88,7 +88,7 @@ module PoolParty
       end
       
       def resource_name
-        @resource_name
+        @resource_name ||= nil
       end
       
       def name(*args)

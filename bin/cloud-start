@@ -7,22 +7,22 @@ o = PoolParty::Optioner.new(ARGV) do |opts, optioner|
 end
 
 o.loaded_clouds.each do |cld|
-  if list_of_running_instances.size.zero?
-    vputs header("Starting cloud #{name}")
-    vputs "#{list_of_running_instances.size} running instances (#{minimum_instances} - #{maximum_instances})"
+  if cld.list_of_running_instances.size.zero?
+    puts header("Starting cloud #{cld.name}")
+    puts "#{cld.list_of_running_instances.size} running instances (#{cld.minimum_instances} - #{cld.maximum_instances})"
     
     inst = cld.launch_instance!
     
-    ::PoolParty::Provision::BootStrapper.new( inst.ip, {:full_keypair_path => cld.keypair.full_filepath} )
-    ::PoolParty::Provision::DrConfigure.new( inst.ip, :full_keypair_path => cld.keypair.full_filepath, 
-                                                      :cloud => cld )
     when_no_pending_instances do
-      vputs <<-EOM
+      ::PoolParty::Provision::BootStrapper.new( inst.ip, :full_keypair_path => cld.keypair.full_filepath   )
+      ::PoolParty::Provision::DrConfigure.new( inst.ip,  :full_keypair_path => cld.keypair.full_filepath, 
+                                                         :cloud => cld )
+      puts <<-EOM
         Your cloud has started. Your ip is #{inst.ip}
       EOM
     end
   else
-    vputs <<-EOE
+    puts <<-EOE
       Your cloud is already running.
     EOE
   end
