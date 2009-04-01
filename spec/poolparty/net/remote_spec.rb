@@ -13,6 +13,9 @@ class PoolParty::Remote::Hype < PoolParty::Remote::RemoterBase
   end  
 end
 
+class PoolParty::Remote::HypeRemoteInstance < PoolParty::Remote::RemoteInstance
+end
+
 PoolParty::Remote.register_remote_base :Hype
 
 describe "Remote" do
@@ -156,24 +159,6 @@ describe "Remote" do
         add_stub_instance_to(@tc, 9)
         @tc.maximum_number_of_instances_are_not_running?.should == false
       end
-    end
-    describe "request_launch_one_instance_at_a_time" do
-      before(:each) do
-        @tc.stub!(:wait).and_return "true"
-        remove_stub_instance_from(@tc, 3)
-        remove_stub_instance_from(@tc, 5)
-        stub_remoter_for(@tc)
-        @tc.stub!(:launch_new_instance!).and_return {}
-      end
-      it "should call reset! once" do
-        @tc.should_receive(:reset!).once
-        @tc.request_launch_one_instance_at_a_time
-      end
-      it "should not call wait if there are no pending instances" do
-        Kernel.should_not_receive(:sleep)
-        @tc.request_launch_one_instance_at_a_time
-      end
-      # TODO: Stub methods with wait
     end
     describe "launch_minimum_number_of_instances" do
       it "should not call minimum_number_of_instances_are_running? if if cannot start a new instance" do
