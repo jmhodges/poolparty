@@ -85,7 +85,7 @@ module PoolParty
       else
         opts = (opts.is_a?(Hash) ? extra_opts.merge(opts) : extra_opts).merge(:name => temp_name)
         
-        # opts.merge!(:name => temp_name) unless opts.has_key?(:name)
+        opts.merge!(:name => temp_name) unless opts.has_key?(:name)
         res = if PoolParty::Resources::Resource.available_resources.include?(ty.to_s.camelize)
           "PoolParty::Resources::#{ty.to_s.camelize}".camelize.constantize.new(opts, &block)
         else
@@ -103,7 +103,7 @@ module PoolParty
       !resource(ty).select {|r| r.name == k }.empty? rescue false
     end
     def get_local_resource(ty, k)
-      resource(ty).select {|r| r.resource_name == k }.first
+      resource(ty).select {|r| r.name == k }.first
     end
     
     def get_resource(ty, n, opts={}, &block)

@@ -24,7 +24,7 @@ module PoolParty
             has_line_in_file({:line => "SYSLOGD=\"-r\"", :file => "/etc/default/syslogd"})
             has_line_in_file({:line => "local0.* /var/log/haproxy.log", :file => "/etc/syslog.conf"}, {:notify => get_service("sysklogd")})
                     
-            has_exec(:name => "reloadhaproxy", 
+            has_exec("reloadhaproxy", 
               :command => "/etc/init.d/haproxy reload", 
               :requires => get_package("haproxy"))
             # Service is required
