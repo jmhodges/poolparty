@@ -31,14 +31,12 @@ module PoolParty
       ::FileUtils.mkdir_p("/tmp/poolparty/dr_configure")
       ::File.cp $pool_specfile, '/tmp/poolparty/dr_configure/clouds.rb'
       ::File.open "/tmp/poolparty/dr_configure/clouds.json", "w" do |f|
-        f << cloud.to_properties_hash.to_json
+        f << cloud.to_properties_hash.to_json rescue debugger
       end
       setup_configurator
       write_erlang_cookie
       @configurator.files_to_upload.each {|f| ::File.cp f, "/tmp/poolparty/dr_configure/#{::File.basename(f)}"}
-      
-      
-      
+            
       rsync "/tmp/poolparty/dr_configure/", "/var/poolparty/dr_configure/" 
       commands << [
         'chmod 600 /var/poolparty/dr_configure/clouds.json',
@@ -53,8 +51,9 @@ module PoolParty
      end
      
      def setup_configurator
-       @cloud.write_properties_hash("#{Default.tmp_path}/properties_hash.rb")
+       # @cloud.write_properties_hash("#{Default.tmp_path}/properties_hash.rb")
        #TODO: move to puppet class
+       puts "writting poolparty.pp"
        @cloud.build_and_store_new_config_file("#{Default.tmp_path}/dr_configure/poolparty.pp") 
        # Neighborhoods.clump(@cloud.remote_instances_list, "#{Default.tmp_path}/neighborhood.json")
      end

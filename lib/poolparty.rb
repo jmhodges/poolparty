@@ -1,5 +1,4 @@
 $LOAD_PATH<< File.dirname(__FILE__)
-
 # Load required gems
 #TODO: remove activesupport
 @required_software = Array.new
@@ -10,6 +9,8 @@ $LOAD_PATH<< File.dirname(__FILE__)
     @required_software << lib
   end  
 end
+require 'ruby-debug'
+require "pp"
 
 require "#{File.dirname(__FILE__)}/poolparty/helpers/nice_printer"
 

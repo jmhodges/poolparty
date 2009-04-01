@@ -12,6 +12,10 @@ o.loaded_clouds.each do |cld|
     puts "#{cld.list_of_running_instances.size} running instances (#{cld.minimum_instances} - #{cld.maximum_instances})"
     
     inst = cld.launch_instance!
+    # unil inst.ip do 
+    #   sleep 2
+    #   node = cld.remote_instances_list.select {|i| i.running? }
+    # end
     
     cld.when_no_pending_instances do
       cld.remote_instances_list.select {|i| i.running? }.each do |node|

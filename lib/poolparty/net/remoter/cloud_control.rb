@@ -150,13 +150,18 @@ module PoolParty
     # around on the instances
     def when_all_assigned_ips(&block)
       reset!
-      if list_of_nonterminated_instances.select {|a| a.ip == "not.assigned" }.empty?          
+      if list_of_nonterminated_instances.select {|a| a.ip == 'not.assigned' }.empty?          
         block.call if block
       else
         vprint "."
         wait "5.seconds"
         when_all_assigned_ips(&block)
       end
+    end
+    def running_instance_ips
+      remote_instances_list.select {|inst| 
+        inst.running? and inst.ip!='not.assigned'
+      }.collect{|n| n.ip}
     end
     
     # This will launch the minimum_instances if the minimum number of instances are not running

@@ -9,7 +9,7 @@ module PoolParty
       str ? dsl_options.merge!(:notify => send_if_method(str)) : dsl_options[:notify]
     end
     def ensures(str="running")
-        str == "absent" ? is_absent : is_present
+        str == :absent ? is_absent : is_present
     end
     def present
       "present"

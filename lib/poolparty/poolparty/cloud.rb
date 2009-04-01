@@ -261,7 +261,6 @@ module PoolParty
       def write_properties_hash(filename="#{Default.tmp_path}/properties_hash.rb")
         file_path = ::File.dirname(filename)
         file_name = "#{::File.basename(filename, ::File.extname(filename))}_#{name}#{::File.extname(filename)}"
-        require "pp"
         output capture_stdout {pp(to_properties_hash)}
         ::File.open("#{file_path}/#{file_name}", "w") {|f| f.write output }
         true
