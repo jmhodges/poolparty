@@ -5,6 +5,7 @@ module PoolParty
       def self.commands
         [
           "mkdir -p /etc/puppet/manifests/classes",
+          "mkdir -p /var/puppet",
           "cp /var/poolparty/dr_configure/site.pp  /etc/puppet/manifests/site.pp",
           "ruby /var/poolparty/dr_configure/add_puppet_to_hosts",
           "cp /var/poolparty/dr_configure/puppet.conf /etc/puppet/",

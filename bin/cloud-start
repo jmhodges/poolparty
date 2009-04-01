@@ -13,12 +13,15 @@ o.loaded_clouds.each do |cld|
     
     inst = cld.launch_instance!
     
-    when_no_pending_instances do
-      ::PoolParty::Provision::BootStrapper.new( inst.ip, :full_keypair_path => cld.keypair.full_filepath   )
-      ::PoolParty::Provision::DrConfigure.new( inst.ip,  :full_keypair_path => cld.keypair.full_filepath, 
-                                                         :cloud => cld )
+    cld.when_no_pending_instances do
+      cld.remote_instances_list.select {|i| i.running? }.each do |node|
+        ::PoolParty::Provision::BootStrapper.new(node.ip, :full_keypair_path => cld.keypair.full_filepath)
+        ::PoolParty::Provision::DrConfigure.new(node.ip,  :full_keypair_path => cld.keypair.full_filepath, :cloud => cld)
+      end
+
+      first_inst = cld.remote_instances_list.select {|i| i.running? }.first
       puts <<-EOM
-        Your cloud has started. Your ip is #{inst.ip}
+        Your cloud has started. Your ip is #{first_inst.ip}
       EOM
     end
   else

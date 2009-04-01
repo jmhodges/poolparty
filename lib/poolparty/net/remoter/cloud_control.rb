@@ -5,7 +5,6 @@ module PoolParty
       @inst = launch_new_instance!( o )
       wait "5.seconds"
       when_no_pending_instances do
-        vputs "Master has launched"
         reset!
         after_launch_instance(@inst)
       end

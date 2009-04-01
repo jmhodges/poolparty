@@ -70,11 +70,13 @@ module PoolParty
         commands << [
           "mkdir -p /etc/poolparty",
           'cd /var/poolparty/dependencies',
+          "#{installer} update",
           "#{installer} ruby1.8 libopenssl-ruby1.8 build-essential wget",  #optional, but nice to have
           "tar -zxvf packages/rubygems-1.3.1.tgz",        
           "cd rubygems-1.3.1",
-          "ruby setup.rb",
+          "ruby setup.rb --no-ri --no-rdoc",
           "ln -sfv /usr/bin/gem1.8 /usr/bin/gem", #TODO: check if this is really needed
+          "cd ../ && rm -rf rubygems-1.3.1*",
           "cd /var/poolparty/dependencies/gems/",
           "gem install --no-rdoc --no-ri -y *.gem",
           'touch /var/poolparty/POOLPARTY.PROGRESS',

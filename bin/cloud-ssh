@@ -12,4 +12,6 @@ load_pool(o.spec? ? o.spec : Binary.get_existing_spec_location)
 
 @cloud = o.loaded_clouds.first
 
-@cloud.ssh_into( @cloud.remote_instances_list.first ) if @cloud
+puts @cloud.list_of_running_instances.map{|a| a.to_s}.join("\n")
+
+@cloud.ssh_into( @cloud.list_of_running_instances.first ) if @cloud
