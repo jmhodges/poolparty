@@ -14,7 +14,6 @@ module PoolParty
     
     def ssh_into(inst)
       ip = inst.ip
-      puts str="ssh #{ssh_options} #{ip}"
       Kernel.system("ssh #{ssh_options} #{ip}")
     end
     
