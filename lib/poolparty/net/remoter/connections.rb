@@ -57,45 +57,20 @@ module PoolParty
       user = opts.delete(:user) || user #rescue 'root'
       host = opts.delete(:host) || target_host
       ssh_options_hash = {:keys => [full_keypair_path],
-                          # :auth_methods => 'publickey',
-                            :paranoid => false
-                            # :verbose => :info
+                          :auth_methods => 'publickey',
+                          :paranoid => false
                            }.merge(opts)
-      # puts "SSH.start(#{host}, #{user}, #{ssh_options_hash.inspect})"
-      Net::SSH.start(host, user, ssh_options_hash) do |ssh|
-
-        # ssh.loop
-        # channel = ssh.open_channel do |ch|
-        #   cmds.each do |command|
-        #     ch.exec(command) do |ch, success|
-        #       $stderr.puts "ERROR: command failed: #{command} " unless success
-        #       # "on_data" is called when the process writes something to stdout
-        #       ch.on_data do |c, data|
-        #         $stdout.print data if data
-        #       end
-        #       # "on_extended_data" is called when the process writes something to stderr
-        #       ch.on_extended_data do |c, type, data|
-        #         $stderr.print data
-        #       end
-        #       ch.on_close { vputs "\n- Done! -\n" }
-        #     end
-        #   end
-        # end
-
-        cmds.flatten.each do |command|
+      Net::SSH.start(host, user, ssh_options_hash) do |ssh|  
+        cmds.each do |command|
           puts "running command: #{command}"
-          result = ssh.exec! command
-          puts result if result
-          
-          # ssh.exec command do |ch, stream, data|
-          #     if stream == :stderr
-          #       puts "ERROR: #{data}"
-          #     else
-          #       puts data
-          #     end
-          #   end
+          ssh.exec!(command) do |ch, stream, data| 
+            if stream == :stdou
+             print data
+            else
+              $stderr.print "ERROR: #{data}"
+            end
+          end
         end
-
       end
     end
     
