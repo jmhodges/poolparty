@@ -9,7 +9,7 @@ module PoolParty
   
       @defaults = ::PoolParty::Default.default_options.merge({
         :full_keypair_path   => "#{ENV["AWS_KEYPAIR_NAME"]}" || "~/.ssh/id_rsa",
-        :installer           => 'apt-get install -y',
+        :installer           => 'apt-get',
         :dependency_resolver => 'puppet'
       })
       class <<self; attr_reader :defaults; end
@@ -70,7 +70,8 @@ module PoolParty
         commands << [
           "mkdir -p /etc/poolparty",
           'cd /var/poolparty/dependencies',
-          "#{installer} ruby1.8 libopenssl-ruby1.8 build-essential wget",  #optional, but nice to have
+          "#{installer} update",
+          "#{installer} install -y ruby1.8 libopenssl-ruby1.8 build-essential wget",  #optional, but nice to have
           "tar -zxvf packages/rubygems-1.3.1.tgz",        
           "cd rubygems-1.3.1",
           "ruby setup.rb",
