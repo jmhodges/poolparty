@@ -258,10 +258,10 @@ module PoolParty
         ::FileTest.file?("#{Default.manifest_path}/classes/poolparty.pp") ? open("#{Default.manifest_path}/classes/poolparty.pp").read : nil
       end
       
-      def write_properties_hash(filename="#{Default.tmp_path}/properties_hash.rb")
+      def write_properties_hash(filename=::File.join(Default.tmp_path, Default.properties_hash_filename) )
         file_path = ::File.dirname(filename)
         file_name = "#{::File.basename(filename, ::File.extname(filename))}_#{name}#{::File.extname(filename)}"
-        output capture_stdout {pp(to_properties_hash)}
+        output = to_properties_hash.to_json
         ::File.open("#{file_path}/#{file_name}", "w") {|f| f.write output }
         true
       end

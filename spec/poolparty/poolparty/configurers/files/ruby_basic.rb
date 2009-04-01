@@ -6,7 +6,7 @@ pool :poolpartyrb do
     # Configuration
     minimum_instances 1
     
-    apache do
+    apachetest do
       enable_php
       site("poolpartyrb.com")
     end

@@ -21,7 +21,7 @@ module PoolParty
     end
     
     def ssh_into(inst, extra_ssh_ops={} )
-      ip =  inst.ip? ? inst.ip : inst
+      ip =  ((inst.respond_to?(:has_key) && inst.has_key?(:ip)) || inst.respond_to?(:ip)) ? inst.ip : inst
       Kernel.system("ssh #{ssh_options(extra_ssh_ops)} #{ip}")
     end
     

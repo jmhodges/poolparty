@@ -25,12 +25,12 @@ module PoolParty
         # Add the plugin definition to the cloud as an instance method
         meth = <<-EOM
           def #{lowercase_class_name}(opts={}, &block)
-            i = this_context.plugin_store.select {|i| i if i.class == PoolParty::#{lowercase_class_name.camelcase}Class }.first if parent
+            i = plugin_store.select {|i| i if i.class == #{lowercase_class_name.camelcase}Class }.first if plugin_store
             if i
               i
             else
-              inst = PoolParty::#{lowercase_class_name.camelcase}Class.new(opts, parent, &block)            
-              this_context.plugin_store << inst if parent
+              inst = #{lowercase_class_name.camelcase}Class.new(opts, parent, &block)            
+              this_context.plugin_store << inst if this_context
               inst
             end
           end

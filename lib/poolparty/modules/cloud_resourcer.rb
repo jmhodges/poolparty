@@ -11,12 +11,13 @@ require "ftools"
 module PoolParty
   module CloudResourcer
     
-    def plugin_directory(*args)
-      args << [
+    def plugin_directory(arr=[])
+      arr = [arr] if arr.is_a?(String)
+      arr << [
         "#{::File.expand_path(Dir.pwd)}/plugins",
         "#{::File.expand_path(Default.poolparty_home_path)}/plugins"
       ]
-      args.flatten.each {|arg|         
+      arr.flatten.each {|arg|    
         Dir["#{arg}/*/*.rb"].each {|f| require f } if ::File.directory?(arg)
       }
     end
@@ -108,7 +109,6 @@ module PoolParty
       resources.map {|n,r| r.size}.inject(0){|sum,i| sum+=i}
     end
     
-    # TODO: deprecate
     def plugin_store
       @plugin_store ||= []
     end
@@ -116,10 +116,6 @@ module PoolParty
     # TODO: deprecate
     def realize_plugins!(force=false)
       plugin_store.each {|plugin| puts "plugin: #{plugin}";plugin.realize!(force) if plugin }
-    end
-    
-    def plugin_store
-      @plugins ||= []
     end
     
   end

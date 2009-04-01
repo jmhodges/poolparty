@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/test_plugins/webserver'
 describe "Plugin" do
   before(:each) do    
     @c = cloud :test_plugin_model_cloud do
-      apache do                
+      apachetest do                
         enable_php
         site("heady", {
           :document_root => "/root"
@@ -17,21 +17,21 @@ describe "Plugin" do
   end
   describe "registered" do
     before(:each) do
-      @plugin = @c.apache
+      @plugin = @c.apachetest
     end
     describe "storage" do
       it "should be able to retrieve the plugin as a name" do
-        @c.plugin("apache").should_not be_nil
+        @c.plugin("apachetest").should_not be_nil
       end
     end
-    it "be of the class ApacheClass on the Kernel" do
-      @plugin.class.should == Kernel::ApacheClass
+    it "be of the class apachetesttestClass on the Kernel" do
+      @plugin.class.should == Kernel::ApachetestClass
     end
     it "should store the regsitered plugins in an array" do
       @plugin.should_not be_nil
     end
     it "should have the plugin name as a method on the cloud " do
-      @c.respond_to?(:apache).should == true
+      @c.respond_to?(:apachetest).should == true
     end
     describe "methods" do
       it "should call the enable_php method when in the defininition of the cloud" do
