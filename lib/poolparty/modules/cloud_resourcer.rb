@@ -12,13 +12,12 @@ module PoolParty
   module CloudResourcer
     
     def plugin_directory(*args)
-      args = [
+      args << [
         "#{::File.expand_path(Dir.pwd)}/plugins",
         "#{::File.expand_path(Default.poolparty_home_path)}/plugins"
-      ] if args.empty?
-      args.each {|arg| 
-        return unless ::File.directory?(arg)
-        Dir["#{arg}/*/*.rb"].each {|f| require f }
+      ]
+      args.flatten.each {|arg|         
+        Dir["#{arg}/*/*.rb"].each {|f| require f } if ::File.directory?(arg)
       }
     end
     
@@ -65,6 +64,10 @@ module PoolParty
           klass = "::PoolParty::Remote::#{klass_string}".constantize
           @remote_base = klass.send :new, self
           options[:remote_base] = klass.to_s if respond_to?(:options)
+                    
+          remote_instance_klass = "::PoolParty::Remote::#{klass_string}RemoteInstance"
+          options[:remote_instance_base] = remote_instance_klass if respond_to?(:options)
+          
           @parent_cloud = @cloud
           instance_eval "def #{t};@remote_base;end;"
         end

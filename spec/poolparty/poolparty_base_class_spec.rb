@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 describe "BaseClass" do
   describe "context_stack" do
     before(:each) do
+      ::PoolParty.reset!
       @a = TestBaseClass.new
     end
     it "should have a context stack that is empty" do

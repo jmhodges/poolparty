@@ -4,11 +4,6 @@ class ResourcerTestClass < PoolParty::Cloud::Cloud
   default_options({
     :minimum_runtime => 50.minutes
   })
-  
-  # Stub keypair
-  def keypair
-    FakeKey.new
-  end
 end
 class TestParentClass < PoolParty::Cloud::Cloud  
   def services

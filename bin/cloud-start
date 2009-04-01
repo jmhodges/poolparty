@@ -22,8 +22,10 @@ o.loaded_clouds.each do |cld|
         ::PoolParty::Provision::BootStrapper.new(node.ip, :full_keypair_path => cld.keypair.full_filepath)
         ::PoolParty::Provision::DrConfigure.new(node.ip,  :full_keypair_path => cld.keypair.full_filepath, :cloud => cld)
       end
+
+      first_inst = cld.remote_instances_list.select {|i| i.running? }.first
       puts <<-EOM
-        Your cloud has started. Your ip is #{inst.ip}
+        Your cloud has started. Your ip is #{first_inst.ip}
       EOM
     end
   else

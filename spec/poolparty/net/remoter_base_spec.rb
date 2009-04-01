@@ -3,10 +3,6 @@ require File.dirname(__FILE__) + '/../spec_helper'
 class TestRemoteClass < PoolParty::Remote::RemoteInstance
   include CloudResourcer
   include PoolParty::Remote
-
-  def keypair
-   FakeKey.new
-  end
 end
 
 describe "RemoterBase" do

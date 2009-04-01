@@ -1,7 +1,5 @@
 require 'rubygems'
 require 'net/ssh'
-include Net
-include Net::SSH
 
 module PoolParty
   module Remote
@@ -11,19 +9,19 @@ module PoolParty
     end
   
     # Simply shell out and call ssh, simple, reliable and fewest dependencies, but slow
-    def simplest_run_remote(command, host=target_host, extra_ssh_ops={})
-      command = command.join(' && ') if command.is_a? Array
+    def simplest_run_remote(host=target_host, command=[], extra_ssh_ops={})
+      command = command.compact.join(' && ') if command.is_a? Array
       cmd = "ssh #{host} #{ssh_options(extra_ssh_ops)} '#{command}'"
       puts "\n--------------------------------\nrunning_remote:\n #{cmd}\n"
       puts %x{#{cmd}}
     end
     
     def run_remote( hst, cmds )
-      netssh hst, cmds
+      simplest_run_remote hst, cmds
     end
     
     def ssh_into(inst, extra_ssh_ops={} )
-      ip =  inst.respond_to?(:ip) ? inst.ip : inst
+      ip =  inst.ip? ? inst.ip : inst
       Kernel.system("ssh #{ssh_options(extra_ssh_ops)} #{ip}")
     end
     

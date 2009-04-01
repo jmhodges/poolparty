@@ -8,7 +8,7 @@ task :slow_spec do
     stats[:failures] += $i.to_i
     puts results
   end
-  puts "#{stats[:errors]} total errors"
+  puts "#{stats[:failures]} total errors"
 end
 namespace(:poolparty) do
   namespace(:setup) do
