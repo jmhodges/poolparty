@@ -1,5 +1,5 @@
 class WebServers
-  plugin :apache do    
+  plugin :apachetest do    
     attr_accessor :php
     
     def loaded(o={}, &block)

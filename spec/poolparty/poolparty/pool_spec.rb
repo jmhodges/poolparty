@@ -38,6 +38,7 @@ describe "Pool" do
       end
       it "should call Dir when the plugin directory is set" do
         ::File.should_receive(:directory?).with("yaway").once.and_return true
+        ::File.stub!(:directory?).and_return(false)
         Dir.should_receive(:[]).with("yaway/*/*.rb").once.and_return []        
       end
     end
