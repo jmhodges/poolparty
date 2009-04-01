@@ -14,7 +14,7 @@ module PoolParty
        ::PoolParty::Default.default_options.merge({
          :full_keypair_path   => "#{ENV["AWS_KEYPAIR_NAME"]}" || "~/.ssh/id_rsa",
          :installer           => 'apt-get install -y',
-         :dependency_resolver => 'puppet'
+         :dependency_resolver => 'chef'
        })
      end
           

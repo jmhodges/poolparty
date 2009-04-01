@@ -8,13 +8,10 @@ module PoolParty
   class Chef
     
     plugin :chef do
-      def loaded(o, &block)
-        # require "chef"
-        
+      def before_load(o, &block)        
         bootstrap_gems "chef", "ohai"
         bootstrap_commands [
-          'echo "installed CHEF ON THE SERVER!!!!! YEAH YEAH!!"',
-          "mkdir -p /etc/chef/cookbooks /etc/chef/cache"          
+          "mkdir -p /etc/chef/cookbooks /etc/chef/cache"      
         ]
       end
       
@@ -22,12 +19,20 @@ module PoolParty
         @recipe_files ||= []
       end
       
-      def recipe file=nil, &block
+      def recipe file=nil, o={}, &block
         if file
           file = ::File.expand_path file
           basedir = "/tmp/poolparty/dependencies/recipes/cookbooks/poolparty"
           ::FileUtils.mkdir_p "#{basedir}/recipes" unless ::File.directory? basedir
           ::File.cp file, "#{basedir}/recipes/default.rb"
+          
+          if o[:templates]
+            ::FileUtils.mkdir_p "#{basedir}/templates/default/"
+            
+            o[:templates].each do |f|
+              ::File.cp f, "#{basedir}/templates/default/#{::File.basename(f)}"
+            end
+          end
           recipe_files << basedir
         # TODO: Enable neat syntax from within poolparty
         # else

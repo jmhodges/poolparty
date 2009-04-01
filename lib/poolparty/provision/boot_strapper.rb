@@ -45,7 +45,7 @@ module PoolParty
         @cloud = opts[:cloud]
                 
         instance_eval &block if block        
-        @cloud.call_before_bootstrap_callbacks
+        @cloud.call_before_bootstrap_callbacks if @cloud
         
         default_commands
         execute!

@@ -21,7 +21,8 @@ pool :application do
     chef do
       include_recipes "~/.poolparty/chef/cookbooks/*"
       
-      recipe "#{::File.dirname(__FILE__)}/examples/default.rb"
+      recipe "#{::File.dirname(__FILE__)}/examples/default.rb", 
+              :templates => ["#{::File.dirname(__FILE__)}/examples/suspenders.conf.erb"]
       
       json do
         user "ez"

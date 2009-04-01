@@ -11,6 +11,8 @@ module PoolParty
       default_options({})
       
       def initialize(opts={}, prnt=nil, &block)
+        before_load(opts, &block)
+        
         block = Proc.new {enable} unless block
 
         @opts = opts        
@@ -22,6 +24,8 @@ module PoolParty
       end
       
       # Overwrite this method
+      def before_load(o={}, &block)        
+      end
       def loaded(o={}, &block)
       end
       def before_bootstrap

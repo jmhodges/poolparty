@@ -19,7 +19,7 @@ o.loaded_clouds.each do |cld|
     
     cld.when_no_pending_instances do
       cld.remote_instances_list.select {|i| i.running? }.each do |node|
-        ::PoolParty::Provision::BootStrapper.new(node.ip, :full_keypair_path => cld.keypair.full_filepath)
+        ::PoolParty::Provision::BootStrapper.new(node.ip, :full_keypair_path => cld.keypair.full_filepath, :cloud => cld)
         ::PoolParty::Provision::DrConfigure.new(node.ip,  :full_keypair_path => cld.keypair.full_filepath, :cloud => cld)
       end
 
