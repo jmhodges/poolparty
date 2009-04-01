@@ -73,6 +73,7 @@ module PoolParty
           ::Suitcase::Zipper.add(file, "chef")
         else
           conf_string = if file.empty?
+# default config
             <<-EOE
 cookbook_path     "/etc/chef/cookbooks"
 node_path         "/etc/chef/nodes"
