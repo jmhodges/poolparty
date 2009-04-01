@@ -1,4 +1,5 @@
 require "#{::File.dirname(__FILE__)}/service.rb"
+require "#{::File.dirname(__FILE__)}/../provision/boot_strapper.rb"
 
 module PoolParty
   module Plugin
@@ -23,10 +24,21 @@ module PoolParty
       # Overwrite this method
       def loaded(o={}, &block)
       end
+      def before_bootstrap
+      end
       def enable
       end
       def is_plugin?
         true
+      end
+      def bootstrap_gems *gems
+        gems.each do |g|
+          Provision::BootStrapper.gem_list << g unless Provision::BootStrapper.gem_list.include?(g)
+        end
+      end
+      
+      def bootstrap_commands cmds
+        Provision::BootStrapper.class_commands << cmds
       end
       
       def self.inherited(subclass)

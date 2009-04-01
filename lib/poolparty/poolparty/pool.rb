@@ -54,8 +54,7 @@ module PoolParty
 
       def parent;nil;end
       
-      def setup_defaults
-        plugin_directory "#{pool_specfile ? ::File.dirname(pool_specfile) : Dir.pwd}/plugins"
+      def setup_defaults        
         PoolParty::Extra::Deployments.include_deployments "#{Dir.pwd}/deployments"
       end
       

@@ -11,12 +11,12 @@ end
 load_pool(o.spec? ? o.spec : Binary.get_existing_spec_location)
 
 @cloud = o.loaded_clouds.first
-ips = @cloud.list_of_running_instances.first
+nodes = @cloud.list_of_running_instances
 
-puts @cloud.list_of_running_instances.map{|a| a.to_s}.join("\n")
+puts nodes.map {|a| a.to_s}.join("\n")
 
-if ips.first 
-  @cloud.ssh_into( ips.first ) if @cloud
+if !nodes.empty?
+  @cloud.ssh_into( nodes.first ) if @cloud
 else
   puts "No running instances can be found"
 end

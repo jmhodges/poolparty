@@ -12,13 +12,12 @@ module PoolParty
   module CloudResourcer
     
     def plugin_directory(*args)
-      args = [
+      args << [
         "#{::File.expand_path(Dir.pwd)}/plugins",
         "#{::File.expand_path(Default.poolparty_home_path)}/plugins"
-      ] if args.empty?
-      args.each {|arg| 
-        return unless ::File.directory?(arg)
-        Dir["#{arg}/*/*.rb"].each {|f| require f }
+      ]
+      args.flatten.each {|arg|         
+        Dir["#{arg}/*/*.rb"].each {|f| require f } if ::File.directory?(arg)
       }
     end
     

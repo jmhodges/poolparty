@@ -17,7 +17,6 @@ o.loaded_clouds.each do |cld|
   puts cld.list_of_running_instances.map{|a| a.to_s}.join("\n")
     
   if cld.list_of_pending_instances.size > 0
-    puts ""
     puts subheader("Pending instances")
     puts cld.list_of_pending_instances.map{|a| a.to_s}.join("\n")
   end

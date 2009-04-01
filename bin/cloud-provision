@@ -15,7 +15,7 @@ o.loaded_clouds.each do |cld|
   else
     nodes.each do |address|
       puts "bootstrapping: #{address}"
-      ::PoolParty::Provision::BootStrapper.new( address, {:full_keypair_path => cld.keypair.full_filepath} )
+      ::PoolParty::Provision::BootStrapper.new( address, {:full_keypair_path => cld.keypair.full_filepath, :cloud => cld} )
       ::PoolParty::Provision::DrConfigure.new( address, :full_keypair_path => cld.keypair.full_filepath, 
                                                         :cloud => cld )      
     end

@@ -65,8 +65,8 @@ module PoolParty
       
       def initialize(name, &block)
         @cloud_name = name
-        @cloud_name.freeze        
-        plugin_directory        
+        @cloud_name.freeze
+        plugin_directory "#{pool_specfile ? ::File.dirname(pool_specfile) : Dir.pwd}/plugins"
         super
         setup_defaults
         
@@ -282,6 +282,10 @@ module PoolParty
       
       def remote_base
         @remote_base ||= nil
+      end
+      
+      def call_before_bootstrap_callbacks
+        plugin_store.each {|a| a.before_bootstrap }
       end
       
       # Add all the poolparty requirements here
