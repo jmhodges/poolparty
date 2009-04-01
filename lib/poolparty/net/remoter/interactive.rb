@@ -79,6 +79,7 @@ module PoolParty
     def select_from_instances_on_status(status=/running/, list=[])
       list.select {|a| a[:status] =~ status}
     end
+
     # Helpers
     def create_keypair
     end

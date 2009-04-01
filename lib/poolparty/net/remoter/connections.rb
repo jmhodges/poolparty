@@ -1,3 +1,8 @@
+require 'rubygems'
+require 'net/ssh'
+include Net
+include Net::SSH
+
 module PoolParty
   module Remote
     
@@ -5,26 +10,33 @@ module PoolParty
       dns_or_ip ? @target_host=dns_or_ip : @target_host
     end
   
-    def run_remote(command, host=target_host, options=ssh_options)
+    # Simply shell out and call ssh, simple, reliable and fewest dependencies, but slow
+    def simplest_run_remote(command, host=target_host, extra_ssh_ops={})
       command = command.join(' && ') if command.is_a? Array
-      cmd = "ssh #{host} #{options.join(' ')} '#{command}'"
-      puts "--------\nrunning_remote:\n #{cmd}\n"
+      cmd = "ssh #{host} #{ssh_options(extra_ssh_ops)} '#{command}'"
+      puts "\n--------------------------------\nrunning_remote:\n #{cmd}\n"
       puts %x{#{cmd}}
     end
     
-    def ssh_into(inst)
-      ip = inst.ip
-      puts str="ssh #{ssh_options} #{ip}"
-      Kernel.system("ssh #{ssh_options} #{ip}")
+    def run_remote( hst, cmds )
+      netssh hst, cmds
     end
     
-    def ssh_options
-      ["-i #{full_keypair_path} -l #{user} -o StrictHostKeyChecking=no"]
+    def ssh_into(inst, extra_ssh_ops={} )
+      ip =  inst.respond_to?(:ip) ? inst.ip : inst
+      Kernel.system("ssh #{ssh_options(extra_ssh_ops)} #{ip}")
+    end
+    
+    def ssh_options(opts={})
+      o = {"-i" => full_keypair_path,
+           "-l" => user,
+           "-o" =>"StrictHostKeyChecking=no"
+           }.merge(opts)
+      o.collect{ |k,v| "#{k} #{v}"}.join(' ')
     end
   
-    def rsync( source_path, destination_path, options=['--progress -a'] )
-      puts "rsync -e 'ssh #{ssh_options}' #{options.join(' ')} #{source_path}  root@#{target_host}:#{destination_path}"
-      puts %x{ rsync -e 'ssh #{ssh_options}' #{options.join(' ')} #{source_path}  root@#{target_host}:#{destination_path}}
+    def rsync( source_path, destination_path, rsync_opts=['-v -a'] )
+      puts %x{ rsync -e 'ssh #{ssh_options}' #{rsync_opts.join(' ')} #{source_path}  root@#{target_host}:#{destination_path}}
     end
    
     def run_local(commands)
@@ -39,8 +51,44 @@ module PoolParty
 
     # TODO: make extendable multithreaded version
     def execute!
-      commands.each {|c| run_remote(c, target_host) }
+      netssh(target_host, commands)
+      # commands.each {|c| run_remote(c, target_host) }
     end
+    
+      def netssh(host, cmds, opts={})
+        vputs "netssh is running commands on #{host} "
+        vputs "commands = #{cmds.to_yaml}"
+        ssh_options_hash = {:keys => [full_keypair_path],
+                            :auth_methods => 'publickey',
+                            :user     => 'root',
+                            :paranoid => false,
+                            :verbose => :debug
+                           }.merge(opts)
+        p ssh_options_hash                   
+        Net::SSH.start(target_host, user, ssh_options_hash ) do |ssh|
+          output = ssh.exec!("hostname# ")
+          # open a new channel and configure a minimal set of callbacks, then run
+          # the event loop until the channel finishes (closes)
+          ssh.loop
+          channel = ssh.open_channel do |ch|
+            cmds.each do |command|
+              ch.exec(command) do |ch, success|
+                raise "could not execute command" unless success
+                # "on_data" is called when the process writes something to stdout
+                ch.on_data do |c, data|
+                  $stdout.print data if data
+                end
+                # "on_extended_data" is called when the process writes something to stderr
+                ch.on_extended_data do |c, type, data|
+                  $stderr.print data
+                end
+                ch.on_close { vputs "\n- Done! -\n" }
+              end
+            end
+          end
+        end
+      end   
+    
     
 ##########################################################################################################   
 # TODO: Delete deprecated commands below here
