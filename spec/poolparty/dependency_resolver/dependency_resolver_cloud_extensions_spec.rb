@@ -42,7 +42,7 @@ describe "Resolution spec" do
     @cloud.keypair "bob"
     @cloud.name "dog"
     
-    (@cloud.services[:apache] ||= []) << @apache
+    (@cloud.resources[:apache] ||= []) << @apache
 
     @cloud_file_motd = DependencyResolverSpecTestResource.new
     @cloud_file_motd.name "/etc/motd"
@@ -67,20 +67,17 @@ describe "Resolution spec" do
   end
   describe "to_properties_hash" do
     it "should output a hash" do
-      @cloud.to_properties_hash.class.should == OrderedHash
-      # puts "<pre>#{@cloud.to_properties_hash.to_yaml}</pre>"
+      @cloud.to_properties_hash.class.should == Hash
     end
     it "should have resources on the cloud as an array of hashes" do      
       @cloud.to_properties_hash[:resources].class.should == Array
-    end
-    it "should have services on the cloud as an array of hashes" do
-      @cloud.to_properties_hash[:services].class.should == OrderedHash
     end
   end
 
   describe "defined cloud" do
     before(:each) do
       reset!
+      ::File.stub!(:basename).and_return "template"
       @file = "Hello <%= friends %> on port <%= listen %>"
       @file.stub!(:read).and_return @file
       Template.stub!(:open).and_return @file
@@ -101,7 +98,7 @@ describe "Resolution spec" do
       end
       @cloud = clouds[:dog_for_test]
       @properties = @cloud.to_properties_hash
-      @apache_key = @properties[:services].keys.select{|k| k.to_s =~ /apache/ }.first
+      @apache_key = @properties[:resources].select {|hsh| hsh[:name] =~ /apache/ }.first
     end
     
     it "should have the method to_properties_hash on the cloud" do
@@ -112,10 +109,7 @@ describe "Resolution spec" do
       @properties[:resources].class.should == Array
     end
     it "contain content in the template's hash" do
-      @properties[:services][@apache_key].first.resources.select_with_hash(:pp_type => "file").last[:content].should == "Hello bob on port 8080"
-    end
-    it "should have services" do
-      @properties[:services][@apache_key].empty?.should == false
+      @apache_key.resources.select_with_hash(:pp_type => "file").last[:content].should == "Hello bob on port 8080"
     end
     it "contain the files in a hash" do
       # puts "<pre>#{@properties.to_yaml}</pre>"
