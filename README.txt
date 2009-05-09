@@ -26,7 +26,7 @@ several options on how to begin configuring the cloud.
 
 == FEATURES/PROBLEMS:
 
-* Written in Ruby and Erlang
+* Written in Ruby
 * Written from the ground up to be extensible with plugins
 * Easy git-style commands to communicate with your clouds
 * Much much more
@@ -34,7 +34,6 @@ several options on how to begin configuring the cloud.
 == REQUIREMENTS:
 
 Ruby
-Erlang
 
 == INSTALL:
 
